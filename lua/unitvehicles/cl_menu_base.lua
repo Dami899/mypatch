@@ -2,8 +2,31 @@ UV = UV or {}
 UVMenu = UVMenu or {}
 UV.SettingsTable = UV.SettingsTable or {}
 
--- Global API for third-party addons
+-- Global API for third-party sounds and addons
+UVMenu.Sounds = UVMenu.Sounds or {}
+UVMenu.SoundProfiles = UVMenu.SoundProfiles or {}
 UVMenu.AddonEntries = UVMenu.AddonEntries or {}
+
+function UVMenuSound(data)
+    if not istable(data) then return end
+    if not isstring(data.name) then return end
+    if not istable(data.sounds) then return end
+
+    local id = data.name
+
+    -- Prevent accidental overwrite (optional)
+    if UVMenu.Sounds[id] then
+        return
+    end
+
+    -- Store sounds
+    UVMenu.Sounds[id] = data.sounds
+
+    -- Store display info
+    UVMenu.SoundProfiles[id] = {
+        displayname = data.displayname or id
+    }
+end
 
 function UVAddon(rows)
 	if not istable(rows) then return end
@@ -94,6 +117,37 @@ if cffunctions then -- Glide // Circular Functions
 		{ type = "bool", text = "#uv.ailogic.usenitrousunit", desc = "uv.ailogic.usenitrousunit.desc", convar = "unitvehicle_usenitrousunit", sv = true },
 	})
 end
+
+UVMenuSound({
+    name = "MW",
+    displayname = "NFS Most Wanted",
+    sounds = {
+        menuopen  = "uvui/mw/fe_common_mb [8].wav",
+        menuclose = "uvui/mw/fe_common_mb [9].wav",
+        hover     = "uvui/mw/fe_common_mb [1].wav",
+        hovertab  = "uvui/mw/fe_common_mb [2].wav",
+        click     = "uvui/mw/fe_common_mb [8].wav",
+        clickopen = "uvui/mw/fe_common_mb [3].wav",
+        clickback = "uvui/mw/fe_common_mb [4].wav",
+        confirm   = "uvui/mw/fe_common_mb [5].wav"
+    }
+})
+
+UVMenuSound({
+    name = "Carbon",
+    displayname = "NFS Carbon",
+    sounds = {
+        menuopen  = "uvui/carbon/fe_mb [1].wav",
+        menuclose = "uvui/carbon/fe_common_mb [10].wav",
+        hover     = "uvui/carbon/fe_common_mb [1].wav",
+        hovertab  = "uvui/carbon/fe_common_mb [2].wav",
+        click     = "uvui/carbon/fe_common_mb [8].wav",
+        clickopen = "uvui/carbon/fe_common_mb [5].wav",
+        clickback = "uvui/carbon/fe_common_mb [6].wav",
+        confirm   = "uvui/carbon/fe_common_mb [5].wav"
+    }
+})
+
 
 -- if cffunctions then -- Hero's Glide Extras
 	-- UVAddon({

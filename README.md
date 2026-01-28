@@ -33,19 +33,19 @@ You'll need two addons for Unit Vehicles to work flawlessly:
 - Fine-tune every little bit of the addon to fit your preference
 - Localization support:
 
-| `Full` | `Partial` | `Minimal` |
-| --- | --- | --- |
-| English | Czech | Danish |
-| Spanish | German | Finnish |
-| Russian | Greek | French |
-| Swedish | Thai | Hungarian |
-| S. Chinese | Ukrainian | Italian |
-| Polish |         | Japanese |
-|         |         | Korean |
-|         |         | Dutch |
-|         |         | Brazilian |
-|         |         | Slovakian |
-|         |         | T. Chinese |
+|`Full`|`Partial`|`Minimal`|
+|---|---|---|
+|English|Czech|Danish|
+|Spanish|German|Finnish|
+|Russian|Greek|French|
+|Swedish|Ukrainian|Hungarian|
+|S. Chinese| |Italian|
+|Polish| |Japanese|
+|Thai| |Korean|
+| | |Dutch|
+| | |Brazilian|
+| | |Slovakian|
+| | |T. Chinese|
 
 ## FAQ
 | Question | Answer |
@@ -66,7 +66,6 @@ You'll need two addons for Unit Vehicles to work flawlessly:
 ## Regarding localization pull requests
 - Localizations are stored in `resource/localization` inside `.properties` files. These can be opened in any text editor.
 - Please prioritize translating the `unitvehicles` and `unitvehicles_settings` files above all else. Any `unitvehicles_subtitles` files are optional.
-
 - When contributing to a language that already has a translator (or translators), please be mindful not to change existing strings.
 - Work-in-progress translations are to be published as PR drafts. Also applies if you wish for input from other contributors.
 - Various elements in the texts are to be kept as-is; `%s`, `[+attack]` and so on.

@@ -1570,7 +1570,7 @@ if SERVER then
 				if UVCalm and edist:Length2DSqr() < 250000 and evectdot > 0 then
 					throttle = 0
 				end --No ramming
-				if self.v.IsSimfphyscar or self.v.IsGlideVehicle and eedist:LengthSqr() < 6250000 and (selfvelocity/2) > enemyvelocity and enemyvelocity > 100000 then
+				if (self.v.IsSimfphyscar or self.v.IsGlideVehicle) and eedist:LengthSqr() < 6250000 and (selfvelocity/2) > enemyvelocity and enemyvelocity > 100000 then
 					throttle = -1
 				end --Slow down when enemy slows down
 				

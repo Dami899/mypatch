@@ -2,6 +2,8 @@
 
 [b]Unit Vehicles[/b] is a Sandbox-oriented addon that allows players, in both Multiplayer with others or Singleplayer with AI, to engage in high-speed pursuits as or against police and thrilling races on any map.
 
+"I want every single unit, after the guy." ~ Sergeant Cross
+
 [h3] Requirements [/h3]
 You'll need two addons for Unit Vehicles to work flawlessly:
 
@@ -48,12 +50,12 @@ You'll need two addons for Unit Vehicles to work flawlessly:
 			Swedish
 			Simplified Chinese
 			Polish
+			Thai
 			[/td]
 			[td]
 			Czech
 			German
 			Greek
-			Thai
 			Ukrainian
 			[/td]
 			[td]
@@ -109,18 +111,7 @@ And [b]so much more[/b]!
 [*][b]TalonSolid[/b] - Model contributions, default Voice Profile handler & Tester
 [/list]
 
-[h1] Translators [/h1]
-[list]
-[*][b]Moka[/b] - Swedish
-[*][b]TalonSolid[/b] - Greek
-[*][b]WladZ[/b] - Russian
-[*][b]Despe[/b] - Czech
-[*][b]Dami[/b] - Spanish
-[*][b]Pathfinder_FUFU[/b] - Simplified Chinese
-[*][b]Tak036[/b] - Thai
-[*][b]Mr.Negative & Renegade_Glitch[/b] - Ukrainian
-[*][b]TheSilent1[/b] - Polish
-[/list]
+Full credits available [b]in-game in the UV Menu[/b] - translators and contributors!
 
 [url=https://discord.gg/kQuzmjZaPQ][img]https://i.imgur.com/YuahXWO.png[/img][/url]
 [url=https://patreon.com/Roboboy260][img]https://i.imgur.com/f2yCIKT.jpeg[/img][/url]

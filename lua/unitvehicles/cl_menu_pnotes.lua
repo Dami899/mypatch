@@ -9,7 +9,7 @@ UV = UV or {}
 
 UV.PNotes = {
 ["v1.0.0"] = {
-Date = "2026/01/29",
+Date = { year = 2026, month = 1, day = 29 },
 Text = [[
 This lists changes that were made after v.0.42.0 and have been applied to v1.0:
 
@@ -54,7 +54,7 @@ This lists changes that were made after v.0.42.0 and have been applied to v1.0:
 },
 
 ["v0.42.0"] = {
-Date = "2026/01/16",
+Date = { year = 2026, month = 1, day = 16 },
 Text = [[
 **Almost there!**
 Unit Vehicles is getting closer and closer to its v1.0 release on *January 29th*!
@@ -90,7 +90,7 @@ Mark your calendars, it's almost time to **Race, Chase or Escape**!
 },
 
 ["v0.41.0"] = {
-Date = "2026/01/05",
+Date = { year = 2026, month = 1, day = 05 },
 Text = [[
 **New Features**
 - Added the *UVPD Chevrolet Colorado ZR2 2017 Police Cruiser*
@@ -112,7 +112,7 @@ Text = [[
 },
 
 ["v0.40.0"] = {
-Date = "2025/12/31",
+Date = { year = 2025, month = 12, day = 31 },
 Text = [[
 **The final stretch!**
 We're now preparing Unit Vehicles for its v1.0 release. There's lots to do still, and we hope to keep receiving feedback until then.
@@ -164,7 +164,7 @@ We're now preparing Unit Vehicles for its v1.0 release. There's lots to do still
 },
 
 ["v0.39.1"] = {
-Date = "2025/12/17",
+Date = { year = 2025, month = 12, day = 17 },
 Text = [[
 # New Features
 - **UV Menu**: Added **Carbon** Menu SFX
@@ -185,7 +185,7 @@ And various other undocumented tweaks
 },
 
 ["v0.39.0"] = {
-Date = "2025/12/11",
+Date = { year = 2025, month = 12, day = 11 },
 Text = [[
 # New Features
 **UV Menu**
