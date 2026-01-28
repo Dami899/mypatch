@@ -1259,3 +1259,249 @@ Tak, i całkiem to proste:
 Dane związane z UV znajdziesz w folderze *data/unitvehicles*.
 ]],
 }
+
+-- 简体中文 (Chinese Simplified) zh-CN
+UV.FAQ["zh-CN"] = {
+-- Introduction
+["Intro"] = [[
+# -- 这是个什么样插件？
+
+Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人模式还是与 AI 对战的单人模式中，都能在任何地图上体验高速警匪追逐与紧张刺激的竞速比赛。
+
+**目前已支持的载具Base包括：**
+ |-- prop_vehicle_jeep (原生载具Base)
+ |-- simfphys
+ |-- Glide (必要且强烈推荐)
+]],
+["Requirements"] = [[
+# -- 我还需要为此安装其他插件吗？
+
+是的。 *Decent Vehicle - Basic AI* 与 *Glide // Styled's Vehicle Base* 正常运行所必需的的必装前置插件。
+ |-- Decent Vehicle 为 AI 提供生成点与巡逻路径，使 AI 能够在地图中生成并自由活动。
+ |-- Glide 提供默认预设所需使用的车辆资源。
+]],
+["Github"] = [[
+# -- 这个插件有GitHub代码仓库吗？
+
+是的。目前仍处于私有状态，待正式发布后才会公开。
+]],
+["Roadmap"] = [[
+# -- 如何获取最新更新？是否有开发导向图？
+
+你可以通过关注我们的 Trello 页面，或加入我们的 Discord 服务器来获取最新动态。这两个链接都可以在我们的创意工坊页面中找到。
+]],
+["ConVars"] = [[
+# -- 有哪些可以使用的控制台命令？
+
+ |-- uv_spawnvehicles - 生成巡逻中的 AI 单位
+ |-- uv_setheat [x] - 设置热度等级
+ |-- uv_despawnvehicles - 移除所有巡逻中的 AI 单位
+ |-- uv_resetallsettings - 将所有服务器设置重置为默认值
+ |-- uv_startpursuit - 开始一次追逐前的倒计时
+ |-- uv_stoppursuit - 停止当前追逐（AI 单位将认为你已成功逃脱）
+ |-- uv_wantedtable - 在控制台中输出当前被通缉的嫌疑人列表
+ |-- uv_clearbounty - 将悬赏值重置为 0
+ |-- uv_setbounty [x] - 设置悬赏值
+ |-- uv_spawn_as_unit - 允许你以单位身份加入
+]],
+
+-- Racing
+["Racing.Joining"] = [[
+# -- 我该如何加入比赛？
+
+如果有人已经创建了一场比赛并向你发送了邀请，在你处于车辆中且当前没有进行中的追逐的情况下，你将会收到一个屏幕提示通知，邀请你加入该比赛。
+]],
+
+["Racing.SpawnAI"] = [[
+# -- 我该如何与 AI 进行比赛？
+
+有两种方式可以实现：
+
+**方式一**
+ |-- 1. 生成任意一辆 Glide、Simfphys 或 HL2 Jeep 载具。
+ |-- 2. 拿出 [string:tool.uvracermanager.name] 工具。
+ |-- 3. 对着载具按下 [+attack2]。
+ |-- 4. 根据你的需求调整设置，然后点击 [string:uv.tool.create]。
+ |-- 5. 对你希望 AI 使用的每一辆载具重复上述步骤。
+ 
+**方式二（推荐）**
+ |-- 1. 打开 [string:uv.airacer] 标签页。
+ |-- 2. 启用 [string:uv.airacer.override]。
+ |-- 3. 在该选项下方的列表中，展开包含车辆的菜单，并对车辆按下 [+attack2]，将其添加到 AI 车辆列表中。
+
+**注意事项**
+ |-- 请确保 [string:uv.tool.base.title] 变量与你想要使用的载具Base一致。
+]],
+
+["Racing.Resetting"] = [[
+# -- 我卡住了！该如何重置？
+
+ |-- 按下 [key:unitvehicle_keybind_resetposition] 重置你的车辆
+ |-- 等待 3 秒
+ |-- 你将回到最近通过的检查点！
+ 
+**注意事项**
+ |-- 被逮捕时无法重置
+ |-- 车辆正在移动时无法重置
+]],
+
+["Racing.Starting"] = [[
+# -- 我该如何开始比赛？
+
+通过 UV 菜单中的 [string:uv.rm] 开始一场比赛：
+ |-- 点击 [string:uv.rm.loadrace]
+ |-- 从列表中选择任意一场比赛
+ |-- 邀请其他赛车手，或直接点击 [string:uv.rm.startrace]
+ |-- 你可以立即开始比赛，或让系统自动生成 AI 加入比赛
+
+
+*注意事项*
+ |-- 至少需要一个发车位才能开始比赛！
+ |-- 只要已加载比赛，在点击 [string:uv.rm.startrace] 之前，你都可以通过 [string:uv.rm.sendinvite] 邀请好友 / AI 赛车手
+ |-- 如果当前没有任何比赛，你需要自己创建一场
+ |-- 或者，也可以前往创意工坊查找现成的比赛！
+]],
+
+["Racing.Create"] = [[
+# -- 我该如何创建比赛？
+使用 [string:tool.uvracemanager.name] 工具：
+
+
+*-- 第一步：创建检查点*
+ |-- 在一个角落按下 [+attack] 开始放置检查点
+ |-- 在另一个位置按下 [+attack] 完成放置
+ |-- 提示：按住 [+use] 可自动增加检查点高度
+ 
+
+*-- 第二步：按顺序设置检查点*
+ |-- 对检查点按下 [+attack2]
+ |-- 输入检查点 ID
+ |-- 确保 ID 按顺序递增
+ |-- 分支检查点需要使用相同的 ID
+ |-- AI 始终会使用最后放置的检查点 ID
+ 
+
+*-- 第三步：创建发车位*
+ |-- 按下 [+reload] 放置发车位
+ |-- 发车位上的数字代表起跑顺序
+ |-- 想要更多赛车手？放置更多发车位即可！
+ 
+
+*-- 第四步：导出比赛*
+ |-- 比赛制作完成后，打开生成菜单，点击 [string:tool.uvracemanager.settings.saverace]
+ |-- 为比赛命名
+ |-- 现在它将作为一场可导入并进行比赛的赛事出现！
+]],
+["Racing.Create.Speedlimit"] = [[
+# -- AI 赛车在赛道上跑得太快了，怎么办？
+
+在放置检查点时，你需要为 AI 指定通过该检查点时的速度。
+如果 AI 速度过快，请调整 [string:tool.uvracemanager.name] 设置中的 speedlimit 数值。
+如果当前已经加载了一场比赛，你可以对检查点按下 [+attack2] 进行编辑，并应用新的 speedlimit 设置。
+另外，你也可以直接编辑比赛数据文件中最后一个数值来修改该检查点的速度限制。
+]],
+
+-- Pursuits
+["Pursuit.Starting"] = [[
+# -- 我该如何开始一场追逐？
+
+ |-- 前往 [string:uv.pm]
+ |-- 点击 [string:uv.pm.pursuit.start]
+ |-- 或者，在单位附近高速行驶或进行危险驾驶
+ |-- 然后，追逐正式开始！
+]],
+
+["Pursuit.JoinAsUnit"] = [[
+# -- 我可以作为单位加入追逐吗？
+
+当然可以！而且非常简单：
+ |-- 前往 [string:uv.pm] 或 [string:uv.menu.welcome]
+ |-- 点击 [string:uv.pm.spawnas]
+ |-- 选择你想驾驶的车辆
+ |-- 然后，立即加入追逐！
+]],
+["Pursuit.Respawn"] = [[
+# -- 我卡住了，或者离嫌疑人太远了！该如何重置？
+
+ |-- 按下 [key:unitvehicle_keybind_resetposition] 打开 [string:uv.pm.spawnas] 菜单
+ |-- 选择你想要重置为的车辆
+ |-- 然后，立刻重新加入追逐！
+ 
+**注意事项**
+ |-- 每次重置后，都需要等待一小段时间才能再次使用
+]],
+["Pursuit.CreateUnits"] = [[
+# -- 我想创建单位，该怎么做？
+
+按以下步骤操作：
+ |-- 1. 取出 [string:tool.uvunitmanager.name] 工具
+ |-- 2. 生成任意一辆车辆
+ |-- 3. 对该车辆按下 [+attack2]
+ |-- 4. 为该单位设置一个唯一名称
+ |-- 5.（可选）选择该单位出现的热度等级
+ |-- 6.（可选）根据需要调整其他数值
+ |-- 7. 点击 [string:uv.tool.create]
+ 
+完成后，通过 [string:tool.uvunitmanager.name] 工具应用该单位。此后，你将可能在追逐中面对你创建的单位，或作为该单位加入追逐，对抗逃跑的嫌疑人。
+]],
+["Pursuit.Roadblocks"] = [[
+# -- 我想创建路障，该怎么做？
+
+使用 [string:tool.uvroadblock.name] 工具：
+ |-- 1. 使用该工具创建构成路障所需的道具和部件
+ |-- 2. 使用 [string:tool.weld.name] 工具（或任意替代工具）将所有部件焊接在一起
+ |-- 3. 焊接完成后，对路障的任意一个部件按下 [+attack2]
+ |-- 4. 根据需要调整设置，然后点击 [string:uv.tool.create]
+ 
+完成后，该路障将在追逐进行时随机生成并出现。
+]],
+["Pursuit.Pursuitbreaker"] = [[
+# -- 我想创建追逐破坏器，该怎么做？
+
+使用 [string:tool.uvpursuitbreaker.name] 工具：
+ |-- 1. 创建构成追逐破坏器所需的道具和部件
+ |-- 2. 使用 [string:tool.weld.name] 工具（或任意替代工具）将所有部件焊接在一起
+ |-- 3. 焊接完成后，对追逐破坏器的任意一个部件按下 [+attack2]
+ |-- 4. 根据需要调整设置，然后点击 [string:uv.tool.create]
+]],
+
+["Other.CreateTraffic"] = [[
+# -- 我该如何生成交通车辆？
+
+按以下步骤操作：
+ |-- 1. 取出 [string:tool.uvtrafficmanager.name] 工具
+ |-- 2. 生成任意一辆车辆
+ |-- 3. 对车辆按下 [+attack2]
+ |-- 4. 为该车辆设置一个唯一名称
+ |-- 5.（可选）根据需要调整相关参数
+ |-- 6. 点击 [string:uv.tool.create]
+ 
+之后，你可以在 UV 菜单中的 [string:uv.tm] 标签页里调整交通系统的通用设置。
+]],
+["Other.PursuitTech"] = [[
+# -- 什么是追击科技？
+
+追击科技是一系列可供赛车手和单位使用的武器与辅助装置。
+你最多可以为你的车辆安装两种追击科技，用于进攻对手或进行自我防御。
+
+以下是安装与使用方法：
+ |-- 1. 取出 [string:tool.uvpursuittech.name] 工具
+ |-- 2. 选择你想作为赛车手或单位使用的追击科技
+ |-- 3. 对你的车辆或单位按下 [+attack]
+ 
+安装完成后，在驾驶过程中，你可以按下 [key:unitvehicle_pursuittech_keybindslot_1] 和 [key:unitvehicle_pursuittech_keybindslot_2] 来激活对应的追击科技！
+]],
+["Other.RenameAI"] = [[
+# -- 我可以重命名 AI 赛车手和单位吗？
+
+当然可以，而且非常简单：
+ |-- 1. 取出 [string:tool.uvnamechanger.name] 工具
+ |-- 2. 输入你希望 AI 使用的名称
+ |-- 3. 对 AI 赛车手或单位按下 [+attack]
+]],
+["Other.DataFolder"] = [[
+# -- 我的 UV 数据存放在哪里？
+
+所有与 UV 相关的数据都存储在游戏目录下的 *data/unitvehicles* 文件夹中。
+]],
+}
