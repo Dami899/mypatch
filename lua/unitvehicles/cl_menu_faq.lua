@@ -1261,7 +1261,7 @@ Dane związane z UV znajdziesz w folderze *data/unitvehicles*.
 }
 
 -- 简体中文 (Chinese Simplified) zh-CN
-UV.FAQ["zh-CN"] = {
+UV.FAQ["zh-cn"] = {
 -- Introduction
 ["Intro"] = [[
 # -- 这是个什么样插件？
