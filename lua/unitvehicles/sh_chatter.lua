@@ -255,7 +255,7 @@ if SERVER then
 	
 	local function _PlayUVSoundChatter(self, voice, chattertype, parameters, ...)
 		
-		if not IsValid(self) or not voice or not (GetConVar("unitvehicle_chatter"):GetBool() and not GetConVar("unitvehicle_chattertext"):GetBool()) then 
+		if not IsValid(self) or not (GetConVar("unitvehicle_chatter"):GetBool() and not GetConVar("unitvehicle_chattertext"):GetBool()) then 
 			return 0
 		end
 
@@ -946,7 +946,7 @@ if SERVER then
 	end
 	
 	function UVSoundChatter(self, voice, chattertype, parameters, ...)
-		if not self or not voice or not (GetConVar("unitvehicle_chatter"):GetBool() and not GetConVar("unitvehicle_chattertext"):GetBool()) then 
+		if not self or not (GetConVar("unitvehicle_chatter"):GetBool() and not GetConVar("unitvehicle_chattertext"):GetBool()) then 
 			return 5 
 		end
 		
@@ -1650,14 +1650,14 @@ if SERVER then
 	function UVChatterPursuitStartAcknowledge(self)
 		if not GetConVar("unitvehicle_chattertext"):GetBool() then
 			if #UVWantedTableVehicle > 1 then
-				return UVSoundChatter(self, self.voice, "pursuitstartacknowledgemultipleenemies", nil, "DISPATCH")
+				return UVSoundChatter(Entity(1), "nil", "pursuitstartacknowledgemultipleenemies", nil, "DISPATCH")
 			else
 				if UVHeatLevel < 2 then
-					return UVSoundChatter(self, self.voice, "pursuitstartacknowledge", nil, "DISPATCH")
+					return UVSoundChatter(Entity(1), "nil", "pursuitstartacknowledge", nil, "DISPATCH")
 				elseif UVHeatLevel < 5 then
-					return UVSoundChatter(self, self.voice, "pursuitstartacknowledgemed", nil, "DISPATCH")
+					return UVSoundChatter(Entity(1), "nil", "pursuitstartacknowledgemed", nil, "DISPATCH")
 				else
-					return UVSoundChatter(self, self.voice, "pursuitstartacknowledgehigh", nil, "DISPATCH")
+					return UVSoundChatter(Entity(1), "nil", "pursuitstartacknowledgehigh", nil, "DISPATCH")
 				end
 			end
 		end
