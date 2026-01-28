@@ -12,11 +12,11 @@ UV_PT.Killswitch = {
             displayMe = true
         end
 
-        local userString = language.GetPhrase("uv.ptech.killswitch.hit")
-        local targetString = language.GetPhrase("uv.ptech.killswitch.hit.you")
+        local userString = UVString("uv.ptech.killswitch.hit")
+        local targetString = UVString("uv.ptech.killswitch.hit.you")
 
         UV_UI.general.events.CenterNotification({
-            text = string.format( (displayMe and userString) or targetString, (displayMe and language.GetPhrase( tbl.Target )) or language.GetPhrase( tbl.User )),
+            text = string.format( (displayMe and userString) or targetString, (displayMe and UVString( tbl.Target )) or UVString( tbl.User )),
 			color = not displayMe and Color(255, 0, 0) or nil,
 			immediate = not displayMe and true or nil,
 			critical = not displayMe and true or nil,
@@ -99,11 +99,11 @@ UV_PT.ESF = {
             displayMe = true
         end
 
-        local userString = language.GetPhrase("uv.ptech.esf.hit")
-        local targetString = language.GetPhrase("uv.ptech.esf.hit.you")
+        local userString = UVString("uv.ptech.esf.hit")
+        local targetString = UVString("uv.ptech.esf.hit.you")
 
         UV_UI.general.events.CenterNotification({
-            text = string.format( (displayMe and userString) or targetString, (displayMe and language.GetPhrase( tbl.Target )) or language.GetPhrase( tbl.User )),
+            text = string.format( (displayMe and userString) or targetString, (displayMe and UVString( tbl.Target )) or UVString( tbl.User )),
         })
     end,
     Counter = function(tbl)
@@ -116,7 +116,7 @@ UV_PT.ESF = {
         local targetString = "%s countered your ESF!"
 
         UV_UI.general.events.CenterNotification({
-            text = string.format( (displayMe and userString) or targetString, (displayMe and language.GetPhrase( tbl.Target )) or language.GetPhrase( tbl.User )),
+            text = string.format( (displayMe and userString) or targetString, (displayMe and UVString( tbl.Target )) or UVString( tbl.User )),
         })
     end
 }
@@ -131,7 +131,7 @@ UV_PT.Jammer = {
         local targetString = "#uv.ptech.jammer.hit.you"
 
         UV_UI.general.events.CenterNotification({
-            -- text = string.format( (displayMe and userString) or targetString, (displayMe and language.GetPhrase( tbl.Target )) or language.GetPhrase( tbl.User )),
+            -- text = string.format( (displayMe and userString) or targetString, (displayMe and UVString( tbl.Target )) or UVString( tbl.User )),
 			text = displayMe and userString or targetString,
         })
     end,
@@ -147,8 +147,8 @@ UV_PT.Shockwave = {
             displayMe = true
         end
 		
-		local userString = language.GetPhrase("uv.ptech.shockwave.hit")
-		local targetString = language.GetPhrase("uv.ptech.shockwave.hit.you")
+		local userString = UVString("uv.ptech.shockwave.hit")
+		local targetString = UVString("uv.ptech.shockwave.hit.you")
 
         local display = nil
 
@@ -158,12 +158,12 @@ UV_PT.Shockwave = {
 		    local extraCount = #targets - 1
 
 		-- Build name string: "Name" or "Name (+X)"
-		    display = language.GetPhrase( firstName )
+		    display = UVString( firstName )
 		    if extraCount > 0 then
-			    display = string.format("%s (+%d)", language.GetPhrase( firstName ), extraCount)
+			    display = string.format("%s (+%d)", UVString( firstName ), extraCount)
 		    end
         else
-            display = language.GetPhrase( tbl.User )
+            display = UVString( tbl.User )
         end
 
 		-- Format text with nameDisplay
@@ -216,11 +216,11 @@ UV_PT.StunMine = {
             displayMe = true
         end
 
-        local userString = language.GetPhrase("uv.ptech.stunmine.hit")
-        local targetString = language.GetPhrase("uv.ptech.stunmine.hit.you")
+        local userString = UVString("uv.ptech.stunmine.hit")
+        local targetString = UVString("uv.ptech.stunmine.hit.you")
 
         UV_UI.general.events.CenterNotification({
-            text = string.format( (displayMe and userString) or targetString, (displayMe and language.GetPhrase( tbl.Target )) or language.GetPhrase( tbl.User ) ),
+            text = string.format( (displayMe and userString) or targetString, (displayMe and UVString( tbl.Target )) or UVString( tbl.User ) ),
         })
     end,
     Counter = function(tbl)
@@ -301,11 +301,11 @@ UV_PT.EMP = {
 
         target:EmitSound( "gadgets/emp/fire.wav", 75, 100, 1, CHAN_STATIC )
 
-        userString = language.GetPhrase( userString )
+        userString = UVString( userString )
         UV_UI.general.events.CenterNotification({
             text = string.format(
                 userString, 
-                ( isTargetLocal and language.GetPhrase( carCallsign ) ) or language.GetPhrase( targetCallsign ) 
+                ( isTargetLocal and UVString( carCallsign ) ) or UVString( targetCallsign ) 
             ),
         })
     end,
@@ -370,8 +370,8 @@ UV_PT.ShockRam = {
             displayMe = true
         end
 		
-		local userString = language.GetPhrase("uv.ptech.shockram.hit")
-		local targetString = language.GetPhrase("uv.ptech.shockram.hit.you")
+		local userString = UVString("uv.ptech.shockram.hit")
+		local targetString = UVString("uv.ptech.shockram.hit.you")
 
         local display = nil
 
@@ -381,12 +381,12 @@ UV_PT.ShockRam = {
 		    local extraCount = #targets - 1
 
 		-- Build name string: "Name" or "Name (+X)"
-		    display = language.GetPhrase( firstName )
+		    display = UVString( firstName )
 		    if extraCount > 0 then
-			    display = string.format("%s (+%d)", language.GetPhrase( firstName ), extraCount)
+			    display = string.format("%s (+%d)", UVString( firstName ), extraCount)
 		    end
         else
-            display = language.GetPhrase( tbl.User )
+            display = UVString( tbl.User )
         end
 
 		-- Format text with nameDisplay

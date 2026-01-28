@@ -483,7 +483,7 @@ UV_UI.racing.carbon.events = {
         local timestart = CurTime()
         local exitStarted = false -- prevent repeated trigger
         
-        local finalTitle = "★" .. language.GetPhrase("uv.results.standings") .. "★"
+        local finalTitle = "★" .. UVString("uv.results.standings") .. "★"
         local charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()[]{}<>,./?|"
         local revealSpeed = 0.05
         local displayStart = CurTime()
@@ -551,7 +551,7 @@ UV_UI.racing.carbon.events = {
         ResultPanel.Paint = function(self, w, h)
 			local alttext = math.floor(CurTime() / 5) % 2 == 1
             local timeremaining = math.ceil(timetotal - (CurTime() - timestart))
-            local lang = language.GetPhrase
+            local lang = UVString
             
             -- Main black BG
             surface.SetMaterial(UVMaterials['BG_BIG_CARBON'])
@@ -618,7 +618,7 @@ UV_UI.racing.carbon.events = {
 				
 			   	surface.SetFont("UVCarbonLeaderboardFont")
                local vehname = info["VehicleName"]
-			   vehname = vehname and string.Trim(language.GetPhrase(vehname), "#") or "<UNKNOWN>"
+			   vehname = vehname and string.Trim(UVString(vehname), "#") or "<UNKNOWN>"
 
 				textW = surface.GetTextSize(vehname)
 				if textW > ymax then
@@ -654,12 +654,12 @@ UV_UI.racing.carbon.events = {
             -- Time remaining and closing
             local blink = 255 * math.abs(math.sin(RealTime() * 8))
 			
-			local conttext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue")) .. "</font></color>"
+			local conttext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue")) .. "</font></color>"
 			local mk = markup.Parse(conttext)
 			local conttextw = mk:GetWidth()
 
 			surface.SetFont("UVCarbonLeaderboardFont")
-			local autotext = string.format( language.GetPhrase("uv.results.autoclose"), math.max(0, timeremaining) )
+			local autotext = string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) )
 			local autotextw = surface.GetTextSize(autotext)
 
 			local wdist = w * 0.000565
@@ -712,7 +712,7 @@ UV_UI.racing.carbon.events = {
     onRaceEnd = function( sortedRacers, stringArray )
         local triggerTime = CurTime()
         local duration = 10
-		local glidetext = UVReplaceKeybinds( string.format( language.GetPhrase("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
+		local glidetext = UVReplaceKeybinds( string.format( UVString("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
 		local glideicon = "unitvehicles/icons/INGAME_ICON_LEADERBOARD.png"
         
         -----------------------------------------
@@ -757,7 +757,7 @@ UV_UI.racing.carbon.events = {
 		local participant_count = UVHUDRaceInfo.Participants and table.Count(UVHUDRaceInfo.Participants) or 0
 
 		local finishtext = (participant_count > 1 and cps > 1) and 
-		language.GetPhrase("uv.race.finished") .. "\n" .. string.format( language.GetPhrase("uv.race.finishspot"), language.GetPhrase("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
+		UVString("uv.race.finished") .. "\n" .. string.format( UVString("uv.race.finishspot"), UVString("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
 		or "#uv.race.finished"
 
 		if local_finished then 
@@ -771,10 +771,10 @@ UV_UI.racing.carbon.events = {
 		if suppress_lap_ui then return end
 
 		if is_global_best then
-			UV_UI.racing.carbon.states.LapCompleteText = string.format(language.GetPhrase("uv.race.fastest.laptime"), name, Carbon_FormatRaceTime( lap_time ) )
+			UV_UI.racing.carbon.states.LapCompleteText = string.format(UVString("uv.race.fastest.laptime"), name, Carbon_FormatRaceTime( lap_time ) )
 		else
 			if is_local_player then
-				UV_UI.racing.carbon.states.LapCompleteText = string.format(language.GetPhrase("uv.race.laptime.carbon"), Carbon_FormatRaceTime( lap_time ) )
+				UV_UI.racing.carbon.states.LapCompleteText = string.format(UVString("uv.race.laptime.carbon"), Carbon_FormatRaceTime( lap_time ) )
 			else
 				return
 			end
@@ -794,7 +794,7 @@ UV_UI.racing.carbon.events = {
 
 		if not info then return end
 
-		local disqtext = string.format(language.GetPhrase("uv.race.wrecked"), name)
+		local disqtext = string.format(UVString("uv.race.wrecked"), name)
 		if is_local_player then disqtext = "#uv.chase.wrecked" end
 
 		UV_UI.racing.carbon.events.CenterNotification({
@@ -1061,7 +1061,7 @@ UV_UI.racing.carbon.events = {
 			noticol = Color(200, 75, 75)
 		end
 		
-		local splittext = string.format( language.GetPhrase("uv.race.splittime"), splittime )
+		local splittext = string.format( UVString("uv.race.splittime"), splittime )
 
 		UV_UI.racing.carbon.events.CenterNotification({
 			text = splittext,
@@ -1076,14 +1076,14 @@ UV_UI.racing.carbon.events = {
 
 UV_UI.pursuit.carbon.events = {
 	onUnitTakedown = function( unitType, name, bounty, bountyCombo, isPlayer )
-		local uname = isPlayer and language.GetPhrase( unitType .. ".caps" ) or name -- Fallback
+		local uname = isPlayer and UVString( unitType .. ".caps" ) or name -- Fallback
 		
 		if GetConVar("unitvehicle_vehiclenametakedown"):GetBool() then
-			uname = name and string.Trim(language.GetPhrase(name), "#") or nil
+			uname = name and string.Trim(UVString(name), "#") or nil
 		end
 		
 		UV_UI.racing.carbon.events.CenterNotification({
-			text = string.format( language.GetPhrase( "uv.hud.carbon.takedown" ), uname, bounty, bountyCombo ),
+			text = string.format( UVString( "uv.hud.carbon.takedown" ), uname, bounty, bountyCombo ),
 			iconSize = 0.0475,
 			immediate = true,
 		})
@@ -1164,7 +1164,7 @@ UV_UI.pursuit.carbon.events = {
     end,
     
 	onRacerBusted = function( racer, cop, lp )
-		local cnt = string.format(language.GetPhrase("uv.hud.racer.arrested"), racer, language.GetPhrase(cop))
+		local cnt = string.format(UVString("uv.hud.racer.arrested"), racer, UVString(cop))
 		
 		if lp then
 			cnt = "#uv.chase.busted"
@@ -1285,7 +1285,7 @@ UV_UI.pursuit.carbon.events = {
         local timestart = CurTime()
         local exitStarted = false -- prevent repeated trigger
         
-        local finalTitle = "★" .. language.GetPhrase("uv.results.pursuit.carbon") .. "★"
+        local finalTitle = "★" .. UVString("uv.results.pursuit.carbon") .. "★"
         local charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()[]{}<>,./?|"
         local revealSpeed = 0.05
         local displayStart = CurTime()
@@ -1326,7 +1326,7 @@ UV_UI.pursuit.carbon.events = {
 
         ResultPanel.Paint = function(self, w, h)
             local timeremaining = math.ceil(timetotal - (CurTime() - timestart))
-            local lang = language.GetPhrase
+            local lang = UVString
             
             -- Main black BG
             surface.SetMaterial(UVMaterials['BG_BIG_CARBON'])
@@ -1418,15 +1418,15 @@ UV_UI.pursuit.carbon.events = {
             draw.SimpleTextOutlined( spikestripsdodged, "UVCarbonLeaderboardFont", w*0.74, h1 + h*0.24, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
 
             -- Time remaining and closing
-			local conttext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue")) .. "</font></color>"
+			local conttext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue")) .. "</font></color>"
 			local mk = markup.Parse(conttext)
 			local conttextw = mk:GetWidth()
 
 			surface.SetFont("UVCarbonLeaderboardFont")
-			local autotext = string.format( language.GetPhrase("uv.results.autoclose"), math.max(0, timeremaining) )
+			local autotext = string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) )
 			local autotextw = surface.GetTextSize(autotext)
 			
-			local uwstext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+reload] " .. language.GetPhrase("uv.pm.spawnas")) .. "</font></color>"
+			local uwstext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas")) .. "</font></color>"
 			local mk2 = markup.Parse(uwstext)
 			local uwstextw = mk2:GetWidth()
 
@@ -1511,7 +1511,7 @@ UV_UI.pursuit.carbon.events = {
         local params = {
             dataTable = bustedtable,
             titleText = "#uv.results.bustedby.carbon",
-            titleVar = language.GetPhrase( bustedtable["Unit"] ),
+            titleVar = UVString( bustedtable["Unit"] ),
 			spawnAsUnit = true,
         }
         UV_UI.pursuit.carbon.events.ShowDebrief(params)
@@ -1537,14 +1537,14 @@ UV_UI.pursuit.carbon.events = {
 	
 	onPullOverRequest = function(...)
 		UV_UI.racing.carbon.events.CenterNotification({
-			text = language.GetPhrase("uv.hud.fine.pullover"),
+			text = UVString("uv.hud.fine.pullover"),
 			noIcon = true,
 			immediate = true,
 		})
 	end,
 	onFined = function( finenr )
 		UV_UI.racing.carbon.events.CenterNotification({
-			text = string.format( language.GetPhrase("uv.hud.fine.fined"), finenr),
+			text = string.format( UVString("uv.hud.fine.fined"), finenr),
 			noIcon = true,
 			immediate = true,
 		})
@@ -1560,7 +1560,7 @@ local function carbon_racing_main( ... )
     local string_array = select(3, ...)
     
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local checkpoint_count = #my_array["Checkpoints"]
     
@@ -1684,7 +1684,7 @@ local function carbon_pursuit_main( ... )
     
     local w = ScrW()
     local h = ScrH()
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)
     local UVBustTimer = BustedTimer:GetFloat()

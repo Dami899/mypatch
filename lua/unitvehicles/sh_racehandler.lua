@@ -1526,16 +1526,16 @@ else -- CLIENT stuff
 		local notificationText
 
 		if artist and title and folder then -- Use metadata from JSON (original casing)
-			notificationText = "<color=255,126,126>" .. language.GetPhrase("uv.race.radio") .. "</color>\n" .. title .. "\n" .. "<color=200,200,200>" .. artist .. "\n" .. folder .. "</color>"
+			notificationText = "<color=255,126,126>" .. UVString("uv.race.radio") .. "</color>\n" .. title .. "\n" .. "<color=200,200,200>" .. artist .. "\n" .. folder .. "</color>"
 		else
 			for placeholder, char in pairs(placeholder_map) do
 				track = string.gsub(track, escape_pattern(placeholder), char)
 			end
 			if string.find(track, " - ", 1, true) then -- Fallback to parsing track name or showing raw track/folder
 				local parts = string.Explode(" - ", track)
-				notificationText = "<color=255,126,126>*" .. language.GetPhrase("uv.race.radio") .. "</color>\n"  .. parts[2] .. "\n" .. "<color=200,200,200>" .. parts[1] .. "\n" .. theme .. "</color>"
+				notificationText = "<color=255,126,126>*" .. UVString("uv.race.radio") .. "</color>\n"  .. parts[2] .. "\n" .. "<color=200,200,200>" .. parts[1] .. "\n" .. theme .. "</color>"
 			else
-				notificationText = "<color=255,126,126>*" .. language.GetPhrase("uv.race.radio") .. "</color>\n"  .. track .. "\n" .. "<color=200,200,200>" .. theme .. "</color>"
+				notificationText = "<color=255,126,126>*" .. UVString("uv.race.radio") .. "</color>\n"  .. track .. "\n" .. "<color=200,200,200>" .. theme .. "</color>"
 			end
 		end
 
@@ -1547,13 +1547,13 @@ else -- CLIENT stuff
 				immediate = true,
 			})
 		else
-			chat.AddText( Color(255, 255, 255), "[", Color(255, 126, 126), language.GetPhrase("uv.race.radio"), Color(255, 255, 255), "] ", Color(255, 255, 0), (artist and title) and (title .. " - " .. artist) or track, Color(255, 255, 255), " (", Color(200, 200, 200), theme, Color(255, 255, 255), ")")
+			chat.AddText( Color(255, 255, 255), "[", Color(255, 126, 126), UVString("uv.race.radio"), Color(255, 255, 255), "] ", Color(255, 255, 0), (artist and title) and (title .. " - " .. artist) or track, Color(255, 255, 255), " (", Color(200, 200, 200), theme, Color(255, 255, 255), ")")
 		end
 	end
 
 	function UVTraxDisplayTrack( artist, title, folder, path )
 		if title == "" or not title then return end
-		local notificationText = "<color=255,126,126>" .. language.GetPhrase("uv.race.radio") .. "</color>\n" .. title .. "\n" .. "<color=200,200,200>" .. artist .. "\n" .. folder .. "</color>\n\n" .. UVReplaceKeybinds( string.format( "%s " .. language.GetPhrase("uv.keybind.prevsong"),"[key:unitvehicle_keybind_prevsong]") ) .. "\n" .. UVReplaceKeybinds( string.format( "%s " .. language.GetPhrase("uv.keybind.skipsong"),"[key:unitvehicle_keybind_skipsong]") )
+		local notificationText = "<color=255,126,126>" .. UVString("uv.race.radio") .. "</color>\n" .. title .. "\n" .. "<color=200,200,200>" .. artist .. "\n" .. folder .. "</color>\n\n" .. UVReplaceKeybinds( string.format( "%s " .. UVString("uv.keybind.prevsong"),"[key:unitvehicle_keybind_prevsong]") ) .. "\n" .. UVReplaceKeybinds( string.format( "%s " .. UVString("uv.keybind.skipsong"),"[key:unitvehicle_keybind_skipsong]") )
 
 		if Glide then
 			Glide.Notify({
@@ -1563,7 +1563,7 @@ else -- CLIENT stuff
 				immediate = true,
 			})
 		else
-			chat.AddText( Color(255, 255, 255), "[", Color(255, 126, 126), language.GetPhrase("uv.race.radio"), Color(255, 255, 255),"] ", Color(255, 255, 0), (artist and title) and (title .. " - " .. artist) or title, Color(255, 255, 255), " (", Color(200, 200, 200), folder, Color(255, 255, 255), ")")
+			chat.AddText( Color(255, 255, 255), "[", Color(255, 126, 126), UVString("uv.race.radio"), Color(255, 255, 255),"] ", Color(255, 255, 0), (artist and title) and (title .. " - " .. artist) or title, Color(255, 255, 255), " (", Color(200, 200, 200), folder, Color(255, 255, 255), ")")
 		end
 	end
 
@@ -1772,7 +1772,7 @@ else -- CLIENT stuff
 
 		for i, v in ipairs(sorted_table) do
 			local vehicle = v.vehicle
-			local lang = language.GetPhrase
+			local lang = UVString
 
 			if not IsValid(vehicle) then
 				--local line = string.format("%d. %s", i, v.array.Name)
@@ -1969,7 +1969,7 @@ else -- CLIENT stuff
 	end)
 
 	net.Receive( "uvrace_decline", function() 
-		local lang = language.GetPhrase
+		local lang = UVString
 
 		-- chat.AddText(Color(255, 126, 126),lang( net.ReadString() ))
 		
@@ -1983,7 +1983,7 @@ else -- CLIENT stuff
 		local time = net.ReadFloat()
 		local driver = net.ReadString()
 		local timedifference = net.ReadFloat()
-		local lang = language.GetPhrase
+		local lang = UVString
 
 		if timedifference ~= 0 then
 			-- chat.AddText(Color(255, 255, 255), string.format(lang("uv.race.newbestlap.new"), driver), Color(0, 255, 255), UVDisplayTimeRace(time), Color(255, 255, 255), " (-"..math.Round(timedifference, 3)..")")
@@ -1996,7 +1996,7 @@ else -- CLIENT stuff
 		local racers = net.ReadTable()
 
 		for _, v in pairs(racers) do
-			-- chat.AddText(Color(255, 255, 255), language.GetPhrase("uv.race.invite.sentto"), Color(0,255,0), v)
+			-- chat.AddText(Color(255, 255, 255), UVString("uv.race.invite.sentto"), Color(0,255,0), v)
 		end
 	end)
 
@@ -2050,7 +2050,7 @@ else -- CLIENT stuff
 	end)
 
 	net.Receive( "uvrace_resetfailed", function()
-		local lang = language.GetPhrase
+		local lang = UVString
 
 		-- chat.AddText(
 			-- Color(255, 126, 126),
@@ -2064,7 +2064,7 @@ else -- CLIENT stuff
 	end)
 
 	net.Receive( "uvrace_resetcountdown", function()
-		local lang = language.GetPhrase
+		local lang = UVString
 		local time_left = net.ReadInt(4)
 
 		-- chat.AddText(
@@ -2198,7 +2198,7 @@ else -- CLIENT stuff
 					end
 				end
 
-				local lang = language.GetPhrase
+				local lang = UVString
 				local PlaceStrings = {
 					[1] = { Color(240,203,122) },
 					[2] = { Color(183,201,210) },
@@ -2300,7 +2300,7 @@ else -- CLIENT stuff
 		local participant = net.ReadEntity()
 		local time = net.ReadFloat()
 		local timecur = net.ReadFloat()
-		local lang = language.GetPhrase
+		local lang = UVString
 
 		if not UVHUDRaceInfo then return end
 		if not UVHUDRaceInfo.Participants[participant] then return end
@@ -2838,7 +2838,7 @@ else -- CLIENT stuff
 		end
 		local racer_count = #string_array
 
-		local lang = language.GetPhrase
+		local lang = UVString
 
 		if hudyes and UV_UI.general.racing then
 			UV_UI.general.racing.main( my_vehicle, my_array, string_array )
@@ -2946,11 +2946,11 @@ else -- CLIENT stuff
 
 		draw.SimpleTextOutlined( "#uv.prerace.details", "UVFont5UI", w * 0.99, h * 0.065, Color(255, 255, 0, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
 
-		draw.SimpleTextOutlined( string.format( language.GetPhrase("uv.prerace.name"), UVRace_CurrentTrackName ), "UVFont5Shadow", w * 0.99, h * 0.095, Color(255, 255, 255, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
+		draw.SimpleTextOutlined( string.format( UVString("uv.prerace.name"), UVRace_CurrentTrackName ), "UVFont5Shadow", w * 0.99, h * 0.095, Color(255, 255, 255, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
 		
-		-- draw.SimpleTextOutlined( string.format( language.GetPhrase("uv.race.invite.host"), UVRace_CurrentTrackHost ), "UVFont5Shadow", w * 0.99, h * 0.1225, Color(255, 255, 255, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
+		-- draw.SimpleTextOutlined( string.format( UVString("uv.race.invite.host"), UVRace_CurrentTrackHost ), "UVFont5Shadow", w * 0.99, h * 0.1225, Color(255, 255, 255, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
 		
-		draw.SimpleTextOutlined( string.format( language.GetPhrase("uv.prerace.slotsavailable"), #slots - #UVRace_RacerList, #slots ), "UVFont5Shadow", w * 0.99, h * 0.1225, Color(255, 255, 255, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
+		draw.SimpleTextOutlined( string.format( UVString("uv.prerace.slotsavailable"), #slots - #UVRace_RacerList, #slots ), "UVFont5Shadow", w * 0.99, h * 0.1225, Color(255, 255, 255, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
 
 		local cardW, cardH = w * 0.15, h * 0.0325
 		local cardsPerColumn = 10
@@ -2958,7 +2958,7 @@ else -- CLIENT stuff
 		local blink = 255 * math.abs(math.sin(RealTime() * 3))
 
 		if #UVRace_RacerList > #ents.FindByClass("uvrace_spawn") then
-			draw.SimpleTextOutlined( string.format(language.GetPhrase("uv.race.invite.toomany"), #UVRace_RacerList, #slots ), "UVFont5Shadow", w * 0.99, h * 0.5, Color(255, blink, blink, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
+			draw.SimpleTextOutlined( string.format(UVString("uv.race.invite.toomany"), #UVRace_RacerList, #slots ), "UVFont5Shadow", w * 0.99, h * 0.5, Color(255, blink, blink, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
 		end
 
 		if UVRace_RacerList and #UVRace_RacerList > 0 then
@@ -2969,7 +2969,7 @@ else -- CLIENT stuff
 				local racername = racer.name
 				local vehname = racer.vehiclename or "NIL"
 
-				vehname = vehname and string.Trim(language.GetPhrase(vehname), "#") or nil
+				vehname = vehname and string.Trim(UVString(vehname), "#") or nil
 
 				if racer.status == "Host" then
 					clr = Color(255,255,0, alpha)
@@ -3060,12 +3060,12 @@ else -- CLIENT stuff
 		local squareTexts = {}
 
 		-- Static title
-		-- table.insert(squareTexts, language.GetPhrase("uv.prerace.details"))
+		-- table.insert(squareTexts, UVString("uv.prerace.details"))
 
 		-- Track name and author
 		if UVRace_CurrentTrackName then
 			table.insert(squareTexts, string.format(
-				language.GetPhrase("uv.prerace.name"),
+				UVString("uv.prerace.name"),
 				UVRace_CurrentTrackName
 			))
 		end
@@ -3074,32 +3074,32 @@ else -- CLIENT stuff
 		local laps = UVHUDRaceInfo and UVHUDRaceInfo['Info'].Laps
 		if laps and tonumber(laps) and laps >= 2 then
 			table.insert(squareTexts, string.format(
-				language.GetPhrase("uv.prerace.laps"),
+				UVString("uv.prerace.laps"),
 				laps
 			))
 		end
 
 		-- Checkpoints
 		table.insert(squareTexts, string.format(
-			language.GetPhrase("uv.prerace.checks"),
+			UVString("uv.prerace.checks"),
 			GetGlobalInt("uvrace_checkpoints") or "???"
 		))
 
 		-- Starting position
 		table.insert(squareTexts, string.format(
-			language.GetPhrase("uv.prerace.startpos"),
-			language.GetPhrase("uv.race.pos.num." .. (UVHUDRaceCurrentPos or 1))
+			UVString("uv.prerace.startpos"),
+			UVString("uv.race.pos.num." .. (UVHUDRaceCurrentPos or 1))
 		))
 		
 		-- Participant List (NOT WORKING)
 		-- table.insert(squareTexts, string.format(
-			-- language.GetPhrase("uv.prerace.participants"),
+			-- UVString("uv.prerace.participants"),
 			-- "UNKNOWN"
 		-- ))
 		
 		-- Best Lap (NOT WORKING)
 		-- table.insert(squareTexts, string.format(
-			-- language.GetPhrase("uv.prerace.bestlap"),
+			-- UVString("uv.prerace.bestlap"),
 			-- "--:--.---", -- Time
 			-- "---" -- Holder
 		-- ))
@@ -3195,7 +3195,7 @@ else -- CLIENT stuff
 			surface.SetDrawColor(0, 0, 0, alpha)
 			surface.DrawTexturedRect(bgX, bgY, bgW, bgH)
 			
-			draw.SimpleTextOutlined( string.format(language.GetPhrase("uv.prerace.participants"), table.Count(UVHUDRaceInfo.Participants)), "UVFont5", w - barWidth + partX, h * 0.175, Color(255, 255, 0, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
+			draw.SimpleTextOutlined( string.format(UVString("uv.prerace.participants"), table.Count(UVHUDRaceInfo.Participants)), "UVFont5", w - barWidth + partX, h * 0.175, Color(255, 255, 0, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
 
 			for i, v in ipairs(sorted) do
 				if i > maxCards then break end
@@ -3210,7 +3210,7 @@ else -- CLIENT stuff
 				local name = v.array.Name or "UNKNOWN"
 				local isLocal = (name == localName)
 
-				local veh = language.GetPhrase(v.array.VehicleName) or "UNKNOWN"
+				local veh = UVString(v.array.VehicleName) or "UNKNOWN"
 
 				if v.array.IsAI then
 					name = name .. " (AI)"

@@ -200,13 +200,13 @@ UV_UI.racing.underground.events = {
             autoCloseTimer = elapsed
             autoCloseRemaining = math.max(0, autoCloseDuration - autoCloseTimer)
 
-			local conttext = "<color=104,172,255><font=UVFont4>" .. UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue")) .. "</font></color>"
+			local conttext = "<color=104,172,255><font=UVFont4>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue")) .. "</font></color>"
 			local mk = markup.Parse(conttext)
 			local conttextl = mk:GetWidth()
 
 			local conttexts = conttextl + (w * 0.005)
 			
-			local autotext = string.format( language.GetPhrase("uv.results.autoclose"), math.ceil(autoCloseRemaining) )
+			local autotext = string.format( UVString("uv.results.autoclose"), math.ceil(autoCloseRemaining) )
 			local autotextl = surface.GetTextSize(autotext)
 			local autotexts = autotextl + (w * 0.005)
 			
@@ -256,7 +256,7 @@ UV_UI.racing.underground.events = {
     onRaceEnd = function( sortedRacers, stringArray )
         local triggerTime = CurTime()
         local duration = 10
-        local glidetext = UVReplaceKeybinds( string.format( language.GetPhrase("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
+        local glidetext = UVReplaceKeybinds( string.format( UVString("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
         local glideicon = "unitvehicles/icons/INGAME_ICON_LEADERBOARD.png"
         
         -----------------------------------------
@@ -322,7 +322,7 @@ UV_UI.racing.underground.events = {
 			noticol = Color(200, 75, 75)
 		end
 		
-		local splittext = string.format( language.GetPhrase("uv.race.splittime"), splittime )
+		local splittext = string.format( UVString("uv.race.splittime"), splittime )
 
 		-- Display for 1 second using HUDPaint
 		local startTime = CurTime()
@@ -359,7 +359,7 @@ local function underground_racing_main( ... )
     local string_array = select(3, ...)
     
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local checkpoint_count = #my_array["Checkpoints"]
     
@@ -399,7 +399,7 @@ local function underground_racing_main( ... )
     draw.DrawText( "/ " .. UVHUDRaceInfo.Info.Laps, "UVFont3", UV_UI.X(w * 0.1025), h * 0.08, Color(125, 125, 255), TEXT_ALIGN_LEFT)
     
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     -- Position Counter
     surface.SetDrawColor(0, 0, 0, 200)

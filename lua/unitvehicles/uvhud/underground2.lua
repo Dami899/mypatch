@@ -100,7 +100,7 @@ UV_UI.racing.underground2.events = {
 			local ynmax = w * 0.175
 			surface.SetFont("UVFont")
 		   local vehname = info["VehicleName"]
-		   vehname = vehname and string.Trim(language.GetPhrase(vehname), "#") or "<UNKNOWN>"
+		   vehname = vehname and string.Trim(UVString(vehname), "#") or "<UNKNOWN>"
 
 			textW = surface.GetTextSize(vehname)
 			if textW > ymax then
@@ -240,7 +240,7 @@ UV_UI.racing.underground2.events = {
             autoCloseTimer = elapsed
             autoCloseRemaining = math.max(0, autoCloseDuration - autoCloseTimer)
 
-			local conttext = "<color=255,255,255><font=UVFont4>" .. UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue")) .. "</font></color>"
+			local conttext = "<color=255,255,255><font=UVFont4>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue")) .. "</font></color>"
 			local mk = markup.Parse(conttext)
 			
             surface.SetDrawColor(255, 255, 255, math.floor(200 * fadeAlpha) )
@@ -251,7 +251,7 @@ UV_UI.racing.underground2.events = {
 			mk:Draw(w * 0.85, h * 0.8475, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 			surface.SetAlphaMultiplier(1)
 			
-            draw.DrawText( string.format( language.GetPhrase("uv.results.autoclose"), math.ceil(autoCloseRemaining) ), "UVFont", w*0.05, h*0.85, Color( 196, 208, 151, math.floor(255 * fadeAlpha) ), TEXT_ALIGN_LEFT )
+            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.ceil(autoCloseRemaining) ), "UVFont", w*0.05, h*0.85, Color( 196, 208, 151, math.floor(255 * fadeAlpha) ), TEXT_ALIGN_LEFT )
             
             if autoCloseRemaining <= 0 then
                 hook.Remove("CreateMove", "JumpKeyCloseResults")
@@ -290,7 +290,7 @@ UV_UI.racing.underground2.events = {
     onRaceEnd = function( sortedRacers, stringArray )
         local triggerTime = CurTime()
         local duration = 10
-        local glidetext = UVReplaceKeybinds( string.format( language.GetPhrase("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
+        local glidetext = UVReplaceKeybinds( string.format( UVString("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
         local glideicon = "unitvehicles/icons/INGAME_ICON_LEADERBOARD.png"
         
         -----------------------------------------
@@ -356,7 +356,7 @@ UV_UI.racing.underground2.events = {
 			noticol = Color(200, 75, 75)
 		end
 		
-		local splittext = string.format( language.GetPhrase("uv.race.splittime"), splittime )
+		local splittext = string.format( UVString("uv.race.splittime"), splittime )
 
 		-- Display for 1 second using HUDPaint
 		local startTime = CurTime()
@@ -392,7 +392,7 @@ local function underground2_racing_main( ... )
     local string_array = select(3, ...)
     
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local checkpoint_count = #my_array["Checkpoints"]
     

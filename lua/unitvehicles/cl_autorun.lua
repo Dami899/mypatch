@@ -80,3 +80,12 @@ hook.Add( "EntityRemoved", "UVClearHeadlights", function( NPC, fullUpdate )
 		timer.Remove("UVAirSpotlight" .. NPC:EntIndex())
 	end
 end )
+
+-- Fuck GMod sometimes.
+function UVString(key)
+    if not isstring(key) then return "" end
+    if key:StartWith("#") then
+        key = key:sub(2)
+    end
+    return string.Trim(language.GetPhrase(key))
+end

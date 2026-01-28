@@ -256,7 +256,7 @@ UV_UI.general.events = {
 			local animTime = now - startTime
 			local barProgress = 0
 			local currentWidth
-			local text = language.GetPhrase(UV_CurrentSubtitle)
+			local text = UVString(UV_CurrentSubtitle)
 			local hasValidSubtitle = UV_CurrentSubtitle and text ~= "" and text ~= UV_CurrentSubtitle and CurTime() < (UV_SubtitleEnd or 0)
 			local subconvar = GetConVar("unitvehicle_subtitles"):GetBool() and hasValidSubtitle
 
@@ -354,7 +354,7 @@ local function general_racing_main( ... )
         local entry = string_array[i]
         if entry[3] == "Lap" and entry[4] then
 			local laps = math.abs(entry[4])
-			local lapText = (laps > 1) and language.GetPhrase("uv.race.suffix.laps") or language.GetPhrase("uv.race.suffix.lap")
+			local lapText = (laps > 1) and UVString("uv.race.suffix.laps") or UVString("uv.race.suffix.lap")
 			aheadText = string.format(lapText, laps)
             break
         elseif entry[4] then
@@ -368,7 +368,7 @@ local function general_racing_main( ... )
         local entry = string_array[i]
         if entry[3] == "Lap" and entry[4] then
 			local laps = math.abs(entry[4])
-			local lapText = (laps > 1) and language.GetPhrase("uv.race.suffix.laps") or language.GetPhrase("uv.race.suffix.lap")
+			local lapText = (laps > 1) and UVString("uv.race.suffix.laps") or UVString("uv.race.suffix.lap")
 			behindText = string.format(lapText, laps)
             break
         elseif entry[4] then

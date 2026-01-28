@@ -2745,7 +2745,7 @@ else -- CLIENT Settings | HUD/Options
 			if LEGACY_CONVARS[_incomingCV] then
 				if not warned then
 					warned = true
-					local warning = string.format( language.GetPhrase "tool.uvunitmanager.presets.legacy.warning", name )
+					local warning = string.format( UVString "tool.uvunitmanager.presets.legacy.warning", name )
 					notification.AddLegacy( warning, NOTIFY_UNDO, 5 )
 				end
 
@@ -2922,7 +2922,7 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive("UVHUDStartPursuitNotification", function()
 		UV_UI.general.events.CenterNotification({
-            text = language.GetPhrase( net.ReadString() ),
+            text = UVString( net.ReadString() ),
 		})
 	end)
 
@@ -2995,7 +2995,7 @@ else -- CLIENT Settings | HUD/Options
 
 			if convar then
 				convar:SetInt( key )
-				-- entry[2]:SetText( language.GetPhrase( Control_Strings [slot] ) .. " - " ..string.upper( input.GetKeyName(key) ) )
+				-- entry[2]:SetText( UVString( Control_Strings [slot] ) .. " - " ..string.upper( input.GetKeyName(key) ) )
 			end
 		else
 			warn("Invalid slot key; if you run into this please report it to a developer!")
@@ -3287,7 +3287,7 @@ else -- CLIENT Settings | HUD/Options
 
 
 	net.Receive("UVHUDBusting", function()
-		local lang = language.GetPhrase
+		local lang = UVString
 		local blink = 255 * math.abs(math.sin(RealTime() * 4))
 		local blink2 = 255 * math.abs(math.sin(RealTime() * 6))
 		local blink3 = 255 * math.abs(math.sin(RealTime() * 8))
@@ -3314,7 +3314,7 @@ else -- CLIENT Settings | HUD/Options
 
 		if not UVHUDDisplayNotification and not UVEnemyBusted and UVBustingTimeLeft < 1 and UVBustingTimeLeft >= 0 then
 			UVNotificationColor = Color( 0, 255, 0)
-			UVNotification = string.format(language.GetPhrase("uv.chase.evadedtime"), UVBustingTimeLeft)
+			UVNotification = string.format(UVString("uv.chase.evadedtime"), UVBustingTimeLeft)
 			UVHUDDisplayNotification = true
 			timer.Simple(2, function()
 				if not UVHUDDisplayBusting then
@@ -3329,11 +3329,11 @@ else -- CLIENT Settings | HUD/Options
 		local blink = 255 * math.abs(math.sin(RealTime() * 8))
 		UVNotificationColor = Color(255, blink, blink)
 		UVBustedColor = Color(255, 0, 0)
-		local bustedtext = language.GetPhrase("uv.chase.busted")
+		local bustedtext = UVString("uv.chase.busted")
 		if not UVHUDDisplayNotification then
 			if UVHUDRaceInProgress then
 				if #UVHUDWantedSuspects <= 1 then
-					bustedtext = language.GetPhrase("uv.race.shutdown")
+					bustedtext = UVString("uv.race.shutdown")
 				end
 			end
 			UVBustedState = true
@@ -3371,7 +3371,7 @@ else -- CLIENT Settings | HUD/Options
 		local blink = 255 * math.abs(math.sin(RealTime() * 6))
 		if UVHUDCopMode then return end
 		UVNotificationColor = Color( blink, blink, 255)
-		UVNotification = "--- " .. language.GetPhrase("uv.chase.hiding") .. " ---"
+		UVNotification = "--- " .. UVString("uv.chase.hiding") .. " ---"
 		UVHUDDisplayNotification = true
 		UVHUDDisplayHidingPrompt = true
 
@@ -3428,7 +3428,7 @@ else -- CLIENT Settings | HUD/Options
 		end
 		
 		UV_UI.general.events.CenterNotification({
-			text = string.format( language.GetPhrase("uv.hud.heatlvl"), UVHeatLevel + 1 )
+			text = string.format( UVString("uv.hud.heatlvl"), UVHeatLevel + 1 )
 		})
 
 		if not UVPlayingRace and UVHUDDisplayPursuit then
@@ -3724,7 +3724,7 @@ else -- CLIENT Settings | HUD/Options
 		local h = ScrH()
 
 		local hudyes = showhud:GetBool()
-		local lang = language.GetPhrase
+		local lang = UVString
 		
 		local main = UVHUDTypeMain:GetString()
 		local backup = UVHUDTypeBackup:GetString()
@@ -4399,10 +4399,10 @@ else -- CLIENT Settings | HUD/Options
 		local msg = net.ReadString()
 		local unit = net.ReadString() or ""
 		local cooldown = net.ReadString()
-		local msgt = string.format( language.GetPhrase(msg), language.GetPhrase(unit), cooldown )
+		local msgt = string.format( UVString(msg), UVString(unit), cooldown )
 
 		if (RandomPlayerUnits:GetBool() and cooldown) or not cooldown then
-			msgt = string.format( language.GetPhrase(msg), language.GetPhrase(unit) )
+			msgt = string.format( UVString(msg), UVString(unit) )
 		end
 
 		UV_UI.general.events.CenterNotification({

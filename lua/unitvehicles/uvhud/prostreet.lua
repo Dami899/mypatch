@@ -11,7 +11,7 @@ local function prostreet_racing_main( ... )
     local string_array = select(3, ...)
     
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local checkpoint_count = #my_array["Checkpoints"]
     
@@ -40,7 +40,7 @@ local function prostreet_racing_main( ... )
 	draw.SimpleTextOutlined(lapamount, "UVFont5", UV_UI.X(w * 0.97), h * 0.075, Color( 200, 255, 100 ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.5, Color( 0, 0, 0 ) )
 
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     -- Racer List
     local alt = math.floor(CurTime() / 5) % 2 == 1 -- toggles every 5 seconds
@@ -476,12 +476,12 @@ UV_UI.racing.prostreet.events = {
             autoCloseTimer = elapsed
             autoCloseRemaining = math.max(0, autoCloseDuration - autoCloseTimer)
 
-			local conttext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue")) .. "</font></color>"
+			local conttext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue")) .. "</font></color>"
 			local mk = markup.Parse(conttext)
 			local conttextw = mk:GetWidth()
 
 			surface.SetFont("UVCarbonLeaderboardFont")
-			local autotext = string.format( language.GetPhrase("uv.results.autoclose"), math.ceil(autoCloseRemaining) )
+			local autotext = string.format( UVString("uv.results.autoclose"), math.ceil(autoCloseRemaining) )
 			local autotextw = surface.GetTextSize(autotext)
 			
 			local wdist = w * 0.000565
@@ -535,7 +535,7 @@ UV_UI.racing.prostreet.events = {
     onRaceEnd = function( sortedRacers, stringArray )
         local triggerTime = CurTime()
         local duration = 10
-        local glidetext = UVReplaceKeybinds( string.format( language.GetPhrase("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
+        local glidetext = UVReplaceKeybinds( string.format( UVString("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
         local glideicon = "unitvehicles/icons/INGAME_ICON_LEADERBOARD.png"
         
         -----------------------------------------
@@ -581,7 +581,7 @@ UV_UI.racing.prostreet.events = {
 		local participant_count = UVHUDRaceInfo.Participants and table.Count(UVHUDRaceInfo.Participants) or 0
 
 		local finishtext = (participant_count > 1 and cps > 1) and 
-		language.GetPhrase("uv.race.finished") .. "\n" .. string.format( language.GetPhrase("uv.race.finishspot"), language.GetPhrase("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
+		UVString("uv.race.finished") .. "\n" .. string.format( UVString("uv.race.finishspot"), UVString("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
 		or "#uv.race.finished"
 
 		if local_finished then 
@@ -593,13 +593,13 @@ UV_UI.racing.prostreet.events = {
 	
 		if suppress_lap_ui then return end
 
-        if is_local_player and lap_final then llt = language.GetPhrase("uv.race.finallap") .. " " end
+        if is_local_player and lap_final then llt = UVString("uv.race.finallap") .. " " end
         
         if is_global_best then
-            UV_UI.racing.prostreet.states.LapCompleteText = llt .. string.format(language.GetPhrase("uv.race.fastest.laptime"), name, Carbon_FormatRaceTime( lap_time ) )
+            UV_UI.racing.prostreet.states.LapCompleteText = llt .. string.format(UVString("uv.race.fastest.laptime"), name, Carbon_FormatRaceTime( lap_time ) )
         else
             if is_local_player then
-                UV_UI.racing.prostreet.states.LapCompleteText = llt .. string.format(language.GetPhrase("uv.race.laptime.carbon"), Carbon_FormatRaceTime( lap_time ) )
+                UV_UI.racing.prostreet.states.LapCompleteText = llt .. string.format(UVString("uv.race.laptime.carbon"), Carbon_FormatRaceTime( lap_time ) )
             else
                 return
             end
@@ -618,7 +618,7 @@ UV_UI.racing.prostreet.events = {
 
 		if not info then return end
 
-		local disqtext = string.format(language.GetPhrase("uv.race.wrecked"), name)
+		local disqtext = string.format(UVString("uv.race.wrecked"), name)
 		if is_local_player then disqtext = "#uv.chase.wrecked" end
 
 		UV_UI.racing.prostreet.events.CenterNotification({
@@ -652,11 +652,11 @@ UV_UI.racing.prostreet.events = {
 		local splittext = ""
 
 		if aheadDiff ~= "N/A" then -- If car is ahead
-			splittext = string.format( language.GetPhrase("uv.race.car.ahead"), "+" .. aheadDiff )
+			splittext = string.format( UVString("uv.race.car.ahead"), "+" .. aheadDiff )
 		end
 		
 		if behindDiff ~= "N/A" then -- If car is behind
-			splittext = splittext .. "\n" .. string.format( language.GetPhrase("uv.race.car.behind"), "-" .. behindDiff )
+			splittext = splittext .. "\n" .. string.format( UVString("uv.race.car.behind"), "-" .. behindDiff )
 		end
 
 		UV_UI.racing.prostreet.events.CenterNotification({

@@ -376,7 +376,7 @@ UV_UI.racing.undercover.events = {
             cam.Start2D()
             cam.PushModelMatrix(mat)
             local timeremaining = math.ceil(autoCloseDelay - (CurTime() - timestart))
-            local lang = language.GetPhrase
+            local lang = UVString
             
             -- Upper Results Tab
             surface.SetDrawColor( 0, 0, 0, tabAlpha )
@@ -459,7 +459,7 @@ UV_UI.racing.undercover.events = {
                 draw.SimpleText("▼", "UVFont5UI", w * 0.5, h * 0.7375, Color(255,255,255,blink), TEXT_ALIGN_CENTER)
             end
 
-			local conttext = "<font=UVUndercoverAccentFont>" .. UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue"), "Big") .. "</font>"
+			local conttext = "<font=UVUndercoverAccentFont>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big") .. "</font>"
 			local mk = markup.Parse(conttext)
 			
 			surface.SetAlphaMultiplier(textAlpha / 255)
@@ -497,7 +497,7 @@ UV_UI.racing.undercover.events = {
     onRaceEnd = function( sortedRacers, stringArray )
         local triggerTime = CurTime()
         local duration = 10
-        local glidetext = UVReplaceKeybinds( string.format( language.GetPhrase("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
+        local glidetext = UVReplaceKeybinds( string.format( UVString("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
         local glideicon = "unitvehicles/icons/INGAME_ICON_LEADERBOARD.png"
         
         -----------------------------------------
@@ -542,7 +542,7 @@ UV_UI.racing.undercover.events = {
 		local participant_count = UVHUDRaceInfo.Participants and table.Count(UVHUDRaceInfo.Participants) or 0
 
 		local finishtext = (participant_count > 1 and cps > 1) and 
-		language.GetPhrase("uv.race.finished") .. "\n" .. string.format( language.GetPhrase("uv.race.finishspot"), language.GetPhrase("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
+		UVString("uv.race.finished") .. "\n" .. string.format( UVString("uv.race.finishspot"), UVString("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
 		or "#uv.race.finished"
 
 		if local_finished then 
@@ -555,10 +555,10 @@ UV_UI.racing.undercover.events = {
 		if suppress_lap_ui then return end
 
 		if is_global_best then
-			UV_UI.racing.undercover.states.LapCompleteText = string.format(language.GetPhrase("uv.race.fastest.laptime"), name, Carbon_FormatRaceTime( lap_time ) )
+			UV_UI.racing.undercover.states.LapCompleteText = string.format(UVString("uv.race.fastest.laptime"), name, Carbon_FormatRaceTime( lap_time ) )
 		else
 			if is_local_player then
-				UV_UI.racing.undercover.states.LapCompleteText = string.format(language.GetPhrase("uv.race.laptime.carbon"), Carbon_FormatRaceTime( lap_time ) )
+				UV_UI.racing.undercover.states.LapCompleteText = string.format(UVString("uv.race.laptime.carbon"), Carbon_FormatRaceTime( lap_time ) )
 			else
 				return
 			end
@@ -579,7 +579,7 @@ UV_UI.racing.undercover.events = {
 
 		if not info then return end
 
-		local disqtext = string.format(language.GetPhrase("uv.race.wrecked"), name)
+		local disqtext = string.format(UVString("uv.race.wrecked"), name)
 		if is_local_player then disqtext = "#uv.chase.wrecked" end
 
 		UV_UI.racing.undercover.events.CenterNotification({
@@ -619,7 +619,7 @@ UV_UI.racing.undercover.events = {
 			noticol = Color(200, 75, 75)
 		end
 		
-		local splittext = string.format( language.GetPhrase("uv.race.splittime"), splittime )
+		local splittext = string.format( UVString("uv.race.splittime"), splittime )
 
 		UV_UI.racing.undercover.events.CenterNotification({
 			text = splittext,
@@ -632,14 +632,14 @@ UV_UI.racing.undercover.events = {
 
 UV_UI.pursuit.undercover.events = {
 	onUnitTakedown = function( unitType, name, bounty, bountyCombo, isPlayer )
-		local uname = isPlayer and language.GetPhrase( unitType .. ".caps" ) or name -- Fallback
+		local uname = isPlayer and UVString( unitType .. ".caps" ) or name -- Fallback
 		
 		if GetConVar("unitvehicle_vehiclenametakedown"):GetBool() then
-			uname = name and string.Trim(language.GetPhrase(name), "#") or nil
+			uname = name and string.Trim(UVString(name), "#") or nil
 		end
 		
 		UV_UI.racing.undercover.events.CenterNotification({
-			text = string.format( language.GetPhrase( "uv.hud.undercover.takedown" ), uname, bounty, bountyCombo ),
+			text = string.format( UVString( "uv.hud.undercover.takedown" ), uname, bounty, bountyCombo ),
 			immediate = true,
 		})
     end,
@@ -719,7 +719,7 @@ UV_UI.pursuit.undercover.events = {
     end,
         
 	onRacerBusted = function( racer, cop, lp )
-		local cnt = string.format(language.GetPhrase("uv.hud.racer.arrested"), racer, language.GetPhrase(cop))
+		local cnt = string.format(UVString("uv.hud.racer.arrested"), racer, UVString(cop))
 		
 		if lp then
 			cnt = "#uv.chase.busted"
@@ -885,7 +885,7 @@ UV_UI.pursuit.undercover.events = {
             cam.Start2D()
             cam.PushModelMatrix(mat)
             local timeremaining = math.ceil(autoCloseDelay - (CurTime() - timestart))
-            local lang = language.GetPhrase
+            local lang = UVString
             
             -- Upper Results Tab
             surface.SetDrawColor( 0, 0, 0, tabAlpha )
@@ -968,10 +968,10 @@ UV_UI.pursuit.undercover.events = {
 			
 			local cy, cx, cc = w*0.5, h*0.6525, TEXT_ALIGN_CENTER
 			
-			local conttext = "<font=UVUndercoverAccentFont>" .. UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue"), "Big") .. "</font>"
+			local conttext = "<font=UVUndercoverAccentFont>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big") .. "</font>"
 			local mk = markup.Parse(conttext)
 
-			local spawntext = "<font=UVUndercoverAccentFont>" .. UVReplaceKeybinds("[+reload] " .. language.GetPhrase("uv.pm.spawnas"), "Big") .. "</font>"
+			local spawntext = "<font=UVUndercoverAccentFont>" .. UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big") .. "</font>"
 			local mk2 = markup.Parse(spawntext)
 
 			if debriefunitspawn and (UVHUDWantedSuspects and #UVHUDWantedSuspects > 0) then
@@ -1043,7 +1043,7 @@ UV_UI.pursuit.undercover.events = {
     end,
     
     onRacerBustedDebrief = function(bustedtable)
-        local unit = language.GetPhrase(bustedtable["Unit"]) or "Unknown"
+        local unit = UVString(bustedtable["Unit"]) or "Unknown"
         local time = UVDisplayTime(UVTimerProgress)
         local deploys = bustedtable["Deploys"]
         local roadblocksdodged = bustedtable["Roadblocks"]
@@ -1129,14 +1129,14 @@ UV_UI.pursuit.undercover.events = {
 
 	onPullOverRequest = function(...)
 		UV_UI.racing.undercover.events.CenterNotification({
-			text = language.GetPhrase("uv.hud.fine.pullover"),
+			text = UVString("uv.hud.fine.pullover"),
 			color = Color(0,194,255),
 			immediate = true,
 		})
 	end,
 	onFined = function( finenr )
 		UV_UI.racing.undercover.events.CenterNotification({
-			text = string.format( language.GetPhrase("uv.hud.fine.fined"), finenr),
+			text = string.format( UVString("uv.hud.fine.fined"), finenr),
 			color = Color(0,194,255),
 			immediate = true,
 		})
@@ -1152,7 +1152,7 @@ local function undercover_racing_main( ... )
     local string_array = select(3, ...)
     
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local checkpoint_count = #my_array["Checkpoints"]
     
@@ -1281,7 +1281,7 @@ local function undercover_pursuit_main( ... )
     
     local w = ScrW()
     local h = ScrH()
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)
     local UVBustTimer = BustedTimer:GetFloat()

@@ -5,14 +5,14 @@ if CLIENT then
     net.Receive("UVHUDRepairCooldown", function() --Inform the player when the repair shop can be used again
         local timeleft = net.ReadInt(32)
 		UV_UI.general.events.CenterNotification({
-            text = "#uv.repairshop.cooldown",
+            text = UVString("uv.repairshop.cooldown"),
 			color = Color(255, 0, 0),
 			critical = true,
 			time = 3,
         })
 		
 		UV_UI.general.events.CenterNotification({
-            text = string.format( language.GetPhrase("uv.repairshop.cooldown.time"), timeleft ),
+            text = string.format( UVString("uv.repairshop.cooldown.time"), timeleft ),
 			critical = true,
 			time = 3,
         })
@@ -21,7 +21,7 @@ if CLIENT then
 
     net.Receive("UVHUDRepair", function()
 		UV_UI.general.events.CenterNotification({
-            text = "#uv.repairshop.used",
+            text = UVString("uv.repairshop.used"),
 			critical = true,
 			time = 3,
         })
@@ -30,7 +30,7 @@ if CLIENT then
 
     net.Receive("UVHUDRepairCommander", function()
 		UV_UI.general.events.CenterNotification({
-            text = "#uv.repairshop.nocommander",
+            text = UVString("uv.repairshop.nocommander"),
 			color = Color(255, 0, 0),
 			critical = true,
 			time = 2,
@@ -40,7 +40,7 @@ if CLIENT then
 
     net.Receive("UVHUDRefilledPT", function()
 		UV_UI.general.events.CenterNotification({
-            text = "#uv.repairshop.used.pt",
+            text = UVString("uv.repairshop.used.pt"),
 			critical = true,
 			time = 2,
         })
@@ -48,7 +48,7 @@ if CLIENT then
 
     net.Receive("UVHUDRepairAvailable", function()
 		UV_UI.general.events.CenterNotification({
-            text = "#uv.repairshop.available",
+            text = UVString("uv.repairshop.available"),
 			color = Color(50, 255, 50),
 			critical = true,
 			time = 3,

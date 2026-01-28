@@ -12,7 +12,7 @@ local function ctu_racing_main( ... )
     local string_array = select(3, ...)
     
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local checkpoint_count = #my_array["Checkpoints"]
     
@@ -69,7 +69,7 @@ local function ctu_racing_main( ... )
 	end
 
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     -- Left Side Info
 	
@@ -378,9 +378,9 @@ UV_UI.racing.ctu.events = {
 				surface.DrawTexturedRect(w * 0.4, h * 0.8, w * 0.2, h * 0.035)
 			end
 
-			-- local conttext = UVBindButton("+jump") .. "    " .. language.GetPhrase("uv.results.continue")
-			local conttext = UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue"), "Big")
-			local autotext = string.format( language.GetPhrase("uv.results.autoclose"), math.ceil(autoCloseRemaining) )
+			-- local conttext = UVBindButton("+jump") .. "    " .. UVString("uv.results.continue")
+			local conttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big")
+			local autotext = string.format( UVString("uv.results.autoclose"), math.ceil(autoCloseRemaining) )
 
 			-- draw.SimpleTextOutlined(conttext, "UVFont4BiggerItalic2", w * 0.4025, h * 0.8, Color( 255, 255, 255, 255 * fadeAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, Color( 0, 0, 0, 255 * fadeAlpha ) )
 			markup.Parse( "<color=255,255,255" .. fadeAlpha .. "><font=UVFont4BiggerItalic2>" .. conttext .. "</font></color>", w * 0.95 ):Draw( w * 0.41, h * 0.8, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
@@ -422,7 +422,7 @@ UV_UI.racing.ctu.events = {
     onRaceEnd = function( sortedRacers, stringArray )
         local triggerTime = CurTime()
         local duration = 10
-        local glidetext = UVReplaceKeybinds( string.format( language.GetPhrase("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
+        local glidetext = UVReplaceKeybinds( string.format( UVString("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
         local glideicon = "unitvehicles/icons/INGAME_ICON_LEADERBOARD.png"
         
         -----------------------------------------

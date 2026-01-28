@@ -22,12 +22,12 @@ UV_UI.racing.original.events = {
     onLapComplete = function( participant, new_lap, old_lap, lap_time, lap_time_cur, is_local_player, is_global_best, lap_final, local_finished, user_finished, suppress_lap_ui )
 		local name = UVHUDRaceInfo.Participants[participant] and UVHUDRaceInfo.Participants[participant].Name or "Unknown"
         local laptimeprefixcolor = Color(255, 255, 255)
-        local laptimeprefix = string.format(language.GetPhrase("uv.race.laptime.original"), old_lap, name)
+        local laptimeprefix = string.format(UVString("uv.race.laptime.original"), old_lap, name)
         local laptimecolor = Color(255, 255, 0)
         local laptime = UVDisplayTimeRace( lap_time )
 
 		if is_global_best then
-			laptimeprefix = string.format(language.GetPhrase("uv.race.fastest.laptime.original"), old_lap, name)
+			laptimeprefix = string.format(UVString("uv.race.fastest.laptime.original"), old_lap, name)
             laptimecolor = Color(0, 255, 255)
 		end
 
@@ -54,9 +54,9 @@ UV_UI.racing.original.events = {
 
 		if not info then return end
 
-		local disqtext = string.format(language.GetPhrase("uv.race.wrecked.original"))
+		local disqtext = string.format(UVString("uv.race.wrecked.original"))
 		if is_local_player then 
-            disqtext = string.format(language.GetPhrase("uv.chase.wrecked"))
+            disqtext = string.format(UVString("uv.chase.wrecked"))
             chat.AddText(Color(255, 0, 0), disqtext)
         else
             chat.AddText(Color(255, 0, 0), name, Color(255, 255, 255), disqtext)
@@ -66,12 +66,12 @@ UV_UI.racing.original.events = {
 
     onRaceEnd = function( sortedRacers, stringArray )
         if not istable(sortedRacers) or #sortedRacers == 0 then
-            chat.AddText(Color(255, 255, 255), string.format(language.GetPhrase("uv.race.finished.statserror")))
+            chat.AddText(Color(255, 255, 255), string.format(UVString("uv.race.finished.statserror")))
             return
         end
 
         PrintTable(sortedRacers)
-        chat.AddText(Color(255, 255, 255), string.format(language.GetPhrase("uv.race.finished.viewstats.original")))
+        chat.AddText(Color(255, 255, 255), string.format(UVString("uv.race.finished.viewstats.original")))
         
     end
 }
@@ -87,13 +87,13 @@ UV_UI.pursuit.original.events = {
     --     end
     -- end,
     onUnitTakedown = function( unitType, name, bounty, bountyCombo, isPlayer )
-		local uname = isPlayer and language.GetPhrase( unitType ) or name -- Fallback
+		local uname = isPlayer and UVString( unitType ) or name -- Fallback
 		
 		if GetConVar("unitvehicle_vehiclenametakedown"):GetBool() then
-			uname = name and string.Trim(language.GetPhrase(name), "#") or nil
+			uname = name and string.Trim(UVString(name), "#") or nil
 		end
 		
-		local text = string.format( language.GetPhrase( "uv.hud.original.takedown" ), uname, bounty, bountyCombo )
+		local text = string.format( UVString( "uv.hud.original.takedown" ), uname, bounty, bountyCombo )
         LocalPlayer():PrintMessage(HUD_PRINTCENTER, text)
 	end,
     onUnitWreck = function(...)
@@ -167,7 +167,7 @@ UV_UI.pursuit.original.events = {
         
     end,
     onRacerBusted = function( racer, cop, lp )
-		local cnt = string.format(language.GetPhrase("uv.hud.racer.arrested.original"), racer, language.GetPhrase(cop))
+		local cnt = string.format(UVString("uv.hud.racer.arrested.original"), racer, UVString(cop))
 
 		chat.AddText(Color(255, 0, 0), cnt)
 	end,
@@ -210,7 +210,7 @@ UV_UI.pursuit.original.events = {
         
         ResultPanel.Paint = function(self, w, h)
             local timeremaining = math.ceil(timetotal - (CurTime() - timestart))
-            local lang = language.GetPhrase
+            local lang = UVString
             
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
             draw.SimpleText("/// " .. lang("uv.chase.busted") .. " ///", "UVFont", w*0.5, h*0.01, Color(0, 255, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
@@ -232,9 +232,9 @@ UV_UI.pursuit.original.events = {
             draw.SimpleText( spikestripsdodged, "UVFont2", w*0.99, h*0.75, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
             
             -- Time remaining and closing
-            draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. language.GetPhrase("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
+            draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. UVString("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
             
-            draw.DrawText( string.format( language.GetPhrase("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2", w*0.99, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
+            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2", w*0.99, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
@@ -299,7 +299,7 @@ UV_UI.pursuit.original.events = {
         
         ResultPanel.Paint = function(self, w, h)
             local timeremaining = math.ceil(timetotal - (CurTime() - timestart))
-            local lang = language.GetPhrase
+            local lang = UVString
             
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
             draw.SimpleText("--- " .. lang("uv.chase.evade") .. " ---", "UVFont", w*0.5, h*0.01, Color(255, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
@@ -321,9 +321,9 @@ UV_UI.pursuit.original.events = {
             draw.SimpleText( spikestripsdodged, "UVFont2", w*0.99, h*0.75, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
             
             -- Time remaining and closing
-            draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. language.GetPhrase("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
+            draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. UVString("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
             
-            draw.DrawText( string.format( language.GetPhrase("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2", w*0.99, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
+            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2", w*0.99, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
@@ -388,7 +388,7 @@ UV_UI.pursuit.original.events = {
         
         ResultPanel.Paint = function(self, w, h)
             local timeremaining = math.ceil(timetotal - (CurTime() - timestart))
-            local lang = language.GetPhrase
+            local lang = UVString
             
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
             draw.SimpleText("--- " .. lang("uv.chase.evade") .. " ---", "UVFont", w*0.5, h*0.01, Color(0, 255, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
@@ -411,8 +411,8 @@ UV_UI.pursuit.original.events = {
             
             -- Time remaining and closing
             
-            draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. language.GetPhrase("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
-            draw.DrawText( string.format( language.GetPhrase("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2", w*0.99, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
+            draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. UVString("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
+            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2", w*0.99, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
 			
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
@@ -447,7 +447,7 @@ UV_UI.pursuit.original.events = {
         --------------------------------------
         
         local time = UVDisplayTime(UVTimerProgress)
-        local unit = language.GetPhrase(bustedtable["Unit"]) or "Unknown"
+        local unit = UVString(bustedtable["Unit"]) or "Unknown"
         local deploys = bustedtable["Deploys"]
         local roadblocksdodged = bustedtable["Roadblocks"]
         local spikestripsdodged = bustedtable["Spikestrips"]
@@ -477,7 +477,7 @@ UV_UI.pursuit.original.events = {
         
         ResultPanel.Paint = function(self, w, h)
             local timeremaining = math.ceil(timetotal - (CurTime() - timestart))
-            local lang = language.GetPhrase
+            local lang = UVString
             
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
             draw.SimpleText("/// " .. lang("uv.chase.busted") .. " ///", "UVFont", w*0.5, h*0.01, Color(255, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
@@ -499,11 +499,11 @@ UV_UI.pursuit.original.events = {
             draw.SimpleText( spikestripsdodged, "UVFont2", w*0.99, h*0.75, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
             
             -- Time remaining and closing
-            draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. language.GetPhrase("uv.results.continue"), "UVFont2-Smaller", w*0.01, h*0.825, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
-            draw.DrawText( string.format( language.GetPhrase("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2-Smaller", w*0.99, h*0.885, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
+            draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. UVString("uv.results.continue"), "UVFont2-Smaller", w*0.01, h*0.825, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
+            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2-Smaller", w*0.99, h*0.885, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
 			
 			if UVHUDWantedSuspects and #UVHUDWantedSuspects > 0 then
-				draw.DrawText( "[ " .. UVBindButton("+reload") .. " ] " .. language.GetPhrase("uv.pm.spawnas"), "UVFont2-Smaller", w*0.01, h*0.885, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
+				draw.DrawText( "[ " .. UVBindButton("+reload") .. " ] " .. UVString("uv.pm.spawnas"), "UVFont2-Smaller", w*0.01, h*0.885, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
 			end
 
             if timeremaining < 1 then
@@ -552,12 +552,12 @@ UV_UI.pursuit.original.events = {
 
     onPullOverRequest = function(...)
         local ply = LocalPlayer()
-		ply:PrintMessage(HUD_PRINTCENTER, language.GetPhrase("uv.hud.fine.pullover"))
+		ply:PrintMessage(HUD_PRINTCENTER, UVString("uv.hud.fine.pullover"))
 	end,
 
 	onFined = function( finenr )
         local ply = LocalPlayer()
-		ply:PrintMessage(HUD_PRINTCENTER, string.format( language.GetPhrase("uv.hud.fine.fined"), finenr))
+		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.fined"), finenr))
 	end,
 }
 
@@ -570,7 +570,7 @@ local function original_racing_main( ... )
     local string_array = select(3, ...)
     
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local checkpoint_count = #my_array["Checkpoints"]
     
@@ -620,8 +620,8 @@ local function original_racing_main( ... )
 
     -- Timer
     draw.DrawText(
-    string.format(language.GetPhrase("uv.race.hud.time.ug")).." "..(current_time or UVDisplayTimeRace( 0 )).." \n"
-    ..string.format(language.GetPhrase("uv.race.hud.best.ug")).." "..(UVDisplayTimeRace(my_array.BestLapTime or 0)).." ",
+    string.format(UVString("uv.race.hud.time.ug")).." "..(current_time or UVDisplayTimeRace( 0 )).." \n"
+    ..string.format(UVString("uv.race.hud.best.ug")).." "..(UVDisplayTimeRace(my_array.BestLapTime or 0)).." ",
     "UVFont4",
     w,
     h / 7,
@@ -708,7 +708,7 @@ local function original_pursuit_main( ... )
     
     local w = ScrW()
     local h = ScrH()
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)
     local UVBustTimer = BustedTimer:GetFloat()

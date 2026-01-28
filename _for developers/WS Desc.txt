@@ -97,8 +97,8 @@ And [b]so much more[/b]!
         [td]It is stored in the game's [b]data[/b] folder. Here you'll find Unit data, Racer Names, Pursuit Breaker data, Race data and Roadblock data.[/td]
     [/tr]
     [tr]
-        [td]I have more questions![/td]
-        [td]First you should check out the [b]UV Menu[/b]'s [b]FAQ[/b]. While in-game, hold your Context key ('C' by default) and click [b]Unit Vehicles[/b], then navigate to [b]FAQ[/b].[/td]
+        [td]I have more questions, or I have a problem![/td]
+        [td]First you should check out the [b]UV Menu[/b]'s [b]FAQ[/b]. While in-game, hold your Context key ('C' by default) and click [b]Unit Vehicles[/b], then navigate to [b]FAQ[/b]. If this does not provide any solution, please visit our [b]Discord[/b] server below.[/td]
     [/tr]
 [/table]
 

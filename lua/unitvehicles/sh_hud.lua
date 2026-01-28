@@ -245,7 +245,7 @@ function UVBindButton(var)
 	local resolved = BindTextReplace[keyName] or keyName
 
 	if string.StartWith(resolved, "#") then 
-		return language.GetPhrase(resolved) 
+		return UVString(resolved) 
 	else
 		return string.upper(resolved)
 	end
@@ -863,7 +863,7 @@ if CLIENT then
 
 		-- [string:phrase]
 		str = str:gsub("%[string:([^%]]+)%]", function(locstring)
-			return "<color=255,255,0>" .. language.GetPhrase(locstring) .. "</color>"
+			return "<color=255,255,0>" .. UVString(locstring) .. "</color>"
 		end)
 
 		-- [glyph:phrase]
@@ -1003,7 +1003,7 @@ end
 function UVRenderCommander(ent)
     local localPlayer = LocalPlayer()
     local box_color = Color(0, 161, 255)
-    local lang = language.GetPhrase
+    local lang = UVString
     
     if IsValid(ent) then
         if not UVHUDDisplayPursuit then return end
@@ -1022,7 +1022,7 @@ function UVRenderCommander(ent)
                 end
                 if Glide then
                     Glide.Notify( {
-                        text = "<color=61,183,255>" .. language.GetPhrase(notitext),
+                        text = "<color=61,183,255>" .. UVString(notitext),
                         icon = "unitvehicles/icons/MINIMAP_ICON_EVENT_RIVAL.png",
                         lifetime = 5,
                         immediate = true
@@ -1030,7 +1030,7 @@ function UVRenderCommander(ent)
                 else
                     chat.AddText(
                     Color(0, 81, 161), "[Unit Vehicles] ",
-                    Color(61, 183, 255), language.GetPhrase(notitext) )
+                    Color(61, 183, 255), UVString(notitext) )
                 end
                 return
             end
@@ -1102,13 +1102,13 @@ function UVRenderCommander(ent)
 		local displayDist, displayString
 		if unitType == 1 then
 			displayDist = feet
-			displayString = language.GetPhrase("uv.dist.feet")
+			displayString = UVString("uv.dist.feet")
 		elseif unitType == 2 then
 			displayDist = yards
-			displayString = language.GetPhrase("uv.dist.yards")
+			displayString = UVString("uv.dist.yards")
 		else
 			displayDist = distInMeters
-			displayString = language.GetPhrase("uv.dist.meter")
+			displayString = UVString("uv.dist.meter")
 		end
 		
         cam.Start2D()
@@ -1163,7 +1163,7 @@ function UVRenderEnemySquare(ent)
     local blink2 = 255 * math.abs(math.sin(RealTime() * 6))
     local blink3 = 255 * math.abs(math.sin(RealTime() * 8))
     
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local entbustedtimeleft = math.Round((BustedTimer:GetFloat()-(ent.UVBustingProgress or 0)),3)
     
@@ -1320,13 +1320,13 @@ function UVRenderEnemySquare(ent)
 		local displayDist, displayString
 		if unitType == 1 then
 			displayDist = feet
-			displayString = language.GetPhrase("uv.dist.feet")
+			displayString = UVString("uv.dist.feet")
 		elseif unitType == 2 then
 			displayDist = yards
-			displayString = language.GetPhrase("uv.dist.yards")
+			displayString = UVString("uv.dist.yards")
 		else
 			displayDist = distInMeters
-			displayString = language.GetPhrase("uv.dist.meter")
+			displayString = UVString("uv.dist.meter")
 		end
 		
         cam.Start2D()

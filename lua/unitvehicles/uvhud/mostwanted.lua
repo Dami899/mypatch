@@ -380,7 +380,7 @@ UV_UI.racing.mostwanted.events = {
             				
 			surface.SetFont("UVFont5UI")
 		   local vehname = info["VehicleName"]
-		   vehname = vehname and string.Trim(language.GetPhrase(vehname), "#") or "<UNKNOWN>"
+		   vehname = vehname and string.Trim(UVString(vehname), "#") or "<UNKNOWN>"
 
 			local ymax = w * 0.25
 			local ynmax = w * 0.13
@@ -586,7 +586,7 @@ UV_UI.racing.mostwanted.events = {
                     draw.SimpleText("▼", "UVFont5UI", w * 0.5, h * 0.7625, Color(255,255,255,blink), TEXT_ALIGN_CENTER)
                 end
 
-				local conttext = markup.Parse("<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue"), "Big") .. "</font></color>")
+				local conttext = markup.Parse("<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big") .. "</font></color>")
 
 				surface.SetAlphaMultiplier(textAlpha / 255)
 				conttext:Draw(w * 0.205, h * 0.77, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
@@ -616,7 +616,7 @@ UV_UI.racing.mostwanted.events = {
                 autoCloseTimer = elapsed - autoCloseStartDelay
                 autoCloseRemaining = math.max(0, autoCloseDuration - autoCloseTimer)
                 
-				draw.DrawText(string.format(language.GetPhrase("uv.results.autoclose"), math.ceil(autoCloseRemaining)), "UVFont5", w * 0.79, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
+				draw.DrawText(string.format(UVString("uv.results.autoclose"), math.ceil(autoCloseRemaining)), "UVFont5", w * 0.79, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
             
 				if autoCloseRemaining <= 0 then
 					hook.Remove("CreateMove", "JumpKeyCloseResults")
@@ -629,7 +629,7 @@ UV_UI.racing.mostwanted.events = {
 				end
 			else
 				-- Before auto-close timer starts, show the text but no countdown
-				draw.DrawText(string.format(language.GetPhrase("uv.results.autoclose"), autoCloseDuration), "UVFont5", w * 0.79, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
+				draw.DrawText(string.format(UVString("uv.results.autoclose"), autoCloseDuration), "UVFont5", w * 0.79, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
 			end
 		if closing then
 			local elapsed = curTime - closeStartTime
@@ -671,7 +671,7 @@ end,
 	onRaceEnd = function( sortedRacers, stringArray )
 		local triggerTime = CurTime()
 		local duration = 10
-		local glidetext = UVReplaceKeybinds( string.format( language.GetPhrase("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
+		local glidetext = UVReplaceKeybinds( string.format( UVString("uv.race.finished.viewstats"),"[key:unitvehicle_keybind_raceresults]") )
 
 		local glideicon = "unitvehicles/icons/INGAME_ICON_LEADERBOARD.png"
 		
@@ -717,7 +717,7 @@ end,
 		local participant_count = UVHUDRaceInfo.Participants and table.Count(UVHUDRaceInfo.Participants) or 0
 
 		local finishtext = (participant_count > 1 and cps > 1) and 
-		language.GetPhrase("uv.race.finished") .. "\n" .. string.format( language.GetPhrase("uv.race.finishspot"), language.GetPhrase("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
+		UVString("uv.race.finished") .. "\n" .. string.format( UVString("uv.race.finishspot"), UVString("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
 		or "#uv.race.finished"
 
 		if local_finished then 
@@ -733,10 +733,10 @@ end,
 		if suppress_lap_ui then return end
 
 		if is_global_best then
-			UV_UI.racing.mostwanted.states.LapCompleteText = string.format(language.GetPhrase("uv.race.fastest.laptime"), name, Carbon_FormatRaceTime( lap_time ) )
+			UV_UI.racing.mostwanted.states.LapCompleteText = string.format(UVString("uv.race.fastest.laptime"), name, Carbon_FormatRaceTime( lap_time ) )
 		else
 			if is_local_player then
-				UV_UI.racing.mostwanted.states.LapCompleteText = string.format(language.GetPhrase("uv.race.laptime"), Carbon_FormatRaceTime( lap_time ) )
+				UV_UI.racing.mostwanted.states.LapCompleteText = string.format(UVString("uv.race.laptime"), Carbon_FormatRaceTime( lap_time ) )
 			else
 				return
 			end
@@ -756,7 +756,7 @@ end,
 
 		if not info then return end
 
-		local disqtext = string.format(language.GetPhrase("uv.race.wrecked"), name)
+		local disqtext = string.format(UVString("uv.race.wrecked"), name)
 		if is_local_player then disqtext = "#uv.chase.wrecked" end
 
 		UV_UI.racing.mostwanted.events.CenterNotification({
@@ -829,7 +829,7 @@ end,
 			noticol = Color(200, 75, 75)
 		end
 		
-		local splittext = string.format( language.GetPhrase("uv.race.splittime"), splittime )
+		local splittext = string.format( UVString("uv.race.splittime"), splittime )
 
 		UV_UI.racing.mostwanted.events.CenterNotification2({
 			text = splittext,
@@ -842,14 +842,14 @@ end,
 UV_UI.pursuit.mostwanted.events = {
     notifState = {},
     onUnitTakedown = function( unitType, name, bounty, bountyCombo, isPlayer )
-		local uname = isPlayer and language.GetPhrase( unitType ) or name -- Fallback
+		local uname = isPlayer and UVString( unitType ) or name -- Fallback
 		
 		if GetConVar("unitvehicle_vehiclenametakedown"):GetBool() then
-			uname = name and string.Trim(language.GetPhrase(name), "#") or nil
+			uname = name and string.Trim(UVString(name), "#") or nil
 		end
 		
 		UV_UI.racing.mostwanted.events.CenterNotification({
-			text = string.format( language.GetPhrase( "uv.hud.mw.takedown" ), uname, bounty, bountyCombo ),
+			text = string.format( UVString( "uv.hud.mw.takedown" ), uname, bounty, bountyCombo ),
 			immediate = true,
 		})
 	end,
@@ -925,7 +925,7 @@ UV_UI.pursuit.mostwanted.events = {
     end,
         
 	onRacerBusted = function( racer, cop, lp )
-		local cnt = string.format(language.GetPhrase("uv.hud.racer.arrested"), racer, language.GetPhrase(cop))
+		local cnt = string.format(UVString("uv.hud.racer.arrested"), racer, UVString(cop))
 		
 		if lp then
 			cnt = "#uv.chase.busted"
@@ -1170,11 +1170,11 @@ UV_UI.pursuit.mostwanted.events = {
                 
                 draw.DrawText(debrieftitletext, "UVFont5", w * 0.5, h * 0.2, Color(255, 255, 255, textAlpha), TEXT_ALIGN_CENTER)
 
-				local conttext = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+jump] " .. language.GetPhrase("uv.results.continue"), "Big") .. "</font></color>"
+				local conttext = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big") .. "</font></color>"
 				
 				local ustext = ""
 				if debriefunitspawn and (UVHUDWantedSuspects and #UVHUDWantedSuspects > 0) then
-					conttext = conttext .. "     <color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+reload] " .. language.GetPhrase("uv.pm.spawnas"), "Big") .. "</font></color>"
+					conttext = conttext .. "     <color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big") .. "</font></color>"
 				end
 
 				surface.SetAlphaMultiplier(textAlpha / 255)
@@ -1205,7 +1205,7 @@ UV_UI.pursuit.mostwanted.events = {
                 autoCloseTimer = elapsed - autoCloseStartDelay
                 autoCloseRemaining = math.max(0, autoCloseDuration - autoCloseTimer)
                 
-				draw.DrawText(string.format(language.GetPhrase("uv.results.autoclose"), math.ceil(autoCloseRemaining)), "UVFont5", w * 0.79, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
+				draw.DrawText(string.format(UVString("uv.results.autoclose"), math.ceil(autoCloseRemaining)), "UVFont5", w * 0.79, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
 			
 				if autoCloseRemaining <= 0 then
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
@@ -1219,7 +1219,7 @@ UV_UI.pursuit.mostwanted.events = {
 				end
 			else
 				-- Before auto-close timer starts, show the text but no countdown
-				draw.DrawText(string.format(language.GetPhrase("uv.results.autoclose"), autoCloseDuration), "UVFont5", w * 0.79, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
+				draw.DrawText(string.format(UVString("uv.results.autoclose"), autoCloseDuration), "UVFont5", w * 0.79, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
 		end
 		if closing then
 			local elapsed = curTime - closeStartTime
@@ -1299,7 +1299,7 @@ onRacerBustedDebrief = function(bustedtable)
         dataTable = bustedtable,
         color = Color(255, 183, 61),
         iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = string.format( language.GetPhrase("uv.results.bustedby"), language.GetPhrase( bustedtable["Unit"] ) ),
+        titleText = string.format( UVString("uv.results.bustedby"), UVString( bustedtable["Unit"] ) ),
 		spawnAsUnit = true,
     }
     UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
@@ -1311,7 +1311,7 @@ onCopBustedDebrief = function(bustedtable)
         color = Color(61, 183, 255),
         textcolor = Color(142, 221, 255, 107),
         iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = string.format( language.GetPhrase("uv.results.suspects.busted"), bustedtable["Unit"] ),
+        titleText = string.format( UVString("uv.results.suspects.busted"), bustedtable["Unit"] ),
     }
     UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
 end,
@@ -1322,14 +1322,14 @@ onCopEscapedDebrief = function(escapedtable)
         color = Color(61, 183, 255),
         textcolor = Color(142, 221, 255, 107),
         iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = string.format(language.GetPhrase("uv.results.suspects.escaped.num"), UVHUDWantedSuspectsNumber)
+        titleText = string.format(UVString("uv.results.suspects.escaped.num"), UVHUDWantedSuspectsNumber)
     }
     UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
 end,
 
 	onPullOverRequest = function(...)
 		UV_UI.racing.mostwanted.events.CenterNotification({
-			text = language.GetPhrase("uv.hud.fine.pullover"),
+			text = UVString("uv.hud.fine.pullover"),
 			textNoFall = true,
 			noIcon = true,
 			immediate = true,
@@ -1337,7 +1337,7 @@ end,
 	end,
 	onFined = function( finenr )
 		UV_UI.racing.mostwanted.events.CenterNotification({
-			text = string.format( language.GetPhrase("uv.hud.fine.fined"), finenr),
+			text = string.format( UVString("uv.hud.fine.fined"), finenr),
 			textNoFall = true,
 			noIcon = true,
 			immediate = true,
@@ -1358,7 +1358,7 @@ local function mw_racing_main( ... )
     local string_array = select(3, ...)
 
     local racer_count = #string_array
-    local lang = language.GetPhrase
+    local lang = UVString
     local checkpoint_count = #my_array["Checkpoints"]
 
     ------------------------------------
@@ -1522,7 +1522,7 @@ local function mw_pursuit_main( ... )
 	local scale = math.Clamp(UVHUDXScale:GetFloat(), 0.1, 1)
 	local deadzone = math.Clamp(UVHUDXDeadzone:GetFloat(), 0, 500)
 
-    local lang = language.GetPhrase
+    local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)
     local UVBustTimer = BustedTimer:GetFloat()

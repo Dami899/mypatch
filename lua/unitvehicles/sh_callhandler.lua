@@ -269,7 +269,7 @@ else
                 lifetime = 5
             } )
         else
-            chat.AddText(Color(255,0,0), language.GetPhrase("uv.hud.popup.wanted"))
+            chat.AddText(Color(255,0,0), UVString("uv.hud.popup.wanted"))
         end
         
     end)
