@@ -2386,7 +2386,7 @@ if SERVER then
 			-- timecheck = UVSoundChatter(self, self.voice, "lost", 1, "DISPATCH") -- MIGHT BE BETTER TO PUT THIS INSIDE THE UNITS FOLDER TOO
 			timecheck = UVSoundChatter(self, self.voice, "lost")
 			timer.Simple(timecheck, function()
-				UVSoundChatter(Entity(0), 1, "lostacknowledge", 1, "DISPATCH")
+				UVSoundChatter(Entity(1), 1, "lostacknowledge", 1, "DISPATCH")
 			end)
 			return
 		end
