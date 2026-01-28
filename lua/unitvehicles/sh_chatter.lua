@@ -259,6 +259,8 @@ if SERVER then
 			return 0
 		end
 
+		voice = voice or "nil"
+
 		-- if not UVLastPlay then
 		-- 	UVLastPlay = CurTime()
 		-- elseif CurTime() - UVLastPlay < 0.5  then
@@ -3326,7 +3328,7 @@ if SERVER then
 			-- else
 			-- 	timecheck = UVSoundChatter(self, self.voice, "backupontheway", 1, "DISPATCH")
 			-- end
-			timecheck = UVSoundChatter(self, self.voice, "backupontheway", 1, "DISPATCH")
+			timecheck = UVSoundChatter(Entity(1), "nil", "backupontheway", 1, "DISPATCH")
 			timer.Simple(timecheck, function()
 				if next(ents.FindByClass("npc_uv*")) ~= nil and not UVEnemyBusted then
 					local units = ents.FindByClass("npc_uv*")
