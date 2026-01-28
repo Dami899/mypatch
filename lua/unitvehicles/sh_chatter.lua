@@ -3239,7 +3239,6 @@ if SERVER then
 	end
 	
 	function UVChatterRequestBackup(self)
-		if UVChatterDelayed then return end
 		if not GetConVar("unitvehicle_chattertext"):GetBool() then
 			local timecheck = 5
 			local airrandomno = math.random(1,2)
