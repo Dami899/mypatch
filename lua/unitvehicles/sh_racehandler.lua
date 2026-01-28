@@ -1132,9 +1132,10 @@ if SERVER then
 					UVRace_LoadedConstraints[entityId] = nil
 				end
 
-				net.Start("UVRace_TrackReady")
-					net.WriteString("?")
-					net.WriteString("?")
+				UVRaceEnd()
+				UVCounterActive = false
+		
+				net.Start( "uvrace_end" )
 				net.Broadcast()
 			end)
 

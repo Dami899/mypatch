@@ -22,25 +22,17 @@ local dvd = DecentVehicleDestination
 function ENT:IsPathBlocked()
     if not IsValid(self.v) then return false end
 
-    -- 1. Direction and Velocity
     local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
     local speed = self.v:GetVelocity():Length()
     
-    -- 2. Find the Front Bumper
     local obbMax = self.v:OBBMaxs()
-    -- We use the absolute max to ensure we get the front regardless of model orientation
     local forwardOffset = math.max(obbMax.x, obbMax.y)
     
-    -- Start at the bumper, raised slightly off the ground
     local startPos = self.v:LocalToWorld(Vector(forwardOffset, 0, 30)) 
     
-    -- 3. The Distance to look ahead
     local lookAheadRange = 490 + (speed * 0.8)
     local endPos = startPos + (forward * lookAheadRange)
 
-    -- 4. The Hull (The "Bumper" size)
-    -- This defines a box that travels along the trace. 
-    -- Width: 100 total (-50 to 50), Height: 70 total (-20 to 50)
     local mins = Vector(-10, -50, -20)
     local maxs = Vector(10, 50, 50)
 
@@ -57,10 +49,6 @@ function ENT:IsPathBlocked()
         maxs = maxs,
         mask = MASK_NPCSOLID
     })
-
-    -- DEBUG: Uncomment to see the detection line in-game
-    -- debugoverlay.Line(startPos, endPos, 0.1, Color(255, 255, 0), true)
-    -- debugoverlay.BoxAngles(endPos, mins, maxs, self.v:GetAngles(), 0.1, Color(255, 0, 0, 100))
 
     if tr.Hit and IsValid(tr.Entity) then
         local ent = tr.Entity
@@ -484,11 +472,9 @@ if SERVER then
 				end
 			end --K turn
 
-			-- Inside ENT:Patrol
 			local isBlocked = self:IsPathBlocked()
 
 			if isBlocked then
-   			 	-- FORCE IDLE
    			 	throttle = 0
   			  	steer = 0
   			  	self:UVHandbrakeOn() 
@@ -501,12 +487,9 @@ if SERVER then
       			  	self.LastHonk = CurTime()
     			end
 
-			    -- Prevent the AI from thinking it's stuck because it's waiting
 			    self.moving = CurTime() 
 			else
-			    -- NORMAL DRIVING LOGIC
 			    self:UVHandbrakeOff()
-			    -- (Your waypoint math here)
 			end
 
 			local turn = self:ObstaclesNearbySide()
@@ -533,10 +516,7 @@ if SERVER then
 				self:SetHorn(false)
 			end
 
-			-- Modified "When there" block
 			local speedInUnits = self.v:GetVelocity():Length()
-			-- Adjust arrival radius based on speed: 150 units base + (speed * 0.5)
-			-- This creates a "look-ahead" effect so it doesn't oversteer at high speeds.
 			local arrivalThreshold = math.Clamp(150 + (speedInUnits * 0.5), 150, 600)
 
 			if dist:Length() < arrivalThreshold and UVStraightToWaypoint(self.v:WorldSpaceCenter(), self.waypointPos) then

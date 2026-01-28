@@ -277,7 +277,7 @@ function UVGetRandomUnit( heat, modifiers )
 	return { UVGetRandom( selectionPool ), modifiers }
 end
 
-function UVCreateEntitiesFromTable( EntityTable )
+function UVCreateEntitiesFromTable( EntityTable, localpos, localang )
 	local Entities = {}
 
 	for entityId, entityArray in pairs( EntityTable ) do
@@ -979,7 +979,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		SpawnAng.yaw = SpawnAng.yaw + (vehicle.SpawnAngleOffset and vehicle.SpawnAngleOffset or 0)
 		SpawnAng.roll = 0
 		
-		Ent = simfphys.SpawnVehicle( ply, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
+		Ent = simfphys.SpawnVehicle( nil, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
 		
 		if not IsValid( Ent ) then return end
 		
@@ -2571,7 +2571,7 @@ function UVAutoSpawnRacer()
 		SpawnAng.yaw = SpawnAng.yaw + (vehicle.SpawnAngleOffset and vehicle.SpawnAngleOffset or 0)
 		SpawnAng.roll = 0
 		
-		Ent = simfphys.SpawnVehicle( ply, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
+		Ent = simfphys.SpawnVehicle( nil, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
 		
 		if not IsValid( Ent ) then return end
 		
@@ -3002,62 +3002,99 @@ local function GetVehicleData( ent )
 	elseif ent.IsGlideVehicle then
 		local pos = ent:GetPos()
 		duplicator.SetLocalPos( pos )
-		
+
 		Memory = duplicator.Copy( ent )
-		
+
 		duplicator.SetLocalPos( vector_origin )
 		duplicator.SetLocalAng( angle_zero )
-		
-		if ( not Memory ) then return false end
-		
+
+		if not Memory then return false end
+
 		local Key = "VehicleBase"
 		Memory[Key] = ent.Base
 		local Key2 = "SpawnName"
 		Memory[Key2] = ent:GetClass()
 		Memory.Mins = Vector(Memory.Mins.x,Memory.Mins.y,0)
 
-		-- TODO: 
-		-- Vehicles with spoilers attached via Bonemerge are currently not supported and will result in an error due to the code below.
-		
-		Memory.Entities[next(Memory.Entities)].Angle = Angle(0,180,0)
-		Memory.Entities[next(Memory.Entities)].PhysicsObjects[0].Angle = Angle(0,180,0)
-		
-		local c = ent:GetColor()
-		Memory.Color = c.r..","..c.g..","..c.b..","..c.a
-		
-		local bodygroups = {}
-		for k,v in pairs(ent:GetBodyGroups()) do
-			bodygroups[k] = ent:GetBodygroup( k ) 
-		end
-		
-		Memory.BodyGroups = string.Implode( ",", bodygroups)
-		
-		Memory.Skin = ent:GetSkin()
-		
-		Memory.SubMaterials = {}
-		for i = 0, (table.Count( ent:GetMaterials() ) - 1) do
-			Memory.SubMaterials[i] = ent:GetSubMaterial( i )
-		end
-
 		if cffunctions then
-			Memory.NitrousPower = ent.NitrousPower or 2
-			Memory.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
-			Memory.NitrousRegenRate = ent.NitrousRegenRate or 0.1
-			Memory.NitrousRegenDelay = ent.NitrousRegenDelay or 2
-			Memory.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1 
-			Memory.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
-			Memory.NitrousBurst = ent.NitrousBurst or false
-			Memory.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
-			Memory.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
-			Memory.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
-			Memory.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
-			Memory.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
-			Memory.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
-			Memory.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
-			Memory.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
-			Memory.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
-			Memory.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
+			for k, v in pairs( Memory.Entities ) do
+				v.NitrousPower = ent.NitrousPower or 2
+				v.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
+				v.NitrousRegenRate = ent.NitrousRegenRate or 0.1
+				v.NitrousRegenDelay = ent.NitrousRegenDelay or 2
+				v.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1 
+				v.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
+				v.NitrousBurst = ent.NitrousBurst or false
+				v.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
+				v.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
+				v.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
+				v.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
+				v.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
+				v.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
+				v.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
+				v.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
+				v.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
+				v.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
+			end
 		end
+		-- local pos = ent:GetPos()
+		-- duplicator.SetLocalPos( pos )
+		
+		-- Memory = duplicator.Copy( ent )
+		
+		-- duplicator.SetLocalPos( vector_origin )
+		-- duplicator.SetLocalAng( angle_zero )
+		
+		-- if ( not Memory ) then return false end
+		
+		-- local Key = "VehicleBase"
+		-- Memory[Key] = ent.Base
+		-- local Key2 = "SpawnName"
+		-- Memory[Key2] = ent:GetClass()
+		-- Memory.Mins = Vector(Memory.Mins.x,Memory.Mins.y,0)
+
+		-- -- TODO: 
+		-- -- Vehicles with spoilers attached via Bonemerge are currently not supported and will result in an error due to the code below.
+		
+		-- Memory.Entities[next(Memory.Entities)].Angle = Angle(0,180,0)
+		-- Memory.Entities[next(Memory.Entities)].PhysicsObjects[0].Angle = Angle(0,180,0)
+		
+		-- local c = ent:GetColor()
+		-- Memory.Color = c.r..","..c.g..","..c.b..","..c.a
+		
+		-- local bodygroups = {}
+		-- for k,v in pairs(ent:GetBodyGroups()) do
+		-- 	bodygroups[k] = ent:GetBodygroup( k ) 
+		-- end
+		
+		-- Memory.BodyGroups = string.Implode( ",", bodygroups)
+		
+		-- Memory.Skin = ent:GetSkin()
+		
+		-- Memory.SubMaterials = {}
+		-- for i = 0, (table.Count( ent:GetMaterials() ) - 1) do
+		-- 	Memory.SubMaterials[i] = ent:GetSubMaterial( i )
+		-- end
+
+		-- if cffunctions then
+		-- 	Memory.NitrousPower = ent.NitrousPower or 2
+		-- 	Memory.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
+		-- 	Memory.NitrousRegenRate = ent.NitrousRegenRate or 0.1
+		-- 	Memory.NitrousRegenDelay = ent.NitrousRegenDelay or 2
+		-- 	Memory.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1 
+		-- 	Memory.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
+		-- 	Memory.NitrousBurst = ent.NitrousBurst or false
+		-- 	Memory.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
+		-- 	Memory.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
+		-- 	Memory.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
+		-- 	Memory.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
+		-- 	Memory.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
+		-- 	Memory.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
+		-- 	Memory.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
+		-- 	Memory.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
+		-- 	Memory.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
+		-- 	Memory.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
+		-- end
 		
 	elseif ent:GetClass() == "prop_vehicle_jeep" then
 		Memory.VehicleBase = ent:GetClass()
@@ -3422,6 +3459,7 @@ function UVMoveToGridSlot( vehicle, aienabled )
 	local entrantvehicle = vehicle
 	local PT = (vehicle.PursuitTech and table.Copy(vehicle.PursuitTech))
 	
+	local vehIndex = vehicle:EntIndex()
 	local Memory = GetVehicleData( vehicle )
 	
 	local driver = vehicle:GetDriver()
@@ -3472,7 +3510,7 @@ function UVMoveToGridSlot( vehicle, aienabled )
 		SpawnAng.yaw = SpawnAng.yaw + Memory.AddedYaw + (vehicle.SpawnAngleOffset and vehicle.SpawnAngleOffset or 0)
 		SpawnAng.roll = 0
 		
-		Ent = simfphys.SpawnVehicle( ply, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
+		Ent = simfphys.SpawnVehicle( nil, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
 		
 		if not IsValid( Ent ) then return end
 		
@@ -3715,103 +3753,208 @@ function UVMoveToGridSlot( vehicle, aienabled )
 		local SpawnCenter = pos + (vector_up * (InfMap and 2 or 25))
 		SpawnCenter.z = SpawnCenter.z - Memory.Mins.z
 		
-		duplicator.SetLocalPos( SpawnCenter )
-		duplicator.SetLocalAng( Angle( 0, ang.yaw, 0 ) )
-		
-		local Ents = duplicator.Paste( ply, Memory.Entities, Memory.Constraints )
-		Ent = Ents[next(Ents)]
-		
-		if not IsValid( Ent ) then 
-			PrintMessage( HUD_PRINTTALK, "The vehicle ".. Memory.SpawnName .." dosen't seem to be installed!" )
-			return 
+		-- duplicator.SetLocalPos( SpawnCenter )
+		-- duplicator.SetLocalAng( Angle( 0, ang.yaw, 0 ) )
+
+		local _Entities = table.Copy( Memory.Entities )
+		local _Constraints = table.Copy( Memory.Constraints )
+
+		local Ents = UVCreateEntitiesFromTable( _Entities )
+		local entCount = 0
+
+		for _, ent in pairs( Ents ) do
+			entCount = entCount + 1
 		end
-		
-		duplicator.SetLocalPos( vector_origin )
-		duplicator.SetLocalAng( angle_zero )
-		
-		undo.Create( "Duplicator" )
-		
-		if Memory.SubMaterials then
-			if istable( Memory.SubMaterials ) then
-				for i = 0, table.Count( Memory.SubMaterials ) do
-					Ent:SetSubMaterial( i, Memory.SubMaterials[i] )
+
+		if entCount > 1 then
+			local mainEnt = Ents[vehIndex]
+
+			if IsValid( mainEnt ) and mainEnt.Pos then
+				local rel = {}
+				local mainOldPos = mainEnt:GetPos()
+				local mainOldAng = mainEnt:GetAngles()
+
+				for id, e in pairs( Ents ) do
+					if IsValid( e ) then
+						local lp, la = WorldToLocal( e:GetPos(), e:GetAngles(), mainOldPos, mainOldAng )
+						rel[id] = { pos = lp, ang = la }
+					end
+				end
+
+				local targetMainPos, targetMainAng = LocalToWorld(
+					mainEnt.Pos,
+					Angle( 0, 180, 0 ),
+					SpawnCenter,
+					Angle( 0, ang.yaw, 0 )
+				)
+
+				for id, e in pairs( Ents ) do
+					local data = rel[id]
+					if data then
+						local wp, wa = LocalToWorld( data.pos, data.ang, targetMainPos, targetMainAng )
+						e:SetPos( wp )
+						e:SetAngles( wa )
+					end
 				end
 			end
-			
-			local groups = string.Explode( ",", Memory.BodyGroups)
-			for i = 1, table.Count( groups ) do
-				Ent:SetBodygroup(i, tonumber(groups[i]) )
-			end
-			
-			Ent:SetSkin( Memory.Skin )
-			
-			local c = string.Explode( ",", Memory.Color )
-			local Color =  Color( tonumber(c[1]), tonumber(c[2]), tonumber(c[3]), tonumber(c[4]) )
-			
-			local dot = Color.r * Color.g * Color.b * Color.a
-			Ent.OldColor = dot
-			Ent:SetColor( Color )
-			
-			local data = {
-				Color = Color,
-				RenderMode = 0,
-				RenderFX = 0
-			}
-			duplicator.StoreEntityModifier( Ent, "colour", data )
-			
-			if isfunction(Ent.Repair) then
-				Ent:Repair()
+		else
+			for _, ent in pairs( Ents ) do
+				if ent.Pos then
+					local pos, ang = LocalToWorld( ent.Pos, Angle(0,180,0), SpawnCenter, Angle(0, ang.yaw, 0) )
+					ent:SetPos( pos )
+					ent:SetAngles( ang )
+				end
 			end
 		end
 		
-		for k, ent in pairs( Ents ) do
-			undo.AddEntity( ent )
+		for _k, Constraint in pairs( _Constraints ) do
+			local constraintEnt = nil
+
+			ProtectedCall(function()
+				constraintEnt = UVCreateConstraintsFromTable( Constraint, Ents )
+			end)
+			
+			-- if IsValid( constraintEnt ) then
+			-- 	table.insert( UVRace_LoadedConstraints, constraintEnt )
+			-- end
 		end
-		
-		for k, ent in pairs( Ents )	do
-			ply:AddCleanup( "duplicates", ent )
-		end
-		
-		undo.SetPlayer( ply )
-		undo.SetCustomUndoText( "Undone Glide" )
-		
-		undo.Finish( "Undo (" .. tostring( table.Count( Ents ) ) ..  ")" )
 
 		if cffunctions then
-			Ent.NitrousPower = Memory.NitrousPower
-			Ent.NitrousDepletionRate = Memory.NitrousDepletionRate
-			Ent.NitrousRegenRate = Memory.NitrousRegenRate
-			Ent.NitrousRegenDelay = Memory.NitrousRegenDelay
-			Ent.NitrousPitchChangeFrequency = Memory.NitrousPitchChangeFrequency
-			Ent.NitrousPitchMultiplier = Memory.NitrousPitchMultiplier
-			Ent.NitrousBurst = Memory.NitrousBurst
-			Ent.NitrousColor = Memory.NitrousColor
-			Ent.NitrousStartSound = Memory.NitrousStartSound
-			Ent.NitrousLoopingSound = Memory.NitrousLoopingSound
-			Ent.NitrousEndSound = Memory.NitrousEndSound
-			Ent.NitrousEmptySound = Memory.NitrousEmptySound
-			Ent.NitrousReadyBurstSound = Memory.NitrousReadyBurstSound
-			Ent.NitrousStartBurstSound = Memory.NitrousStartBurstSound
-			Ent.NitrousStartBurstAnnotationSound = Memory.NitrousStartBurstAnnotationSound
-			Ent.CriticalDamageSound = Memory.CriticalDamageSound
-			Ent.NitrousEnabled = Memory.NitrousEnabled
-			Ent:SetNWBool( 'NitrousEnabled', Memory.NitrousEnabled == nil and true or Memory.NitrousEnabled )
-			
-			if Ent.NitrousColor then
-				local r = Ent.NitrousColor.r
-    			local g = Ent.NitrousColor.g
-    			local b = Ent.NitrousColor.b
-			
-    			net.Start( "cfnitrouscolor" )
-    			    net.WriteEntity(Ent)
-    			    net.WriteInt(r, 9)
-    			    net.WriteInt(g, 9)
-    			    net.WriteInt(b, 9)
-					net.WriteBool(Ent.NitrousBurst)
-					net.WriteBool(Ent.NitrousEnabled)
-    			net.Broadcast()
+			for key, ent in pairs( Ents ) do
+				if _Entities[key] then
+					ent.NitrousPower = _Entities[key].NitrousPower
+					ent.NitrousDepletionRate = _Entities[key].NitrousDepletionRate
+					ent.NitrousRegenRate = _Entities[key].NitrousRegenRate
+					ent.NitrousRegenDelay = _Entities[key].NitrousRegenDelay
+					ent.NitrousPitchChangeFrequency = _Entities[key].NitrousPitchChangeFrequency
+					ent.NitrousPitchMultiplier = _Entities[key].NitrousPitchMultiplier
+					ent.NitrousBurst = _Entities[key].NitrousBurst
+					ent.NitrousColor = _Entities[key].NitrousColor
+					ent.NitrousStartSound = _Entities[key].NitrousStartSound
+					ent.NitrousLoopingSound = _Entities[key].NitrousLoopingSound
+					ent.NitrousEndSound = _Entities[key].NitrousEndSound
+					ent.NitrousEmptySound = _Entities[key].NitrousEmptySound
+					ent.NitrousReadyBurstSound = _Entities[key].NitrousReadyBurstSound
+					ent.NitrousStartBurstSound = _Entities[key].NitrousStartBurstSound
+					ent.NitrousStartBurstAnnotationSound = _Entities[key].NitrousStartBurstAnnotationSound
+					ent.CriticalDamageSound = _Entities[key].CriticalDamageSound
+					ent.NitrousEnabled = _Entities[key].NitrousEnabled
+					ent:SetNWBool( 'NitrousEnabled', _Entities[key].NitrousEnabled == nil and true or _Entities[key].NitrousEnabled )
+					
+					if ent.NitrousColor then
+						local r = ent.NitrousColor.r
+						local g = ent.NitrousColor.g
+						local b = ent.NitrousColor.b
+						
+						net.Start( "cfnitrouscolor" )
+						net.WriteEntity(ent)
+						net.WriteInt(r, 9)
+						net.WriteInt(g, 9)
+						net.WriteInt(b, 9)
+						net.WriteBool(ent.NitrousBurst)
+						net.WriteBool(ent.NitrousEnabled)
+						net.Broadcast()
+					end
+				end
 			end
 		end
+
+		Ent = Ents[vehIndex]
+		
+		-- local Ents = duplicator.Paste( ply, Memory.Entities, Memory.Constraints )
+		-- Ent = Ents[next(Ents)]
+		
+		-- if not IsValid( Ent ) then 
+		-- 	PrintMessage( HUD_PRINTTALK, "The vehicle ".. Memory.SpawnName .." dosen't seem to be installed!" )
+		-- 	return 
+		-- end
+		
+		-- duplicator.SetLocalPos( vector_origin )
+		-- duplicator.SetLocalAng( angle_zero )
+		
+		-- undo.Create( "Duplicator" )
+		
+		-- if Memory.SubMaterials then
+		-- 	if istable( Memory.SubMaterials ) then
+		-- 		for i = 0, table.Count( Memory.SubMaterials ) do
+		-- 			Ent:SetSubMaterial( i, Memory.SubMaterials[i] )
+		-- 		end
+		-- 	end
+			
+		-- 	local groups = string.Explode( ",", Memory.BodyGroups)
+		-- 	for i = 1, table.Count( groups ) do
+		-- 		Ent:SetBodygroup(i, tonumber(groups[i]) )
+		-- 	end
+			
+		-- 	Ent:SetSkin( Memory.Skin )
+			
+		-- 	local c = string.Explode( ",", Memory.Color )
+		-- 	local Color =  Color( tonumber(c[1]), tonumber(c[2]), tonumber(c[3]), tonumber(c[4]) )
+			
+		-- 	local dot = Color.r * Color.g * Color.b * Color.a
+		-- 	Ent.OldColor = dot
+		-- 	Ent:SetColor( Color )
+			
+		-- 	local data = {
+		-- 		Color = Color,
+		-- 		RenderMode = 0,
+		-- 		RenderFX = 0
+		-- 	}
+		-- 	duplicator.StoreEntityModifier( Ent, "colour", data )
+			
+		-- 	if isfunction(Ent.Repair) then
+		-- 		Ent:Repair()
+		-- 	end
+		-- end
+		
+		-- for k, ent in pairs( Ents ) do
+		-- 	undo.AddEntity( ent )
+		-- end
+		
+		-- for k, ent in pairs( Ents )	do
+		-- 	ply:AddCleanup( "duplicates", ent )
+		-- end
+		
+		-- undo.SetPlayer( ply )
+		-- undo.SetCustomUndoText( "Undone Glide" )
+		
+		-- undo.Finish( "Undo (" .. tostring( table.Count( Ents ) ) ..  ")" )
+
+		-- if cffunctions then
+		-- 	Ent.NitrousPower = Memory.NitrousPower
+		-- 	Ent.NitrousDepletionRate = Memory.NitrousDepletionRate
+		-- 	Ent.NitrousRegenRate = Memory.NitrousRegenRate
+		-- 	Ent.NitrousRegenDelay = Memory.NitrousRegenDelay
+		-- 	Ent.NitrousPitchChangeFrequency = Memory.NitrousPitchChangeFrequency
+		-- 	Ent.NitrousPitchMultiplier = Memory.NitrousPitchMultiplier
+		-- 	Ent.NitrousBurst = Memory.NitrousBurst
+		-- 	Ent.NitrousColor = Memory.NitrousColor
+		-- 	Ent.NitrousStartSound = Memory.NitrousStartSound
+		-- 	Ent.NitrousLoopingSound = Memory.NitrousLoopingSound
+		-- 	Ent.NitrousEndSound = Memory.NitrousEndSound
+		-- 	Ent.NitrousEmptySound = Memory.NitrousEmptySound
+		-- 	Ent.NitrousReadyBurstSound = Memory.NitrousReadyBurstSound
+		-- 	Ent.NitrousStartBurstSound = Memory.NitrousStartBurstSound
+		-- 	Ent.NitrousStartBurstAnnotationSound = Memory.NitrousStartBurstAnnotationSound
+		-- 	Ent.CriticalDamageSound = Memory.CriticalDamageSound
+		-- 	Ent.NitrousEnabled = Memory.NitrousEnabled
+		-- 	Ent:SetNWBool( 'NitrousEnabled', Memory.NitrousEnabled == nil and true or Memory.NitrousEnabled )
+			
+		-- 	if Ent.NitrousColor then
+		-- 		local r = Ent.NitrousColor.r
+    	-- 		local g = Ent.NitrousColor.g
+    	-- 		local b = Ent.NitrousColor.b
+			
+    	-- 		net.Start( "cfnitrouscolor" )
+    	-- 		    net.WriteEntity(Ent)
+    	-- 		    net.WriteInt(r, 9)
+    	-- 		    net.WriteInt(g, 9)
+    	-- 		    net.WriteInt(b, 9)
+		-- 			net.WriteBool(Ent.NitrousBurst)
+		-- 			net.WriteBool(Ent.NitrousEnabled)
+    	-- 		net.Broadcast()
+		-- 	end
+		-- end
 
 		-- function Ent:UpdateTransmitState()
 		-- 	return TRANSMIT_ALWAYS
@@ -3884,6 +4027,15 @@ function UVMoveToGridSlot( vehicle, aienabled )
 	end
 	
 	spawn.claimed = true
+
+	local constrainedEnts = constraint.GetAllConstrainedEntities(entrantvehicle)
+	if constrainedEnts then
+		for ent, _ in pairs(constrainedEnts) do
+				if IsValid(ent) and ent ~= entrantvehicle then
+				ent:Remove()
+			end
+		end
+	end
 	entrantvehicle:Remove()
 	
 	Ent.racer = racer_name

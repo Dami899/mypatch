@@ -1629,7 +1629,6 @@ function TOOL:GetVehicleData( ent, ply )
 		ply.UVTOOLMemory.Mins = Vector(ply.UVTOOLMemory.Mins.x,ply.UVTOOLMemory.Mins.y,0)
 		
 		ply.UVTOOLMemory.Entities[next(ply.UVTOOLMemory.Entities)].Angle = Angle(0,180,0)
-		--ply.UVTOOLMemory.Entities[next(ply.UVTOOLMemory.Entities)].PhysicsObjects[0].Angle = Angle(0,180,0)
 
 		local c = ent:GetColor()
 		ply.UVTOOLMemory.Color = c.r..","..c.g..","..c.b..","..c.a
