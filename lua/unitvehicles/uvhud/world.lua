@@ -1785,3 +1785,5 @@ end
 
 UV_UI.pursuit.world.main = world_pursuit_main
 UV_UI.racing.world.main = world_racing_main
+
+UV_UI.racing.world.noready = true

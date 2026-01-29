@@ -968,7 +968,7 @@ function UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
 		if #available > 0 then
 			-- Category label
 			table.insert(menuEntries, {
-				type = "label",
+				type = "infosimple",
 				text = unittablename[classIndex],
 			})
 
@@ -981,7 +981,7 @@ function UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
 					func = function()
 						local npcClass = unittablenpc[classIndex]
 						local isRhino = (classIndex == 6)
-						local cleanLabel = string.Trim(unittablename[classIndex], "#")
+						local cleanLabel = UVString(unittablename[classIndex])
 
 						net.Start("UVHUDRespawnInUV")
 						net.WriteString(unitName)

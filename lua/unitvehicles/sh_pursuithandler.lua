@@ -4466,7 +4466,7 @@ else -- CLIENT Settings | HUD/Options
 
 		UVMenu.OpenMenu(function()
 			UVMenu.PlaySFX("menuopen")
-			UVMenu.UnitSelect(unittable, UVString(unittablename), unittablenpc)
+			UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
 		end, true)
 	end)
 

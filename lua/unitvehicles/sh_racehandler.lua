@@ -2548,8 +2548,7 @@ else -- CLIENT stuff
 			local elapsed = CurTime() - UVRaceCountdown.startTime
 
 			-- Case 1: Pre-race "GET READY" for countdown > 4
-			if UVRaceCountdown.stage > 4 and GetConVar("unitvehicle_preraceinfo"):GetInt() == 0 then
-				local scale = 2.5
+			if UVRaceCountdown.stage > 4 and GetConVar("unitvehicle_preraceinfo"):GetInt() == 0 and not UV_UI.racing[hudtype].noready then
 				local alpha = 255
 				draw.SimpleTextOutlined(UVString("uv.race.getready"), "UVFont5ShadowBig", w*0.5, h*0.35, Color(255,255,255,alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0,alpha))
 				-- draw.SimpleTextOutlined(string.format("%.1f", elapsed), "UVFont5ShadowBig", w*0.5, h*0.45, Color(255,255,255,alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0,alpha))

@@ -3400,8 +3400,8 @@ net.Receive("UVToggleHeadlights", function(len, ply)
 	if bool then
 		if NPC.v.IsGlideVehicle then
             NPC.v:SetHeadlightState( 1 )
-		elseif NPC.v.IsSimfphyscar and v:IsInitialized() then
-			v:SetLightsEnabled(true)
+		elseif NPC.v.IsSimfphyscar and NPC.v:IsInitialized() then
+			NPC.v:SetLightsEnabled(true)
         elseif vcmod_main and NPC.v:GetClass() == "prop_vehicle_jeep" then
             NPC.v:VC_setRunningLights( true )
         end
@@ -3409,7 +3409,7 @@ net.Receive("UVToggleHeadlights", function(len, ply)
 		if NPC.v.IsGlideVehicle then
             NPC.v:SetHeadlightState( 0 )
 		elseif NPC.v.IsSimfphyscar and NPC.v:IsInitialized() then
-			v:SetLightsEnabled(false)
+			NPC.v:SetLightsEnabled(false)
         elseif vcmod_main and NPC.v:GetClass() == "prop_vehicle_jeep" then
             NPC.v:VC_setRunningLights( false )
         end
