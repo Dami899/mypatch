@@ -13,6 +13,8 @@ You'll need two addons for Unit Vehicles to work flawlessly:
 [h3] Highly recommended [/h3]
 - The [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3515525556]Unit Vehicles Starter Data Pack[/url] contains lots of data content provided by the UV development team and the community. Contains AI Racer Names, Pursuit Breakers, Races, Roadblocks, the [b]Rockport PD[/b] Preset and various Decent Vehicle waypoints for plenty of maps.
 
+[h1] >>> [url=https://discord.gg/kQuzmjZaPQ]JOIN THE UNIT VEHICLES DISCORD SERVER[/url] <<< [/h1]
+
 [hr][/hr]
 [h1] Features [/h1]
 [h3] Races [/h3]
