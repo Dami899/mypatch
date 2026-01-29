@@ -1265,6 +1265,7 @@ if SERVER then
 					timer.Simple(15, function() 
 						UVTrafficStop = false
 						if UVCalm and IsValid(self.e) and not UVHUDBusting then
+							if UVTargeting then return end
 							UVRestoreResourcePoints()
 							UVTargeting = true
 							if IsValid(self) then
