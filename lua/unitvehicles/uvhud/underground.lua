@@ -406,7 +406,7 @@ local function underground_racing_main( ... )
     surface.DrawRect(UV_UI.X(w * 0.8), h * 0.075, UV_UI.W(w * 0.175), h * 0.105)
     
     draw.DrawText( UVHUDRaceCurrentPos, "UVFont3Bigger", UV_UI.X(w * 0.88), h * 0.065, Color(255, 255, 255), TEXT_ALIGN_RIGHT ) -- Upper, Your Position
-    draw.DrawText( UVString("uv.race.pos.") .. UVHUDRaceCurrentPos, "UVFont5", UV_UI.X(w * 0.8825), h * 0.08, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Upper, Your Position Suffix
+    draw.DrawText( UVString("uv.race.pos." .. UVHUDRaceCurrentPos), "UVFont5", UV_UI.X(w * 0.8825), h * 0.08, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Upper, Your Position Suffix
     draw.DrawText( "/" .. UVHUDRaceCurrentParticipants, "UVFont5", UV_UI.X(w * 0.88), h * 0.12, Color(125, 125, 255), TEXT_ALIGN_LEFT) -- Lower, Total Positions
     
     -- Racer List

@@ -404,7 +404,7 @@ local function underground2_racing_main( ... )
     surface.DrawTexturedRect(UV_UI.X(w * 0.72), h * 0.075, UV_UI.W(w * 0.255), h * 0.15)
     
     draw.DrawText( UVHUDRaceCurrentPos, "UVFont3Big", UV_UI.X(w * 0.79), h * 0.11, Color(255, 255, 255), TEXT_ALIGN_RIGHT ) -- Upper, Your Position
-    draw.DrawText( UVString("uv.race.pos.") .. UVHUDRaceCurrentPos, "UVFont3", UV_UI.X(w * 0.7925), h * 0.14, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Upper, Your Position
+    draw.DrawText( UVString("uv.race.pos." .. UVHUDRaceCurrentPos), "UVFont3", UV_UI.X(w * 0.7925), h * 0.14, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Upper, Your Position
     draw.DrawText( "/" .. UVHUDRaceCurrentParticipants, "UVFont3Big", UV_UI.X(w * 0.82), h * 0.11, Color(255, 255, 255), TEXT_ALIGN_LEFT ) -- Lower, Total Positions
     
     -- Lap & Checkpoint Counter

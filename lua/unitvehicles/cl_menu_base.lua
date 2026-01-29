@@ -362,11 +362,11 @@ function UVDropdown:Init()
 end
 
 function UVDropdown:AddChoice(text, data)
-	table.insert(self.Choices, {text = text, data = data})
+	table.insert(self.Choices, {text = UVString(text), data = data})
 end
 
 function UVDropdown:SetValue(text, data)
-	self.Value = text
+	self.Value = UVString(text)
 	self.Data = data
 end
 

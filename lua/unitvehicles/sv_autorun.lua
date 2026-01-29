@@ -241,10 +241,10 @@ end, true)
 
 timer.Simple(5, function()
 	if not DecentVehicleDestination then
-		PrintMessage( HUD_PRINTTALK, "#uv.system.dvnotinstalled")
+		PrintMessage( HUD_PRINTTALK, UVString("uv.system.dvnotinstalled"))
 	end
 	if not Glide then
-		PrintMessage( HUD_PRINTTALK, "#uv.system.glidenotinstalled")
+		PrintMessage( HUD_PRINTTALK, UVString("uv.system.glidenotinstalled"))
 	end
 end)
 

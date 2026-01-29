@@ -566,6 +566,12 @@ if CLIENT then
 		["F10"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["F11"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["F12"] = "<color=51,51,51><color=255,255,255></color></color>",
+		
+		["["] = "<color=51,51,51><color=255,255,255></color></color>",
+		["]"] = "<color=51,51,51><color=255,255,255></color></color>",
+		["/"] = "<color=51,51,51><color=255,255,255></color></color>",
+		["SEMICOLON"] = "<color=51,51,51><color=255,255,255></color></color>",
+		["="] = "<color=51,51,51><color=255,255,255></color></color>",
 	}
 
 	-- Unified Xbox controller glyphs

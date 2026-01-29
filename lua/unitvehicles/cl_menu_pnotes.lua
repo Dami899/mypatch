@@ -50,6 +50,7 @@ This lists changes that were made after v.0.42.0 and have been applied to v1.0:
 - Fixed an error that caused Simfphys and default HL2 Jeep vehicles to create Lua errors when the AI turned their headlights on
 - Fixed an error that caused Dispatch to not recognize "default" vehicle colors
  |-- Fixes that the NFS World and NFS Undercover Glide packs' police cars always played "no make and model" voicelines
+- Fixed that localizations, on the Workshop addon, mysteriously had an extra blank space after them, causing them to shift very slightly to the left
 ]],
 },
 

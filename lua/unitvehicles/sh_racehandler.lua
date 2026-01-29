@@ -2530,115 +2530,98 @@ else -- CLIENT stuff
 		end
 	end
 
-	hook.Add( "HUDPaint", "UVHUDRace", function() --HUD
-		local w = ScrW()
-		local h = ScrH()
+	hook.Add("HUDPaint", "UVHUDRace", function()
+		local w, h = ScrW(), ScrH()
 		local hudyes = GetConVar("cl_drawhud"):GetBool()
 		local hudtype = GetConVar("unitvehicle_hudtype_main"):GetString()
-
+		
+		-- Timed bars
 		if UVHUDRaceFinishCountdownStarted and not UVHUDCopMode then
-			DrawTimedBar( UVHUDRaceFinishStartTime, UVHUDRaceFinishEndTime, "uv.race.endsin" )
+			DrawTimedBar(UVHUDRaceFinishStartTime, UVHUDRaceFinishEndTime, "uv.race.endsin")
 		end
-
 		if timer.Exists("uvrace_startpursuit") and not UVHUDCopMode then
-			DrawTimedBar( UVHUDRacePursuitStartTime, UVHUDRacePursuitEndTime, "uv.race.endsin" )
+			DrawTimedBar(UVHUDRacePursuitStartTime, UVHUDRacePursuitEndTime, "uv.race.endsin")
 		end
 
-		-- RACE COUNTDOWN LOGIC
-		if UVRaceCountdown and hudyes and UVRaceCountdown.stage <= 4 and not UV_UI.racing[hudtype].events.onRaceStartTimer then
+		-- Advanced Countdown & GET READY
+		if UVRaceCountdown and hudyes then
 			local elapsed = CurTime() - UVRaceCountdown.startTime
-			local fullDuration = 1.0
-			local alpha, alphabg = 255, 150
 
-			if UVRaceCountdown.stage <= 4 then -- Only fade for countdown numbers (stage 4 and lower)
-				local fadeOutStart = 0.7
-				local fadeOutEnd = 0.85
-
-				if UVRaceCountdown.stage == 1 then
-					fadeOutStart = 0.85
-					fadeOutEnd = 0.975
-				end
-
-				if elapsed >= fadeOutStart and elapsed < fadeOutEnd then
-					local fadeFrac = (elapsed - fadeOutStart) / (fadeOutEnd - fadeOutStart)
-					alpha = Lerp(fadeFrac, 255, 0)
-					alphabg = Lerp(fadeFrac, 255, 0)
-				elseif elapsed >= fadeOutEnd then
-					alpha = 0
-					alphabg = 0
-				end
-
-				if UVRaceCountdown.stage <= 0 then
-					alpha = 0
-					alphabg = 0
-				end
+			-- Case 1: Pre-race "GET READY" for countdown > 4
+			if UVRaceCountdown.stage > 4 and GetConVar("unitvehicle_preraceinfo"):GetInt() == 0 then
+				local scale = 2.5
+				local alpha = 255
+				draw.SimpleTextOutlined(UVString("uv.race.getready"), "UVFont5ShadowBig", w*0.5, h*0.35, Color(255,255,255,alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0,alpha))
+				-- draw.SimpleTextOutlined(string.format("%.1f", elapsed), "UVFont5ShadowBig", w*0.5, h*0.45, Color(255,255,255,alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0,alpha))
+				return
 			end
 
-			local bgcol = Color(0, 0, 0, alphabg) -- HUD Type differences
-			local textcol = Color(255, 255, 255, alpha)
+			-- Case 2: Race countdown 4 -> 1 and GO
+			if UV_UI.racing[hudtype] and not UV_UI.racing[hudtype].events.onRaceStartTimer and UVRaceCountdown.stage >= 1 and UVRaceCountdown.stage <= 4 then
+				local value = tostring(UVRaceCountdown.label)
+				local scale = (UVRaceCountdown.stage == 1) and 3.4 or 2.4
+				local alpha = UVRaceCountdown.alpha
+				local color = (UVRaceCountdown.stage == 1) and Color(255,255,255) or Color(255,255,255)
 
-			if hudtype == "mostwanted" then
-				bgcol = Color(0, 0, 0, alphabg)
-				textcol = Color(50, 255, 50, alpha)
-			elseif hudtype == "carbon" then
-				bgcol = Color(86, 214, 205, alphabg)
-				textcol = Color(255, 217, 0, alpha)
-			elseif hudtype == "undercover" then
-				bgcol = Color(187, 226, 220, alphabg)
-				textcol = Color(255, 255, 255, alpha)
-			elseif hudtype == "prostreet" then
-				bgcol = Color(0, 0, 0, alphabg)
-				if UVRaceCountdown.stage <= 1 then
-					textcol = Color(50, 255, 50, alpha)
+				-- Animations
+				local t = elapsed
+				if UVRaceCountdown.stage ~= 1 then
+					if t < 0.06 then
+						scale = 1.45
+						alpha = 255
+					elseif t < 0.16 then
+						local p = (t-0.06)/0.10
+						scale = Lerp(p,1.45,1.75)
+					elseif t < 0.28 then
+						local p = (t-0.16)/0.12
+						scale = Lerp(p,1.75,1.35)
+					elseif t < 0.62 then
+						scale = 1.35
+					elseif t < 0.78 then
+						local p = (t-0.62)/0.16
+						scale = Lerp(p,1.35,7.5)
+						alpha = Lerp(p,255,0)
+					else
+						UVRaceCountdown = nil
+						return
+					end
 				else
-					textcol = Color(255, 217, 0, alpha)
+					-- GO text animation
+					if t < 0.01 then
+						scale = 3.6
+						alpha = 0
+					elseif t < 0.08 then
+						local p = (t-0.01)/0.07
+						scale = Lerp(p,7.5,1.55)
+						alpha = Lerp(p,0,255)
+					elseif t < 0.38 then
+						local p = (t-0.08)/0.30
+						scale = Lerp(p,1.55,1.45)
+					elseif t < 0.95 then
+						scale = 1.45
+					elseif t < 1.15 then
+						local p = (t-0.95)/0.20
+						scale = Lerp(p,1.45,7.5)
+						alpha = Lerp(p,255,0)
+					else
+						UVRaceCountdown = nil
+						return
+					end
 				end
-			end
 
-			surface.SetMaterial(UVMaterials["RACE_COUNTDOWN_BG"]) -- Text and BG
-			surface.SetDrawColor(bgcol)
-			surface.DrawTexturedRect(0, h * 0.3475, w, h * 0.05)
+				-- Draw text
+				local cx, cy = w*0.5, h*0.35
+				local m = Matrix()
+				m:Translate(Vector(cx, cy, 0))
+				m:Scale(Vector(scale, scale, 1))
+				m:Translate(Vector(-cx, -cy, 0))
 
-			draw.SimpleTextOutlined(UVRaceCountdown.label, "UVFont5", w * 0.5, h * 0.35, textcol, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0, alpha ) )
-
-			if elapsed >= fullDuration then -- Clean up after full duration
-				UVRaceCountdown = nil
+				cam.PushModelMatrix(m)
+				draw.SimpleTextOutlined(value, "UVFont5", cx, cy, Color(color.r, color.g, color.b, alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0,alpha))
+				cam.PopModelMatrix()
 			end
 		end
-
-		if UVRaceCountdown and hudyes and UVRaceCountdown.stage > 4 and not GetConVar("unitvehicle_preraceinfo"):GetBool() and not UV_UI.racing[hudtype].events.onRaceStartTimer then
-			local elapsed = CurTime() - UVRaceCountdown.startTime
-			local fullDuration = 1.0
-			local alpha, alphabg = 255, 150
-
-			local bgcol = Color(0, 0, 0, alphabg) -- HUD Type differences
-			local textcol = Color(255, 255, 255, alpha)
-
-			if hudtype == "mostwanted" then
-				bgcol = Color(0, 0, 0, alphabg)
-				textcol = Color(50, 255, 50, alpha)
-			elseif hudtype == "carbon" then
-				bgcol = Color(86, 214, 205, alphabg)
-				textcol = Color(255, 217, 0, alpha)
-			elseif hudtype == "undercover" then
-				bgcol = Color(187, 226, 220, alphabg)
-				textcol = Color(255, 255, 255, alpha)
-			elseif hudtype == "prostreet" then
-				bgcol = Color(0, 0, 0, alphabg)
-				if UVRaceCountdown.stage <= 1 then
-					textcol = Color(50, 255, 50, alpha)
-				else
-					textcol = Color(255, 217, 0, alpha)
-				end
-			end
-
-			surface.SetMaterial(UVMaterials["RACE_COUNTDOWN_BG"]) -- Text and BG
-			surface.SetDrawColor(bgcol)
-			surface.DrawTexturedRect(0, h * 0.3475, w, h * 0.05)
-
-			draw.SimpleTextOutlined(UVString("uv.race.getready"), "UVFont5", w * 0.5, h * 0.35, textcol, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0, alpha ) )
-		end
-
+		
 		if not UVHUDRace then UVHUDDisplayRacing = false; return end
 		if not UVHUDRaceInfo then UVHUDDisplayRacing = false; return end
 		if not (UVHUDRaceInfo.Info and UVHUDRaceInfo.Info.Started) then UVHUDDisplayRacing = false; return end
