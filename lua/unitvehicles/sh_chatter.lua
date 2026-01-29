@@ -1682,6 +1682,7 @@ if SERVER then
 	end
 	
 	function UVChatterTrafficStopSpeeding(self)
+		if UVChatterDelayed then return end
 		if not GetConVar("unitvehicle_chattertext"):GetBool() then
 			local timecheck = UVSoundChatter(self, self.voice, "trafficstopspeeding")
 			timer.Simple(timecheck, function()
@@ -1691,7 +1692,6 @@ if SERVER then
 			end)
 			return
 		end
-		if UVChatterDelayed then return end
 		-- UVDelayChatter()
 		if not IsValid(self.e) then return end
 		local e = UVGetVehicleMakeAndModel(self.e)
