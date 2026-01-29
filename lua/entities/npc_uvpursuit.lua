@@ -489,46 +489,7 @@ if SERVER then
 
 	end
 
-	function ENT:IsPathBlocked()
-	    if not IsValid(self.v) then return false end
-		
-	    local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
-	    local speed = self.v:GetVelocity():Length()
-		
-	    local obbMax = self.v:OBBMaxs()
-	    local forwardOffset = math.max(obbMax.x, obbMax.y)
-		
-	    local startPos = self.v:LocalToWorld(Vector(forwardOffset, 0, 30)) 
-		
-	    local lookAheadRange = 490 + (speed * 0.8)
-	    local endPos = startPos + (forward * lookAheadRange)
-		
-	    local mins = Vector(-10, -50, -20)
-	    local maxs = Vector(10, 50, 50)
-		
-	    local tr = util.TraceHull({
-	        start = startPos,
-	        endpos = endPos,
-	        filter = function(ent) 
-	            if ent == self.v or ent == self or ent:GetParent() == self.v then return false end
-	            if ent:GetClass() == "predictable_entity" or ent:GetClass() == "path_track" then return false end
-	            return true 
-	        end,
-	        mins = mins,
-	        maxs = maxs,
-	        mask = MASK_NPCSOLID
-	    })
-		
-	    if tr.Hit and IsValid(tr.Entity) then
-	        local ent = tr.Entity
-	        -- Stop for Players, NPCs, Nextbots, Vehicles, and Physics Props
-	        if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() or ent:IsVehicle() then
-	            return true
-	        end
-	    end
 	
-	    return false
-	end
 
 	function ENT:FriendlyNearbySide()
 		if not self.v or not self.v.width then
@@ -1056,25 +1017,7 @@ if SERVER then
 			self:FindPatrol()
 		end
 
-		local isBlocked = self:IsPathBlocked()
-
-		if isBlocked then
-   		 	throttle = 0
-  		  	steer = 0
-  		  	self:UVHandbrakeOn() 
-			if not self.LastHonk or CurTime() > self.LastHonk + 2 then
-    		    self:SetHorn(true)
-				throttle = 0
-  		  		steer = 0
-  		  		self:UVHandbrakeOn() 
-     			timer.Simple(0.5, function() if IsValid(self) then self:SetHorn(false) end end)
-      		  	self.LastHonk = CurTime()
-    		end
-			
-		    self.moving = CurTime() 
-		else
-		    self:UVHandbrakeOff()
-		end
+		
 		
 	end
 	
