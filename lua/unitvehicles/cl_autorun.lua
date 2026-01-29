@@ -26,6 +26,15 @@ local UVUHelicopterBusting = GetConVar("unitvehicle_unit_helicopterbusting")
 
 local dvd = DecentVehicleDestination
 
+-- Fuck GMod sometimes.
+function UVString(key)
+    if not isstring(key) then return "" end
+    if key:StartWith("#") then
+        key = key:sub(2)
+    end
+    return string.Trim(language.GetPhrase(key))
+end
+
 if not game.SinglePlayer() then return end
 
 hook.Add("OnEntityCreated", "UVHeadlights", function(NPC)
@@ -80,12 +89,3 @@ hook.Add( "EntityRemoved", "UVClearHeadlights", function( NPC, fullUpdate )
 		timer.Remove("UVAirSpotlight" .. NPC:EntIndex())
 	end
 end )
-
--- Fuck GMod sometimes.
-function UVString(key)
-    if not isstring(key) then return "" end
-    if key:StartWith("#") then
-        key = key:sub(2)
-    end
-    return string.Trim(language.GetPhrase(key))
-end
