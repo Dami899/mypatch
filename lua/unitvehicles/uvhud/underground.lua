@@ -93,9 +93,9 @@ UV_UI.racing.underground.events = {
             local yPos = h*0.08 + (i - 1) * rowHeight
             
             local name = info["Name"] or "Unknown"
-            local totalTime = info["TotalTime"] and info["TotalTime"] or "#uv.race.suffix.dnf"
+            local totalTime = info["TotalTime"] and info["TotalTime"] or UVString("uv.race.suffix.dnf")
             
-            if info["Busted"] then totalTime = "#uv.race.suffix.busted" end
+            if info["Busted"] then totalTime = UVString("uv.race.suffix.busted") end
             
             local entry = {
                 y = yPos,
@@ -263,7 +263,7 @@ UV_UI.racing.underground.events = {
         
         if Glide then
             if not istable(sortedRacers) or #sortedRacers == 0 then
-                glidetext = "#uv.race.finished.statserror"
+                glidetext = UVString("uv.race.finished.statserror")
                 glideicon = "unitvehicles/icons/GENERIC_ALERT.png"
             end
             Glide.Notify({
@@ -368,7 +368,7 @@ local function underground_racing_main( ... )
     -- Timer
     surface.SetDrawColor(0, 0, 0, 200)
     surface.DrawRect(UV_UI.X(w * 0.02), h * 0.175, UV_UI.W(w * 0.175), h * 0.0225)
-    draw.DrawText( "#uv.race.hud.time.ug", "UVFont4", UV_UI.X(w * 0.022), h * 0.175, Color(255, 255, 255), TEXT_ALIGN_LEFT )
+    draw.DrawText( UVString("uv.race.hud.time.ug"), "UVFont4", UV_UI.X(w * 0.022), h * 0.175, Color(255, 255, 255), TEXT_ALIGN_LEFT )
     
     local current_time = nil 
     
@@ -386,7 +386,7 @@ local function underground_racing_main( ... )
     surface.SetDrawColor(0, 0, 0, 200)
     surface.DrawRect(UV_UI.X(w * 0.02), h * 0.2, UV_UI.W(w * 0.175), h * 0.0225)
 	
-    draw.DrawText( "#uv.race.hud.best.ug", "UVFont4", UV_UI.X(w * 0.022), h * 0.2, Color(255, 255, 255), TEXT_ALIGN_LEFT )
+    draw.DrawText( UVString("uv.race.hud.best.ug"), "UVFont4", UV_UI.X(w * 0.022), h * 0.2, Color(255, 255, 255), TEXT_ALIGN_LEFT )
     draw.DrawText( UVDisplayTimeRace(my_array.BestLapTime or 0), "UVFont4", UV_UI.X(w * 0.1925), h * 0.2, Color(255, 255, 255), TEXT_ALIGN_RIGHT )
     
     -- Lap & Checkpoint Counter
@@ -394,7 +394,7 @@ local function underground_racing_main( ... )
     surface.DrawRect(UV_UI.X(w * 0.02), h * 0.075, UV_UI.W(w * 0.175), h * 0.095)
 	
     -- Lap Counter
-    draw.DrawText( "#uv.race.hud.lap.ug", "UVFont5", UV_UI.X(w * 0.1), h * 0.125, Color(125, 125, 255), TEXT_ALIGN_LEFT ) 
+    draw.DrawText( UVString("uv.race.hud.lap.ug"), "UVFont5", UV_UI.X(w * 0.1), h * 0.125, Color(125, 125, 255), TEXT_ALIGN_LEFT ) 
     draw.DrawText( my_array.Lap, "UVFont3Bigger", UV_UI.X(w * 0.1), h * 0.065, Color(255, 255, 255), TEXT_ALIGN_RIGHT )
     draw.DrawText( "/ " .. UVHUDRaceInfo.Info.Laps, "UVFont3", UV_UI.X(w * 0.1025), h * 0.08, Color(125, 125, 255), TEXT_ALIGN_LEFT)
     
@@ -406,7 +406,7 @@ local function underground_racing_main( ... )
     surface.DrawRect(UV_UI.X(w * 0.8), h * 0.075, UV_UI.W(w * 0.175), h * 0.105)
     
     draw.DrawText( UVHUDRaceCurrentPos, "UVFont3Bigger", UV_UI.X(w * 0.88), h * 0.065, Color(255, 255, 255), TEXT_ALIGN_RIGHT ) -- Upper, Your Position
-    draw.DrawText( "#uv.race.pos." .. UVHUDRaceCurrentPos, "UVFont5", UV_UI.X(w * 0.8825), h * 0.08, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Upper, Your Position Suffix
+    draw.DrawText( UVString("uv.race.pos.") .. UVHUDRaceCurrentPos, "UVFont5", UV_UI.X(w * 0.8825), h * 0.08, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Upper, Your Position Suffix
     draw.DrawText( "/" .. UVHUDRaceCurrentParticipants, "UVFont5", UV_UI.X(w * 0.88), h * 0.12, Color(125, 125, 255), TEXT_ALIGN_LEFT) -- Lower, Total Positions
     
     -- Racer List

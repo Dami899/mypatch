@@ -374,9 +374,9 @@ UV_UI.racing.mostwanted.events = {
             or h2 + math.floor((visibleIndex - 1) / 2) * h * 0.08
             
             local name = info["Name"] or "Unknown"
-            local totalTime = info["TotalTime"] and info["TotalTime"] or "#uv.race.suffix.dnf"
+            local totalTime = info["TotalTime"] and info["TotalTime"] or UVString("uv.race.suffix.dnf")
             
-            if info["Busted"] then totalTime = "#uv.race.suffix.busted" end
+            if info["Busted"] then totalTime = UVString("uv.race.suffix.busted") end
             				
 			surface.SetFont("UVFont5UI")
 		   local vehname = info["VehicleName"]
@@ -569,12 +569,12 @@ UV_UI.racing.mostwanted.events = {
                 
                 -- Icon and texts fade in (stay full alpha after flash)
                 DrawIcon(UVMaterials['RESULTRACE'], w * 0.225, h * 0.1575, .07, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha))
-                draw.DrawText("#uv.results.standings", "UVFont5", w * 0.25, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
+                draw.DrawText(UVString("uv.results.standings"), "UVFont5", w * 0.25, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
 
-                draw.DrawText("#uv.results.race.pos", "UVFont5UI", xLeft, h * 0.2, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
-                draw.DrawText("#uv.results.race.name", "UVFont5UI", xMiddle, h * 0.2, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
-                draw.DrawText("#uv.results.race.car", "UVFont5UI", xCar, h * 0.2, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
-                draw.DrawText("#uv.results.race.time", "UVFont5UI", xRight, h * 0.2, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
+                draw.DrawText(UVString("uv.results.race.pos"), "UVFont5UI", xLeft, h * 0.2, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
+                draw.DrawText(UVString("uv.results.race.name"), "UVFont5UI", xMiddle, h * 0.2, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
+                draw.DrawText(UVString("uv.results.race.car"), "UVFont5UI", xCar, h * 0.2, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
+                draw.DrawText(UVString("uv.results.race.time"), "UVFont5UI", xRight, h * 0.2, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_RIGHT)
                 
                 local blink = 255 * math.abs(math.sin(RealTime() * 8))
                 
@@ -679,7 +679,7 @@ end,
 
 		if Glide then
 			if not istable(sortedRacers) or #sortedRacers == 0 then
-				glidetext = "#uv.race.finished.statserror"
+				glidetext = UVString("uv.race.finished.statserror")
 				glideicon = "unitvehicles/icons/GENERIC_ALERT.png"
 			end
 				Glide.Notify({
@@ -718,7 +718,7 @@ end,
 
 		local finishtext = (participant_count > 1 and cps > 1) and 
 		UVString("uv.race.finished") .. "\n" .. string.format( UVString("uv.race.finishspot"), UVString("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
-		or "#uv.race.finished"
+		or UVString("uv.race.finished")
 
 		if local_finished then 
 			UV_UI.racing.mostwanted.events.CenterNotification({
@@ -757,7 +757,7 @@ end,
 		if not info then return end
 
 		local disqtext = string.format(UVString("uv.race.wrecked"), name)
-		if is_local_player then disqtext = "#uv.chase.wrecked" end
+		if is_local_player then disqtext = UVString("uv.chase.wrecked") end
 
 		UV_UI.racing.mostwanted.events.CenterNotification({
 			text = disqtext,
@@ -774,7 +774,7 @@ end,
 			[4] = 3,
 			[3] = 2,
 			[2] = 1,
-			[1] = "#uv.race.go"
+			[1] = UVString("uv.race.go")
 		}
 
 		local textToShow = countdownTexts[starttime]
@@ -928,7 +928,7 @@ UV_UI.pursuit.mostwanted.events = {
 		local cnt = string.format(UVString("uv.hud.racer.arrested"), racer, UVString(cop))
 		
 		if lp then
-			cnt = "#uv.chase.busted"
+			cnt = UVString("uv.chase.busted")
 		end
 
 		UV_UI.racing.mostwanted.events.CenterNotification({
@@ -994,13 +994,13 @@ UV_UI.pursuit.mostwanted.events = {
         
         -- Data and labels
         local infoLabels = {
-            { label = "#uv.results.chase.bounty", value = bounty },
-            { label = "#uv.results.chase.time", value = time },
-            { label = "#uv.results.chase.units.deployed", value = deploys },
-            { label = "#uv.results.chase.units.damaged", value = tags },
-            { label = "#uv.results.chase.units.destroyed", value = wrecks },
-            { label = "#uv.results.chase.dodged.blocks", value = roadblocksdodged },
-            { label = "#uv.results.chase.dodged.spikes", value = spikestripsdodged }
+            { label = UVString("uv.results.chase.bounty"), value = bounty },
+            { label = UVString("uv.results.chase.time"), value = time },
+            { label = UVString("uv.results.chase.units.deployed"), value = deploys },
+            { label = UVString("uv.results.chase.units.damaged"), value = tags },
+            { label = UVString("uv.results.chase.units.destroyed"), value = wrecks },
+            { label = UVString("uv.results.chase.dodged.blocks"), value = roadblocksdodged },
+            { label = UVString("uv.results.chase.dodged.spikes"), value = spikestripsdodged }
         }
         
         -- Build the sequence including empty tabs to keep layout intact
@@ -1166,7 +1166,7 @@ UV_UI.pursuit.mostwanted.events = {
                 
                 -- Icon and texts fade in (stay full alpha after flash)
                 DrawIcon(debrieficon, w * 0.225, h * 0.1575, .05, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha))
-                draw.DrawText("#uv.results.pursuit", "UVFont5", w * 0.25, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
+                draw.DrawText(UVString("uv.results.pursuit"), "UVFont5", w * 0.25, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
                 
                 draw.DrawText(debrieftitletext, "UVFont5", w * 0.5, h * 0.2, Color(255, 255, 255, textAlpha), TEXT_ALIGN_CENTER)
 
@@ -1289,7 +1289,7 @@ onRacerEscapedDebrief = function(escapedtable)
         dataTable = escapedtable,
         color = Color(255, 183, 61),
         iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = "#uv.results.escapedfrom",
+        titleText = UVString("uv.results.escapedfrom"),
     }
     UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
 end,
@@ -1384,13 +1384,13 @@ local function mw_racing_main( ... )
     )
 
     if UVHUDRaceInfo.Info.Laps > 1 then
-        draw.DrawText("#uv.race.hud.lap","UVFont5UI",
+        draw.DrawText(UVString("uv.race.hud.lap"),"UVFont5UI",
             UV_UI.X(w * 0.805), h * 0.16, Color(255,255,255), TEXT_ALIGN_LEFT)
 
         draw.DrawText(my_array.Lap .. "/" .. UVHUDRaceInfo.Info.Laps,"UVFont5UI",
             UV_UI.X(w * 0.97), h * 0.16, Color(255,255,255), TEXT_ALIGN_RIGHT)
     else
-        draw.DrawText("#uv.race.hud.complete","UVFont5UI",
+        draw.DrawText(UVString("uv.race.hud.complete"),"UVFont5UI",
             UV_UI.X(w * 0.805), h * 0.16, Color(255,255,255), TEXT_ALIGN_LEFT)
 
         draw.DrawText(
@@ -1608,7 +1608,7 @@ local function mw_pursuit_main( ... )
         surface.SetDrawColor(0, 0, 0, 150) -- Milestone BG
         surface.DrawRect(UV_UI.X(w * 0.71), h * 0.215, UV_UI.W(w * 0.2575), h * 0.035)
         
-        draw.DrawText("#uv.hud.milestones","UVFont5UI",UV_UI.X(w * 0.7125),h * 0.2125,Color(255, 255, 255),TEXT_ALIGN_LEFT) -- Bounty Text
+        draw.DrawText(UVString("uv.hud.milestones"),"UVFont5UI",UV_UI.X(w * 0.7125),h * 0.2125,Color(255, 255, 255),TEXT_ALIGN_LEFT) -- Bounty Text
         draw.DrawText(milestoneamount, "UVFont5UI", UV_UI.X(w * 0.965), h * 0.2125, Color(255, 255, 255), TEXT_ALIGN_RIGHT) -- Bounty Counter
         
         for i = 1, math.min(milestoneamount, 5) do
@@ -1624,7 +1624,7 @@ local function mw_pursuit_main( ... )
     draw.DrawText(UVTimer, "UVFont5UI", UV_UI.X(w * 0.965), h * 0.115, UVHUDCopMode and UVColors.MW_Cop or UVColors.MW_Accent, TEXT_ALIGN_RIGHT)
     
     -- Bounty
-    draw.DrawText("#uv.hud.bounty","UVFont5UI", UV_UI.X(w * 0.7175), h * 0.1625, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Bounty Text
+    draw.DrawText(UVString("uv.hud.bounty"),"UVFont5UI", UV_UI.X(w * 0.7175), h * 0.1625, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Bounty Text
     draw.DrawText(UVBounty, "UVFont5UI", UV_UI.X(w * 0.965), h * 0.1625, Color(255, 255, 255), TEXT_ALIGN_RIGHT) -- Bounty Counter
     
     -- Heat Level
@@ -1685,7 +1685,7 @@ local function mw_pursuit_main( ... )
         draw.DrawText("⛊","UVFont5UI-BottomBar",UV_UI.X(w * 0.71), h * 0.2525 + milestoneh, UVHUDCopMode and UVColors.MW_Cop or UVColors.MW_Accent,TEXT_ALIGN_LEFT)
         draw.DrawText("⛊","UVFont5UI-BottomBar",UV_UI.X(w * 0.965), h * 0.2525 + milestoneh, UVHUDCopMode and UVColors.MW_Cop or UVColors.MW_Accent,TEXT_ALIGN_RIGHT)
         
-        local cname = "#uv.unit.commander"
+        local cname = UVString("uv.unit.commander")
         if IsValid(UVHUDCommander) then
             local driver = UVHUDCommander:GetDriver()
             if IsValid(driver) and driver:IsPlayer() then
@@ -1834,8 +1834,8 @@ local function mw_pursuit_main( ... )
         surface.SetMaterial(UVMaterials["PURSUIT_BG_BOTBAR_ALT"])
         surface.DrawTexturedRect(UV_UI.XScaled(w * 0.303), bottomy + h * 0.04, UV_UI.W(w * 0.4015), h * 0.06)
         
-        draw.DrawText("#uv.chase.busted","UVFont5UI",UV_UI.XScaled(w * 0.34),bottomy + h * 0.0625,states.BustedColor,TEXT_ALIGN_LEFT)
-        draw.DrawText("#uv.chase.evade","UVFont5UI",UV_UI.XScaled(w * 0.66),bottomy + h * 0.0625,states.EvasionColor,TEXT_ALIGN_RIGHT)
+        draw.DrawText(UVString("uv.chase.busted"),"UVFont5UI",UV_UI.XScaled(w * 0.34),bottomy + h * 0.0625,states.BustedColor,TEXT_ALIGN_LEFT)
+        draw.DrawText(UVString("uv.chase.evade"),"UVFont5UI",UV_UI.XScaled(w * 0.66),bottomy + h * 0.0625,states.EvasionColor,TEXT_ALIGN_RIGHT)
         
         -- Lower Box
         local shade_theme_color =
@@ -1910,7 +1910,7 @@ local function mw_pursuit_main( ... )
                     surface.DrawTexturedRect(UV_UI.XScaled(w * 0.303), bottomy + h * 0.04, UV_UI.W(w * 0.4015), h * 0.06)
                     
                     DrawIcon(UVMaterials["HIDECAR"], UV_UI.XScaled(w * 0.5), bottomy + h * 0.035, .07, Color(blink, 255, blink))
-                    draw.DrawText( "#uv.chase.hiding", "UVFont5UI", UV_UI.XScaled(w * 0.5), bottomy + h * 0.0625, Color(255,255,255), TEXT_ALIGN_CENTER)
+                    draw.DrawText( UVString("uv.chase.hiding"), "UVFont5UI", UV_UI.XScaled(w * 0.5), bottomy + h * 0.0625, Color(255,255,255), TEXT_ALIGN_CENTER)
                 end
                 
                 surface.SetDrawColor(255, 255, 255, 50)
@@ -1924,7 +1924,7 @@ local function mw_pursuit_main( ... )
                 surface.SetMaterial(UVMaterials["PURSUIT_BG_BOTBAR"])
                 surface.DrawTexturedRect(UV_UI.XScaled(w * 0.302), bottomy + h * 0.1125, UV_UI.W(w * 0.4015), h * 0.06)
                 
-                draw.DrawText("#uv.chase.cooldown", "UVFont5UI", w * 0.5, bottomy + h * 0.11, Color(255, 255, 255), TEXT_ALIGN_CENTER)
+                draw.DrawText(UVString("uv.chase.cooldown"), "UVFont5UI", w * 0.5, bottomy + h * 0.11, Color(255, 255, 255), TEXT_ALIGN_CENTER)
             else
                 local shade_theme_color = (UVHUDCopMode and table.Copy(UVColors.MW_CopShade)) or table.Copy(UVColors.MW_RacerShade)
                 local theme_color = (UVHUDCopMode and table.Copy(UVColors.MW_Cop)) or table.Copy(UVColors.MW_Racer)
@@ -1934,7 +1934,7 @@ local function mw_pursuit_main( ... )
                 surface.SetMaterial(UVMaterials["PURSUIT_BG_BOTBAR"])
                 surface.DrawTexturedRect(UV_UI.XScaled(w * 0.302), bottomy + h * 0.1125, UV_UI.W(w * 0.4015), h * 0.06)
                 
-                draw.DrawText("#uv.chase.cooldown", "UVFont5UI", w * 0.5, bottomy + h * 0.11, Color(255, 255, 255), TEXT_ALIGN_CENTER)
+                draw.DrawText(UVString("uv.chase.cooldown"), "UVFont5UI", w * 0.5, bottomy + h * 0.11, Color(255, 255, 255), TEXT_ALIGN_CENTER)
                 
                 DrawIcon(UVMaterials["HIDECAR"], w * 0.5, bottomy + h * 0.075, .07, UVColors.MW_Cop)
             end

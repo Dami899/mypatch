@@ -291,9 +291,9 @@ UV_UI.racing.undercover.events = {
             local LBCol = Color(255, 255, 255)
             
             local name = info["Name"] or "Unknown"
-            local totalTime = info["TotalTime"] and info["TotalTime"] or "#uv.race.suffix.dnf"
+            local totalTime = info["TotalTime"] and info["TotalTime"] or UVString("uv.race.suffix.dnf")
             
-            if info["Busted"] then totalTime = "#uv.race.suffix.busted" end
+            if info["Busted"] then totalTime = UVString("uv.race.suffix.busted") end
             
             if info["LocalPlayer"] then
                 LBCol = Color(255, 200, 50)
@@ -320,7 +320,7 @@ UV_UI.racing.undercover.events = {
 		
 		debrieflinedata = racersDisplayData
         
-        local statusString = "#uv.results.lost" -- default fallback
+        local statusString = UVString("uv.results.lost") -- default fallback
         
         local localIndex = nil
         local localTime = nil
@@ -341,9 +341,9 @@ UV_UI.racing.undercover.events = {
         if localIndex == 1 then
             local timeDiff = (secondPlaceTime or 0) - (localTime or 0)
             if timeDiff >= 10 then
-                statusString = "#uv.results.dominated"
+                statusString = UVString("uv.results.dominated")
             else
-                statusString = "#uv.results.won"
+                statusString = UVString("uv.results.won")
             end
         end
         
@@ -504,7 +504,7 @@ UV_UI.racing.undercover.events = {
 
         if Glide then
             if not istable(sortedRacers) or #sortedRacers == 0 then
-                glidetext = "#uv.race.finished.statserror"
+                glidetext = UVString("uv.race.finished.statserror")
                 glideicon = "unitvehicles/icons/GENERIC_ALERT.png"
             end
             Glide.Notify({
@@ -543,7 +543,7 @@ UV_UI.racing.undercover.events = {
 
 		local finishtext = (participant_count > 1 and cps > 1) and 
 		UVString("uv.race.finished") .. "\n" .. string.format( UVString("uv.race.finishspot"), UVString("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
-		or "#uv.race.finished"
+		or UVString("uv.race.finished")
 
 		if local_finished then 
 			UV_UI.racing.undercover.events.CenterNotification({
@@ -580,7 +580,7 @@ UV_UI.racing.undercover.events = {
 		if not info then return end
 
 		local disqtext = string.format(UVString("uv.race.wrecked"), name)
-		if is_local_player then disqtext = "#uv.chase.wrecked" end
+		if is_local_player then disqtext = UVString("uv.chase.wrecked") end
 
 		UV_UI.racing.undercover.events.CenterNotification({
 			text = disqtext,
@@ -722,7 +722,7 @@ UV_UI.pursuit.undercover.events = {
 		local cnt = string.format(UVString("uv.hud.racer.arrested"), racer, UVString(cop))
 		
 		if lp then
-			cnt = "#uv.chase.busted"
+			cnt = UVString("uv.chase.busted")
 		end
 
 		UV_UI.racing.undercover.events.CenterNotification({
@@ -755,13 +755,13 @@ UV_UI.pursuit.undercover.events = {
         local suspects = UVHUDWantedSuspectsNumber
         
         local lineData = {
-            { text = "#uv.results.chase.costtostate", value = "$" .. bounty },
-            { text = "#uv.results.chase.time", value = time },
-            { text = "#uv.results.chase.units.deployed", value = deploys },
-            { text = "#uv.results.chase.units.damaged", value = tags },
-            { text = "#uv.results.chase.units.destroyed", value = wrecks },
-            { text = "#uv.results.chase.dodged.blocks", value = roadblocksdodged },
-            { text = "#uv.results.chase.dodged.spikes", value = spikestripsdodged },
+            { text = UVString("uv.results.chase.costtostate"), value = "$" .. bounty },
+            { text = UVString("uv.results.chase.time"), value = time },
+            { text = UVString("uv.results.chase.units.deployed"), value = deploys },
+            { text = UVString("uv.results.chase.units.damaged"), value = tags },
+            { text = UVString("uv.results.chase.units.destroyed"), value = wrecks },
+            { text = UVString("uv.results.chase.dodged.blocks"), value = roadblocksdodged },
+            { text = UVString("uv.results.chase.dodged.spikes"), value = spikestripsdodged },
         }
         
         local debrieflinedata = params.lineData or lineData
@@ -1037,7 +1037,7 @@ UV_UI.pursuit.undercover.events = {
     onRacerEscapedDebrief = function(escapedtable)
         local params = {
             dataTable = escapedtable,
-            titleText = "#uv.results.evaded",
+            titleText = UVString("uv.results.evaded"),
         }
         UV_UI.pursuit.undercover.events.ShowDebrief(params)
     end,
@@ -1055,16 +1055,16 @@ UV_UI.pursuit.undercover.events = {
         local params = {
             isCop = true,
             dataTable = bustedtable,
-            titleText = "#uv.results.busted",
+            titleText = UVString("uv.results.busted"),
             lineData = {
-                { text = "#uv.results.bustedby.carbon", value = unit },
-                { text = "#uv.results.chase.bounty", value = "$" .. bounty },
-                { text = "#uv.results.chase.time", value = time },
-                { text = "#uv.results.chase.units.deployed", value = deploys },
-                { text = "#uv.results.chase.units.damaged", value = tags },
-                { text = "#uv.results.chase.units.destroyed", value = wrecks },
-                { text = "#uv.results.chase.dodged.blocks", value = roadblocksdodged },
-                { text = "#uv.results.chase.dodged.spikes", value = spikestripsdodged },
+                { text = UVString("uv.results.bustedby.carbon"), value = unit },
+                { text = UVString("uv.results.chase.bounty"), value = "$" .. bounty },
+                { text = UVString("uv.results.chase.time"), value = time },
+                { text = UVString("uv.results.chase.units.deployed"), value = deploys },
+                { text = UVString("uv.results.chase.units.damaged"), value = tags },
+                { text = UVString("uv.results.chase.units.destroyed"), value = wrecks },
+                { text = UVString("uv.results.chase.dodged.blocks"), value = roadblocksdodged },
+                { text = UVString("uv.results.chase.dodged.spikes"), value = spikestripsdodged },
             },
 			spawnAsUnit = true,
         }
@@ -1084,16 +1084,16 @@ UV_UI.pursuit.undercover.events = {
         local params = {
             isCop = true,
             dataTable = bustedtable,
-            titleText = "#uv.results.won",
+            titleText = UVString("uv.results.won"),
             lineData = {
-                { text = "#uv.results.suspects.busted", value = " " },
-                { text = "#uv.results.chase.bounty", value = "$" .. bounty },
-                { text = "#uv.results.chase.time", value = time },
-                { text = "#uv.results.chase.units.deployed", value = deploys },
-                { text = "#uv.results.chase.units.damaged", value = tags },
-                { text = "#uv.results.chase.units.destroyed", value = wrecks },
-                { text = "#uv.results.chase.dodged.blocks", value = roadblocksdodged },
-                { text = "#uv.results.chase.dodged.spikes", value = spikestripsdodged },
+                { text = UVString("uv.results.suspects.busted"), value = " " },
+                { text = UVString("uv.results.chase.bounty"), value = "$" .. bounty },
+                { text = UVString("uv.results.chase.time"), value = time },
+                { text = UVString("uv.results.chase.units.deployed"), value = deploys },
+                { text = UVString("uv.results.chase.units.damaged"), value = tags },
+                { text = UVString("uv.results.chase.units.destroyed"), value = wrecks },
+                { text = UVString("uv.results.chase.dodged.blocks"), value = roadblocksdodged },
+                { text = UVString("uv.results.chase.dodged.spikes"), value = spikestripsdodged },
             }
         }
         UV_UI.pursuit.undercover.events.ShowDebrief(params)
@@ -1112,16 +1112,16 @@ UV_UI.pursuit.undercover.events = {
         local params = {
             isCop = true,
             dataTable = escapedtable,
-            titleText = "#uv.results.lost",
+            titleText = UVString("uv.results.lost"),
             lineData = {
-                { text = "#uv.results.suspects.escaped.num.carbon", value = suspects },
-                { text = "#uv.results.chase.bounty", value = "$" .. bounty },
-                { text = "#uv.results.chase.time", value = time },
-                { text = "#uv.results.chase.units.deployed", value = deploys },
-                { text = "#uv.results.chase.units.damaged", value = tags },
-                { text = "#uv.results.chase.units.destroyed", value = wrecks },
-                { text = "#uv.results.chase.dodged.blocks", value = roadblocksdodged },
-                { text = "#uv.results.chase.dodged.spikes", value = spikestripsdodged },
+                { text = UVString("uv.results.suspects.escaped.num.carbon"), value = suspects },
+                { text = UVString("uv.results.chase.bounty"), value = "$" .. bounty },
+                { text = UVString("uv.results.chase.time"), value = time },
+                { text = UVString("uv.results.chase.units.deployed"), value = deploys },
+                { text = UVString("uv.results.chase.units.damaged"), value = tags },
+                { text = UVString("uv.results.chase.units.destroyed"), value = wrecks },
+                { text = UVString("uv.results.chase.dodged.blocks"), value = roadblocksdodged },
+                { text = UVString("uv.results.chase.dodged.spikes"), value = spikestripsdodged },
             }
         }
         UV_UI.pursuit.undercover.events.ShowDebrief(params)
@@ -1159,17 +1159,17 @@ local function undercover_racing_main( ... )
     ------------------------------------
     
     -- Timer
-    draw.SimpleTextOutlined("#uv.race.hud.time", "UVUndercoverAccentFont", UV_UI.X(w * 0.75), h * 0.123, UVColors.Undercover_Accent2, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
+    draw.SimpleTextOutlined(UVString("uv.race.hud.time"), "UVUndercoverAccentFont", UV_UI.X(w * 0.75), h * 0.123, UVColors.Undercover_Accent2, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
     draw.SimpleTextOutlined(Carbon_FormatRaceTime((UVHUDRaceInfo.Info.Started and (CurTime() - UVHUDRaceInfo.Info.Time)) or 0),"UVUndercoverWhiteFont", UV_UI.X(w * 0.75), h * 0.15, UVColors.Undercover_Accent1, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
 	
 	local laptext = "REPLACEME"
 	local lapamount = "REPLACEME"
 	
     if UVHUDRaceInfo.Info.Laps > 1 then
-		laptext = "#uv.race.hud.lap"
+		laptext = UVString("uv.race.hud.lap")
 		lapamount = my_array.Lap .. "/" .. UVHUDRaceInfo.Info.Laps
     else
-		laptext = "#uv.race.hud.complete"
+		laptext = UVString("uv.race.hud.complete")
 		lapamount = math.floor(((checkpoint_count / GetGlobalInt("uvrace_checkpoints")) * 100)) .. "%"
     end
 	
@@ -1393,7 +1393,7 @@ local function undercover_pursuit_main( ... )
         draw.DrawText("⛊", "UVUndercoverWhiteFont", UV_UI.XScaled(w * 0.35), 0, UVColors.Undercover_Accent2, TEXT_ALIGN_LEFT)
         draw.DrawText("⛊", "UVUndercoverWhiteFont", UV_UI.XScaled(w * 0.65), 0, UVColors.Undercover_Accent2, TEXT_ALIGN_RIGHT)
         
-        local cname = "#uv.unit.commander"
+        local cname = UVString("uv.unit.commander")
         if IsValid(UVHUDCommander) then
             local driver = UVHUDCommander:GetDriver()
             if IsValid(driver) and driver:IsPlayer() then
@@ -1410,7 +1410,7 @@ local function undercover_pursuit_main( ... )
     surface.DrawRect(UV_UI.X(w * 0.75), h * 0.195, UV_UI.W(w * 0.19), h * 0.005)
     
     -- Timer
-	draw.SimpleTextOutlined("#uv.race.hud.time", "UVUndercoverAccentFont", UV_UI.X(w * 0.75), h * 0.123, UVColors.Undercover_Accent2, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
+	draw.SimpleTextOutlined(UVString("uv.race.hud.time"), "UVUndercoverAccentFont", UV_UI.X(w * 0.75), h * 0.123, UVColors.Undercover_Accent2, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
 	
 	draw.SimpleTextOutlined(UVTimer, "UVUndercoverWhiteFont", UV_UI.X(w * 0.75), h * 0.15, UVColors.Undercover_Accent1, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
 
@@ -1596,7 +1596,7 @@ local function undercover_pursuit_main( ... )
                 surface.SetDrawColor(50, 214, 255, 50)
                 surface.DrawRect(w * 0.333, bottomy, w * 0.344, h * 0.04)
                 
-                draw.DrawText("#uv.chase.cooldown", "UVUndercoverWhiteFont", w * 0.5, bottomy - (h * 0.005), Color(255, 255, 255), TEXT_ALIGN_CENTER)
+                draw.DrawText(UVString("uv.chase.cooldown"), "UVUndercoverWhiteFont", w * 0.5, bottomy - (h * 0.005), Color(255, 255, 255), TEXT_ALIGN_CENTER)
             end
         else
             CooldownProgress = 0

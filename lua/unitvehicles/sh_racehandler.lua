@@ -2420,10 +2420,10 @@ else -- CLIENT stuff
 			end
 		end
 
-		local label = startTable[time] - 1 or "#uv.race.getready"
+		local label = startTable[time] - 1 or UVString("uv.race.getready")
 
 		if time == 1 then
-			label = "#uv.race.go"
+			label = UVString("uv.race.go")
 		end
 
 		if time > 4 and not UVRaceCinematicOverlay then
@@ -2524,7 +2524,7 @@ else -- CLIENT stuff
 				-- Outline alpha fades in as colorVal returns to black
 				local outlineAlpha = math.Clamp(255 - colorVal, 0, 255)
 
-				draw.SimpleTextOutlined( labelToken, "UVSettingsFontBig", w * 0.5, h * 0.925, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
+				draw.SimpleTextOutlined( UVString(labelToken), "UVSettingsFontBig", w * 0.5, h * 0.925, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
 				draw.SimpleTextOutlined( timeLeft, "UVSettingsFontBig", w * 0.5, h * 0.96, Color(255, redblink, redblink), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
 			end
 		end
@@ -2537,11 +2537,11 @@ else -- CLIENT stuff
 		local hudtype = GetConVar("unitvehicle_hudtype_main"):GetString()
 
 		if UVHUDRaceFinishCountdownStarted and not UVHUDCopMode then
-			DrawTimedBar( UVHUDRaceFinishStartTime, UVHUDRaceFinishEndTime, "#uv.race.endsin" )
+			DrawTimedBar( UVHUDRaceFinishStartTime, UVHUDRaceFinishEndTime, "uv.race.endsin" )
 		end
 
 		if timer.Exists("uvrace_startpursuit") and not UVHUDCopMode then
-			DrawTimedBar( UVHUDRacePursuitStartTime, UVHUDRacePursuitEndTime, "#uv.race.endsin" )
+			DrawTimedBar( UVHUDRacePursuitStartTime, UVHUDRacePursuitEndTime, "uv.race.endsin" )
 		end
 
 		-- RACE COUNTDOWN LOGIC
@@ -2636,7 +2636,7 @@ else -- CLIENT stuff
 			surface.SetDrawColor(bgcol)
 			surface.DrawTexturedRect(0, h * 0.3475, w, h * 0.05)
 
-			draw.SimpleTextOutlined("#uv.race.getready", "UVFont5", w * 0.5, h * 0.35, textcol, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0, alpha ) )
+			draw.SimpleTextOutlined(UVString("uv.race.getready"), "UVFont5", w * 0.5, h * 0.35, textcol, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0, alpha ) )
 		end
 
 		if not UVHUDRace then UVHUDDisplayRacing = false; return end
@@ -2752,13 +2752,7 @@ else -- CLIENT stuff
 								surface.PlaySound(audio_path)
 							end
 							if hudyes then 
-								UVRaceNotify("#uv.race.wrongway", 1.5)
-
-								-- UV_UI.racing.carbon.events.CenterNotification({
-									-- text = "#uv.race.wrongway",
-									-- noIcon = true,
-									-- immediate = true,
-								-- })
+								UVRaceNotify(UVString("uv.race.wrongway"), 1.5)
 							end
 						end
 					end
@@ -2944,7 +2938,7 @@ else -- CLIENT stuff
 		surface.SetMaterial( UVMaterials["BACKGROUND_CARBON_FILLED"] )
 		surface.DrawTexturedRect(w - w * 0.3, h * 0.05, w * 0.3, h * (0.03 * 3))
 
-		draw.SimpleTextOutlined( "#uv.prerace.details", "UVFont5UI", w * 0.99, h * 0.065, Color(255, 255, 0, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
+		draw.SimpleTextOutlined( UVString("uv.prerace.details"), "UVFont5UI", w * 0.99, h * 0.065, Color(255, 255, 0, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
 
 		draw.SimpleTextOutlined( string.format( UVString("uv.prerace.name"), UVRace_CurrentTrackName ), "UVFont5Shadow", w * 0.99, h * 0.095, Color(255, 255, 255, alpha), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
 		
@@ -2964,7 +2958,7 @@ else -- CLIENT stuff
 		if UVRace_RacerList and #UVRace_RacerList > 0 then
 			for i, racer in ipairs(UVRace_RacerList) do
 				if racer.status == "Disqualified" then return end
-				local statusstr = "#uv.race.invite.status.invited"
+				local statusstr = "uv.race.invite.status.invited"
 				local clr = Color(200,200,200, alpha)
 				local racername = racer.name
 				local vehname = racer.vehiclename or "NIL"
@@ -2973,13 +2967,13 @@ else -- CLIENT stuff
 
 				if racer.status == "Host" then
 					clr = Color(255,255,0, alpha)
-					statusstr = "#uv.race.invite.status.host"
+					statusstr = "uv.race.invite.status.host"
 				elseif racer.status == "Accepted" then
 					clr = Color(100,255,100, alpha)
-					statusstr = "#uv.race.invite.status.accepted"
+					statusstr = "uv.race.invite.status.accepted"
 				elseif IsValid(racer.ent) and racer.status == "Declined" then
 					clr = Color(255,100,100, alpha)
-					statusstr = "#uv.race.invite.status.declined"
+					statusstr = "uv.race.invite.status.declined"
 				end
 
 				-- Update vehicle name dynamically for the host
@@ -3027,7 +3021,7 @@ else -- CLIENT stuff
 					racername = racername .. " (AI)"
 				end
 
-				draw.SimpleText(statusstr, "UVMostWantedLeaderboardFont2", x + (w * 0.145), y, clr, TEXT_ALIGN_RIGHT)
+				draw.SimpleText(UVString(statusstr), "UVMostWantedLeaderboardFont2", x + (w * 0.145), y, clr, TEXT_ALIGN_RIGHT)
 				draw.SimpleText(racername, "UVMostWantedLeaderboardFont2", x + (w * 0.001), y, Color(255,255,255), TEXT_ALIGN_LEFT)
 				draw.SimpleText(vehname or "...", "UVMostWantedLeaderboardFont2", x + (w * 0.001), y + 15, Color(200,200,200), TEXT_ALIGN_LEFT)
 			end
@@ -3258,7 +3252,7 @@ else -- CLIENT stuff
 
 		-- Draw "Starts in" Text + Timer
 		if state ~= "slidingOut" and UVRaceCinematicOverlay.squares then
-			draw.SimpleTextOutlined( "#uv.race.startsin", font, w * 0.5, h - barHeight + (h * 0.025), Color(255, 255, 255, alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1.25, Color(0, 0, 0, alpha) )
+			draw.SimpleTextOutlined( UVString("uv.race.startsin"), font, w * 0.5, h - barHeight + (h * 0.025), Color(255, 255, 255, alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1.25, Color(0, 0, 0, alpha) )
 			if UVRaceCountdown then
 				draw.SimpleTextOutlined(UVRaceCountdown.label, font, w * 0.5, h - barHeight + (h * 0.065), Color(255, 255, 255, alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1.25, Color( 0, 0, 0, alpha ) )
 			end
@@ -3270,7 +3264,7 @@ else -- CLIENT stuff
 			local baseY = h * 0.215
 			local lineSpacing = h * 0.04
 			
-			draw.SimpleTextOutlined( "#uv.prerace.details", font, barWidth - baseX, h * 0.175, Color(255, 255, 0, alpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
+			draw.SimpleTextOutlined( UVString("uv.prerace.details"), font, barWidth - baseX, h * 0.175, Color(255, 255, 0, alpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )
 
 			for i, square in ipairs(UVRaceCinematicOverlay.squares) do
 				draw.SimpleTextOutlined( square.text, font, barWidth - baseX, baseY, Color(255, 255, 255, alpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, alpha) )

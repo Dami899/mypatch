@@ -140,7 +140,7 @@ local function uv_general()
 		local textX = w * 0.87375
 		local blink = 255 * math.abs(math.sin(RealTime() * 6))
 
-		draw.SimpleTextOutlined( "#uv.ptech.jammer.hit.you", "UVMostWantedLeaderboardFont", textX, y + (h * 0.0175), Color(255, 0, 0, blink), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0,blink))
+		draw.SimpleTextOutlined( UVString("uv.ptech.jammer.hit.you"), "UVMostWantedLeaderboardFont", textX, y + (h * 0.0175), Color(255, 0, 0, blink), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0,blink))
     end
 end
 

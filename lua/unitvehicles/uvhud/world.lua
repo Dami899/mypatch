@@ -253,9 +253,9 @@ UV_UI.racing.world.events = {
 			
 			if info.LocalPlayer then LP, LC = true, Color(225,255,255) end
 			
-			local totalTime = info.TotalTime or "#uv.race.suffix.dnf"
+			local totalTime = info.TotalTime or UVString("uv.race.suffix.dnf")
 			
-			if info.Busted then totalTime = "#uv.race.suffix.busted" end
+			if info.Busted then totalTime = UVString("uv.race.suffix.busted") end
 
 			table.insert(displaySequence, {
 				y = h*0.08 + (i-1)*(h*0.09),
@@ -359,12 +359,12 @@ UV_UI.racing.world.events = {
 				headerDrawAlpha = 255
 			end
 			
-			draw.SimpleTextOutlined( "#uv.results.race.raceresults", "UVWorldFont3" .. GetFontSuffixForLanguage(), w*0.335, h*0.255, Color( 137, 242, 248, headerDrawAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ))
+			draw.SimpleTextOutlined( UVString("uv.results.race.raceresults"), "UVWorldFont3" .. GetFontSuffixForLanguage(), w*0.335, h*0.255, Color( 137, 242, 248, headerDrawAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ))
 
 			-- Loading elements
 			if loading then
 				OK:SetEnabled(false)
-				draw.SimpleTextOutlined( "#uv.race.loading", "UVWorldFont6" .. GetFontSuffixForLanguage(), w*0.5, h*0.525, Color( 200, 200, 200, headerAlpha ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, headerAlpha ) )
+				draw.SimpleTextOutlined( UVString("uv.race.loading"), "UVWorldFont6" .. GetFontSuffixForLanguage(), w*0.5, h*0.525, Color( 200, 200, 200, headerAlpha ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, headerAlpha ) )
 				DrawIcon( UVMaterials["LOADING_WORLD_R"], w*0.5, h*0.5, 0.05, Color( 255, 255, 255, headerAlpha ), { rotation = ( -RealTime() * 360 ) % 360 } )
 				DrawIcon( UVMaterials["LOADING_WORLD_L"], w*0.5, h*0.5, 0.04, Color( 255, 255, 255, headerAlpha ), { rotation = ( RealTime() * 180 ) % 360 } )
 				-- surface.SetDrawColor( 255, 255, 255, headerAlpha )
@@ -482,7 +482,7 @@ UV_UI.racing.world.events = {
 
 		if Glide then
 			if not istable(sortedRacers) or #sortedRacers == 0 then
-				glidetext = "#uv.race.finished.statserror"
+				glidetext = UVString("uv.race.finished.statserror")
 				glideicon = "unitvehicles/icons/GENERIC_ALERT.png"
 			end
 				Glide.Notify({
@@ -521,7 +521,7 @@ UV_UI.racing.world.events = {
 
 		local finishtext = (participant_count > 1 and cps > 1) and 
 		UVString("uv.race.finished") .. "\n" .. string.format( UVString("uv.race.finishspot"), UVString("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
-		or "#uv.race.finished"
+		or UVString("uv.race.finished")
 
 		if local_finished then 
 			UV_UI.racing.world.events.CenterNotification({
@@ -560,7 +560,7 @@ UV_UI.racing.world.events = {
 		if not info then return end
 
 		local disqtext = string.format(UVString("uv.race.wrecked"), name)
-		if is_local_player then disqtext = "#uv.chase.wrecked" end
+		if is_local_player then disqtext = UVString("uv.chase.wrecked") end
 
 		UV_UI.racing.world.events.CenterNotification({
 			text = disqtext,
@@ -580,7 +580,7 @@ UV_UI.racing.world.events = {
 			[4] = 3,
 			[3] = 2,
 			[2] = 1,
-			[1] = "#uv.race.go"
+			[1] = UVString("uv.race.go")
 		}
 
 		-- local textToShow = countdownTexts[starttime]
@@ -602,7 +602,7 @@ UV_UI.racing.world.events = {
 		local DUR_FADE_OUT    = 0.15
 		local DISPLAY_TOTAL   = 0.3    -- total time each value is visible
 
-		local READY_TEXT = noready and " " or "#uv.race.getready"
+		local READY_TEXT = noready and " " or UVString("uv.race.getready")
 		
 		local tickStart = CurTime()
 		local lifetime  = DISPLAY_TOTAL + 0.75
@@ -844,7 +844,7 @@ UV_UI.pursuit.world.events = {
 		local cnt = string.format(UVString("uv.hud.racer.arrested"), racer, UVString(cop))
 		
 		if lp then
-			cnt = "#uv.chase.busted"
+			cnt = UVString("uv.chase.busted")
 		end
 
 		UV_UI.racing.world.events.CenterNotification({
@@ -994,12 +994,12 @@ UV_UI.pursuit.world.events = {
 				headerDrawAlpha = 255
 			end
 			
-			draw.SimpleTextOutlined( "#uv.results.pursuit.carbon", "UVWorldFont3" .. GetFontSuffixForLanguage(), w*0.335, h*0.305, Color( 137, 242, 248, headerDrawAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ))
+			draw.SimpleTextOutlined( UVString("uv.results.pursuit.carbon"), "UVWorldFont3" .. GetFontSuffixForLanguage(), w*0.335, h*0.305, Color( 137, 242, 248, headerDrawAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ))
 
 			-- Loading elements
 			if loading then
 				OK:SetEnabled(false)
-				draw.SimpleTextOutlined( "#uv.race.loading", "UVWorldFont6" .. GetFontSuffixForLanguage(), w*0.5, h*0.525, Color( 200, 200, 200, headerAlpha ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, headerAlpha ) )
+				draw.SimpleTextOutlined( UVString("uv.race.loading"), "UVWorldFont6" .. GetFontSuffixForLanguage(), w*0.5, h*0.525, Color( 200, 200, 200, headerAlpha ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, headerAlpha ) )
 				DrawIcon( UVMaterials["LOADING_WORLD_R"], w*0.5, h*0.5, 0.05, Color( 255, 255, 255, headerAlpha ), { rotation = ( -RealTime() * 360 ) % 360 } )
 				DrawIcon( UVMaterials["LOADING_WORLD_L"], w*0.5, h*0.5, 0.04, Color( 255, 255, 255, headerAlpha ), { rotation = ( RealTime() * 180 ) % 360 } )
 				surface.SetDrawColor( 255, 255, 255, headerAlpha )
@@ -1028,13 +1028,13 @@ UV_UI.pursuit.world.events = {
 			draw.SimpleTextOutlined( debrieftitlevar, "UVWorldFont3" .. GetFontSuffixForLanguage(), w * 0.5, h * 0.375, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
 
             -- Text
-			draw.SimpleTextOutlined( "#uv.results.chase.bounty", "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.46, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( "#uv.results.chase.time", "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.485, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( "#uv.results.chase.units.deployed", "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.51, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( "#uv.results.chase.units.damaged", "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.535, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( "#uv.results.chase.units.destroyed", "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.56, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( "#uv.results.chase.dodged.blocks", "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.585, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( "#uv.results.chase.dodged.spikes", "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.61, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.bounty"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.46, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.time"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.485, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.units.deployed"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.51, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.units.damaged"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.535, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.units.destroyed"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.56, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.dodged.blocks"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.585, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.dodged.spikes"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.61, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
             		
 			draw.SimpleTextOutlined( "$" .. bounty, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, h * 0.46, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
 			draw.SimpleTextOutlined( time, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, h * 0.485, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
@@ -1123,7 +1123,7 @@ onRacerEscapedDebrief = function(escapedtable)
         dataTable = escapedtable,
         color = Color(255, 183, 61),
         iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = "#uv.results.escapedfrom",
+        titleText = UVString("uv.results.escapedfrom"),
     }
     UV_UI.pursuit.world.events.ShowDebrief(params)
 end,
@@ -1133,7 +1133,7 @@ onRacerBustedDebrief = function(bustedtable)
         dataTable = bustedtable,
         color = Color(255, 183, 61),
         iconMaterial = UVMaterials['RESULTCOP'],
-		titleText = "#uv.results.busted",
+		titleText = UVString("uv.results.busted"),
         titleVar = string.format( UVString("uv.results.bustedby"), UVString( bustedtable["Unit"] ) ),
 		spawnAsUnit = true,
 		bustedBG = true,
@@ -1147,8 +1147,8 @@ onCopBustedDebrief = function(bustedtable)
         color = Color(61, 183, 255),
         textcolor = Color(142, 221, 255, 107),
         iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = "#uv.results.busted",
-        titleVar = "#uv.results.suspects.busted",
+        titleText = UVString("uv.results.busted"),
+        titleVar = UVString("uv.results.suspects.busted"),
         -- titleVar = string.format( UVString("uv.results.suspects.busted"), bustedtable["Unit"] ),
     }
     UV_UI.pursuit.world.events.ShowDebrief(params)
@@ -1240,7 +1240,7 @@ local function world_racing_main( ... )
 	}
 
     -- Timer
-	draw.SimpleTextOutlined( "#uv.race.hud.laptime.world", "UVWorldFont1", UV_UI.X(w * 0.83), h * 0.1175, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
+	draw.SimpleTextOutlined( UVString("uv.race.hud.laptime.world"), "UVWorldFont1", UV_UI.X(w * 0.83), h * 0.1175, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
 	
     local current_time = "--:--.--"
     
@@ -1267,11 +1267,11 @@ local function world_racing_main( ... )
 
     -- Lap & Checkpoint Counter
     if UVHUDRaceInfo.Info.Laps > 1 then
-		draw.SimpleTextOutlined( "#uv.race.hud.lap", "UVWorldFont1", UV_UI.X(w * 0.93), h * 0.1725, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
+		draw.SimpleTextOutlined( UVString("uv.race.hud.lap"), "UVWorldFont1", UV_UI.X(w * 0.93), h * 0.1725, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
 		draw.SimpleTextOutlined( my_array.Lap .. "/" .. UVHUDRaceInfo.Info.Laps,"UVWorldFont4" .. GetFontSuffixForLanguage(), UV_UI.X(w * 0.925),h * 0.1825, worldcols.val,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 3, worldcols.valbg )
 	
 		-- Best Lap Timer
-		draw.SimpleTextOutlined( "#uv.race.hud.besttime.world", "UVWorldFont1", UV_UI.X(w * 0.83), h * 0.1675, worldcols.reg, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
+		draw.SimpleTextOutlined( UVString("uv.race.hud.besttime.world"), "UVWorldFont1", UV_UI.X(w * 0.83), h * 0.1675, worldcols.reg, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
 		
 		local btt, bttm = "-", ""
 		if my_array.BestLapTime then
@@ -1295,7 +1295,7 @@ local function world_racing_main( ... )
 			draw.SimpleTextOutlined( btt, "UVWorldFont2" .. GetFontSuffixForLanguage(), UV_UI.X(w * 0.85), h * 0.175, worldcols.val, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 3, worldcols.valbg )
 		end
     else -- Single Lap / Sprint
-		draw.SimpleTextOutlined( "#uv.race.hud.complete", "UVWorldFont1", UV_UI.X(w * 0.83), h * 0.1675, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
+		draw.SimpleTextOutlined( UVString("uv.race.hud.complete"), "UVWorldFont1", UV_UI.X(w * 0.83), h * 0.1675, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
 		draw.SimpleTextOutlined( math.floor(((checkpoint_count / GetGlobalInt("uvrace_checkpoints")) * 100)) .. "%","UVWorldFont2" .. GetFontSuffixForLanguage(), UV_UI.X(w * 0.8225), h * 0.175, worldcols.val,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 3, worldcols.valbg )
     end
 
@@ -1303,7 +1303,7 @@ local function world_racing_main( ... )
     
     -- Position Counter
     if racer_count > 1 then
-        draw.SimpleTextOutlined("#uv.results.race.pos.caps", "UVWorldFont1", UV_UI.X(w * 0.93), h * 0.1225, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
+        draw.SimpleTextOutlined(UVString("uv.results.race.pos.caps"), "UVWorldFont1", UV_UI.X(w * 0.93), h * 0.1225, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
         draw.SimpleTextOutlined(UVHUDRaceCurrentPos .. "/" .. UVHUDRaceCurrentParticipants,"UVWorldFont4" .. GetFontSuffixForLanguage(), UV_UI.X(w * 0.925), h * 0.1325, worldcols.val,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 3, worldcols.valbg )
     end
     
@@ -1487,7 +1487,7 @@ local function world_pursuit_main( ... )
 
     -- [ Upper Right Info Box ] --
     -- Timer
-	draw.SimpleTextOutlined( "#uv.chase.time.world", "UVWorldFont1", UV_UI.X(w * 0.885), h * 0.1175, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
+	draw.SimpleTextOutlined( UVString("uv.chase.time.world"), "UVWorldFont1", UV_UI.X(w * 0.885), h * 0.1175, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg )
 	
 	-- Split into main and ms
 	local mainTime, msTime = UVTimer:match("^(.-)(%.%d+)$")
@@ -1511,7 +1511,7 @@ local function world_pursuit_main( ... )
 	draw.SimpleTextOutlined( UVWrecks, "UVWorldFont3" .. GetFontSuffixForLanguage(), UV_UI.X(w * 0.9525), h * 0.176, worldcols.val, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 3, worldcols.valbg )
 
     -- Cost to State
-	draw.SimpleTextOutlined( "#uv.chase.cts.world", "UVWorldFont1", UV_UI.X(w * 0.885), h * 0.21, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg ) -- Bounty Text
+	draw.SimpleTextOutlined( UVString("uv.chase.cts.world"), "UVWorldFont1", UV_UI.X(w * 0.885), h * 0.21, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg ) -- Bounty Text
 	
     DrawIcon(UVMaterials["CTS_WORLD"], UV_UI.X(w * 0.8825), h * 0.2425, .06, Color(255, 255, 255)) -- Icon
 	draw.SimpleTextOutlined( "$" .. UVBounty,"UVWorldFont4" .. GetFontSuffixForLanguage(), UV_UI.X(w * 0.8915),h * 0.223, worldcols.val,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 3, worldcols.valbg )
@@ -1520,7 +1520,7 @@ local function world_pursuit_main( ... )
     local UVHeatMinConVar = GetConVar( 'unitvehicle_unit_heatminimumbounty' .. UVHeatLevel )
     local UVHeatMaxConVar = GetConVar( 'unitvehicle_unit_heatminimumbounty' .. UVHeatLevel + 1 )
     
-	draw.SimpleTextOutlined( "#uv.chase.heatlevel", "UVWorldFont1", UV_UI.X(w * 0.885), h * 0.265, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg ) -- Bounty Text
+	draw.SimpleTextOutlined( UVString("uv.chase.heatlevel"), "UVWorldFont1", UV_UI.X(w * 0.885), h * 0.265, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg ) -- Bounty Text
 	draw.SimpleTextOutlined( UVHeatLevel, "UVWorldFont3" .. GetFontSuffixForLanguage(), UV_UI.X(w * 0.9625), h * 0.279, worldcols.val,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.valbg ) -- Bounty Text
 
     UVHeatBountyMin = ( UVHeatMinConVar and UVHeatMinConVar:GetInt() ) or math.huge
@@ -1579,7 +1579,7 @@ local function world_pursuit_main( ... )
             end
         end
 
-		draw.SimpleTextOutlined( "#uv.unit.commander.caps", "UVWorldFont1", UV_UI.X(w * 0.885),h * 0.31, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg ) -- Bounty Text
+		draw.SimpleTextOutlined( UVString("uv.unit.commander.caps"), "UVWorldFont1", UV_UI.X(w * 0.885),h * 0.31, worldcols.reg,TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, worldcols.regbg ) -- Bounty Text
 
         if not UVHUDCommanderLastHealth or not UVHUDCommanderLastMaxHealth then
             UVHUDCommanderLastHealth = 0
@@ -1762,7 +1762,7 @@ local function world_pursuit_main( ... )
 				surface.SetMaterial(UVMaterials["COOLDOWNBG_WORLD"])
 				surface.DrawTexturedRectRotated(UV_UI.XScaled(w * 0.5), bottomy - (h * 0.005), UV_UI.W(w * 0.2575), h * 0.08, 0)
 				DrawIcon(UVMaterials["CHASEBAR_COOLDOWN_WORLD"], UV_UI.XScaled(w * 0.5), bottomy - (h * 0.015), .035, Color(255, 255, 255, blink) )
-				draw.SimpleTextOutlined( "#uv.chase.cooldown", "UVWorldFont1", UV_UI.XScaled(w * 0.5), bottomy - (h * 0.0015), worldcols.val,TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, worldcols.valbg )
+				draw.SimpleTextOutlined( UVString("uv.chase.cooldown"), "UVWorldFont1", UV_UI.XScaled(w * 0.5), bottomy - (h * 0.0015), worldcols.val,TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, worldcols.valbg )
 
                 surface.SetDrawColor(100, 200, 255, 255)
 				surface.SetMaterial(UVMaterials["CHASEBAR_LEFT_WORLD"]) -- Left Bar
@@ -1775,7 +1775,7 @@ local function world_pursuit_main( ... )
 				surface.SetMaterial(UVMaterials["COOLDOWNBG_WORLD"])
 				surface.DrawTexturedRectRotated(UV_UI.XScaled(w * 0.5), bottomy - (h * 0.005), UV_UI.W(w * 0.2575), h * 0.08, 0)
 				DrawIcon(UVMaterials["CHASEBAR_COOLDOWN_WORLD"], UV_UI.XScaled(w * 0.5), bottomy - (h * 0.015), .035, Color(255, 255, 255, blink) )
-				draw.SimpleTextOutlined( "#uv.chase.cooldown", "UVWorldFont1", UV_UI.XScaled(w * 0.5), bottomy - (h * 0.0015), worldcols.val,TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, worldcols.valbg )
+				draw.SimpleTextOutlined( UVString("uv.chase.cooldown"), "UVWorldFont1", UV_UI.XScaled(w * 0.5), bottomy - (h * 0.0015), worldcols.val,TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, worldcols.valbg )
             end
         else
             CooldownProgress = 0

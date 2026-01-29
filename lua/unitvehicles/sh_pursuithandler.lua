@@ -33,17 +33,16 @@ UVCounterActive = false -- Is the Race or Pursuit countdown active?
 local ShouldArchive = (SERVER or game.SinglePlayer()) and FCVAR_ARCHIVE or nil
 
 PT_Slots_Replacement_Strings = {
-	[1] = "#uv.ptech.slot.right",
-	[2] = "#uv.ptech.slot.left"
+	[1] = "uv.ptech.slot.right",
+	[2] = "uv.ptech.slot.left"
 }
 
 local Control_Strings = {
-	[1] = "#uv.ptech.slot.left",
-	[2] = "#uv.ptech.slot.right",
-	[3] = "#uv.keybind.skipsong",
-	[4] = "#uv.keybind.resetposition",
-	[5] = "#uv.keybind.showresults"
-
+	[1] = "uv.ptech.slot.left",
+	[2] = "uv.ptech.slot.right",
+	[3] = "uv.keybind.skipsong",
+	[4] = "uv.keybind.resetposition",
+	[5] = "uv.keybind.showresults"
 }
 
 local Colors = {
@@ -2145,7 +2144,7 @@ if SERVER then
 		end
 
 		if (UVOneCommanderActive or UVOneCommanderDeployed) and unitnpc == "npc_uvcommander" then --Trying to spawn a Commander when it shouldn't...
-			ply:PrintMessage( HUD_PRINTTALK, "#uv.chase.select.commander.deployed" )
+			ply:PrintMessage( HUD_PRINTTALK, UVString("uv.chase.select.commander.deployed") )
 
 			local UnitsPatrol = string.Trim( GetConVar( 'unitvehicle_unit_unitspatrol' .. UVHeatLevel ):GetString() )
 			local UnitsSupport = string.Trim( GetConVar( 'unitvehicle_unit_unitssupport' .. UVHeatLevel ):GetString() )
@@ -2951,7 +2950,7 @@ else -- CLIENT Settings | HUD/Options
 				[4] = 3,
 				[3] = 2,
 				[2] = 1,
-				[1] = "#uv.race.go"
+				[1] = UVString("uv.race.go")
 			}
 
 			local textToShow = countdownTexts[starttime]
@@ -2995,7 +2994,6 @@ else -- CLIENT Settings | HUD/Options
 
 			if convar then
 				convar:SetInt( key )
-				-- entry[2]:SetText( UVString( Control_Strings [slot] ) .. " - " ..string.upper( input.GetKeyName(key) ) )
 			end
 		else
 			warn("Invalid slot key; if you run into this please report it to a developer!")
@@ -3773,7 +3771,7 @@ else -- CLIENT Settings | HUD/Options
 
 				local timeLeft = ((UVHUDDisplayNotification and -1) or (UVBustTimer - UVBustingProgress))
 
-				draw.SimpleTextOutlined( "#" .. finetext, "UVMostWantedLeaderboardFont", w * 0.5, bottomy - h * 0.025, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, 255) )
+				draw.SimpleTextOutlined( UVString(finetext), "UVMostWantedLeaderboardFont", w * 0.5, bottomy - h * 0.025, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, 255) )
 
 				surface.SetDrawColor(200, 200, 200, 125)
 				surface.DrawRect(w * 0.4, bottomy, w * 0.2, h * 0.015)
@@ -4447,13 +4445,13 @@ else -- CLIENT Settings | HUD/Options
 		}
 
 		local unittablename = {
-			"#uv.unit.patrol",
-			"#uv.unit.support",
-			"#uv.unit.pursuit",
-			"#uv.unit.interceptor",
-			"#uv.unit.special",
-			"#uv.unit.rhino",
-			"#uv.unit.commander"
+			"uv.unit.patrol",
+			"uv.unit.support",
+			"uv.unit.pursuit",
+			"uv.unit.interceptor",
+			"uv.unit.special",
+			"uv.unit.rhino",
+			"uv.unit.commander"
 		}
 
 		local unittablenpc = {
@@ -4468,7 +4466,7 @@ else -- CLIENT Settings | HUD/Options
 
 		UVMenu.OpenMenu(function()
 			UVMenu.PlaySFX("menuopen")
-			UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
+			UVMenu.UnitSelect(unittable, UVString(unittablename), unittablenpc)
 		end, true)
 	end)
 
@@ -4731,14 +4729,14 @@ else -- CLIENT Settings | HUD/Options
 	end)
 
 	hook.Add("PopulateToolMenu", "UVMenu", function()
-		spawnmenu.AddToolMenuOption("Options", "uv.unitvehicles", "UVClientOptions", "#uv.ui.menu", "", "", function(panel)
+		spawnmenu.AddToolMenuOption("Options", "uv.unitvehicles", "UVClientOptions", UVString("uv.ui.menu"), "", "", function(panel)
 			local option
 			
 			panel:Clear()
 
-			panel:Help("#uv.tweakinmenu")
+			panel:Help(UVString("uv.tweakinmenu"))
 			local OpenMenu = vgui.Create("DButton")
-			OpenMenu:SetText("#uv.tweakinmenu.open")
+			OpenMenu:SetText(UVString("uv.tweakinmenu.open"))
 			OpenMenu:SetSize(280, 20)
 			OpenMenu.DoClick = function()
 				UVMenu.OpenMenu(UVMenu.Main)

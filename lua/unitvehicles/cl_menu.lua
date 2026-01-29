@@ -33,7 +33,7 @@ CoreFan19
 
 if CLIENT then
 	list.Set("DesktopWindows", "UnitVehiclesMenu", {
-		title = "#uv.unitvehicles",
+		title = UVString("uv.unitvehicles"),
 		icon  = "unitvehicles/icons/MILESTONE_OUTRUN_PURSUITS_WON.png",
 		init = function(icon, window)
 			RunConsoleCommand("unitvehicles_menu")

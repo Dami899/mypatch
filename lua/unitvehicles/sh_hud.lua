@@ -216,46 +216,11 @@ UV_UI_Events = {
     ['Heat'] = 'onHeatLevelUpdate',
 }
 
-local BindTextReplace = {
-	-- KP_INS = "KP 0",
-	-- KP_END = "KP 1",
-	-- KP_DOWNARROW = "KP 2",
-	-- KP_PGDN = "KP 3",
-	-- KP_LEFTARROW = "KP 4",
-	-- KP_5 = "KP 5",
-	-- KP_RIGHTARROW = "KP 6",
-	-- KP_HOME = "KP 7",
-	-- KP_UPARROW = "KP 8",
-	-- KP_PGUP = "KP 9",
-	-- KP_SLASH = "KP /",
-	-- KP_MULTIPLY = "KP *",
-	-- KP_MINUS = "KP -",
-	-- KP_PLUS = "KP +",
-	-- KP_ENTER = "KP ↵",
-	-- KP_DEL = "KP .",
-	
-	-- ENTER = "↵",
-	-- SPACE = "#uv.button.space",
-}
-
-function UVBindButton(var)
-	local keyName = input.LookupBinding(var)
-	if not keyName then return "UNKNOWN" end
-
-	local resolved = BindTextReplace[keyName] or keyName
-
-	if string.StartWith(resolved, "#") then 
-		return UVString(resolved) 
-	else
-		return string.upper(resolved)
-	end
-end
-
 function UVBindButtonName(var)
 	local keyName = input.GetKeyName(var)
 	if not keyName then return "UNKNOWN" end
 	local upperKeyName = string.upper(keyName)
-	return BindTextReplace[upperKeyName] or upperKeyName
+	return upperKeyName
 end
 
 if CLIENT then
@@ -1234,7 +1199,7 @@ function UVRenderEnemySquare(ent)
 					if racerInfo then
 						local pos = GetRacerPositionForEntity(ent)
 						if pos then
-							enemypos = "#uv.race.pos.num." .. pos
+							enemypos = UVString("uv.race.pos.num." .. pos)
 						end
 						if racerInfo.Name then
 							enemycallsign = racerInfo.Name
@@ -1366,7 +1331,7 @@ function UVRenderEnemySquare(ent)
 					surface.DrawRect(rectxpos, rectypos + ent._bustOffset, T, h * 0.0125)
 				end
 
-				draw.DrawText("#uv.chase.busting.other", "UVFont4", textX, textY + ent._bustOffset - (h * 0.01), Color(box_color.r, box_color.g, box_color.b, ent._bustAlpha), TEXT_ALIGN_CENTER)
+				draw.DrawText(UVString("uv.chase.busting.other"), "UVFont4", textX, textY + ent._bustOffset - (h * 0.01), Color(box_color.r, box_color.g, box_color.b, ent._bustAlpha), TEXT_ALIGN_CENTER)
 			end
 
 			surface.SetDrawColor( box_color.r, box_color.g, box_color.b, fadeAlpha )

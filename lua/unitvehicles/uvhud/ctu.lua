@@ -33,10 +33,10 @@ local function ctu_racing_main( ... )
 	local lapamount = "REPLACEME"
 	
     if UVHUDRaceInfo.Info.Laps > 1 then
-		lapname = "#uv.race.hud.laps.caps"
+		lapname = UVString("uv.race.hud.laps.caps")
 		lapamount = my_array.Lap .. "/" .. UVHUDRaceInfo.Info.Laps
     else
-		lapname = "#uv.race.hud.complete"
+		lapname = UVString("uv.race.hud.complete")
 		lapamount = math.floor(((checkpoint_count / GetGlobalInt("uvrace_checkpoints")) * 100)) .. "%"
     end
     
@@ -52,7 +52,7 @@ local function ctu_racing_main( ... )
         current_time = UVDisplayTimeRaceWorld( CurTime() - my_array.LastLapCurTime )
     end
 
-	draw.SimpleTextOutlined("#uv.race.hud.laptime", "UVFont4BiggerItalic", UV_UI.X(w * 0.7175), h * 0.125, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
+	draw.SimpleTextOutlined(UVString("uv.race.hud.laptime"), "UVFont4BiggerItalic", UV_UI.X(w * 0.7175), h * 0.125, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
 	draw.SimpleTextOutlined(current_time, "UVFont4BiggerItalic", UV_UI.X(w * 0.96), h * 0.125, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
 
     -- Record Time
@@ -63,7 +63,7 @@ local function ctu_racing_main( ... )
 			besttime = UVDisplayTimeRaceWorld(my_array.BestLapTime)
 		end
 
-		draw.SimpleTextOutlined("#uv.race.hud.besttime.world", "UVFont4BiggerItalic", UV_UI.X(w * 0.715), h * 0.155, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
+		draw.SimpleTextOutlined(UVString("uv.race.hud.besttime.world"), "UVFont4BiggerItalic", UV_UI.X(w * 0.715), h * 0.155, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
 		
 		draw.SimpleTextOutlined(besttime, "UVFont4BiggerItalic", UV_UI.X(w * 0.955), h * 0.155, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
 	end
@@ -84,7 +84,7 @@ local function ctu_racing_main( ... )
 		surface.DrawTexturedRect(0, h * 0.0775, UV_UI.X(w * 0.3), h * 0.0425)
 	    
 		-- Position Counter
-        draw.SimpleTextOutlined("#uv.results.race.pos.caps", "UVFont4BiggerItalic2", UV_UI.X(w * 0.28),h * 0.082, Color( 255, 255, 255 ),TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
+        draw.SimpleTextOutlined(UVString("uv.results.race.pos.caps"), "UVFont4BiggerItalic2", UV_UI.X(w * 0.28),h * 0.082, Color( 255, 255, 255 ),TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
 		draw.SimpleTextOutlined(UVHUDRaceCurrentPos .. "/" .. UVHUDRaceCurrentParticipants, "UVFont4BiggerItalic2", UV_UI.X(w * 0.0525), h * 0.082, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.5, Color( 0, 0, 0 ) )
 
 		-- Racer List
@@ -227,10 +227,10 @@ UV_UI.racing.ctu.events = {
             local LP, LC = false, Color(100, 100, 100)
             
             local name = info["Name"] or "Unknown"
-            local totalTime = info["TotalTime"] and info["TotalTime"] or "#uv.race.suffix.dnf"
+            local totalTime = info["TotalTime"] and info["TotalTime"] or UVString("uv.race.suffix.dnf")
             local bestTime = info["BestLapTime"] and info["BestLapTime"] or "--:--.--"
             
-            if info["Busted"] then totalTime = "#uv.race.suffix.busted" end
+            if info["Busted"] then totalTime = UVString("uv.race.suffix.busted") end
             
             if info["LocalPlayer"] then
                 LP = true
@@ -302,11 +302,11 @@ UV_UI.racing.ctu.events = {
 			surface.SetMaterial(UVMaterials["HUD_CTU_BAR"])
 			surface.DrawTexturedRect(0, h * 0.2, w, h * 0.02) -- Screen-wide bar
     	
-            draw.SimpleTextOutlined("#uv.results.race.raceresults", "UVFont4BiggerItalic3", w * 0.1, h * 0.135, Color( 150, 50, 0, 255 * fadeAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 50 * fadeAlpha ) )
+            draw.SimpleTextOutlined(UVString("uv.results.race.raceresults"), "UVFont4BiggerItalic3", w * 0.1, h * 0.135, Color( 150, 50, 0, 255 * fadeAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 50 * fadeAlpha ) )
             
-			draw.SimpleTextOutlined("#uv.results.race.bestlap.caps", "UVFont4BiggerItalic", w * 0.525, h * 0.225, Color( 150, 50, 0 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 50 ) )
+			draw.SimpleTextOutlined(UVString("uv.results.race.bestlap.caps"), "UVFont4BiggerItalic", w * 0.525, h * 0.225, Color( 150, 50, 0 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 50 ) )
 			
-			draw.SimpleTextOutlined("#uv.results.race.time.caps", "UVFont4BiggerItalic", w * 0.705, h * 0.225, Color( 150, 50, 0 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 50 ) )
+			draw.SimpleTextOutlined(UVString("uv.results.race.time.caps"), "UVFont4BiggerItalic", w * 0.705, h * 0.225, Color( 150, 50, 0 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 50 ) )
 			
 	        local startIndex = scrollOffset + 1
             local endIndex = math.min(startIndex + entriesToShow - 1, #displaySequence)
@@ -429,7 +429,7 @@ UV_UI.racing.ctu.events = {
         
         if Glide then
             if not istable(sortedRacers) or #sortedRacers == 0 then
-                glidetext = "#uv.race.finished.statserror"
+                glidetext = UVString("uv.race.finished.statserror")
                 glideicon = "unitvehicles/icons/GENERIC_ALERT.png"
             end
             Glide.Notify({

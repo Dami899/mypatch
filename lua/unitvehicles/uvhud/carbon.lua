@@ -591,10 +591,10 @@ UV_UI.racing.carbon.events = {
             surface.SetDrawColor( 0, 0, 0, 235 )
             surface.DrawRect( w*0.25, h*0.3, w*0.5, h*0.03)
             
-            draw.DrawText( "#uv.results.race.pos.caps", "UVCarbonLeaderboardFont", w*0.2565, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_LEFT )
-            draw.DrawText( "#uv.results.race.name.caps", "UVCarbonLeaderboardFont", w*0.325, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_LEFT )
-            draw.DrawText( "#uv.results.race.car.caps", "UVCarbonLeaderboardFont", w*0.45, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_LEFT )
-            draw.DrawText( "#uv.results.race.time.caps", "UVCarbonLeaderboardFont", w*0.74, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_RIGHT )
+            draw.DrawText( UVString("uv.results.race.pos.caps"), "UVCarbonLeaderboardFont", w*0.2565, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_LEFT )
+            draw.DrawText( UVString("uv.results.race.name.caps"), "UVCarbonLeaderboardFont", w*0.325, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_LEFT )
+            draw.DrawText( UVString("uv.results.race.car.caps"), "UVCarbonLeaderboardFont", w*0.45, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_LEFT )
+            draw.DrawText( UVString("uv.results.race.time.caps"), "UVCarbonLeaderboardFont", w*0.74, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_RIGHT )
             
             -- Draw visible racer entries
             local startIndex = scrollOffset + 1
@@ -612,9 +612,9 @@ UV_UI.racing.carbon.events = {
                 local info = racer.array or racer  -- fallback if 'array' doesn't exist
                 
                 local name = info["Name"] or "Unknown"
-                local totalTime = info["TotalTime"] and info["TotalTime"] or "#uv.race.suffix.dnf"
+                local totalTime = info["TotalTime"] and info["TotalTime"] or UVString("uv.race.suffix.dnf")
                 
-                if info["Busted"] then totalTime = "#uv.race.suffix.busted" end
+                if info["Busted"] then totalTime = UVString("uv.race.suffix.busted") end
 				
 			   	surface.SetFont("UVCarbonLeaderboardFont")
                local vehname = info["VehicleName"]
@@ -719,7 +719,7 @@ UV_UI.racing.carbon.events = {
 
 		if Glide then
 			if not istable(sortedRacers) or #sortedRacers == 0 then
-				glidetext = "#uv.race.finished.statserror"
+				glidetext = UVString("uv.race.finished.statserror")
 				glideicon = "unitvehicles/icons/GENERIC_ALERT.png"
 			end
 				Glide.Notify({
@@ -758,7 +758,7 @@ UV_UI.racing.carbon.events = {
 
 		local finishtext = (participant_count > 1 and cps > 1) and 
 		UVString("uv.race.finished") .. "\n" .. string.format( UVString("uv.race.finishspot"), UVString("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
-		or "#uv.race.finished"
+		or UVString("uv.race.finished")
 
 		if local_finished then 
 			UV_UI.racing.carbon.events.CenterNotification({
@@ -795,7 +795,7 @@ UV_UI.racing.carbon.events = {
 		if not info then return end
 
 		local disqtext = string.format(UVString("uv.race.wrecked"), name)
-		if is_local_player then disqtext = "#uv.chase.wrecked" end
+		if is_local_player then disqtext = UVString("uv.chase.wrecked") end
 
 		UV_UI.racing.carbon.events.CenterNotification({
 			text = disqtext,
@@ -862,7 +862,7 @@ UV_UI.racing.carbon.events = {
 
 				-- Text
 				Animations["Text"] = {
-					value = stage == 1 and "#uv.race.go" or (stage - 1),
+					value = stage == 1 and UVString("uv.race.go") or (stage - 1),
 					color = Color(0, 255, 255),
 					alpha = 0,
 					flash = false,
@@ -1167,7 +1167,7 @@ UV_UI.pursuit.carbon.events = {
 		local cnt = string.format(UVString("uv.hud.racer.arrested"), racer, UVString(cop))
 		
 		if lp then
-			cnt = "#uv.chase.busted"
+			cnt = UVString("uv.chase.busted")
 		end
 		
 		UV_UI.racing.carbon.events.CenterNotification({
@@ -1366,9 +1366,9 @@ UV_UI.pursuit.carbon.events = {
             surface.SetDrawColor( 0, 0, 0, 235 )
             surface.DrawRect( w*0.25, h*0.3, w*0.5, h*0.03)
             
-            draw.DrawText( "#uv.results.chase.item.carbon", "UVCarbonLeaderboardFont", w*0.2565, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_LEFT )
+            draw.DrawText( UVString("uv.results.chase.item.carbon"), "UVCarbonLeaderboardFont", w*0.2565, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_LEFT )
             
-            draw.DrawText( "#uv.results.chase.value.carbon", "UVCarbonLeaderboardFont", w*0.74, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_RIGHT )
+            draw.DrawText( UVString("uv.results.chase.value.carbon"), "UVCarbonLeaderboardFont", w*0.74, h*0.3025, Color( 255, 255, 255), TEXT_ALIGN_RIGHT )
             
             -- All middle tabs, light ones
             local numRectsLight = 3
@@ -1399,13 +1399,13 @@ UV_UI.pursuit.carbon.events = {
             -- Text
             draw.SimpleTextOutlined( debrieftitletext, "UVCarbonLeaderboardFont", w*0.2565, h*0.3425, Color( 255, 255, 0), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0) )
             
-            draw.SimpleTextOutlined( "#uv.results.chase.bounty", "UVCarbonLeaderboardFont", w*0.2565, h1, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
-            draw.SimpleTextOutlined( "#uv.results.chase.time", "UVCarbonLeaderboardFont", w*0.2565, h2, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
-            draw.SimpleTextOutlined( "#uv.results.chase.units.deployed", "UVCarbonLeaderboardFont", w*0.2565, h1 + h*0.08, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
-            draw.SimpleTextOutlined( "#uv.results.chase.units.damaged", "UVCarbonLeaderboardFont", w*0.2565, h2 + h*0.08, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
-            draw.SimpleTextOutlined( "#uv.results.chase.units.destroyed", "UVCarbonLeaderboardFont", w*0.2565, h1 + h*0.16, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
-            draw.SimpleTextOutlined( "#uv.results.chase.dodged.blocks", "UVCarbonLeaderboardFont", w*0.2565, h2 + h*0.16, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
-            draw.SimpleTextOutlined( "#uv.results.chase.dodged.spikes", "UVCarbonLeaderboardFont", w*0.2565, h1 + h*0.24, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
+            draw.SimpleTextOutlined( UVString("uv.results.chase.bounty"), "UVCarbonLeaderboardFont", w*0.2565, h1, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
+            draw.SimpleTextOutlined( UVString("uv.results.chase.time"), "UVCarbonLeaderboardFont", w*0.2565, h2, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
+            draw.SimpleTextOutlined( UVString("uv.results.chase.units.deployed"), "UVCarbonLeaderboardFont", w*0.2565, h1 + h*0.08, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
+            draw.SimpleTextOutlined( UVString("uv.results.chase.units.damaged"), "UVCarbonLeaderboardFont", w*0.2565, h2 + h*0.08, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
+            draw.SimpleTextOutlined( UVString("uv.results.chase.units.destroyed"), "UVCarbonLeaderboardFont", w*0.2565, h1 + h*0.16, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
+            draw.SimpleTextOutlined( UVString("uv.results.chase.dodged.blocks"), "UVCarbonLeaderboardFont", w*0.2565, h2 + h*0.16, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
+            draw.SimpleTextOutlined( UVString("uv.results.chase.dodged.spikes"), "UVCarbonLeaderboardFont", w*0.2565, h1 + h*0.24, Color(255, 255, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
             
             draw.SimpleTextOutlined( debrieftitlevar, "UVCarbonLeaderboardFont", w*0.74, h*0.3425, Color( 255, 255, 0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
             
@@ -1502,7 +1502,7 @@ UV_UI.pursuit.carbon.events = {
     onRacerEscapedDebrief = function(escapedtable)
         local params = {
             dataTable = escapedtable,
-            titleText = "#uv.results.escapedfrom",
+            titleText = UVString("uv.results.escapedfrom"),
         }
         UV_UI.pursuit.carbon.events.ShowDebrief(params)
     end,
@@ -1510,7 +1510,7 @@ UV_UI.pursuit.carbon.events = {
     onRacerBustedDebrief = function(bustedtable)
         local params = {
             dataTable = bustedtable,
-            titleText = "#uv.results.bustedby.carbon",
+            titleText = UVString("uv.results.bustedby.carbon"),
             titleVar = UVString( bustedtable["Unit"] ),
 			spawnAsUnit = true,
         }
@@ -1520,7 +1520,7 @@ UV_UI.pursuit.carbon.events = {
     onCopBustedDebrief = function(bustedtable)
         local params = {
             dataTable = bustedtable,
-            titleText = "#uv.results.suspects.busted",
+            titleText = UVString("uv.results.suspects.busted"),
             titleVar = bustedtable["Unit"],
         }
         UV_UI.pursuit.carbon.events.ShowDebrief(params)
@@ -1529,7 +1529,7 @@ UV_UI.pursuit.carbon.events = {
     onCopEscapedDebrief = function(escapedtable)
         local params = {
             dataTable = escapedtable,
-            titleText = "#uv.results.suspects.escaped.num.carbon",
+            titleText = UVString("uv.results.suspects.escaped.num.carbon"),
             titleVar = UVHUDWantedSuspectsNumber,
         }
         UV_UI.pursuit.carbon.events.ShowDebrief(params)
@@ -1592,7 +1592,7 @@ local function carbon_racing_main( ... )
         laptextdark = "<color=0,0,0>" .. laptext .. "</color>"
     end
     
-	draw.SimpleTextOutlined("#" .. lapname, "UVCarbonFont", UV_UI.X(w * 0.875), h * 0.155, UVColors.Carbon_Accent2Bright, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
+	draw.SimpleTextOutlined(UVString(lapname), "UVCarbonFont", UV_UI.X(w * 0.875), h * 0.155, UVColors.Carbon_Accent2Bright, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
 	
     markup.Parse("<font=UVCarbonFont>" .. laptextdark):Draw(UV_UI.X(w * 0.97) - 1,h * 0.155 - 1,TEXT_ALIGN_RIGHT,TEXT_ALIGN_RIGHT)
     markup.Parse("<font=UVCarbonFont>" .. laptextdark):Draw(UV_UI.X(w * 0.97) - 1,h * 0.155 + 1,TEXT_ALIGN_RIGHT,TEXT_ALIGN_RIGHT)
@@ -1824,7 +1824,7 @@ local function carbon_pursuit_main( ... )
         surface.SetDrawColor(0, 0, 0, 200) -- Milestone BG
         surface.DrawRect(UV_UI.X(w * 0.79), h * 0.35, UV_UI.W(w * 0.19), h * 0.03)
 
-        local cname = "#uv.unit.commander"
+        local cname = UVString("uv.unit.commander")
         if IsValid(UVHUDCommander) then
             local driver = UVHUDCommander:GetDriver()
             if IsValid(driver) and driver:IsPlayer() then
@@ -1962,8 +1962,8 @@ local function carbon_pursuit_main( ... )
 		surface.SetDrawColor(middlergb.r, middlergb.g, middlergb.b, 255)
 		surface.DrawTexturedRect(UV_UI.X(w * 0.874), h * 0.195, UV_UI.W(w * 0.023), h * 0.032)
 
-		draw.SimpleTextOutlined("#uv.chase.busted", "UVCarbonLeaderboardFont", UV_UI.X(w * 0.7875), h* 0.2175, states.BustedColor, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0, 50 ) )
-		draw.SimpleTextOutlined("#uv.chase.evade", "UVCarbonLeaderboardFont", UV_UI.X(w * 0.98), h* 0.2175, states.EvasionColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0, 50 ) )
+		draw.SimpleTextOutlined(UVString("uv.chase.busted"), "UVCarbonLeaderboardFont", UV_UI.X(w * 0.7875), h* 0.2175, states.BustedColor, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0, 50 ) )
+		draw.SimpleTextOutlined(UVString("uv.chase.evade"), "UVCarbonLeaderboardFont", UV_UI.X(w * 0.98), h* 0.2175, states.EvasionColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0, 50 ) )
 		
         -- Lower Box
         local lbtext = "REPLACEME"
@@ -2003,9 +2003,9 @@ local function carbon_pursuit_main( ... )
 				surface.SetDrawColor(UVColors.Carbon_Accent)
 				surface.DrawTexturedRectUV(UV_UI.X(w * 0.782) + (UV_UI.W(w * 0.2) - T), h * 0.18, T, h * 0.064, 1 - (T / (UV_UI.W(w * 0.2))), 0, 1, 1)
 
-				draw.SimpleTextOutlined("#uv.chase.cooldown", "UVCarbonLeaderboardFont", UV_UI.X(w * 0.98), h * 0.221, UVColors.Carbon_Accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
+				draw.SimpleTextOutlined(UVString("uv.chase.cooldown"), "UVCarbonLeaderboardFont", UV_UI.X(w * 0.98), h * 0.221, UVColors.Carbon_Accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
             else
-				draw.SimpleTextOutlined("#uv.chase.cooldown", "UVCarbonLeaderboardFont", UV_UI.X(w * 0.98), h * 0.225, UVColors.Carbon_Accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
+				draw.SimpleTextOutlined(UVString("uv.chase.cooldown"), "UVCarbonLeaderboardFont", UV_UI.X(w * 0.98), h * 0.225, UVColors.Carbon_Accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color( 0, 0, 0 ) )
             end
         else
             CooldownProgress = 0

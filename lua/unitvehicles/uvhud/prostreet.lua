@@ -21,7 +21,7 @@ local function prostreet_racing_main( ... )
     surface.SetDrawColor(0, 0, 0, 200)
     surface.DrawRect(UV_UI.XScaled(w * 0.425), h * 0.075, UV_UI.W(w * 0.15), h * 0.05)
 
-	draw.SimpleTextOutlined("#uv.race.hud.time.ps", "UVFont5", w * 0.5, h * 0.035, Color( 255, 255, 255, 150 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.5, Color( 0, 0, 0 ) )
+	draw.SimpleTextOutlined(UVString("uv.race.hud.time.ps"), "UVFont5", w * 0.5, h * 0.035, Color( 255, 255, 255, 150 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.5, Color( 0, 0, 0 ) )
 	draw.SimpleTextOutlined(Carbon_FormatRaceTime((UVHUDRaceInfo.Info.Started and (CurTime() - UVHUDRaceInfo.Info.Time)) or 0), "UVFont5", w * 0.5, h * 0.0775, Color( 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.5, Color( 0, 0, 0 ) )
 
     -- Lap & Checkpoint Counter
@@ -29,10 +29,10 @@ local function prostreet_racing_main( ... )
 	local lapamount = "REPLACEME"
 	
     if UVHUDRaceInfo.Info.Laps > 1 then
-		lapname = "#uv.race.hud.lap.ps"
+		lapname = UVString("uv.race.hud.lap.ps")
 		lapamount = my_array.Lap .. "/" .. UVHUDRaceInfo.Info.Laps
     else
-		lapname = "#uv.race.hud.complete.ps"
+		lapname = UVString("uv.race.hud.complete.ps")
 		lapamount = math.floor(((checkpoint_count / GetGlobalInt("uvrace_checkpoints")) * 100)) .. "%"
     end
     
@@ -319,9 +319,9 @@ UV_UI.racing.prostreet.events = {
             local LP, LC = false, Color(100, 100, 100)
             
             local name = info["Name"] or "Unknown"
-            local totalTime = info["TotalTime"] and info["TotalTime"] or "#uv.race.suffix.dnf"
+            local totalTime = info["TotalTime"] and info["TotalTime"] or UVString("uv.race.suffix.dnf")
             
-            if info["Busted"] then totalTime = "#uv.race.suffix.busted" end
+            if info["Busted"] then totalTime = UVString("uv.race.suffix.busted") end
             
             if info["LocalPlayer"] then
                 LP = true
@@ -429,7 +429,7 @@ UV_UI.racing.prostreet.events = {
             surface.SetDrawColor(200, 200, 200, 255 * fadeAlpha)
             surface.DrawRect(w * 0.21, h * 0.25, w * (1 - 2 * 0.21), (h * (baseHeight - 0.06)) + extraHeight)
             
-            draw.SimpleText("#uv.results.race.raceresults", "UVFont2", w * 0.205, h * 0.2025, Color(255, 255, 255, 255 * fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+            draw.SimpleText(UVString("uv.results.race.raceresults"), "UVFont2", w * 0.205, h * 0.2025, Color(255, 255, 255, 255 * fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
             
             for i = startIndex, endIndex do
                 local entry = displaySequence[i]
@@ -542,7 +542,7 @@ UV_UI.racing.prostreet.events = {
         
         if Glide then
             if not istable(sortedRacers) or #sortedRacers == 0 then
-                glidetext = "#uv.race.finished.statserror"
+                glidetext = UVString("uv.race.finished.statserror")
                 glideicon = "unitvehicles/icons/GENERIC_ALERT.png"
             end
             Glide.Notify({
@@ -582,7 +582,7 @@ UV_UI.racing.prostreet.events = {
 
 		local finishtext = (participant_count > 1 and cps > 1) and 
 		UVString("uv.race.finished") .. "\n" .. string.format( UVString("uv.race.finishspot"), UVString("uv.race.pos.num." .. UVHUDRaceCurrentPos) )
-		or "#uv.race.finished"
+		or UVString("uv.race.finished")
 
 		if local_finished then 
 			UV_UI.racing.prostreet.events.CenterNotification({
@@ -619,7 +619,7 @@ UV_UI.racing.prostreet.events = {
 		if not info then return end
 
 		local disqtext = string.format(UVString("uv.race.wrecked"), name)
-		if is_local_player then disqtext = "#uv.chase.wrecked" end
+		if is_local_player then disqtext = UVString("uv.chase.wrecked") end
 
 		UV_UI.racing.prostreet.events.CenterNotification({
 			text = disqtext,
@@ -686,7 +686,7 @@ UV_UI.racing.prostreet.events = {
 			[4] = "3",
 			[3] = "2",
 			[2] = "1",
-			[1] = "#uv.race.go"
+			[1] = UVString("uv.race.go")
 		}
 
 		local value = map[starttime]
@@ -758,7 +758,7 @@ UV_UI.racing.prostreet.events = {
 					return
 				end
 
-				draw.SimpleText( "#uv.race.start", "UVFont5ShadowBig", cx + st.x, cy, Color(255, 255, 255, alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+				draw.SimpleText( UVString("uv.race.start"), "UVFont5ShadowBig", cx + st.x, cy, Color(255, 255, 255, alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
 			end
 
 			if HUDCountdownTick.mode == "COUNTDOWN" then

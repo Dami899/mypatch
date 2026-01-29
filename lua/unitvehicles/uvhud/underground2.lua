@@ -92,9 +92,9 @@ UV_UI.racing.underground2.events = {
             local LP, LC = false, Color(255, 255, 255)
             
             local name = info["Name"] or "Unknown"
-            local totalTime = info["TotalTime"] and info["TotalTime"] or "#uv.race.suffix.dnf"
+            local totalTime = info["TotalTime"] and info["TotalTime"] or UVString("uv.race.suffix.dnf")
             
-            if info["Busted"] then totalTime = "#uv.race.suffix.busted" end
+            if info["Busted"] then totalTime = UVString("uv.race.suffix.busted") end
 				
 			local ymax = w * 0.45
 			local ynmax = w * 0.175
@@ -188,10 +188,10 @@ UV_UI.racing.underground2.events = {
             surface.SetMaterial(UVMaterials["RESULTS_UG2_SHINE"])
             surface.DrawTexturedRect(0, 0, w, h) -- Upper
             
-            draw.SimpleText("#uv.results.race.eventresults", "UVFont", w * 0.05, h * 0.12, Color(196, 208, 151, math.floor(255 * fadeAlpha)), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
-            draw.SimpleText("#uv.results.race.name", "UVFont", w * 0.1, h * 0.2025, Color(255, 255, 255, math.floor(255 * fadeAlpha)), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
-            draw.SimpleText("#uv.results.race.car", "UVFont", w * 0.3, h * 0.2025, Color(255, 255, 255, math.floor(255 * fadeAlpha)), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
-            draw.SimpleText("#uv.results.race.time.finish", "UVFont", w * 0.9, h * 0.205, Color(255, 255, 255, math.floor(255 * fadeAlpha)), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
+            draw.SimpleText(UVString("uv.results.race.eventresults"), "UVFont", w * 0.05, h * 0.12, Color(196, 208, 151, math.floor(255 * fadeAlpha)), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+            draw.SimpleText(UVString("uv.results.race.name"), "UVFont", w * 0.1, h * 0.2025, Color(255, 255, 255, math.floor(255 * fadeAlpha)), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+            draw.SimpleText(UVString("uv.results.race.car"), "UVFont", w * 0.3, h * 0.2025, Color(255, 255, 255, math.floor(255 * fadeAlpha)), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+            draw.SimpleText(UVString("uv.results.race.time.finish"), "UVFont", w * 0.9, h * 0.205, Color(255, 255, 255, math.floor(255 * fadeAlpha)), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
             
             for i = startIndex, endIndex do
                 local entry = displaySequence[i]
@@ -297,7 +297,7 @@ UV_UI.racing.underground2.events = {
         
         if Glide then
             if not istable(sortedRacers) or #sortedRacers == 0 then
-                glidetext = "#uv.race.finished.statserror"
+                glidetext = UVString("uv.race.finished.statserror")
                 glideicon = "unitvehicles/icons/GENERIC_ALERT.png"
             end
             Glide.Notify({
@@ -404,7 +404,7 @@ local function underground2_racing_main( ... )
     surface.DrawTexturedRect(UV_UI.X(w * 0.72), h * 0.075, UV_UI.W(w * 0.255), h * 0.15)
     
     draw.DrawText( UVHUDRaceCurrentPos, "UVFont3Big", UV_UI.X(w * 0.79), h * 0.11, Color(255, 255, 255), TEXT_ALIGN_RIGHT ) -- Upper, Your Position
-    draw.DrawText( "#uv.race.pos." .. UVHUDRaceCurrentPos, "UVFont3", UV_UI.X(w * 0.7925), h * 0.14, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Upper, Your Position
+    draw.DrawText( UVString("uv.race.pos.") .. UVHUDRaceCurrentPos, "UVFont3", UV_UI.X(w * 0.7925), h * 0.14, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Upper, Your Position
     draw.DrawText( "/" .. UVHUDRaceCurrentParticipants, "UVFont3Big", UV_UI.X(w * 0.82), h * 0.11, Color(255, 255, 255), TEXT_ALIGN_LEFT ) -- Lower, Total Positions
     
     -- Lap & Checkpoint Counter
@@ -413,10 +413,10 @@ local function underground2_racing_main( ... )
     surface.DrawTexturedRect(UV_UI.X(w * 0.7135), h * 0.1525, UV_UI.W(w * 0.2655), h * 0.15)
     
     if UVHUDRaceInfo.Info.Laps > 1 then
-        draw.DrawText( "#uv.race.hud.lap.ug", "UVFont5", UV_UI.X(w * 0.735), h * 0.205, Color(255, 255, 255), TEXT_ALIGN_LEFT ) -- Lap Counter
+        draw.DrawText( UVString("uv.race.hud.lap.ug"), "UVFont5", UV_UI.X(w * 0.735), h * 0.205, Color(255, 255, 255), TEXT_ALIGN_LEFT ) -- Lap Counter
         draw.DrawText( my_array.Lap .. "/" .. UVHUDRaceInfo.Info.Laps, "UVFont5", UV_UI.X(w * 0.945), h * 0.205, Color(255, 255, 255), TEXT_ALIGN_RIGHT ) -- Lap Counter
     else
-        draw.DrawText( "#uv.race.hud.complete.ug2", "UVFont", UV_UI.X(w * 0.735), h * 0.205, Color(255, 255, 255), TEXT_ALIGN_LEFT )
+        draw.DrawText( UVString("uv.race.hud.complete.ug2"), "UVFont", UV_UI.X(w * 0.735), h * 0.205, Color(255, 255, 255), TEXT_ALIGN_LEFT )
         draw.DrawText( math.floor(((checkpoint_count / GetGlobalInt("uvrace_checkpoints")) * 100)) .. "%", "UVFont", UV_UI.X(w * 0.945), h * 0.205, Color(255, 255, 255), TEXT_ALIGN_RIGHT )
     end
     
@@ -498,7 +498,7 @@ local function underground2_racing_main( ... )
     surface.SetMaterial(UVMaterials["RACE_BG_TIME_UG2"])
     surface.DrawTexturedRect(UV_UI.X(w * 0.708), h * 0.355, UV_UI.W(w * 0.276), h * 0.075)
     
-    draw.DrawText( "#uv.race.orig.time", "UVFont5UI", UV_UI.X(w * 0.73), h * 0.375, Color(255, 255, 255), TEXT_ALIGN_LEFT )
+    draw.DrawText( UVString("uv.race.orig.time"), "UVFont5UI", UV_UI.X(w * 0.73), h * 0.375, Color(255, 255, 255), TEXT_ALIGN_LEFT )
     
     local current_time = nil 
     

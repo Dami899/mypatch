@@ -2069,7 +2069,6 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 				net.SendToServer()
 
 				UVMenu.PlaySFX("confirm")
-				-- notification.AddLegacy("#uv.overrides.cleared", NOTIFY_UNDO, 3)
 			end
 		end
 
