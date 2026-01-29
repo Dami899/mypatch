@@ -3155,7 +3155,7 @@ function UVTeleportSimfphysVehicle( vehicle, pos, ang )
 	SpawnAng.yaw = SpawnAng.yaw  + 270 + (vehicle.SpawnAngleOffset and vehicle.SpawnAngleOffset or 0)
 	SpawnAng.roll = 0
 	
-	Ent = simfphys.SpawnVehicle( ply, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
+	Ent = simfphys.SpawnVehicle( ply, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle, true )
 	
 	if not IsValid( Ent ) then return end
 	
