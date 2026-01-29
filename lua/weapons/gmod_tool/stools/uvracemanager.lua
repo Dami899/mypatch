@@ -321,13 +321,11 @@ elseif CLIENT then
 			"#openurl.yes",
 			function()
 				chat.AddText("Exporting UV Race...")
-				print(txt, "true", exportDv)
 				RunConsoleCommand("uvrace_export", txt, "true", exportDv) 
 			end,
 			"#openurl.nope",
 			function()
 				chat.AddText("Exporting UV Race...")
-				print(txt, "false", exportDv)
 				RunConsoleCommand("uvrace_export", txt, "false", exportDv) 
 			end
 		)

@@ -2835,7 +2835,6 @@ function UVAutoSpawnRacer()
 		Ent:Spawn()
 		Ent:Activate()
 		if ( Ent.OnDuplicated ) then
-			print('called')
 			Ent:OnDuplicated( MEMORY )
 		end
 		
