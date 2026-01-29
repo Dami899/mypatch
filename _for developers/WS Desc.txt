@@ -11,7 +11,7 @@ You'll need two addons for Unit Vehicles to work flawlessly:
 - [url=https://steamcommunity.com/workshop/filedetails/?id=3389728250]Glide // Styled's Vehicle Base[/url] is used by default UVPD vehicles, and highly recommended for the addon.
 
 [h3] Highly recommended [/h3]
-- The [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3515525556]Unit Vehicles Starter Data Pack[/url] contains lots of data content provided by the UV development team and the community. Contains AI Racer Names, Pursuit Breakers, Races, Roadblocks, the **Rockport PD** Preset and various Decent Vehicle waypoints for plenty of maps.
+- The [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3515525556]Unit Vehicles Starter Data Pack[/url] contains lots of data content provided by the UV development team and the community. Contains AI Racer Names, Pursuit Breakers, Races, Roadblocks, the [b]Rockport PD[/b] Preset and various Decent Vehicle waypoints for plenty of maps.
 
 [hr][/hr]
 [h1] Features [/h1]
@@ -97,7 +97,7 @@ And [b]so much more[/b]!
         [td]It is stored in the game's [b]data[/b] folder. Here you'll find Unit data, Racer Names, Pursuit Breaker data, Race data and Roadblock data.[/td]
     [/tr]
     [tr]
-        [td]I have more questions, or I have a problem![/td]
+        [td]I have a problem and/or more questions![/td]
         [td]First you should check out the [b]UV Menu[/b]'s [b]FAQ[/b]. While in-game, hold your Context key ('C' by default) and click [b]Unit Vehicles[/b], then navigate to [b]FAQ[/b]. If this does not provide any solution, please visit our [b]Discord[/b] server below.[/td]
     [/tr]
 [/table]
@@ -105,10 +105,10 @@ And [b]so much more[/b]!
 [hr][/hr]
 [h3] Credits [/h3]
 [list]
-[*][b]Roboboy[/b] - Main idea & Coding
+[*][b]Roboboy[/b] - Project Lead
 [*][b]AludriX[/b] - Coding
 [*][b]Moka[/b] - Coding & UI Design
-[*][b]TalonSolid[/b] - Model contributions, default Voice Profile handler & Tester
+[*][b]ET7970[/b] - Modelling, coding & SFX
 [/list]
 
 Full credits available [b]in-game in the UV Menu[/b] - translators and contributors!
