@@ -515,7 +515,9 @@ UV_UI.pursuit.original.events = {
             draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2-Smaller", w*0.99, h*0.885, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
 			
 			if UVHUDWantedSuspects and #UVHUDWantedSuspects > 0 then
-				draw.DrawText( "[ " .. UVBindButton("+reload") .. " ] " .. UVString("uv.pm.spawnas"), "UVFont2-Smaller", w*0.01, h*0.885, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
+				local spawnastext = UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big")
+				local markuptext2 = "<color=255,255,255><font=UVFont2>".. spawnastext .. "</font></color>"
+				markup.Parse(markuptext2):Draw(w*0.01, h*0.885, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 			end
 
             if timeremaining < 1 then

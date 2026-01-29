@@ -12,8 +12,8 @@ UV_PT.Killswitch = {
             displayMe = true
         end
 
-        local userString = UVString("uv.ptech.killswitch.hit")
-        local targetString = UVString("uv.ptech.killswitch.hit.you")
+        local userString = "uv.ptech.killswitch.hit"
+        local targetString = "uv.ptech.killswitch.hit.you"
 
         UV_UI.general.events.CenterNotification({
             text = string.format( (displayMe and UVString( userString )) or UVString( targetString ), (displayMe and UVString( tbl.Target )) or UVString( tbl.User )),
@@ -99,8 +99,8 @@ UV_PT.ESF = {
             displayMe = true
         end
 
-        local userString = UVString("uv.ptech.esf.hit")
-        local targetString = UVString("uv.ptech.esf.hit.you")
+        local userString = "uv.ptech.esf.hit"
+        local targetString = "uv.ptech.esf.hit.you"
 
         UV_UI.general.events.CenterNotification({
             text = string.format( (displayMe and UVString( userString )) or UVString( targetString ), (displayMe and UVString( tbl.Target )) or UVString( tbl.User )),
@@ -146,9 +146,9 @@ UV_PT.Shockwave = {
         if tbl.User == LocalPlayer():Nick() then
             displayMe = true
         end
-		
-		local userString = UVString("uv.ptech.shockwave.hit")
-		local targetString = UVString("uv.ptech.shockwave.hit.you")
+
+		local userString = "uv.ptech.shockwave.hit"
+		local targetString = "uv.ptech.shockwave.hit.you"
 
         local display = nil
 
@@ -216,8 +216,8 @@ UV_PT.StunMine = {
             displayMe = true
         end
 
-        local userString = UVString("uv.ptech.stunmine.hit")
-        local targetString = UVString("uv.ptech.stunmine.hit.you")
+        local userString = "uv.ptech.stunmine.hit"
+        local targetString = "uv.ptech.stunmine.hit.you"
 
         UV_UI.general.events.CenterNotification({
             text = string.format( (displayMe and UVString( userString )) or UVString( targetString ), (displayMe and UVString( tbl.Target )) or UVString( tbl.User ) ),
@@ -370,8 +370,8 @@ UV_PT.ShockRam = {
             displayMe = true
         end
 		
-		local userString = UVString("uv.ptech.shockram.hit")
-		local targetString = UVString("uv.ptech.shockram.hit.you")
+		local userString = "uv.ptech.shockram.hit"
+		local targetString = "uv.ptech.shockram.hit.you"
 
         local display = nil
 
