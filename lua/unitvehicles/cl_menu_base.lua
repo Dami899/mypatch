@@ -148,6 +148,51 @@ UVMenuSound({
     }
 })
 
+UVMenuSound({
+    name = "MC2",
+    displayname = "Midnight Club 2",
+    sounds = {
+        menuopen  = "uvui/MC2/ui_flyin.wav",
+        menuclose = "uvui/MC2/off_screen.wav",
+        hover     = "uvui/MC2/leftright_alt.wav",
+        hovertab  = "uvui/MC2/updown_alt.wav",
+        click     = "uvui/MC2/save_game_select_22k.wav",
+        clickopen = "uvui/MC2/save_game_select_22k.wav",
+        clickback = "uvui/MC2/point_dropped_16k.wav",
+        confirm   = "uvui/MC2/time_added_appear_18k.wav"
+    }
+})
+
+UVMenuSound({
+    name = "MC3",
+    displayname = "Midnight Club 3",
+    sounds = {
+        menuopen  = "uvui/MC3/Hud_MC31.wav",
+        menuclose = "uvui/MC3/Hud_MC3Close.wav",
+        hover     = "uvui/MC3/Hud_MC32.wav",
+        hovertab  = "uvui/MC3/Hud_MC32.wav",
+        click     = "uvui/MC3/Hud_MC32.wav",
+        clickopen = "uvui/MC3/Hud_MC33.wav",
+        clickback = "uvui/MC3/Hud_MC3open.wav",
+        confirm   = "uvui/MC3/Hud_MC32.wav"
+    }
+})
+
+UVMenuSound({
+    name = "HP2",
+    displayname = "Hot Pursuit 2",
+    sounds = {
+       menuopen  = "uvui/HP2/fesfx#1.wav",
+        menuclose = "uvui/HP2/fesfx#14.wav",
+        hover     = "uvui/HP2/fesfx#11.wav",
+        hovertab  = "uvui/HP2/fesfx#11.wav",
+        click     = "uvui/HP2/fesfx#11.wav",
+        clickopen = "uvui/HP2/fesfx#8.wav",
+        clickback = "uvui/HP2/fesfx#15.wav",
+        confirm   = "uvui/HP2/fesfx#1.wav"
+    }
+})
+
 
 -- if cffunctions then -- Hero's Glide Extras
 	-- UVAddon({
@@ -180,6 +225,36 @@ UVMenu.Sounds = {
         clickopen = "uvui/carbon/fe_common_mb [5].wav",
         clickback = "uvui/carbon/fe_common_mb [6].wav",
         confirm = "uvui/carbon/fe_common_mb [5].wav"
+    },
+	["MC2"] = {
+        menuopen  = "uvui/MC2/ui_flyin.wav",
+        menuclose = "uvui/MC2/off_screen.wav",
+        hover     = "uvui/MC2/leftright_alt.wav",
+        hovertab  = "uvui/MC2/updown_alt.wav",
+        click     = "uvui/MC2/save_game_select_22k.wav",
+        clickopen = "uvui/MC2/save_game_select_22k.wav",
+        clickback = "uvui/MC2/point_dropped_16k.wav",
+        confirm   = "uvui/MC2/time_added_appear_18k.wav"
+    },
+	["MC3"] = {
+        menuopen  = "uvui/MC3/Hud_MC31.wav",
+        menuclose = "uvui/MC3/Hud_MC3Close.wav",
+        hover     = "uvui/MC3/Hud_MC32.wav",
+        hovertab  = "uvui/MC3/Hud_MC32.wav",
+        click     = "uvui/MC3/Hud_MC32.wav",
+        clickopen = "uvui/MC3/Hud_MC33.wav",
+        clickback = "uvui/MC3/Hud_MC3open.wav",
+        confirm   = "uvui/MC3/Hud_MC32.wav"
+    },
+	["HP2"] = {
+        menuopen  = "uvui/HP2/fesfx#1.wav",
+        menuclose = "uvui/HP2/fesfx#14.wav",
+        hover     = "uvui/HP2/fesfx#11.wav",
+        hovertab  = "uvui/HP2/fesfx#11.wav",
+        click     = "uvui/HP2/fesfx#11.wav",
+        clickopen = "uvui/HP2/fesfx#8.wav",
+        clickback = "uvui/HP2/fesfx#15.wav",
+        confirm   = "uvui/HP2/fesfx#1.wav"
     },
 }
 
