@@ -979,7 +979,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		SpawnAng.yaw = SpawnAng.yaw + (vehicle.SpawnAngleOffset and vehicle.SpawnAngleOffset or 0)
 		SpawnAng.roll = 0
 		
-		Ent = simfphys.SpawnVehicle( nil, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
+		Ent = simfphys.SpawnVehicle( ply, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle, true )
 		
 		if not IsValid( Ent ) then return end
 		
@@ -1900,7 +1900,7 @@ function UVAutoSpawnTraffic()
 		SpawnAng.yaw = SpawnAng.yaw + (vehicle.SpawnAngleOffset and vehicle.SpawnAngleOffset or 0)
 		SpawnAng.roll = 0
 		
-		Ent = simfphys.SpawnVehicle( ply, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
+		Ent = simfphys.SpawnVehicle( ply, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle, true )
 		
 		if not IsValid( Ent ) then return end
 		
@@ -2571,7 +2571,7 @@ function UVAutoSpawnRacer()
 		SpawnAng.yaw = SpawnAng.yaw + (vehicle.SpawnAngleOffset and vehicle.SpawnAngleOffset or 0)
 		SpawnAng.roll = 0
 		
-		Ent = simfphys.SpawnVehicle( nil, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle )
+		Ent = simfphys.SpawnVehicle( ply, SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, vname, vehicle, true )
 		
 		if not IsValid( Ent ) then return end
 		
