@@ -46,7 +46,7 @@ UV_PT.Killswitch = {
 		local String = "uv.ptech.killswitch.dodged"
 		
         UV_UI.general.events.CenterNotification({
-            text = String,
+            text = UVString( String ),
         })
     end,
     EngineRestarting = function(tbl)
