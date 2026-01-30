@@ -975,7 +975,11 @@ if SERVER then
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
 				print("OK")
 				self.v:SetThrottle(throttle)
-				self.v:SetSteering(steer, 0)
+				if self.v.LVS then
+					self.v:SteerTo(steer, self.v:GetMaxSteerAngle())
+				else
+					self.v:SetSteering(steer, 0)
+				end
 			end
 
 			--Resetting
