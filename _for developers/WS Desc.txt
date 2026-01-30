@@ -92,7 +92,7 @@ And [b]so much more[/b]!
     [/tr]
     [tr]
         [td]What vehicle bases are supported?[/td]
-        [td][b]Glide[/b] is highly recommended and has the most support, but you can also use [b]Simfphys[/b], [b]Photon 2[/b] or even [b]Base HL2[/b].[/td]
+        [td][b]Glide[/b] is highly recommended and has the most support, but you can also use [b]Simfphys[/b] or even [b]Base HL2 with Photon 1/2 support[/b].[/td]
     [/tr]
     [tr]
         [td]Where is my created data stored?[/td]
