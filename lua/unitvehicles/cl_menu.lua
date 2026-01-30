@@ -28,6 +28,8 @@ ET7970]],
 TalonSolid
 dr. drehow315
 CoreFan19
+Dami899
+mustang
 ]],
 }
 
