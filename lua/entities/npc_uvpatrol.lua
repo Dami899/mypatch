@@ -956,6 +956,9 @@ if SERVER then
 				else
 					self.v:NotTurning()
 				end
+			-- elseif self.v.LVS then
+			-- 	self.v:SetThrottle(throttle)
+			-- 	self.v:SetSteering(steer, 0)
 			elseif self.v.IsSimfphyscar then
 				self.v:SetActive(true)
 				self.v:StartEngine()
@@ -970,6 +973,7 @@ if SERVER then
 				steer = steer * 2 --Attempt to make steering more sensitive.
 				self.v:TriggerInput("Steer", steer)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
+				print("OK")
 				self.v:SetThrottle(throttle)
 				self.v:SetSteering(steer, 0)
 			end
@@ -1039,6 +1043,7 @@ if SERVER then
 	end
 	
 	function ENT:Think()
+		print("who")
 		--UVChatterArrest(self)
 		-- if UVTargeting then return end
 		self:SetPos(self.v:GetPos() + (vector_up * 50))
@@ -1077,21 +1082,21 @@ if SERVER then
 		end
 
 		--Flipping/crash
-		if self.v and not self.wrecked and not self.spawned and
-		(self.v:Health() < 0 and self.v:GetClass() == "prop_vehicle_jeep" or --No health 
-		self.v:GetPhysicsObject():GetAngles().z > 90 and self.v:GetPhysicsObject():GetAngles().z < 270 and (self.v.rammed or self.v:GetVelocity():LengthSqr() < 10000 and self.stuck) and CanWreck:GetBool() or --Flipped
-		self.v:WaterLevel() > 2 or --Underwater
-		self:IsOnFire()) or --On fire
-		self:IsWrecked() then --Other parameters
-			self:Wreck()
-		end
+		-- if self.v and not self.wrecked and not self.spawned and
+		-- (self.v:Health() < 0 and self.v:GetClass() == "prop_vehicle_jeep" or --No health 
+		-- self.v:GetPhysicsObject():GetAngles().z > 90 and self.v:GetPhysicsObject():GetAngles().z < 270 and (self.v.rammed or self.v:GetVelocity():LengthSqr() < 10000 and self.stuck) and CanWreck:GetBool() or --Flipped
+		-- self.v:WaterLevel() > 2 or --Underwater
+		-- self:IsOnFire()) or --On fire
+		-- self:IsWrecked() then --Other parameters
+		-- 	self:Wreck()
+		-- end
 
-		if not IsValid(self.v) or --The tied vehicle goes NULL.
-		not self.v:IsVehicle() or --Somehow it become non-vehicle entity.
-		IsValid(self.v:GetDriver()) then --It has an driver.
-			self:Wreck()
-			return
-		end
+		-- if not IsValid(self.v) or --The tied vehicle goes NULL.
+		-- not self.v:IsVehicle() or --Somehow it become non-vehicle entity.
+		-- IsValid(self.v:GetDriver()) then --It has an driver.
+		-- 	self:Wreck()
+		-- 	return
+		-- end
 		
 		if not UVTargeting then
 			self.bountytimer = CurTime() --Bounty parameters
@@ -1913,6 +1918,16 @@ if SERVER then
 			for k, v in pairs(ents.FindInSphere(self:GetPos(), distance)) do
 				if v:GetClass() == 'prop_vehicle_prisoner_pod' then continue end
 				if v.UnitVehicle and v.UnitVehicle:IsNPC() then continue end
+				if v.LVS then
+					if not v:IsInitialized() then continue end
+					if IsValid(v:GetDriver()) then continue end
+					self.v = v
+					v.UVPatrol = self
+					v.UnitVehicle = self
+					v:DisableManualTransmission()
+					v:StartEngine()
+					break
+				end
 				if v:IsVehicle() then
 					if v.IsScar then --If it's a SCAR.
 						if not v:HasDriver() then --If driver's seat is empty.
@@ -1964,8 +1979,8 @@ if SERVER then
 				end
 			end
 		end
-	
-		if not IsValid(self.v) or not IsValid(self.v:GetPhysicsObject()) then SafeRemoveEntity(self) return end --When there's no vehicle, remove Unit Vehicle.
+
+		if not IsValid(self.v) or not IsValid(self.v:GetPhysicsObject()) then print("no vehicle") SafeRemoveEntity(self) return end --When there's no vehicle, remove Unit Vehicle.
 		UVDeploys = UVDeploys + 1
 
 		if isfunction(self.v.UVVehicleInitialize) then --For vehicles that has a driver bodygroup
