@@ -2,7 +2,7 @@ UV = UV or {}
 UVMenu = UVMenu or {}
 
 -- Current Version -- Change this whenever a new update is releasing!
-UV.CurVersion = "v1.0.0" --MAJOR.MINOR.PATCH
+UV.CurVersion = "v1.0.1" --MAJOR.MINOR.PATCH
 
 -- Credits List
 UV.Credits = {

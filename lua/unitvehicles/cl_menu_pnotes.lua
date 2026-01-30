@@ -8,11 +8,19 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
--- ["v1.0.1"] = {
--- Date = { year = 2026, month = 1, day = 29 },
--- Text = [[
--- ]],
--- },
+["v1.0.1"] = {
+Date = { year = 2026, month = 1, day = 30 },
+Text = [[
+This patch brings fixes for bugs reported by the community as well as other improvements/tweaks to the addon.
+Keep 'em coming! We appreciate your reports and feedback!
+
+**Fixes**
+- Fixed that the "Creator: Units" tool did not allow you to assign Units to a Heat Level due to outdated convars.
+- Fixed that the "Creator: AI Racers" tool caused an error when trying to select a vehicle from the vehicle database.
+- Fixed Unit AI getting stuck idling after pursuits get concluded.
+- Slightly altered chatter behavior for more consistency.
+]],
+},
 
 ["v1.0.0"] = {
 Date = { year = 2026, month = 1, day = 29 },
