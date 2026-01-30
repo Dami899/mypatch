@@ -3605,7 +3605,6 @@ if SERVER then
 	end
 	
 	function UVChatterSitrep(self)
-		if UVChatterDelayed then return end
 		if not GetConVar("unitvehicle_chattertext"):GetBool() then
 			local airrandomno = math.random(1,2)
 			local airUnits = ents.FindByClass("uvair")
