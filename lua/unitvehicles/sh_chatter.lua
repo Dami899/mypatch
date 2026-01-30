@@ -3780,7 +3780,6 @@ if SERVER then
 	end
 	
 	function UVChatterDoNotDisengage(self, unit)
-		if not unit.callsign then return end
 		if not GetConVar("unitvehicle_chattertext"):GetBool() then
 			return UVSoundChatter(self, self.voice, "donotdisengage")
 		end

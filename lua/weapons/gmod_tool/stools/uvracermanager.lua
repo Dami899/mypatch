@@ -368,7 +368,7 @@ if CLIENT then
 					-- SetClipboardText(selecteditem)
 
 					if entry.base.type == "json" then
-						UVTOOLMemory = util.JSONToTable(
+						UVRacerTOOLMemory = util.JSONToTable(
 							file.Read(entry.base.path .. selecteditem, "DATA"), true
 						)
 					else
@@ -379,17 +379,17 @@ if CLIENT then
 							decoded[k] = string.char(string.byte(v) - 20)
 						end
 
-						table.Empty(UVTOOLMemory)
+						table.Empty(UVRacerTOOLMemory)
 						for _, v in ipairs(string.Explode("#", table.concat(decoded))) do
 							local name, variable = unpack(string.Explode("=", v))
 							if name and variable then
-								UVTOOLMemory[name] = variable
+								UVRacerTOOLMemory[name] = variable
 							end
 						end
 					end
 
 					net.Start("UVRacerManagerGetRacerInfo")
-					net.WriteTable(UVTOOLMemory)
+					net.WriteTable(UVRacerTOOLMemory)
 					net.SendToServer()
 				end
 			end

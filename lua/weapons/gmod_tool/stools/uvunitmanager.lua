@@ -88,36 +88,40 @@ if CLIENT then
 		Intro5:SetPos( 20, 160 )
 		Intro5:SetText( "#tool.uvunitmanager.create.optional")
 		Intro5:SizeToContents()
-		
-		local AssignToHeatLevelEntry = vgui.Create("DCheckBoxLabel", UnitAdjust )
-		AssignToHeatLevelEntry:SetPos( 20, 200 )
-		AssignToHeatLevelEntry:SetText("#tool.uvunitmanager.create.optional.assignheatlevel")
-		AssignToHeatLevelEntry:SetSize(UnitAdjust:GetWide(), 22)
-		
-		local Intro4 = vgui.Create( "DLabel", UnitAdjust )
-		Intro4:SetPos( 20, 240 )
-		Intro4:SetText( "#tool.uvunitmanager.create.optional.class" )
-		Intro4:SizeToContents()
-		
-		local UnitClassEntry = vgui.Create( "DComboBox", UnitAdjust )
-		UnitClassEntry:SetPos( 20, 260 )
-		UnitClassEntry:SetValue( "1: " .. lang("uv.unit.patrol") )
-		UnitClassEntry:AddChoice( "1: " .. lang("uv.unit.patrol") )
-		UnitClassEntry:AddChoice( "2: " .. lang("uv.unit.support") )
-		UnitClassEntry:AddChoice( "3: " .. lang("uv.unit.pursuit") )
-		UnitClassEntry:AddChoice( "4: " .. lang("uv.unit.interceptor") )
-		UnitClassEntry:AddChoice( "5: " .. lang("uv.unit.special") )
-		UnitClassEntry:AddChoice( "6: " .. lang("uv.unit.commander") )
-		UnitClassEntry:AddChoice( "7: " .. lang("uv.unit.rhino") )
-		UnitClassEntry:SetSize(UnitAdjust:GetWide() / 2, 22)
-		
-		local HeatLevelEntry = vgui.Create( "DNumSlider", UnitAdjust )
-		HeatLevelEntry:SetPos( 20, 300 )
-		HeatLevelEntry:SetText("#tool.uvunitmanager.create.optional.heatlevel")
-		HeatLevelEntry:SetValue(1)
-		HeatLevelEntry:SetMinMax(1, MAX_HEAT_LEVEL)
-		HeatLevelEntry:SetDecimals(0)
-		HeatLevelEntry:SetSize(UnitAdjust:GetWide() / 2, 22)
+
+		local AssignToHeatLevelEntry, Intro4, UnitClassEntry, HeatLevelEntry = nil, nil, nil, nil
+
+		if LocalPlayer():IsListenServerHost() then
+			AssignToHeatLevelEntry = vgui.Create("DCheckBoxLabel", UnitAdjust )
+			AssignToHeatLevelEntry:SetPos( 20, 200 )
+			AssignToHeatLevelEntry:SetText("#tool.uvunitmanager.create.optional.assignheatlevel")
+			AssignToHeatLevelEntry:SetSize(UnitAdjust:GetWide(), 22)
+
+			Intro4 = vgui.Create( "DLabel", UnitAdjust )
+			Intro4:SetPos( 20, 240 )
+			Intro4:SetText( "#tool.uvunitmanager.create.optional.class" )
+			Intro4:SizeToContents()
+
+			UnitClassEntry = vgui.Create( "DComboBox", UnitAdjust )
+			UnitClassEntry:SetPos( 20, 260 )
+			UnitClassEntry:SetValue( "1: " .. lang("uv.unit.patrol") )
+			UnitClassEntry:AddChoice( "1: " .. lang("uv.unit.patrol") )
+			UnitClassEntry:AddChoice( "2: " .. lang("uv.unit.support") )
+			UnitClassEntry:AddChoice( "3: " .. lang("uv.unit.pursuit") )
+			UnitClassEntry:AddChoice( "4: " .. lang("uv.unit.interceptor") )
+			UnitClassEntry:AddChoice( "5: " .. lang("uv.unit.special") )
+			UnitClassEntry:AddChoice( "6: " .. lang("uv.unit.commander") )
+			UnitClassEntry:AddChoice( "7: " .. lang("uv.unit.rhino") )
+			UnitClassEntry:SetSize(UnitAdjust:GetWide() / 2, 22)
+
+			HeatLevelEntry = vgui.Create( "DNumSlider", UnitAdjust )
+			HeatLevelEntry:SetPos( 20, 300 )
+			HeatLevelEntry:SetText("#tool.uvunitmanager.create.optional.heatlevel")
+			HeatLevelEntry:SetValue(1)
+			HeatLevelEntry:SetMinMax(1, MAX_HEAT_LEVEL)
+			HeatLevelEntry:SetDecimals(0)
+			HeatLevelEntry:SetSize(UnitAdjust:GetWide() / 2, 22)
+		end
 		
 		OK:SetText("#uv.tool.create")
 		OK:SetSize(UnitAdjust:GetWide() * 5 / 16, 22)
@@ -126,9 +130,12 @@ if CLIENT then
 		function OK:DoClick()
 			
 			local Name = UnitNameEntry:GetValue()
-			local HeatLevel = math.floor(HeatLevelEntry:GetValue())
-			local AssignToHeatLevel = AssignToHeatLevelEntry:GetChecked()
-			local UnitClass = UnitClassEntry:GetValue()
+			local HeatLevel, AssignToHeatLevel, UnitClass = nil, nil, nil
+			if LocalPlayer():IsListenServerHost() then
+				HeatLevel = math.floor(HeatLevelEntry:GetValue())
+				AssignToHeatLevel = AssignToHeatLevelEntry:GetChecked()
+				UnitClass = UnitClassEntry:GetValue()
+			end
 
 			if Name ~= "" then
 				local charArray = string.Explode( "", string.Trim( Name ) )
@@ -212,53 +219,53 @@ if CLIENT then
 				
 				if AssignToHeatLevel then
 					if string.StartsWith(UnitClass, "1") then
-						local availableunits = GetConVar("uvunitmanager_unitspatrol"..HeatLevel):GetString()
+						local availableunits = GetConVar("unitvehicle_unit_unitspatrol"..HeatLevel):GetString()
 						if availableunits == "" or availableunits == " " then --blank
-							RunConsoleCommand("uvunitmanager_unitspatrol"..HeatLevel, Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitspatrol"..HeatLevel, Name.."."..file_ext)
 						else
-							RunConsoleCommand("uvunitmanager_unitspatrol"..HeatLevel, availableunits.." "..Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitspatrol"..HeatLevel, availableunits.." "..Name.."."..file_ext)
 						end
 					elseif string.StartsWith(UnitClass, "2") then
-						local availableunits = GetConVar("uvunitmanager_unitssupport"..HeatLevel):GetString()
+						local availableunits = GetConVar("unitvehicle_unit_unitssupport"..HeatLevel):GetString()
 						if availableunits == "" or availableunits == " " then --blank
-							RunConsoleCommand("uvunitmanager_unitssupport"..HeatLevel, Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitssupport"..HeatLevel, Name.."."..file_ext)
 						else
-							RunConsoleCommand("uvunitmanager_unitssupport"..HeatLevel, availableunits.." "..Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitssupport"..HeatLevel, availableunits.." "..Name.."."..file_ext)
 						end
 					elseif string.StartsWith(UnitClass, "3") then
-						local availableunits = GetConVar("uvunitmanager_unitspursuit"..HeatLevel):GetString()
+						local availableunits = GetConVar("unitvehicle_unit_unitspursuit"..HeatLevel):GetString()
 						if availableunits == "" or availableunits == " " then --blank
-							RunConsoleCommand("uvunitmanager_unitspursuit"..HeatLevel, Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitspursuit"..HeatLevel, Name.."."..file_ext)
 						else
-							RunConsoleCommand("uvunitmanager_unitspursuit"..HeatLevel, availableunits.." "..Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitspursuit"..HeatLevel, availableunits.." "..Name.."."..file_ext)
 						end
 					elseif string.StartsWith(UnitClass, "4") then
-						local availableunits = GetConVar("uvunitmanager_unitsinterceptor"..HeatLevel):GetString()
+						local availableunits = GetConVar("unitvehicle_unit_unitsinterceptor"..HeatLevel):GetString()
 						if availableunits == "" or availableunits == " " then --blank
-							RunConsoleCommand("uvunitmanager_unitsinterceptor"..HeatLevel, Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitsinterceptor"..HeatLevel, Name.."."..file_ext)
 						else
-							RunConsoleCommand("uvunitmanager_unitsinterceptor"..HeatLevel, availableunits.." "..Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitsinterceptor"..HeatLevel, availableunits.." "..Name.."."..file_ext)
 						end
 					elseif string.StartsWith(UnitClass, "5") then
-						local availableunits = GetConVar("uvunitmanager_unitsspecial"..HeatLevel):GetString()
+						local availableunits = GetConVar("unitvehicle_unit_unitsspecial"..HeatLevel):GetString()
 						if availableunits == "" or availableunits == " " then --blank
-							RunConsoleCommand("uvunitmanager_unitsspecial"..HeatLevel, Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitsspecial"..HeatLevel, Name.."."..file_ext)
 						else
-							RunConsoleCommand("uvunitmanager_unitsspecial"..HeatLevel, availableunits.." "..Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitsspecial"..HeatLevel, availableunits.." "..Name.."."..file_ext)
 						end
 					elseif string.StartsWith(UnitClass, "6") then
-						local availableunits = GetConVar("uvunitmanager_unitscommander"..HeatLevel):GetString()
+						local availableunits = GetConVar("unitvehicle_unit_unitscommander"..HeatLevel):GetString()
 						if availableunits == "" or availableunits == " " then --blank
-							RunConsoleCommand("uvunitmanager_unitscommander"..HeatLevel, Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitscommander"..HeatLevel, Name.."."..file_ext)
 						else
-							RunConsoleCommand("uvunitmanager_unitscommander"..HeatLevel, availableunits.." "..Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitscommander"..HeatLevel, availableunits.." "..Name.."."..file_ext)
 						end
 					elseif string.StartsWith(UnitClass, "7") then
-						local availableunits = GetConVar("uvunitmanager_unitsrhino"..HeatLevel):GetString()
+						local availableunits = GetConVar("unitvehicle_unit_unitsrhino"..HeatLevel):GetString()
 						if availableunits == "" or availableunits == " " then --blank
-							RunConsoleCommand("uvunitmanager_unitsrhino"..HeatLevel, Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitsrhino"..HeatLevel, Name.."."..file_ext)
 						else
-							RunConsoleCommand("uvunitmanager_unitsrhino"..HeatLevel, availableunits.." "..Name.."."..file_ext)
+							RunConsoleCommand("unitvehicle_unit_unitsrhino"..HeatLevel, availableunits.." "..Name.."."..file_ext)
 						end
 					end
 					notification.AddLegacy( string.format( lang("uv.tool.saved.heatlevel"), Name, HeatLevel ), NOTIFY_UNDO, 5 )
