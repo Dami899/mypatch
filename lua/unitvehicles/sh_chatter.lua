@@ -1964,6 +1964,7 @@ if SERVER then
 	end
 	
 	function UVChatterSpikeStripDeployed(self)
+		if UVChatterDelayed then return end
 		if not GetConVar("unitvehicle_chattertext"):GetBool() then
 			return UVSoundChatter(self, self.voice, "ptspikestripdeployed")
 		end
