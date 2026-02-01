@@ -8,6 +8,25 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
+["v1.1.0"] = {
+Date = { year = 2026, month = 2, day = 2 },
+Text = [[
+**New Features**
+- UV Menu: Added a new First-Time Setup menu
+ |-- Will automatically display for all users, forcing them to go through necessary settings
+ |-- Existing users from v1.0.0 can choose to skip the Preset selection
+- Added a Police Scanner SFX toggle
+
+**Changes**
+- Creator: Races tool: If the speed limit is set to 0, editing a checkpoint ID will not alter its speed limit value
+
+**Fixes**
+- Fixed that the Race Host status could be "stolen" from an Admin by a Super Admin
+- Fixed that the Totaled UI did not close when joining a pursuit while "Spawn as Random Unit" was enabled
+- Fixed that the "Spike Strip Deployed" cop chatter had a tendency to spam
+]],
+},
+
 ["v1.0.1"] = {
 Date = { year = 2026, month = 1, day = 30 },
 Text = [[
@@ -105,7 +124,7 @@ Mark your calendars, it's almost time to **Race, Chase or Escape**!
 },
 
 ["v0.41.0"] = {
-Date = { year = 2026, month = 1, day = 05 },
+Date = { year = 2026, month = 1, day = 5 },
 Text = [[
 **New Features**
 - Added the *UVPD Chevrolet Colorado ZR2 2017 Police Cruiser*

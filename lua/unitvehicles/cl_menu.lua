@@ -2,7 +2,7 @@ UV = UV or {}
 UVMenu = UVMenu or {}
 
 -- Current Version -- Change this whenever a new update is releasing!
-UV.CurVersion = "v1.0.1" --MAJOR.MINOR.PATCH
+UV.CurVersion = "v1.1.0" --MAJOR.MINOR.PATCH
 
 -- Credits List
 UV.Credits = {
@@ -44,13 +44,17 @@ if CLIENT then
 end
 
 concommand.Add("unitvehicles_menu", function()
-    if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
-        UVMenu.OpenMenu(UVMenu.CurrentMenu, true)
-    elseif UVMenu.LastMenu then
-        UVMenu.OpenMenu(UVMenu.LastMenu)
-    else
-        UVMenu.OpenMenu(UVMenu.Main)
-    end
+	if GetConVar("unitvehicle_uvmenu_firstsetup"):GetBool() and (LocalPlayer():IsAdmin() and LocalPlayer():IsSuperAdmin()) then
+		UVMenu.OpenMenu(UVMenu.FirstTimeSetup, true)
+	else
+		if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
+			UVMenu.OpenMenu(UVMenu.CurrentMenu, true)
+		elseif UVMenu.LastMenu then
+			UVMenu.OpenMenu(UVMenu.LastMenu)
+		else
+			UVMenu.OpenMenu(UVMenu.Main)
+		end
+	end
 	UVMenu.PlaySFX("menuopen")
 end)
 
@@ -235,9 +239,9 @@ UVMenu.Main = function()
 			
 			{ TabName = "uv.pm", Icon = "unitvehicles/icons/milestone_911.png", -- Pursuit Manager				
 				{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_unit_vehiclebase", sv = true, content = {
-						{ "HL2 Jeep", 1 } ,
-						{ "Simfphys", 2 } ,
-						{ "Glide", 3 } ,
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
 					},
 				},
 				{ type = "button", text = "uv.pm.spawnas", desc = "uv.pm.spawnas.desc", convar = "uv_spawn_as_unit", prompts = {"uv.prompt.open.menu"}, func = 
@@ -270,9 +274,9 @@ UVMenu.Main = function()
 			
 			{ TabName = "uv.airacer", Icon = "unitvehicles/icons/(9)T_UI_PlayerRacer_Large_Icon.png", sv = true, -- AI Racer Manager
 				{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_racer_vehiclebase", sv = true, content = {
-						{ "HL2 Jeep", 1 } ,
-						{ "Simfphys", 2 } ,
-						{ "Glide", 3 } ,
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
 					},
 				},
 				{ type = "combo", text = "uv.tool.spawncondition", desc = "uv.tool.spawncondition.desc", convar = "unitvehicle_racer_spawncondition", sv = true, content = {
@@ -292,9 +296,9 @@ UVMenu.Main = function()
 			
 			{ TabName = "uv.tm", Icon = "unitvehicles/icons_settings/gameplay.png", sv = true, -- Traffic Manager
 				{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_traffic_vehiclebase", sv = true, content = {
-						{ "HL2 Jeep", 1 } ,
-						{ "Simfphys", 2 } ,
-						{ "Glide", 3 } ,
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
 					},
 				},
 				{ type = "combo", text = "uv.tool.spawncondition", desc = "uv.tool.spawncondition.desc", convar = "unitvehicle_traffic_spawncondition", sv = true, content = {
@@ -323,6 +327,11 @@ UVMenu.Main = function()
 
 			{ TabName = "uv.credits", Icon = "unitvehicles/icons/milestone_outrun_pursuits_won.png", playsfx = "clickopen", Prompts = { "uv.prompt.open.menu" }, func = function()
 					UVMenu.OpenMenu(UVMenu.Credits, true) -- Credits
+				end,
+			},
+			
+			{ TabName = "uv.ft", playsfx = "clickopen", Prompts = { "uv.prompt.open.menu" }, func = function()
+					UVMenu.OpenMenu(UVMenu.FirstTimeSetup, true) -- First-Time Setup
 				end,
 			},
 			
@@ -396,6 +405,7 @@ UVMenu.Settings = function()
 				{ type = "slider", text = "uv.ui.menu.openspeed", desc = "uv.ui.menu.openspeed.desc", convar = "uvmenu_open_speed", min = 0.1, max = 1, decimals = 2 },
 				{ type = "slider", text = "uv.ui.menu.closespeed", desc = "uv.ui.menu.closespeed.desc", convar = "uvmenu_close_speed", min = 0.1, max = 1, decimals = 2 },
 				{ type = "button", text = "uv.ui.menu.custcol", desc = "uv.ui.menu.custcol.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.SettingsCol, true) end },
+				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
 			},
 			{ TabName = "uv.audio.title", Icon = "unitvehicles/icons_settings/audio.png",
 
@@ -435,21 +445,24 @@ UVMenu.Settings = function()
 				{ type = "label", text = "uv.audio.uvtrax.editor", requireparentconvar = "unitvehicle_racingmusic" },
 				{ type = "uvtrax", text = "uv.audio.uvtrax.profiles", desc = "uv.audio.uvtrax.profiles.desc", requireparentconvar = "unitvehicle_racingmusic" },
 			},
-			{ TabName = "uv.keybinds", Icon = "unitvehicles/icons_settings/controls.png",
+			{ TabName = "uv.controls", Icon = "unitvehicles/icons_settings/controls.png",
 
-				{ type = "label", text = "uv.keybinds.pt" },
+				{ type = "label", text = "uv.controls.pt" },
 				{ type = "keybind", text = "uv.keybind.slot1", desc = "uv.keybind.slot1.desc", convar = "unitvehicle_pursuittech_keybindslot_1", slot = 1 },
 				{ type = "keybind", text = "uv.keybind.slot2", desc = "uv.keybind.slot2.desc", convar = "unitvehicle_pursuittech_keybindslot_2", slot = 2 },
 				
-				{ type = "label", text = "uv.keybinds.races" },
+				{ type = "label", text = "uv.controls.races" },
 				{ type = "keybind", text = "uv.keybind.skipsong", desc = "uv.keybind.skipsong.desc", convar = "unitvehicle_keybind_skipsong", slot = 3 },
 				{ type = "keybind", text = "uv.keybind.prevsong", desc = "uv.keybind.prevsong.desc", convar = "unitvehicle_keybind_prevsong", slot = 6 },
 				{ type = "keybind", text = "uv.keybind.resetposition", desc = "uv.keybind.resetposition.desc", convar = "unitvehicle_keybind_resetposition", slot = 4 },
 				{ type = "keybind", text = "uv.keybind.showresults", desc = "uv.keybind.showresults.desc", convar = "unitvehicle_keybind_raceresults", slot = 5 },
 				
-				{ type = "label", text = "uv.keybinds.glyphs" },
-				{ type = "bool", text = "uv.keybinds.glyphs.enable", desc = "uv.keybinds.glyphs.enable.desc", convar = "unitvehicle_glyph_override" },
-				{ type = "bindoverride", text = "uv.keybinds.glyphs.list.enable", desc = "uv.keybinds.glyphs.list.desc", convar = "unitvehicle_glyph_set", requireparentconvar = "unitvehicle_glyph_override" },
+				-- { type = "label", text = "uv.controls.controllermode" },
+				-- { type = "bool", text = "uv.controls.controllermode.enable", desc = "uv.controls.controllermode.enable.desc", convar = "unitvehicle_controllermode" },
+				
+				{ type = "label", text = "uv.controls.glyphs" },
+				{ type = "bool", text = "uv.controls.glyphs.enable", desc = "uv.controls.glyphs.enable.desc", convar = "unitvehicle_glyph_override" },
+				{ type = "bindoverride", text = "uv.controls.glyphs.list.enable", desc = "uv.controls.glyphs.list.desc", convar = "unitvehicle_glyph_set", requireparentconvar = "unitvehicle_glyph_override" },
 			},
 			{ TabName = "uv.pursuit", Icon = "unitvehicles/icons/milestone_pursuit.png", sv = true,
 				{ type = "label", text = "uv.pursuit.heatlevels", sv = true },
@@ -589,7 +602,7 @@ UVMenu.FAQ = function()
 			{ TabName = "uv.faq.intro", Icon = "unitvehicles/icons_settings/info.png",
 				{ type = "info", text = UVGetFAQText("Intro") },
 				{ type = "info", text = UVGetFAQText("Requirements") },
-				{ type = "info", text = UVGetFAQText("Github") },
+				-- { type = "info", text = UVGetFAQText("Github") },
 				{ type = "info", text = UVGetFAQText("ConVars") },
 				{ type = "info", text = UVGetFAQText("Roadmap") },
 			},
@@ -1290,4 +1303,220 @@ UVMenu.HeatManager = function()
         UnfocusClose = true,
         Tabs = tabs
     })
+end
+
+
+------- [ First-Time Setup ] -------
+UVMenu.FirstTimeSetup = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(1200),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.title", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.desc" },
+				{ type = "button", text = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"}, func = function(self2) 
+					if LocalPlayer():IsAdmin() and LocalPlayer():IsSuperAdmin() then
+						UVMenu.OpenMenu(UVMenu.FirstTimeSetupPreset, true)
+					else
+						UVMenu.OpenMenu(UVMenu.FirstTimeSetupRacing, true)
+					end
+				end},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupPreset = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(900),
+		Height = UV.ScaleH(600),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.preset.title", Icon = "unitvehicles/icons/milestone_911.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.preset.desc" },
+				{ type = "presets", preset = "units", importonly = true, func = function(self2, name, preset)
+					UVUnitManagerLoadPresetV2(name, preset)
+					UVMenu.PlaySFX("confirm")
+					UVMenu.CloseCurrentMenu(true)
+					timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
+						UVMenu.PlaySFX("menuopen") -- This shouldn't be necessary but ah well
+						UVMenu.OpenMenu(UVMenu.FirstTimeSetupBases, true)
+					end)
+				end },
+				
+				{ type = "button", text = "uv.ft.skip", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupBases, true) end
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupBases = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(800),
+		Height = UV.ScaleH(900),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.bases", Icon = "unitvehicles/icons/race_events.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.bases.desc" },
+				{ type = "combo", text = "uv.ft.bases.units", desc = "uv.tool.base.desc", convar = "unitvehicle_unit_vehiclebase", sv = true, content = {
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
+					},
+				},
+				{ type = "combo", text = "uv.ft.bases.airacer", desc = "uv.tool.base.desc", convar = "unitvehicle_racer_vehiclebase", sv = true, content = {
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
+					},
+				},
+				{ type = "combo", text = "uv.ft.bases.traffic", desc = "uv.tool.base.desc", convar = "unitvehicle_traffic_vehiclebase", sv = true, content = {
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
+					},
+				},
+				{ type = "buttonlr", text = "uv.ft.prev", text2 = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupPreset, true) end,
+					func2 = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupGeneral, true) end,
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupGeneral = function()
+	local mainHUDList, backupHUDList = BuildHUDComboLists()
+
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1300),
+		Height = UV.ScaleH(900),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.settings.general", Icon = "unitvehicles/icons_settings/options.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.general.desc" },
+				
+				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
+				{ type = "bool", text = "uv.audio.uvtrax.enable", desc = "uv.audio.uvtrax.desc", convar = "unitvehicle_racingmusic" },
+				{ type = "combo", text = "uv.audio.uvtrax.profile", desc = "uv.audio.uvtrax.profile.desc", convar = "unitvehicle_racetheme", requireparentconvar = "unitvehicle_racingmusic" },
+				{ type = "bool", text = "uv.response.enable", desc = "uv.response.enable.desc", convar = "unitvehicle_callresponse", sv = true },
+				
+				{ type = "infosimple", text = " " },
+				{ type = "buttonlr", text = "uv.ft.prev", text2 = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupBases, true) end,
+					func2 = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupRacing, true) end,
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupRacing = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1300),
+		Height = UV.ScaleH(900),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.rm.options", Icon = "unitvehicles/icons/race_events.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.racing.desc" },
+				{ type = "label", text = "uv.rm.options" },
+				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },
+				{ type = "slider", text = "uv.rm.options.dnftimer", desc = "uv.rm.options.dnftimer.desc", convar = "unitvehicle_racednftimer", min = 0, max = 90, decimals = 0, sv = true },
+				{ type = "label", text = "uv.pursuit" },
+				{ type = "slider", text = "uv.rm.options.pursuitstart", desc = "uv.rm.options.pursuitstart.desc", convar = "unitvehicle_racepursuitstart", min = 0, max = 90, decimals = 0, sv = true },
+				{ type = "bool", text = "uv.rm.options.pursuitclear", desc = "uv.rm.options.pursuitclear.desc", convar = "unitvehicle_racepursuitstop", sv = true },
+				{ type = "bool", text = "uv.rm.options.pursuitclear.ai", desc = "uv.rm.options.pursuitclear.ai.desc", convar = "unitvehicle_racepursuitstop_despawn", parentconvar = "unitvehicle_racepursuitstop", sv = true },
+				{ type = "label", text = "uv.ai.title" },
+				{ type = "bool", text = "uv.rm.options.clearai", desc = "uv.rm.options.clearai.desc", convar = "unitvehicle_raceclearai", sv = true },
+				
+				{ type = "infosimple", text = " " },
+				{ type = "buttonlr", text = "uv.ft.prev", text2 = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupGeneral, true) end,
+					func2 = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupRacingAI, true) end,
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupRacingAI = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1300),
+		Height = UV.ScaleH(900),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.racing.ai.title", Icon = "unitvehicles/icons/race_events.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.racing.ai.desc" },
+				{ type = "info", text = "uv.ft.racing.ai.desc2" },
+
+				{ type = "bool", text = "uv.airacer.override", desc = "uv.airacer.override.desc", convar = "unitvehicle_racer_assignracers", sv = true },
+				{ type = "vehicleoverride", text = "uv.airacer.overridelist", desc = "uv.airacer.overridelist.desc", convar = "unitvehicle_racer_racers", sv = true, parentconvar = "unitvehicle_racer_assignracers" },
+				
+				{ type = "infosimple", text = " " },
+				{ type = "buttonlr", text = "uv.ft.prev", text2 = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupRacing, true) end,
+					func2 = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupDone, true) end,
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupDone = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(800),
+		Height = UV.ScaleH(1300),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.end.title", Icon = "unitvehicles/icons/milestone_outrun_pursuits_won.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.end.desc" },
+				
+				{ type = "buttonlr", text = "uv.tweakinmenu.open", text2 = "uv.ft.finish", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2)
+						UVMenu.OpenMenu(UVMenu.Main)
+						net.Start("UVUpdateSettings")
+						net.WriteTable({ ["unitvehicle_uvmenu_firstsetup"] = "0" })
+						net.SendToServer()
+					end,
+					func2 = function(self2)
+						UVMenu.CloseCurrentMenu()
+						net.Start("UVUpdateSettings")
+						net.WriteTable({ ["unitvehicle_uvmenu_firstsetup"] = "0" })
+						net.SendToServer()
+					end
+				},
+			}
+		}
+	})
 end

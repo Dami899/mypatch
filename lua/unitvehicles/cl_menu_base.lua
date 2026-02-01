@@ -1487,6 +1487,121 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		return btn
 	end
 
+	---- button ----
+	if st.type == "buttonlr" then
+		local panel = vgui.Create("DPanel", parent)
+		panel:Dock(TOP)
+		panel:DockMargin(8, 4, 8, 4)
+		panel:SetTall(UV.ScaleH(40))
+		panel.Paint = nil
+
+		local btn = vgui.Create("DButton", panel)
+		btn:Dock(LEFT)
+		btn:DockMargin(6, 6, 6, 6)
+		btn:SetWide(UV.ScaleW(350))
+		btn:SetText("")
+		btn.Paint = function(self, w, h)
+			local hovered = self:IsHovered()
+			local default = Color( 
+				GetConVar("uvmenu_col_button_r"):GetInt(),
+				GetConVar("uvmenu_col_button_g"):GetInt(),
+				GetConVar("uvmenu_col_button_b"):GetInt(),
+				GetConVar("uvmenu_col_button_a"):GetInt()
+				)
+			local hover = Color( 
+				GetConVar("uvmenu_col_button_hover_r"):GetInt(),
+				GetConVar("uvmenu_col_button_hover_g"):GetInt(),
+				GetConVar("uvmenu_col_button_hover_b"):GetInt(),
+				GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4))
+				)
+
+			-- background & text
+			draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
+			if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
+			DrawWrappedText(self, UVString(st.text) or "-", w * 0.95, w*0.5, nil, true)
+		end
+		
+		btn.DoClick = function(self)
+			if st.playsfx then UVMenu.PlaySFX(st.playsfx) end
+			if st.func then st.func(self) end
+			if st.convar and not st.func then
+				RunConsoleCommand(st.convar)
+			end
+		end
+		btn.OnCursorEntered = function()
+			if descPanel then
+				descPanel.Desc = st.desc or ""
+				if st.convar then
+					descPanel.SelectedConVar = st.convar or "?"
+				end
+			end
+			if promptBar then promptBar.Prompts = st.prompts or nil end
+		end
+		btn.OnCursorExited = function()
+			if descPanel then
+				descPanel.Desc = ""
+				if st.convar then
+					descPanel.SelectedConVar = ""
+				end
+			end
+			if promptBar then promptBar.Prompts = nil end
+		end
+
+		local btn2 = vgui.Create("DButton", panel)
+		btn2:Dock(RIGHT)
+		btn2:DockMargin(6, 6, 6, 6)
+		btn2:SetWide(UV.ScaleW(350))
+		btn2:SetText("")
+		btn2.Paint = function(self, w, h)
+			local hovered = self:IsHovered()
+			local default = Color( 
+				GetConVar("uvmenu_col_button_r"):GetInt(),
+				GetConVar("uvmenu_col_button_g"):GetInt(),
+				GetConVar("uvmenu_col_button_b"):GetInt(),
+				GetConVar("uvmenu_col_button_a"):GetInt()
+				)
+			local hover = Color( 
+				GetConVar("uvmenu_col_button_hover_r"):GetInt(),
+				GetConVar("uvmenu_col_button_hover_g"):GetInt(),
+				GetConVar("uvmenu_col_button_hover_b"):GetInt(),
+				GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4))
+				)
+
+			-- background & text
+			draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
+			if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
+			DrawWrappedText(self, UVString(st.text2) or "+", w * 0.95, w*0.5, nil, true)
+		end
+		
+		btn2.DoClick = function(self)
+			if st.playsfx then UVMenu.PlaySFX(st.playsfx) end
+			if st.func2 then st.func2(self) end
+			if st.convar2 and not st.func2 then
+				RunConsoleCommand(st.convar2)
+			end
+		end
+		btn2.OnCursorEntered = function()
+			if descPanel then
+				descPanel.Desc = st.desc or ""
+				if st.convar then
+					descPanel.SelectedConVar = st.convar or "?"
+				end
+			end
+			if promptBar then promptBar.Prompts = st.prompts or nil end
+		end
+		btn2.OnCursorExited = function()
+			if descPanel then
+				descPanel.Desc = ""
+				if st.convar then
+					descPanel.SelectedConVar = ""
+				end
+			end
+			if promptBar then promptBar.Prompts = nil end
+		end
+
+		return panel
+	end
+
 	---- button with scroll wheel functionality ----
 	if st.type == "buttonsw" then
 		local val = st.start or st.min or 1
@@ -1762,7 +1877,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			if hovered then draw.RoundedBox(6, w*0.66, 0, w*0.33, h, hover) end
 
 			DrawWrappedText(self, GetDisplayText(), w * 0.45, 10, nil)
-			local text = isActive and UVString("uv.keybinds.anybutton") or GetKeyGlyph(cv, "Big")
+			local text = isActive and UVString("uv.controls.anybutton") or GetKeyGlyph(cv, "Big")
 			
 			markup.Parse( "<font=UVMostWantedLeaderboardFont>" .. text .. "</font>", w ):Draw(w * 0.82, h * 0.5, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		end
@@ -2578,6 +2693,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 			btn.DoClick = function(self)
 				if st.preset == 'units' then
+					if st.importonly and st.func then st.func(self, name, preset) return end
 					UVMenu.CloseCurrentMenu(true)
 					UVMenu.PlaySFX("clickopen")
 					timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
@@ -2626,7 +2742,15 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 				presetName = name
 			end
 					
-			btn.OnCursorEntered = function() if promptBar then promptBar.Prompts = { "uv.prompt.presetl", "uv.prompt.presetr" } end end
+			btn.OnCursorEntered = function() 
+				if promptBar then 
+					if st.importonly then
+						promptBar.Prompts = { "uv.prompt.presetl" }
+					else
+						promptBar.Prompts = { "uv.prompt.presetl", "uv.prompt.presetr" }
+					end
+				end
+			end
 			btn.OnCursorExited = function() if promptBar then promptBar.Prompts = nil end end
 		end
 
@@ -2648,219 +2772,231 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 		refreshButtons()
 
-		local exportPanel = vgui.Create("DButton", panel)
-		exportPanel:Dock(BOTTOM)
-		exportPanel:DockMargin(6, 6, 6, 6)
-		exportPanel:SetWide(UV.ScaleW(450))
-		exportPanel:SetText(" ")
-		function exportPanel:PerformLayout()
-			local text = UVString("uv.hm.presets.export")
-			local w = self:GetWide()
-			if w <= 0 then return end
-			local newTall = math.max(UV.ScaleH(30), GetDynamicTall(text, w * 0.95))
-			if self:GetTall() ~= newTall then self:SetTall(newTall) end
-		end
-		exportPanel.Paint = function(self, w, h)
-			local hovered = self:IsHovered()
-			local default = Color( 
-				GetConVar("uvmenu_col_button_r"):GetInt(),
-				GetConVar("uvmenu_col_button_g"):GetInt(),
-				GetConVar("uvmenu_col_button_b"):GetInt(),
-				GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
-			)
-			local hover = Color( 
-				GetConVar("uvmenu_col_button_hover_r"):GetInt(),
-				GetConVar("uvmenu_col_button_hover_g"):GetInt(),
-				GetConVar("uvmenu_col_button_hover_b"):GetInt(),
-				GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
-			)
-			draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
-			if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
-			DrawWrappedText(self, UVString("uv.hm.presets.export"), w * 0.95, w*0.5, nil, true, nil, nil, 
-			presetName == "" and Color(255,255,255,50) or nil)
-		end
-
-		exportPanel.OnCursorEntered = function()
-			if descPanel then descPanel.Desc = "uv.hm.presets.export.desc" end
-			if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.export" } end
-		end
-		
-		exportPanel.OnCursorExited = function()
-			if descPanel then descPanel.Desc = "" end
-			if promptBar then promptBar.Prompts = nil end
-		end
-		
-		exportPanel.DoClick = function(self)
-			if string.Trim(presetName) ~= "" then
-				UVUnitManagerExportPreset(presetName)
-			else
-				notification.AddLegacy(UVString("uv.hm.presets.presetname.require"), NOTIFY_UNDO, 5)
+		local exportPanel
+		if not st.importonly then
+			exportPanel = vgui.Create("DButton", panel)
+			exportPanel:Dock(BOTTOM)
+			exportPanel:DockMargin(6, 6, 6, 6)
+			exportPanel:SetWide(UV.ScaleW(450))
+			exportPanel:SetText(" ")
+			function exportPanel:PerformLayout()
+				local text = UVString("uv.hm.presets.export")
+				local w = self:GetWide()
+				if w <= 0 then return end
+				local newTall = math.max(UV.ScaleH(30), GetDynamicTall(text, w * 0.95))
+				if self:GetTall() ~= newTall then self:SetTall(newTall) end
 			end
-		end
-
-		--
-
-		local panelBottom = vgui.Create("DPanel", panel)
-		panelBottom:Dock(BOTTOM)
-		panelBottom:DockMargin(6, 6, 6, 6)
-		panelBottom:SetTall(UV.ScaleH(100))
-		panelBottom.Paint = function(self, w, h)
-			--draw.RoundedBox(4, 0, 0, w, h, Color(119,119,119,200))
-		end
-
-		--
-
-		textbox = vgui.Create("DTextEntry", panelBottom)
-		textbox:Dock(TOP)
-		textbox:DockMargin(6, 6, 6, 6)
-		textbox:SetWide(UV.ScaleW(250))
-		textbox:SetTall(UV.ScaleH(35))
-		textbox:SetFont("UVSettingsFont")
-		textbox:SetTextColor(color_white)
-		textbox:SetHighlightColor(Color(58,193,0))
-		textbox:SetCursorColor(Color(58,193,0))
-		textbox:SetPlaceholderColor( Color(174, 174, 174) )
-		textbox.Paint = function(self2, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(119,119,119,200))
-			self2:DrawTextEntryText(color_white, Color(58,193,0), color_white)
-			if not self2:IsEditing() and self2:GetText() == "" then
-				markup.Parse( UVReplaceKeybinds( "<color=255,255,255,100><font=UVSettingsFont>" .. UVString("uv.hm.presets.presetname") .. "</font></color>" ), w * 0.95 ):Draw( 8, h * 0.5, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+			exportPanel.Paint = function(self, w, h)
+				local hovered = self:IsHovered()
+				local default = Color( 
+					GetConVar("uvmenu_col_button_r"):GetInt(),
+					GetConVar("uvmenu_col_button_g"):GetInt(),
+					GetConVar("uvmenu_col_button_b"):GetInt(),
+					GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
+				)
+				local hover = Color( 
+					GetConVar("uvmenu_col_button_hover_r"):GetInt(),
+					GetConVar("uvmenu_col_button_hover_g"):GetInt(),
+					GetConVar("uvmenu_col_button_hover_b"):GetInt(),
+					GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
+				)
+				draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
+				if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
+				DrawWrappedText(self, UVString("uv.hm.presets.export"), w * 0.95, w*0.5, nil, true, nil, nil, 
+				presetName == "" and Color(255,255,255,50) or nil)
 			end
-		end
 
-		textbox.OnTextChanged = function(self)
-			presetName = self:GetValue()
-		end
-
-		local typing = false
-
-		textbox.OnGetFocus = function()
-			typing = true
-			if IsValid(UV.SettingsFrame) then
-				UV.SettingsFrame:SetKeyboardInputEnabled(true)
+			exportPanel.OnCursorEntered = function()
+				if descPanel then descPanel.Desc = "uv.hm.presets.export.desc" end
+				if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.export" } end
 			end
-		end
-
-		textbox.OnLoseFocus = function()
-			typing = false
-			if IsValid(UV.SettingsFrame) then
-				UV.SettingsFrame:SetKeyboardInputEnabled(false)
-			end
-		end
-
-		--
-
-		local saveBtn = vgui.Create("DButton", panelBottom)
-		saveBtn:Dock(RIGHT)
-		saveBtn:DockMargin(6, 6, 6, 6)
-		saveBtn:SetWide(UV.ScaleW(400))
-		saveBtn:SetTall(UV.ScaleH(35))
-		saveBtn:SetText(" ")
-
-		saveBtn.DoClick = function(self)
-			presetName = textbox:GetValue()
 			
-			if st.preset == 'units' then
-				local data = {}
-
-				for key, value in pairs(UVUnitsConVars) do
-					local newKey = 'unitvehicle_unit_' .. key
-					local convar = GetConVar(newKey)
-					if convar then
-						data[newKey] = convar:GetString()
-					end
-				end
-
+			exportPanel.OnCursorExited = function()
+				if descPanel then descPanel.Desc = "" end
+				if promptBar then promptBar.Prompts = nil end
+			end
+			
+			exportPanel.DoClick = function(self)
 				if string.Trim(presetName) ~= "" then
-					presets.Add(st.preset, presetName, data)
-					presetArray[presetName] = data
-					refreshButtons()
-					notification.AddLegacy(string.format(UVString("uv.tool.saved"), presetName), NOTIFY_UNDO, 5)
+					UVUnitManagerExportPreset(presetName)
 				else
 					notification.AddLegacy(UVString("uv.hm.presets.presetname.require"), NOTIFY_UNDO, 5)
 				end
 			end
 		end
 
-		saveBtn.OnCursorEntered = function()
-			if descPanel then descPanel.Desc = "uv.hm.presets.save.desc" end
-			if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.presets" } end
-		end
-		
-		saveBtn.OnCursorExited = function()
-			if descPanel then descPanel.Desc = "" end
-			if promptBar then promptBar.Prompts = nil end
-		end
-		
-		saveBtn.Paint = function(self, w, h)
-			local hovered = self:IsHovered()
+		--
 
-			local default = Color( 
-				GetConVar("uvmenu_col_button_r"):GetInt(),
-				GetConVar("uvmenu_col_button_g"):GetInt(),
-				GetConVar("uvmenu_col_button_b"):GetInt(),
-				GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
-			)
-			local hover = Color( 
-				GetConVar("uvmenu_col_button_hover_r"):GetInt(),
-				GetConVar("uvmenu_col_button_hover_g"):GetInt(),
-				GetConVar("uvmenu_col_button_hover_b"):GetInt(),
-				GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
-			)
-			
-			draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
-			if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
-			DrawWrappedText(self, UVString("uv.hm.presets.save"), w * 0.95, w*0.5, nil, true, nil, nil, 
-			presetName == "" and Color(255,255,255,50) or nil)
+		local panelBottom
+		if not st.importonly then
+			panelBottom = vgui.Create("DPanel", panel)
+			panelBottom:Dock(BOTTOM)
+			panelBottom:DockMargin(6, 6, 6, 6)
+			panelBottom:SetTall(UV.ScaleH(100))
+			panelBottom.Paint = function(self, w, h)
+				--draw.RoundedBox(4, 0, 0, w, h, Color(119,119,119,200))
+			end
+
+			textbox = vgui.Create("DTextEntry", panelBottom)
+			textbox:Dock(TOP)
+			textbox:DockMargin(6, 6, 6, 6)
+			textbox:SetWide(UV.ScaleW(250))
+			textbox:SetTall(UV.ScaleH(35))
+			textbox:SetFont("UVSettingsFont")
+			textbox:SetTextColor(color_white)
+			textbox:SetHighlightColor(Color(58,193,0))
+			textbox:SetCursorColor(Color(58,193,0))
+			textbox:SetPlaceholderColor( Color(174, 174, 174) )
+			textbox.Paint = function(self2, w, h)
+				draw.RoundedBox(4, 0, 0, w, h, Color(119,119,119,200))
+				self2:DrawTextEntryText(color_white, Color(58,193,0), color_white)
+				if not self2:IsEditing() and self2:GetText() == "" then
+					markup.Parse( UVReplaceKeybinds( "<color=255,255,255,100><font=UVSettingsFont>" .. UVString("uv.hm.presets.presetname") .. "</font></color>" ), w * 0.95 ):Draw( 8, h * 0.5, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+				end
+			end
+
+			textbox.OnTextChanged = function(self)
+				presetName = self:GetValue()
+			end
+
+			local typing = false
+
+			textbox.OnGetFocus = function()
+				typing = true
+				if IsValid(UV.SettingsFrame) then
+					UV.SettingsFrame:SetKeyboardInputEnabled(true)
+				end
+			end
+
+			textbox.OnLoseFocus = function()
+				typing = false
+				if IsValid(UV.SettingsFrame) then
+					UV.SettingsFrame:SetKeyboardInputEnabled(false)
+				end
+			end
 		end
 
 		--
 
-		local deleteBtn = vgui.Create("DButton", panelBottom)
-		deleteBtn:Dock(LEFT)
-		deleteBtn:DockMargin(6, 6, 6, 6)
-		deleteBtn:SetWide(UV.ScaleW(400))
-		deleteBtn:SetTall(UV.ScaleH(35))
-		deleteBtn:SetText(" ")
+		local saveBtn
+		
+		if not st.importonly then
+			saveBtn = vgui.Create("DButton", panelBottom)
+			saveBtn:Dock(RIGHT)
+			saveBtn:DockMargin(6, 6, 6, 6)
+			saveBtn:SetWide(UV.ScaleW(400))
+			saveBtn:SetTall(UV.ScaleH(35))
+			saveBtn:SetText(" ")
 
-		deleteBtn.DoClick = function(self)
-			if string.Trim(presetName) ~= "" then
-				if presets.Exists(st.preset, presetName) then 
-					presets.Remove(st.preset, presetName)
-					presetArray[presetName] = nil
-					notification.AddLegacy(string.format(UVString("uv.tool.deleted"), presetName), NOTIFY_UNDO, 5)
-				end			
+			saveBtn.DoClick = function(self)
+				presetName = textbox:GetValue()
+				
+				if st.preset == 'units' then
+					local data = {}
+
+					for key, value in pairs(UVUnitsConVars) do
+						local newKey = 'unitvehicle_unit_' .. key
+						local convar = GetConVar(newKey)
+						if convar then
+							data[newKey] = convar:GetString()
+						end
+					end
+
+					if string.Trim(presetName) ~= "" then
+						presets.Add(st.preset, presetName, data)
+						presetArray[presetName] = data
+						refreshButtons()
+						notification.AddLegacy(string.format(UVString("uv.tool.saved"), presetName), NOTIFY_UNDO, 5)
+					else
+						notification.AddLegacy(UVString("uv.hm.presets.presetname.require"), NOTIFY_UNDO, 5)
+					end
+				end
+			end
+
+			saveBtn.OnCursorEntered = function()
+				if descPanel then descPanel.Desc = "uv.hm.presets.save.desc" end
+				if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.presets" } end
+			end
+			
+			saveBtn.OnCursorExited = function()
+				if descPanel then descPanel.Desc = "" end
+				if promptBar then promptBar.Prompts = nil end
+			end
+			
+			saveBtn.Paint = function(self, w, h)
+				local hovered = self:IsHovered()
+
+				local default = Color( 
+					GetConVar("uvmenu_col_button_r"):GetInt(),
+					GetConVar("uvmenu_col_button_g"):GetInt(),
+					GetConVar("uvmenu_col_button_b"):GetInt(),
+					GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
+				)
+				local hover = Color( 
+					GetConVar("uvmenu_col_button_hover_r"):GetInt(),
+					GetConVar("uvmenu_col_button_hover_g"):GetInt(),
+					GetConVar("uvmenu_col_button_hover_b"):GetInt(),
+					GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
+				)
+				
+				draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
+				if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
+				DrawWrappedText(self, UVString("uv.hm.presets.save"), w * 0.95, w*0.5, nil, true, nil, nil, 
+				presetName == "" and Color(255,255,255,50) or nil)
 			end
 		end
 
-		deleteBtn.Paint = function(self, w, h)
-			local hovered = self:IsHovered()
-			local default = Color( 
-				GetConVar("uvmenu_col_button_r"):GetInt(),
-				GetConVar("uvmenu_col_button_g"):GetInt(),
-				GetConVar("uvmenu_col_button_b"):GetInt(),
-				GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
-			)
-			local hover = Color( 
-				GetConVar("uvmenu_col_button_hover_r"):GetInt(),
-				GetConVar("uvmenu_col_button_hover_g"):GetInt(),
-				GetConVar("uvmenu_col_button_hover_b"):GetInt(),
-				GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
-			)
-			draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
-			if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
-			DrawWrappedText(self, UVString("uv.hm.presets.delete"), w * 0.95, w*0.5, nil, true, nil, nil, 
-			presetName == "" and Color(255,255,255,50) or nil)
-		end
+		--
+
+		local deleteBtn
 		
-		deleteBtn.OnCursorEntered = function()
-			if descPanel then descPanel.Desc = "uv.hm.presets.delete.desc" end
-			if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.presetd" } end
-		end
-		
-		deleteBtn.OnCursorExited = function()
-			if descPanel then descPanel.Desc = "" end
-			if promptBar then promptBar.Prompts = nil end
+		if not st.importonly then
+			deleteBtn = vgui.Create("DButton", panelBottom)
+			deleteBtn:Dock(LEFT)
+			deleteBtn:DockMargin(6, 6, 6, 6)
+			deleteBtn:SetWide(UV.ScaleW(400))
+			deleteBtn:SetTall(UV.ScaleH(35))
+			deleteBtn:SetText(" ")
+
+			deleteBtn.DoClick = function(self)
+				if string.Trim(presetName) ~= "" then
+					if presets.Exists(st.preset, presetName) then 
+						presets.Remove(st.preset, presetName)
+						presetArray[presetName] = nil
+						notification.AddLegacy(string.format(UVString("uv.tool.deleted"), presetName), NOTIFY_UNDO, 5)
+					end			
+				end
+			end
+
+			deleteBtn.Paint = function(self, w, h)
+				local hovered = self:IsHovered()
+				local default = Color( 
+					GetConVar("uvmenu_col_button_r"):GetInt(),
+					GetConVar("uvmenu_col_button_g"):GetInt(),
+					GetConVar("uvmenu_col_button_b"):GetInt(),
+					GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
+				)
+				local hover = Color( 
+					GetConVar("uvmenu_col_button_hover_r"):GetInt(),
+					GetConVar("uvmenu_col_button_hover_g"):GetInt(),
+					GetConVar("uvmenu_col_button_hover_b"):GetInt(),
+					GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
+				)
+				draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
+				if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
+				DrawWrappedText(self, UVString("uv.hm.presets.delete"), w * 0.95, w*0.5, nil, true, nil, nil, 
+				presetName == "" and Color(255,255,255,50) or nil)
+			end
+			
+			deleteBtn.OnCursorEntered = function()
+				if descPanel then descPanel.Desc = "uv.hm.presets.delete.desc" end
+				if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.presetd" } end
+			end
+			
+			deleteBtn.OnCursorExited = function()
+				if descPanel then descPanel.Desc = "" end
+				if promptBar then promptBar.Prompts = nil end
+			end
 		end
 
 		return panel
@@ -3144,10 +3280,10 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		bodyleft:SetWide(UV.ScaleW(260))
 		bodyleft.Paint = function(self, w, h)
 			draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, Color(0,0,0,200))
-			DrawWrappedText(self, UVString("uv.keybinds.glyphs.action"), w * 0.5, w*0.5, h * 0.0, true)
+			DrawWrappedText(self, UVString("uv.controls.glyphs.action"), w * 0.5, w*0.5, h * 0.0, true)
 		end
 
-		bodyleft.OnCursorEntered = function() if descPanel then descPanel.Desc = "uv.keybinds.glyphs.action.desc" end end
+		bodyleft.OnCursorEntered = function() if descPanel then descPanel.Desc = "uv.controls.glyphs.action.desc" end end
 		bodyleft.OnCursorExited = function() if descPanel then descPanel.Desc = "" end end
 
 		local bodymiddle = vgui.Create("DPanel", panel)
@@ -3155,10 +3291,10 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		bodymiddle:DockMargin(0, 4, 0, 4)
 		bodymiddle.Paint = function(self, w, h)
 			draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, Color(0,0,0,200))
-			DrawWrappedText(self, UVString("uv.keybinds.glyphs.glyph"), w * 0.5, w*0.5, h * 0.0, true)
+			DrawWrappedText(self, UVString("uv.controls.glyphs.glyph"), w * 0.5, w*0.5, h * 0.0, true)
 		end
 
-		bodymiddle.OnCursorEntered = function() if descPanel then descPanel.Desc = "uv.keybinds.glyphs.glyph.desc" end end
+		bodymiddle.OnCursorEntered = function() if descPanel then descPanel.Desc = "uv.controls.glyphs.glyph.desc" end end
 		bodymiddle.OnCursorExited = function() if descPanel then descPanel.Desc = "" end end
 
 		local bodyright = vgui.Create("DPanel", panel)
@@ -3167,10 +3303,10 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		bodyright:SetWide(UV.ScaleW(260))
 		bodyright.Paint = function(self, w, h)
 			draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, Color(0,0,0,200))
-			DrawWrappedText(self, UVString("uv.keybinds.glyphs.active"), w * 1, w*0.5, h * 0.0, true)
+			DrawWrappedText(self, UVString("uv.controls.glyphs.active"), w * 1, w*0.5, h * 0.0, true)
 		end
 
-		bodyright.OnCursorEntered = function() if descPanel then descPanel.Desc = "uv.keybinds.glyphs.active.desc" end end
+		bodyright.OnCursorEntered = function() if descPanel then descPanel.Desc = "uv.controls.glyphs.active.desc" end end
 		bodyright.OnCursorExited = function() if descPanel then descPanel.Desc = "" end end
 
 		-- Tokens
@@ -4139,7 +4275,7 @@ function UVMenu.EstimateTabHeight(tab, availableWidth)
 			local text = UVString(st.text) or ""
 
 			if st.type == "infosimple" then
-				base = math.max(UV.ScaleH(23), GetDynamicTall(text, availableWidth))
+				base = math.max(UV.ScaleH(32), GetDynamicTall(text, availableWidth * 0.95, "UVMostWantedLeaderboardFont", "UVMostWantedLeaderboardFont"))
 			elseif st.type == "info_flags" then
 				base = UV.ScaleH(20) * 2 + (#st.entries * 24)
 			elseif st.type == "image" then
@@ -4152,6 +4288,8 @@ function UVMenu.EstimateTabHeight(tab, availableWidth)
 				base = math.max( UV.ScaleH(30), GetDynamicTall(UVString(text), availableWidth - UV.ScaleH(330) - 20) )
 			elseif st.type == "button" or st.type == "buttonsw" then
 				base = math.max( UV.ScaleH(30), GetDynamicTall(UVString(text), availableWidth * 0.95) )
+			elseif st.type == "buttonlr" then
+				base = UV.ScaleH(40)
 			elseif st.type == "color" or st.type == "coloralpha" then
 				base = math.max( UV.ScaleH(120), GetDynamicTall(UVString(text), availableWidth - UV.ScaleW(440)) )
 			elseif st.type == "keybind" then
@@ -4163,7 +4301,7 @@ function UVMenu.EstimateTabHeight(tab, availableWidth)
 			elseif st.type == "voiceprofile" then
 				base = st.voicevar and UV.ScaleH(240) or UV.ScaleH(90)
 			elseif st.type == "presets" then
-				base = UV.ScaleH(500)
+				base = UV.ScaleH(600)
 			elseif st.type == "unitselect" then
 				base = UV.ScaleH(300)
 			elseif st.type == "uvtrax" then
