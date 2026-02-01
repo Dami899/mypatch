@@ -165,7 +165,9 @@ if SERVER then
 		local speedlimit = net.ReadUInt(16)
 		
 		ent:SetID(id)
-		ent:SetSpeedLimit(speedlimit)
+		if speedlimit ~= 0 then
+			ent:SetSpeedLimit(speedlimit)
+		end
 		if id == 65535 then
 			ent:Remove()
 			return
@@ -288,7 +290,9 @@ elseif CLIENT then
 		Derma_StringRequest("#tool.uvracemanager.checkpoint.setid", "#tool.uvracemanager.checkpoint.setid.desc", cpID, function(text)
 			local id = tonumber(text)
 			selectedCP:SetID(id)
-			selectedCP:SetSpeedLimit(GetConVar("uvracemanager_speedlimit"):GetInt())
+			if GetConVar("uvracemanager_speedlimit"):GetInt() > 0 then
+				selectedCP:SetSpeedLimit(GetConVar("uvracemanager_speedlimit"):GetInt())
+			end
 			
 			net.Start("UVRace_SetID")
 			net.WriteEntity(selectedCP)
