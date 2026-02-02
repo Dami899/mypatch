@@ -214,6 +214,7 @@ UVMenu.Main = function()
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
 				{ type = "bool", text = "uv.audio.uvtrax.enable", desc = "uv.audio.uvtrax.desc", convar = "unitvehicle_racingmusic" },
 				{ type = "combo", text = "uv.audio.uvtrax.profile", desc = "uv.audio.uvtrax.profile.desc", convar = "unitvehicle_racetheme", requireparentconvar = "unitvehicle_racingmusic" },
+				
 				{ type = "button", text = "uv.pm.spawnas", desc = "uv.pm.spawnas.desc", convar = "uv_spawn_as_unit", prompts = {"uv.prompt.open.menu"}, func = 
 				function(self2)
 					UVMenu.CloseCurrentMenu(true)
@@ -224,10 +225,13 @@ UVMenu.Main = function()
 				end
 				},
 				
+				{ type = "button", text = "uv.pm.pursuit.start", convar = "uv_startpursuit", sv = true },
+				{ type = "button", text = "uv.pm.pursuit.stop", convar = "uv_stoppursuit", sv = true },
+				
 				{ type = "label", text = "uv.menu.pnotes" },
 				{ type = "infosimple", text = string.format( UVString("uv.menu.lastupdate"), UV.CurVersion, FormatPatchDate(UV.PNotes[UV.CurVersion].Date) ) },
-				{ type = "image", image = "unitvehicles/icons_settings/pnotes/" .. UV.CurVersion .. ".png" },
 				{ type = "button", text = "uv.menu.updatehistory", desc = "uv.menu.updatehistory.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.UpdateHistory, true) end },
+				{ type = "image", image = "unitvehicles/icons_settings/pnotes/" .. UV.CurVersion .. ".png" },
 				
 				-- { type = "info", text = UV.PNotes[UV.CurVersion].Text },
 			},
@@ -1343,6 +1347,7 @@ UVMenu.FirstTimeSetupPreset = function()
 		Tabs = {
 			{ TabName = "uv.ft.preset.title", Icon = "unitvehicles/icons/milestone_911.png", ShowIcon = true,
 				{ type = "infosimple", text = "uv.ft.preset.desc" },
+				{ type = "info", text = "uv.ft.preset.desc2" },
 				{ type = "presets", preset = "units", importonly = true, func = function(self2, name, preset)
 					UVUnitManagerLoadPresetV2(name, preset)
 					UVMenu.PlaySFX("confirm")
@@ -1442,6 +1447,7 @@ UVMenu.FirstTimeSetupRacing = function()
 		Tabs = {
 			{ TabName = "uv.rm.options", Icon = "unitvehicles/icons/race_events.png", ShowIcon = true,
 				{ type = "infosimple", text = "uv.ft.racing.desc" },
+				{ type = "info", text = "uv.ft.racing.desc2" },
 				{ type = "label", text = "uv.rm.options" },
 				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },
 				{ type = "slider", text = "uv.rm.options.dnftimer", desc = "uv.rm.options.dnftimer.desc", convar = "unitvehicle_racednftimer", min = 0, max = 90, decimals = 0, sv = true },
@@ -1466,8 +1472,8 @@ UVMenu.FirstTimeSetupRacingAI = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = " ",
 		Width  = UV.ScaleW(1300),
-		Height = UV.ScaleH(900),
-		DynamicHeight = true,
+		Height = UV.ScaleH(700),
+		DynamicHeight = false,
 		Description = true,
 		UnfocusClose = false,
 		HideCloseButton = true,
@@ -1493,14 +1499,15 @@ UVMenu.FirstTimeSetupDone = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = " ",
 		Width  = UV.ScaleW(800),
-		Height = UV.ScaleH(1300),
-		DynamicHeight = true,
+		Height = UV.ScaleH(450),
+		DynamicHeight = false,
 		Description = false,
 		UnfocusClose = false,
 		HideCloseButton = true,
 		Tabs = {
 			{ TabName = "uv.ft.end.title", Icon = "unitvehicles/icons/milestone_outrun_pursuits_won.png", ShowIcon = true,
 				{ type = "infosimple", text = "uv.ft.end.desc" },
+				{ type = "info", text = "uv.ft.end.desc2" },
 				
 				{ type = "buttonlr", text = "uv.tweakinmenu.open", text2 = "uv.ft.finish", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
 					func = function(self2)
