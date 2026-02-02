@@ -3015,27 +3015,53 @@ local function GetVehicleData( ent )
 		Memory[Key2] = ent:GetClass()
 		Memory.Mins = Vector(Memory.Mins.x,Memory.Mins.y,0)
 
-		if cffunctions then
-			for k, v in pairs( Memory.Entities ) do
-				v.NitrousPower = ent.NitrousPower or 2
-				v.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
-				v.NitrousRegenRate = ent.NitrousRegenRate or 0.1
-				v.NitrousRegenDelay = ent.NitrousRegenDelay or 2
-				v.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1 
-				v.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
-				v.NitrousBurst = ent.NitrousBurst or false
-				v.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
-				v.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
-				v.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
-				v.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
-				v.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
-				v.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
-				v.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
-				v.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
-				v.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
-				v.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
-			end
+		for k, v in pairs( Memory.Entities ) do
+			local color = ent:GetColor()
+			v.Color = color.r..","..color.g..","..color.b..","..color.a
+
+			v.NitrousPower = ent.NitrousPower or 2
+			v.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
+			v.NitrousRegenRate = ent.NitrousRegenRate or 0.1
+			v.NitrousRegenDelay = ent.NitrousRegenDelay or 2
+			v.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1 
+			v.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
+			v.NitrousBurst = ent.NitrousBurst or false
+			v.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
+			v.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
+			v.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
+			v.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
+			v.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
+			v.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
+			v.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
+			v.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
+			v.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
+			v.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
 		end
+
+		-- if cffunctions then
+		-- 	for k, v in pairs( Memory.Entities ) do
+		-- 		local color = ent:GetColor()
+		-- 		v.Color = color.r..","..color.g..","..color.b..","..color.a
+
+		-- 		v.NitrousPower = ent.NitrousPower or 2
+		-- 		v.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
+		-- 		v.NitrousRegenRate = ent.NitrousRegenRate or 0.1
+		-- 		v.NitrousRegenDelay = ent.NitrousRegenDelay or 2
+		-- 		v.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1 
+		-- 		v.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
+		-- 		v.NitrousBurst = ent.NitrousBurst or false
+		-- 		v.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
+		-- 		v.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
+		-- 		v.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
+		-- 		v.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
+		-- 		v.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
+		-- 		v.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
+		-- 		v.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
+		-- 		v.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
+		-- 		v.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
+		-- 		v.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
+		-- 	end
+		-- end
 		-- local pos = ent:GetPos()
 		-- duplicator.SetLocalPos( pos )
 		
@@ -3818,9 +3844,15 @@ function UVMoveToGridSlot( vehicle, aienabled )
 			-- end
 		end
 
-		if cffunctions then
-			for key, ent in pairs( Ents ) do
-				if _Entities[key] then
+		for key, ent in pairs( Ents ) do
+			if _Entities[key] then
+				local c = string.Explode( ",", _Entities[key].Color )
+				local Color =  Color( tonumber(c[1]), tonumber(c[2]), tonumber(c[3]), tonumber(c[4]) )
+				local dot = Color.r * Color.g * Color.b * Color.a
+				ent.OldColor = dot
+				ent:SetColor( Color )
+
+				if cffunctions then
 					ent.NitrousPower = _Entities[key].NitrousPower
 					ent.NitrousDepletionRate = _Entities[key].NitrousDepletionRate
 					ent.NitrousRegenRate = _Entities[key].NitrousRegenRate
@@ -3858,6 +3890,46 @@ function UVMoveToGridSlot( vehicle, aienabled )
 			end
 		end
 
+		-- if cffunctions then
+		-- 	for key, ent in pairs( Ents ) do
+		-- 		if _Entities[key] then
+		-- 			ent.NitrousPower = _Entities[key].NitrousPower
+		-- 			ent.NitrousDepletionRate = _Entities[key].NitrousDepletionRate
+		-- 			ent.NitrousRegenRate = _Entities[key].NitrousRegenRate
+		-- 			ent.NitrousRegenDelay = _Entities[key].NitrousRegenDelay
+		-- 			ent.NitrousPitchChangeFrequency = _Entities[key].NitrousPitchChangeFrequency
+		-- 			ent.NitrousPitchMultiplier = _Entities[key].NitrousPitchMultiplier
+		-- 			ent.NitrousBurst = _Entities[key].NitrousBurst
+		-- 			ent.NitrousColor = _Entities[key].NitrousColor
+		-- 			ent.NitrousStartSound = _Entities[key].NitrousStartSound
+		-- 			ent.NitrousLoopingSound = _Entities[key].NitrousLoopingSound
+		-- 			ent.NitrousEndSound = _Entities[key].NitrousEndSound
+		-- 			ent.NitrousEmptySound = _Entities[key].NitrousEmptySound
+		-- 			ent.NitrousReadyBurstSound = _Entities[key].NitrousReadyBurstSound
+		-- 			ent.NitrousStartBurstSound = _Entities[key].NitrousStartBurstSound
+		-- 			ent.NitrousStartBurstAnnotationSound = _Entities[key].NitrousStartBurstAnnotationSound
+		-- 			ent.CriticalDamageSound = _Entities[key].CriticalDamageSound
+		-- 			ent.NitrousEnabled = _Entities[key].NitrousEnabled
+		-- 			ent:SetNWBool( 'NitrousEnabled', _Entities[key].NitrousEnabled == nil and true or _Entities[key].NitrousEnabled )
+					
+		-- 			if ent.NitrousColor then
+		-- 				local r = ent.NitrousColor.r
+		-- 				local g = ent.NitrousColor.g
+		-- 				local b = ent.NitrousColor.b
+						
+		-- 				net.Start( "cfnitrouscolor" )
+		-- 				net.WriteEntity(ent)
+		-- 				net.WriteInt(r, 9)
+		-- 				net.WriteInt(g, 9)
+		-- 				net.WriteInt(b, 9)
+		-- 				net.WriteBool(ent.NitrousBurst)
+		-- 				net.WriteBool(ent.NitrousEnabled)
+		-- 				net.Broadcast()
+		-- 			end
+		-- 		end
+		-- 	end
+		-- end
+
 		Ent = Ents[vehIndex]
 		
 		-- local Ents = duplicator.Paste( ply, Memory.Entities, Memory.Constraints )
@@ -3886,13 +3958,6 @@ function UVMoveToGridSlot( vehicle, aienabled )
 		-- 	end
 			
 		-- 	Ent:SetSkin( Memory.Skin )
-			
-		-- 	local c = string.Explode( ",", Memory.Color )
-		-- 	local Color =  Color( tonumber(c[1]), tonumber(c[2]), tonumber(c[3]), tonumber(c[4]) )
-			
-		-- 	local dot = Color.r * Color.g * Color.b * Color.a
-		-- 	Ent.OldColor = dot
-		-- 	Ent:SetColor( Color )
 			
 		-- 	local data = {
 		-- 		Color = Color,
@@ -4076,6 +4141,7 @@ function UVMoveToGridSlot( vehicle, aienabled )
 			Ent:GetPhysicsObject():EnableMotion( false )
 			if aienabled then 
 				local uv = ents.Create(Ent.uvclasstospawnon)
+				uv.restrictedCustomization = true
 				uv:SetPos(Ent:GetPos())
 				uv.uvscripted = true
 				uv.vehicle = Ent

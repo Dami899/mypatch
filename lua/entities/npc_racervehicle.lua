@@ -803,7 +803,7 @@ if SERVER then
 			return self.v.frontdamaged or self.v.reardamaged or self.v.leftdamaged or self.v.rightdamaged
 		end
 
-		if CustomizeRacer:GetBool() then
+		if CustomizeRacer:GetBool() and not self.restrictedCustomization then
 			local color = Color(math.random(0, 255), math.random(0, 255), math.random(0, 255))
 
 			self.v:SetColor(color)
