@@ -208,9 +208,10 @@ UVMenu.Main = function()
 		UnfocusClose = true,
 		Tabs = {
 		
-			{ TabName = "uv.menu.welcome", Icon = "unitvehicles/icons_settings/info.png", -- Welcome Page
+			{ TabName = "uv.menu.welcome", Icon = "unitvehicles/icons_settings/info.png", NoTitle = true, -- Welcome Page
 				
-				{ type = "label", text = "uv.menu.pnotes" },
+				-- { type = "label", text = "uv.menu.pnotes" },
+				{ type = "image", text = "uv.ft.title", image = "unitvehicles/icons_settings/Welcome.png" },
 				{ type = "infosimple", text = string.format( UVString("uv.menu.lastupdate"), UV.CurVersion, FormatPatchDate(UV.PNotes[UV.CurVersion].Date) ) },
 				{ type = "button", text = "uv.menu.updatehistory", desc = "uv.menu.updatehistory.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.UpdateHistory, true) end },
 				-- { type = "image", image = "unitvehicles/icons_settings/pnotes/" .. UV.CurVersion .. ".png" },

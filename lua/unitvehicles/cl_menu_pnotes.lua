@@ -19,11 +19,14 @@ Text = [[
 
 **Changes**
 - Creator: Races tool: If the speed limit is set to 0, editing a checkpoint ID will not alter its speed limit value
+- Race Invites can now be sent and accepted/declined while a pursuit is active
+- Units will no longer spam-use bullhorn voice lines
 
 **Fixes**
 - Fixed that the Race Host status could be "stolen" from an Admin by a Super Admin
 - Fixed that the Totaled UI did not close when joining a pursuit while "Spawn as Random Unit" was enabled
 - Fixed that the "Spike Strip Deployed" cop chatter had a tendency to spam
+- Fixed that Voice Profiles could cause a server connection loop if too many are selected
 ]],
 },
 
