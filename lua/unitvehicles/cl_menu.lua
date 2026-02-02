@@ -209,7 +209,12 @@ UVMenu.Main = function()
 		Tabs = {
 		
 			{ TabName = "uv.menu.welcome", Icon = "unitvehicles/icons_settings/info.png", -- Welcome Page
-
+				
+				{ type = "label", text = "uv.menu.pnotes" },
+				{ type = "infosimple", text = string.format( UVString("uv.menu.lastupdate"), UV.CurVersion, FormatPatchDate(UV.PNotes[UV.CurVersion].Date) ) },
+				{ type = "button", text = "uv.menu.updatehistory", desc = "uv.menu.updatehistory.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.UpdateHistory, true) end },
+				-- { type = "image", image = "unitvehicles/icons_settings/pnotes/" .. UV.CurVersion .. ".png" },
+				
 				{ type = "label", text = "uv.menu.quick", desc = "uv.menu.quick.desc" },
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
 				{ type = "bool", text = "uv.audio.uvtrax.enable", desc = "uv.audio.uvtrax.desc", convar = "unitvehicle_racingmusic" },
@@ -227,11 +232,6 @@ UVMenu.Main = function()
 				
 				{ type = "button", text = "uv.pm.pursuit.start", convar = "uv_startpursuit", sv = true },
 				{ type = "button", text = "uv.pm.pursuit.stop", convar = "uv_stoppursuit", sv = true },
-				
-				{ type = "label", text = "uv.menu.pnotes" },
-				{ type = "infosimple", text = string.format( UVString("uv.menu.lastupdate"), UV.CurVersion, FormatPatchDate(UV.PNotes[UV.CurVersion].Date) ) },
-				{ type = "button", text = "uv.menu.updatehistory", desc = "uv.menu.updatehistory.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.UpdateHistory, true) end },
-				{ type = "image", image = "unitvehicles/icons_settings/pnotes/" .. UV.CurVersion .. ".png" },
 				
 				-- { type = "info", text = UV.PNotes[UV.CurVersion].Text },
 			},
@@ -334,10 +334,10 @@ UVMenu.Main = function()
 				end,
 			},
 			
-			{ TabName = "uv.ft", playsfx = "clickopen", Prompts = { "uv.prompt.open.menu" }, func = function()
-					UVMenu.OpenMenu(UVMenu.FirstTimeSetup, true) -- First-Time Setup
-				end,
-			},
+			-- { TabName = "uv.ft", playsfx = "clickopen", Prompts = { "uv.prompt.open.menu" }, func = function() -- DEBUG
+					-- UVMenu.OpenMenu(UVMenu.FirstTimeSetup, true) -- First-Time Setup
+				-- end,
+			-- },
 			
 		}
 	})
