@@ -210,7 +210,7 @@ if SERVER then
                         local units = ents.FindByClass("npc_uv*" )
                         local random_entry = math.random(#units)	
                         local unit = units[random_entry]
-                        timecheck2 = UVChatterDispatchCallVehicleDescription(unit, suspectvehicle, e)
+                        UVChatterDispatchCallVehicleDescription(unit, suspectvehicle, e)
                     end
                     timer.Simple(timecheck2 or 5, function()
                         UVCallRespond(suspectvehicle)
@@ -221,7 +221,7 @@ if SERVER then
                         local units = ents.FindByClass("npc_uv*" )
                         local random_entry = math.random(#units)	
                         local unit = units[random_entry]
-                        timecheck2 = UVChatterDispatchCallUnknownDescription(unit)
+                        UVChatterDispatchCallUnknownDescription(unit)
                     end
                     timer.Simple(timecheck2 or 5, function()
                         UVCallRespond(suspectvehicle)

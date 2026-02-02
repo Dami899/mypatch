@@ -366,12 +366,14 @@ if SERVER then
 			
 		elseif parameters == 2 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/bullhorn/"..chattertype.."/*", "GAME")
-			if next(soundFiles) == nil then return 5 end
+			if next(soundFiles) == nil then return 0 end
 			local soundFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/bullhorn/"..chattertype.."/"..soundFiles[1]
 			
 			--self:EmitSound(soundFile, 10000, 100, 1, CHAN_STREAM)
-			if not IsValid(self) then return 5 end
-			self:EmitSound(soundFile, 120)
+			if not IsValid( self ) then return 0 end
+			if UVBullhornLastDuration and CurTime() < UVBullhornLastDuration then return 0 end
+			UVBullhornLastDuration = CurTime() + SoundDuration( soundFile )
+			self:EmitSound( soundFile, 120 )
 				-- local bullhorn = CreateSound(self, soundFile, recpFilter)
 				-- bullhorn:SetSoundLevel(120)
 				-- bullhorn:Play()

@@ -881,14 +881,21 @@ if SERVER then
 			return
 		end
 
-		if UVTargeting then
-			net.Start("uvrace_decline")
-			net.WriteString("uv.race.start.error.chased")
-			net.Send(ply)
-			return
-		end
+		-- if UVTargeting then
+		-- 	net.Start("uvrace_decline")
+		-- 	net.WriteString("uv.race.start.error.chased")
+		-- 	net.Send(ply)
+		-- 	return
+		-- end
 
 		RunConsoleCommand("uv_despawnvehicles")
+
+		
+		for k, v in pairs( UVUnitVehicles ) do
+			if IsValid(v) then
+				v:Remove()
+			end
+		end
 
 		-- Add player vehicle if not already a participant
 		for _, v in ents.Iterator() do
@@ -956,12 +963,12 @@ if SERVER then
 		if not ply:IsSuperAdmin() then return end
 		if UVRaceInEffect then return end
 		
-		if UVTargeting then
-			net.Start("uvrace_decline")
-			net.WriteString("uv.race.invite.error.chased")
-			net.Send(ply)
-			return
-		end
+		-- if UVTargeting then
+		-- 	net.Start("uvrace_decline")
+		-- 	net.WriteString("uv.race.invite.error.chased")
+		-- 	net.Send(ply)
+		-- 	return
+		-- end
 		
 		local invited_racers = {}
 		

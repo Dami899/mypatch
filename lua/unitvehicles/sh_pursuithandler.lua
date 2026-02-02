@@ -1006,8 +1006,12 @@ local ReplicatedVars = {
 
 for index, v in pairs( {'Patrol', 'Support', 'Pursuit', 'Interceptor', 'Special', 'Commander', 'Rhino', 'Air'} ) do
 	local lowercaseUnit = string.lower( v )
-	CreateConVar( "unitvehicle_unit_" .. lowercaseUnit .. "_voice", defaultvoicetable[index], {FCVAR_ARCHIVE, FCVAR_REPLICATED})
-	CreateConVar( "unitvehicle_unit_" .. lowercaseUnit .. "_voiceprofile", "default", {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+
+	ReplicatedVars["unitvehicle_unit_" .. lowercaseUnit .. "_voice"] = true
+	ReplicatedVars["unitvehicle_unit_" .. lowercaseUnit .. "_voiceprofile"] = true
+
+	CreateConVar( "unitvehicle_unit_" .. lowercaseUnit .. "_voice", defaultvoicetable[index], {ShouldArchive})
+	CreateConVar( "unitvehicle_unit_" .. lowercaseUnit .. "_voiceprofile", "default", {ShouldArchive})
 end
 
 for _, v in pairs( {'Misc', 'Dispatch'} ) do
