@@ -789,25 +789,41 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 		if not mat or mat:IsError() then
 			p.Paint = function(self, w, h)
-				draw.SimpleText("/// Missing image /// ", "UVSettingsFontSmall", w/2, h/2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(
+					"/// Missing image ///",
+					"UVSettingsFontSmall",
+					w / 2,
+					h / 2,
+					color_white,
+					TEXT_ALIGN_CENTER,
+					TEXT_ALIGN_CENTER
+				)
 			end
 			return p
 		end
 
-		-- Force 16:9 height based on available width
+		-- Cache image size
+		local iw, ih = mat:Width(), mat:Height()
+		local aspect = (iw > 0 and ih > 0) and (ih / iw) or (9 / 16)
+
+		-- Optional text config
+		local font  = st.font or "UVFont5"
+		local xPos  = st.XPos or 0.5
+		local yPos  = st.YPos or 0.01
+
+		-- Layout based on image aspect
 		p.PerformLayout = function(self, w, h)
-			local newH = math.floor((w / 16) * 9)
-			self:SetTall(newH)
+			self:SetTall(math.floor(w * aspect))
 		end
 
 		p.Paint = function(self, w, h)
+			-- Background
 			surface.SetDrawColor(0, 0, 0, 200)
 			surface.DrawRect(0, 0, w, h)
 
-			-- Draw image fully scaled to panel (letterboxed)
-			local iw, ih = mat:Width(), mat:Height()
 			if iw == 0 or ih == 0 then return end
 
+			-- Letterboxed image
 			local ratio = math.min(w / iw, h / ih)
 			local fw, fh = iw * ratio, ih * ratio
 			local x = (w - fw) * 0.5
@@ -816,7 +832,30 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			surface.SetMaterial(mat)
 			surface.SetDrawColor(255, 255, 255)
 			surface.DrawTexturedRect(x, y, fw, fh)
+
+			-- Optional overlay text (infosimple-style)
+			if st.text then
+				if st.text and st.text ~= "" then
+					DrawWrappedText( self, UVString(st.text), w - UV.ScaleW(20), w * xPos, h * yPos, true, font, font )
+				end
+			end
 		end
+
+		-- Optional desc hover behavior (same as infosimple)
+		if st.desc then
+			p.OnCursorEntered = function()
+				if descPanel then
+					descPanel.Desc = st.desc or ""
+				end
+			end
+
+			p.OnCursorExited = function()
+				if descPanel then
+					descPanel.Desc = ""
+				end
+			end
+		end
+
 		return p
 	end
 
@@ -4598,36 +4637,48 @@ function UVMenu:Open(menu)
             descPanel.Desc = ""
         end
 
-        local tab = Tabs[tabIndex]
-        if not tab then return end
+		local tab = Tabs[tabIndex]
+		if not tab then return end
 
-        local title = vgui.Create("DLabel", center)
-        title:SetText("")
-        title:Dock(TOP)
-        title:DockMargin(6, 6, 6, 12)
-		function title:PerformLayout()
-			local text = UVString(tab.TabName)
-			local w = self:GetWide()
-			if w <= 0 then return end
-			local newTall = math.max(UV.ScaleH(48), GetDynamicTall(text, w - 44, "UVFont5"))
-			if self:GetTall() ~= newTall then self:SetTall(newTall) end
-		end
+		if not tab.NoTitle then
+			local title = vgui.Create("DLabel", center)
+			title:SetText("")
+			title:Dock(TOP)
+			title:DockMargin(6, 6, 6, 12)
 
-        title.Paint = function(self, w, h)
-			DrawWrappedText(self, UVString(tab.TabName) or ("Tab " .. tostring(tabIndex)), w - 44, w*0.5, nil, true, "UVFont5")
-
-			if tab.Icon and tab.ShowIcon then
-				local mat = Material(tab.Icon, "smooth")
-				local iconSize = tab.IconSize or UV.ScaleW(40)
-				local iconX = 0
-				local iconX2 = title:GetWide() - iconSize
-				local iconY = (h - iconSize) / 2
-				surface.SetDrawColor(255, 255, 255, self:GetAlpha())
-				surface.SetMaterial(mat)
-				surface.DrawTexturedRect(iconX, iconY, iconSize, iconSize)
-				surface.DrawTexturedRect(iconX2, iconY, iconSize, iconSize)
+			function title:PerformLayout()
+				local text = UVString(tab.TabName)
+				local w = self:GetWide()
+				if w <= 0 then return end
+				local newTall = math.max(UV.ScaleH(48), GetDynamicTall(text, w - 44, "UVFont5"))
+				if self:GetTall() ~= newTall then
+					self:SetTall(newTall)
+				end
 			end
-        end
+
+			title.Paint = function(self, w, h)
+				DrawWrappedText(
+					self,
+					UVString(tab.TabName) or ("Tab " .. tostring(tabIndex)),
+					w - 44,
+					w * 0.5,
+					nil,
+					true,
+					"UVFont5"
+				)
+
+				if tab.Icon and tab.ShowIcon then
+					local mat = Material(tab.Icon, "smooth")
+					local iconSize = tab.IconSize or UV.ScaleW(40)
+					local iconY = (h - iconSize) / 2
+
+					surface.SetDrawColor(255, 255, 255, self:GetAlpha())
+					surface.SetMaterial(mat)
+					surface.DrawTexturedRect(0, iconY, iconSize, iconSize)
+					surface.DrawTexturedRect(w - iconSize, iconY, iconSize, iconSize)
+				end
+			end
+		end
 
         watchedConvars = {} -- reset
         for k2, entry in ipairs(tab) do
