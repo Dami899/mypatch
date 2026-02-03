@@ -1178,8 +1178,7 @@ if SERVER then
 		end
 		
 		if not self:Validate(self.e) then --If it doesn't have an enemy.
-			--Stop moving (or patrol).
-			if UVEnemyBusted and #UVWantedTableVehicle == 0 or GetConVar("ai_ignoreplayers"):GetBool() then --Stop moving
+			if UVEnemyBusted and #UVWantedTableVehicle == 0 then --Stop moving
 				self:Stop()
 			else --Patrol
 				self:Patrol()
