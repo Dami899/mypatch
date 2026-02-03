@@ -196,7 +196,12 @@ NETWORK_STRINGS = {
 	"UVRace_TrackReady",
 	"UVRace_RacersList",
 	"UVRace_HideRacersList",
+	"UVRace_ToolMode",
 	
+	"UVRace_AddNode",
+	"UVRace_RemoveNode",
+	"UVRace_UpdateLink",
+
 	-- Race
 	"uvrace_begin",
 	"uvrace_start",

@@ -9,7 +9,7 @@ UV = UV or {}
 
 UV.PNotes = {
 ["v1.1.0"] = {
-Date = { year = 2026, month = 2, day = 2 },
+Date = { year = 2026, month = 2, day = 3 },
 Text = [[
 **New Features**
 - UV Menu: Added a new First-Time Setup menu
@@ -18,7 +18,12 @@ Text = [[
 - Added a Police Scanner SFX toggle
 
 **Changes**
-- Creator: Races tool: If the speed limit is set to 0, editing a checkpoint ID will not alter its speed limit value
+- UV Menu: [string:uv.menu.welcome] now has [string:uv.pm.pursuit.start] and [string:uv.pm.pursuit.start] options.
+- Creator: Races tool: Tweaked its functionality slightly:
+ |-- [+reload] now cycles modes between Checkpoint and Grid Slots
+ |-- [+attack] now creates Checkpoints or Grid Slots, depending on whichever is selected
+ |-- Updated HUD tooltips to reflect these changes
+ |-- If the speed limit is set to 0, editing a checkpoint's ID no longer alters its speed limit value
 - Race Invites can now be sent and accepted/declined while a pursuit is active
 - Units will no longer spam-use bullhorn voice lines
 
