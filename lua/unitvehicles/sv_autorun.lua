@@ -198,9 +198,13 @@ NETWORK_STRINGS = {
 	"UVRace_HideRacersList",
 	"UVRace_ToolMode",
 	
-	"UVRace_AddNode",
-	"UVRace_RemoveNode",
-	"UVRace_UpdateLink",
+	"UVRace_NodeAdd",
+	"UVRace_NodeRemove",
+	"UVRace_NodeLinks",
+	"UVRace_NodeSelect",
+	"UVRace_NodeSettings",
+	"UVRace_UpdateNodeSettings",
+	"UVRace_ClearAllNodes",
 
 	-- Race
 	"uvrace_begin",

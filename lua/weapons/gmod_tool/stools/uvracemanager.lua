@@ -21,83 +21,144 @@ local pos1, selectedCP
 local secondClick = false
 
 if SERVER then
-	TOOL.nodeTable = TOOL.nodeTable or  {}
+	TOOL.Nodes = TOOL.Nodes or {}
+	TOOL.LastPlacedNode = nil
+	local tool = TOOL
+	
+	function TOOL:GetNearestNode(pos, radius)
+		local best, bestID
+		local r2 = radius * radius
 
-	-- Add node function
+		for id, node in pairs(self.Nodes) do
+			local d2 = node.Pos:DistToSqr(pos)
+			if d2 <= r2 and (not best or d2 < best) then
+				best = d2
+				bestID = id
+			end
+		end
+
+		return bestID
+	end
+
 	function TOOL:AddNode(pos)
-		local newNode = {
+		local id = #self.Nodes + 1
+
+		self.Nodes[id] = {
 			Pos = pos,
 			Links = {},
 			SpeedLimit = GetConVar("uvracemanager_speedlimit"):GetInt(),
-			WaitTime = 0
+			Curve = 0
 		}
 
-		local id = #self.nodeTable + 1
-		self.nodeTable[id] = newNode
+		-- Auto-link logic
+		local from = self.SelectedNode or self.LastPlacedNode
+		if from and self.Nodes[from] then
+			self.Nodes[from].Links[id] = true
 
-		-- auto-link previous node
-		if id > 1 then
-			self.nodeTable[id - 1].Links[#self.nodeTable[id - 1].Links + 1] = id
-			newNode.Links[#newNode.Links + 1] = id - 1
+			net.Start("UVRace_NodeLinks")
+				net.WriteUInt(from, 16)
+				net.WriteTable(self.Nodes[from].Links)
+			net.Broadcast()
 		end
 
-		-- network to clients
-		net.Start("UVRace_AddNode")
-		net.WriteUInt(id, 16)
-		net.WriteVector(pos)
-		net.Send(player.GetAll())
+		self.LastPlacedNode = id
+
+		net.Start("UVRace_NodeAdd")
+			net.WriteUInt(id, 16)
+			net.WriteVector(pos)
+			net.WriteUInt(self.Nodes[id].SpeedLimit, 16)
+		net.Broadcast()
 
 		return id
 	end
 
-	-- Remove node function
 	function TOOL:RemoveNode(id)
-		if not self.nodeTable[id] then return end
+		if not self.Nodes[id] then return end
 
-		-- Remove links pointing to this node
-		for _, node in pairs(self.nodeTable) do
+		-- Remove links
+		for nid, node in pairs(self.Nodes) do
 			for i = #node.Links, 1, -1 do
 				if node.Links[i] == id then
 					table.remove(node.Links, i)
+
+					net.Start("UVRace_NodeLinks")
+						net.WriteUInt(nid, 16)
+						net.WriteTable(node.Links)
+					net.Broadcast()
 				end
 			end
 		end
 
-		self.nodeTable[id] = nil
+		self.Nodes[id] = nil
 
-		-- network removal
-		net.Start("UVRace_RemoveNode")
-		net.WriteUInt(id, 16)
-		net.Send(player.GetAll())
-	end
+		net.Start("UVRace_NodeRemove")
+			net.WriteUInt(id, 16)
+		net.Broadcast()
+		
+		if self.SelectedNode == id then
+			self.SelectedNode = nil
 
-	-- Toggle link between two nodes
-	function TOOL:ToggleLink(a, b)
-		if not self.nodeTable[a] or not self.nodeTable[b] then return end
-
-		local linksA = self.nodeTable[a].Links
-		local linksB = self.nodeTable[b].Links
-
-		local idx = table.Find(linksA, b)
-		if idx then
-			table.remove(linksA, idx)
-		else
-			linksA[#linksA + 1] = b
+			net.Start("UVRace_NodeSelect")
+				net.WriteUInt(0, 16)
+			net.Broadcast()
 		end
 
-		-- reciprocal
-		if not table.HasValue(linksB, a) then
-			linksB[#linksB + 1] = a
+		-- Clear undo for this node
+		undo.ReplaceEntity(nil, nil, "UVRaceNode")
+	end
+
+	function TOOL:ToggleLink(from, to)
+		local A = self.Nodes[from]
+		local B = self.Nodes[to]
+		if not A or not B then return end
+
+		if A.Links[to] then
+			A.Links[to] = nil
 		else
-			local idx2 = table.Find(linksB, a)
-			table.remove(linksB, idx2)
+			A.Links[to] = {
+				Curve = 0 -- default straight
+			}
 		end
 
-		net.Start("UVRace_UpdateLink")
-		net.WriteUInt(a, 16)
-		net.WriteUInt(b, 16)
-		net.Send(player.GetAll())
+		net.Start("UVRace_NodeLinks")
+			net.WriteUInt(from, 16)
+			net.WriteTable(A.Links)
+		net.Broadcast()
 	end
+
+	function TOOL:ClearNodes()
+		for id, _ in pairs(self.Nodes) do
+			-- Inform clients to remove the node
+			net.Start("UVRace_NodeRemove")
+				net.WriteUInt(id, 16)
+			net.Broadcast()
+		end
+
+		self.Nodes = {}
+		self.LastPlacedNode = nil
+		self.SelectedNode = nil
+		
+		net.Start("UVRace_ClearAllNodes")
+		net.Broadcast()
+	end
+
+	net.Receive("UVRace_UpdateNodeSettings", function(_, ply)
+		if not ply:IsSuperAdmin() then return end
+
+		local id = net.ReadUInt(16)
+		local speed = net.ReadUInt(16)
+
+		local node = tool.Nodes[id]
+		if not node then return end
+
+		node.SpeedLimit = speed
+
+		net.Start("UVRace_NodeAdd")
+			net.WriteUInt(id, 16)
+			net.WriteVector(node.Pos)
+			net.WriteUInt(node.SpeedLimit, 16)
+		net.Broadcast()
+	end)
 
 	local dvd = DecentVehicleDestination
 
@@ -118,27 +179,29 @@ if SERVER then
 	UVRace_LoadedEntities = {}
 	UVRace_LoadedConstraints = {}
 
-	function UVLoadRace( jsonString )
-		if type( jsonString ) ~= "string" then return end
+	function UVLoadRace(jsonString)
+		if type(jsonString) ~= "string" then return end
 
-		local startchar = string.find( jsonString, '' )
-		if ( startchar != nil ) then
-			jsonString = string.sub( jsonString, startchar )
+		-- Clean up weird characters at start
+		local startchar = string.find(jsonString, '')
+		if startchar then
+			jsonString = string.sub(jsonString, startchar)
 		end
 
 		jsonString = jsonString:reverse()
-		local startchar = string.find( jsonString, '' )
-		if ( startchar != nil ) then
-			jsonString = string.sub( jsonString, startchar )
+		startchar = string.find(jsonString, '')
+		if startchar then
+			jsonString = string.sub(jsonString, startchar)
 		end
 		jsonString = jsonString:reverse()
 
-		local saveArray = util.JSONToTable( jsonString )
+		local saveArray = util.JSONToTable(jsonString)
 		if not saveArray then return end
 
+		-- Load waypoints for DecentVehicleDestination
 		if saveArray.Waypoints then
 			UVRace_LoadedWaypoints = true
-			dvd.Waypoints = table.Copy( saveArray.Waypoints )
+			dvd.Waypoints = table.Copy(saveArray.Waypoints)
 			net.Start("Decent Vehicle: Clear waypoints")
 			net.Broadcast()
 			net.Start("Decent Vehicle: Retrive waypoints")
@@ -146,31 +209,73 @@ if SERVER then
 			net.Broadcast()
 		end
 
-		for entityId, entityObject in pairs( UVRace_LoadedEntities ) do
-			if IsValid( entityObject ) then entityObject:Remove() end
+		-- Clear previous entities
+		for entityId, entityObject in pairs(UVRace_LoadedEntities) do
+			if IsValid(entityObject) then entityObject:Remove() end
 			UVRace_LoadedEntities[entityId] = nil
 		end
- 
-		for entityId, entityObject in pairs( UVRace_LoadedConstraints ) do
-			if IsValid( entityObject ) then entityObject:Remove() end
+
+		-- Clear previous constraints
+		for entityId, entityObject in pairs(UVRace_LoadedConstraints) do
+			if IsValid(entityObject) then entityObject:Remove() end
 			UVRace_LoadedConstraints[entityId] = nil
 		end
 
-		local Entities = table.Copy( saveArray.Entities )
-		local Constraints = table.Copy( saveArray.Constraints )
+		local Entities = table.Copy(saveArray.Entities)
+		local Constraints = table.Copy(saveArray.Constraints)
 
-		UVRace_LoadedEntities = UVCreateEntitiesFromTable( Entities )
+		UVRace_LoadedEntities = UVCreateEntitiesFromTable(Entities)
 
-		for _k, Constraint in pairs( Constraints ) do
+		for _k, Constraint in pairs(Constraints) do
 			local constraintEnt = nil
 
 			ProtectedCall(function()
-				constraintEnt = UVCreateConstraintsFromTable( Constraint, UVRace_LoadedEntities )
+				constraintEnt = UVCreateConstraintsFromTable(Constraint, UVRace_LoadedEntities)
 			end)
 
-			if IsValid( constraintEnt ) then
-				table.insert( UVRace_LoadedConstraints, constraintEnt )
+			if IsValid(constraintEnt) then
+				table.insert(UVRace_LoadedConstraints, constraintEnt)
 			end
+		end
+
+		-- Clear previous nodes
+		tool:ClearNodes()
+
+		if saveArray.Nodes then
+			-- Create nodes
+			for _, ndata in ipairs(saveArray.Nodes) do
+				local id = ndata.ID
+				tool.Nodes[id] = {
+					Pos = Vector(ndata.Pos.x, ndata.Pos.y, ndata.Pos.z),
+					Links = {},
+					SpeedLimit = ndata.SpeedLimit or 0
+				}
+			end
+
+			-- Restore links
+			for _, ndata in ipairs(saveArray.Nodes) do
+				local id = ndata.ID
+				local node = tool.Nodes[id]
+				if node and ndata.Links then
+					node.Links = table.Copy(ndata.Links)
+				end
+			end
+		end
+
+		-- Broadcast nodes to clients
+		for id, node in pairs(tool.Nodes) do
+			net.Start("UVRace_NodeAdd")
+				net.WriteUInt(id, 16)
+				net.WriteVector(node.Pos)
+				net.WriteUInt(node.SpeedLimit, 16)
+			net.Broadcast()
+		end
+
+		for id, node in pairs(tool.Nodes) do
+			net.Start("UVRace_NodeLinks")
+				net.WriteUInt(id, 16)
+				net.WriteTable(node.Links)
+			net.Broadcast()
 		end
 	end
 
@@ -195,6 +300,23 @@ if SERVER then
 		--print(saveDV, dvd)
 		if saveDV and dvd then
 			saveArray.Waypoints = table.Copy( dvd.Waypoints )
+		end
+		
+		-- Include nodes
+		saveArray.Nodes = {}
+
+		for id, node in pairs(tool.Nodes) do
+			local Links = {}
+			for linkedID in pairs(node.Links) do
+				Links[linkedID] = true
+			end
+
+			table.insert(saveArray.Nodes, {
+				ID = id,
+				Pos = {x = node.Pos.x, y = node.Pos.y, z = node.Pos.z},
+				SpeedLimit = node.SpeedLimit or 0,
+				Links = Links
+			})
 		end
 
 		duplicator.FigureOutRequiredAddons( saveArray )
@@ -229,6 +351,21 @@ if SERVER then
 			str = str .. "spawn " .. tostring(ent:GetPos()) .. " " .. tostring(ent:GetAngles().y) .. " " .. tostring(ent:GetGridSlot()) .. "\n"
 		end
 		
+		-- Export nodes
+		for id, node in pairs(tool.Nodes) do
+			if node then
+				local line = "node " .. id .. " "
+				line = line .. string.format("%.6f %.6f %.6f %d", node.Pos.x, node.Pos.y, node.Pos.z, node.SpeedLimit)
+
+				-- Export links
+				for linkedID in pairs(node.Links) do
+					line = line .. " " .. linkedID
+				end
+
+				str = str .. line .. "\n"
+			end
+		end
+
 		file.CreateDir("unitvehicles/races/" .. game.GetMap())
 		file.Write(filename, str)
 
@@ -261,6 +398,48 @@ if SERVER then
 	end
 	net.Receive("UVRace_SetID", SetID)
 elseif CLIENT then
+	local ClientNodes = {}
+	local HoverNode
+	local SelectedNode = nil
+
+	net.Receive("UVRace_NodeAdd", function()
+		local id = net.ReadUInt(16)
+		local pos = net.ReadVector()
+		local speed = net.ReadUInt(16)
+
+		ClientNodes[id] = {
+			Pos = pos,
+			Links = {},
+			SpeedLimit = speed
+		}
+	end)
+
+	net.Receive("UVRace_NodeRemove", function()
+		local id = net.ReadUInt(16)
+
+		if SelectedNode == id then
+			SelectedNode = nil
+		end
+
+		if HoverNode == id then
+			HoverNode = nil
+		end
+
+		ClientNodes[id] = nil
+	end)
+
+	net.Receive("UVRace_NodeLinks", function()
+		local id = net.ReadUInt(16)
+		local links = net.ReadTable()
+
+		if ClientNodes[id] then
+			ClientNodes[id].Links = links
+		end
+	end)
+
+	net.Receive("UVRace_NodeSelect", function()
+		SelectedNode = net.ReadUInt(16)
+	end)
 
 	net.Receive("UVRace_ToolMode", function()
 		local ply = LocalPlayer()
@@ -277,32 +456,10 @@ elseif CLIENT then
 		tool.ToolMode = net.ReadUInt(2)
 	end)
 
-	local ClientNodes = {}
-
-	net.Receive("UVRace_AddNode", function()
-		local id = net.ReadUInt(16)
-		local pos = net.ReadVector()
-		ClientNodes[id] = { Pos = pos, Links = {} }
-	end)
-
-	net.Receive("UVRace_RemoveNode", function()
-		local id = net.ReadUInt(16)
-		ClientNodes[id] = nil
-	end)
-
-	net.Receive("UVRace_UpdateLink", function()
-		local a = net.ReadUInt(16)
-		local b = net.ReadUInt(16)
-		if ClientNodes[a] and ClientNodes[b] then
-			local links = ClientNodes[a].Links
-			if not table.HasValue(links, b) then
-				links[#links + 1] = b
-			else
-				for i = #links, 1, -1 do
-					if links[i] == b then table.remove(links, i) end
-				end
-			end
-		end
+	net.Receive("UVRace_ClearAllNodes", function()
+		ClientNodes = {}
+		HoverNode = nil
+		SelectedNode = nil
 	end)
 
 	TOOL.Information = {
@@ -330,13 +487,42 @@ elseif CLIENT then
 	local ang0 = Angle(0, 0, 0)
 	local vec0 = Vector(0, 0, 0)
 	
+	local function PickNodeFromView(maxdist)
+		local ply = LocalPlayer()
+		if not IsValid(ply) then return end
+
+		local eye = ply:EyePos()
+		local aim = ply:GetAimVector()
+		local bestID, bestDist
+
+		for id, node in pairs(ClientNodes) do
+			local to = node.Pos - eye
+			local proj = to:Dot(aim)
+
+			if proj > 0 and proj < maxdist then
+				local closest = eye + aim * proj
+				local dist = closest:DistToSqr(node.Pos)
+
+				if dist < (12 * 12) and (not bestDist or dist < bestDist) then
+					bestDist = dist
+					bestID = id
+				end
+			end
+		end
+
+		return bestID
+	end
+
+	local matBeam = Material("cable/redlaser")
 	local col_white = Color(255, 255, 255)
 	local col_blue = Color(0, 0, 255, 200)
 	local col_red = Color(255, 0, 0, 200)
-	
+
 	function TOOL:DrawHUD()
 		local ply = self:GetOwner()
 		if not IsValid(ply) then return end
+		
+		HoverNode = PickNodeFromView(4096)
 
 		local startpos = ply:EyePos()
 		local tr = util.TraceLine({
@@ -349,23 +535,38 @@ elseif CLIENT then
 		cam.Start3D()
 		render.SetColorMaterial()
 
-		-- Draw nodes
-		for id, node in pairs(ClientNodes or {}) do
-			-- Sphere
-			render.DrawSphere(node.Pos, 8, 12, 12, col_white)
+		render.SetMaterial(matBeam)
 
-			-- Draw node ID above the node
-			-- cam.Start3D2D(node.Pos + Vector(0,0,12), Angle(0, LocalPlayer():EyeAngles().y - 90, 90), 1)
-				-- draw.SimpleText(tostring(id), "DermaDefault", 0, 0, Color(255,255,0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-			-- cam.End3D2D()
+		for fromID, node in pairs(ClientNodes) do
+			for toID in pairs(node.Links) do
+				local other = ClientNodes[toID]
+				if not other then continue end
 
-			-- Links
-			for _, linkedID in ipairs(node.Links) do
-				local other = ClientNodes[linkedID]
-				if other then
-					render.DrawLine(node.Pos, other.Pos, col_red)
+				local col = col_white
+				if fromID == SelectedNode or toID == SelectedNode then
+					col = col_red
+				elseif fromID == HoverNode or toID == HoverNode then
+					col = col_blue
 				end
+
+				render.DrawBeam( node.Pos, other.Pos, 30, 0, 1, col )
 			end
+		end
+
+		render.SetColorMaterial()
+
+		for id, node in pairs(ClientNodes) do
+			local col = col_white
+
+			if id == HoverNode then
+				col = col_blue
+			end
+
+			if id == SelectedNode then
+				col = col_red
+			end
+
+			render.DrawSphere(node.Pos, 8, 12, 12, col)
 		end
 
 		-- Draw checkpoint preview if pos1 exists
@@ -379,6 +580,20 @@ elseif CLIENT then
 		render.DrawLine(hp + Vector(0, 0, 10), hp - Vector(0, 0, 10), Color(255,255,255))
 
 		cam.End3D()
+		
+		if HoverNode and ClientNodes[HoverNode] then
+			local node = ClientNodes[HoverNode]
+
+			local text = "Speed: " .. (node.SpeedLimit or 0)
+			draw.SimpleText(
+				text,
+				"DermaDefaultBold",
+				ScrW() / 2,
+				ScrH() / 2 + 20,
+				color_white,
+				TEXT_ALIGN_CENTER
+			)
+		end
 	end
 
 	local function Count()
@@ -446,6 +661,34 @@ elseif CLIENT then
 	end
 	net.Receive("UVRace_SelectID", SelectID)
 
+	net.Receive("UVRace_NodeSettings", function()
+		local id = net.ReadUInt(16)
+
+		local frame = vgui.Create("DFrame")
+		frame:SetSize(300, 160)
+		frame:Center()
+		frame:SetTitle("Node Settings")
+		frame:MakePopup()
+
+		local speed = vgui.Create("DNumSlider", frame)
+		speed:Dock(TOP)
+		speed:SetText("Speed Limit")
+		speed:SetMin(0)
+		speed:SetMax(500)
+		speed:SetDecimals(0)
+
+		local apply = vgui.Create("DButton", frame)
+		apply:Dock(BOTTOM)
+		apply:SetText("Apply")
+		apply.DoClick = function()
+			net.Start("UVRace_UpdateNodeSettings")
+				net.WriteUInt(id, 16)
+				net.WriteUInt(speed:GetValue(), 16)
+			net.SendToServer()
+			frame:Close()
+		end
+	end)
+
 	local function UpdateVars( ply, cmd, args )
 		local convar = args[1]
 		local value = args[2]
@@ -491,6 +734,7 @@ end
 
 function TOOL:Initialize()
 	self.ToolMode = self.ToolMode or MODE_CHECKPOINT
+	self.SelectedNode = nil
 end
 
 function TOOL:Deploy()
@@ -509,6 +753,7 @@ end
 function TOOL:Holster()
 	self.secondClick = false
 	self:SetStage(0)
+	SelectedNode = nil
 end
 
 function TOOL:LeftClick(trace)
@@ -537,18 +782,56 @@ function TOOL:LeftClick(trace)
 	end
 	
 	if self.ToolMode == MODE_NODE then
-		local ply = self:GetOwner()
-		if not ply:IsSuperAdmin() then return true end
+		if CLIENT then return true end
+		if not ply:IsSuperAdmin() then return false end
 
-		local hitPos = trace.HitPos
-		local nodeID = self:AddNode(hitPos)
+		local pos = trace.HitPos
+		local id = self:GetNearestNode(pos, 12)
 
-		undo.Create("UVRaceNode")
-		undo.AddFunction(function()
-			self:RemoveNode(nodeID)
-		end)
-		undo.SetPlayer(ply)
-		undo.Finish()
+		-- Clicked empty space → create node
+		if not id then
+			local newID = self:AddNode(pos)
+
+			undo.Create("UVRaceNode")
+				undo.AddFunction(function()
+					if self.Nodes[newID] then
+						self:RemoveNode(newID)
+					end
+				end)
+				undo.SetPlayer(ply)
+			undo.Finish()
+
+			return true
+		end
+
+		-- No selection → select node
+		if not self.SelectedNode then
+			self.SelectedNode = id
+			net.Start("UVRace_NodeSelect")
+				net.WriteUInt(id, 16)
+			net.Send(ply)
+			return true
+		end
+
+		-- Same node → delete
+		if self.SelectedNode == id then
+			self:RemoveNode(id)
+			self.SelectedNode = nil
+
+			net.Start("UVRace_NodeSelect")
+				net.WriteUInt(0, 16)
+			net.Send(ply)
+
+			return true
+		end
+
+		-- Different node → toggle link
+		self:ToggleLink(self.SelectedNode, id)
+		self.SelectedNode = nil
+
+		net.Start("UVRace_NodeSelect")
+			net.WriteUInt(0, 16)
+		net.Send(ply)
 
 		return true
 	end
@@ -612,60 +895,39 @@ function TOOL:LeftClick(trace)
 	return true
 end
 
-function TOOL:RightClick()
+function TOOL:RightClick(trace)
 	local ply = self:GetOwner()
-	if not ply:IsSuperAdmin() then return end
+	if not IsValid(ply) then return false end
 
-	local tr = util.TraceLine({
-		start = ply:EyePos(),
-		endpos = ply:EyePos() + ply:GetAimVector() * MAX_TRACE_LENGTH,
-		filter = ply
-	})
+	-- Checkpoint behavior unchanged
+	if self.ToolMode == MODE_CHECKPOINT then
+		if CLIENT then return true end
+		if not ply:IsSuperAdmin() then return false end
 
-	local ent = tr.Entity
-	if not IsValid(ent) then return end
-
-	if self.ToolMode == MODE_CHECKPOINT and ent:GetClass() == "uvrace_checkpoint" then
-		net.Start("UVRace_SelectID")
-		net.WriteEntity(ent)
-		net.Send(ply)
-		return true
-	end
-	
-	if self.ToolMode == MODE_NODE then
-		local ply = self:GetOwner()
-		if not ply:IsSuperAdmin() then return true end
-
-		local tr = util.TraceLine({
-			start = ply:EyePos(),
-			endpos = ply:EyePos() + ply:GetAimVector() * MAX_TRACE_LENGTH,
-			filter = ply
-		})
-		local pos = tr.HitPos
-
-		-- Find nearest node
-		local nearestID, nearestDist = nil, 1e9
-		for id, node in pairs(self.nodeTable) do
-			local dist = node.Pos:Dist(pos)
-			if dist < nearestDist then
-				nearestDist = dist
-				nearestID = id
-			end
-		end
-		if not nearestID then return true end
-
-		if self.SelectedNode then
-			if self.SelectedNode == nearestID then
-				-- double click = remove
-				self:RemoveNode(nearestID)
-			else
-				self:ToggleLink(self.SelectedNode, nearestID)
-			end
+		local ent = trace.Entity
+		if IsValid(ent) and ent:GetClass() == "uvrace_checkpoint" then
+			net.Start("UVRace_SelectID")
+				net.WriteEntity(ent)
+			net.Send(ply)
+			return true
 		end
 
-		self.SelectedNode = nearestID
-		return true
+		return false
 	end
+
+	-- Node settings
+	if self.ToolMode ~= MODE_NODE then return false end
+	if CLIENT then return true end
+	if not ply:IsSuperAdmin() then return false end
+
+	local id = self:GetNearestNode(trace.HitPos, 12)
+	if not id then return false end
+
+	net.Start("UVRace_NodeSettings")
+		net.WriteUInt(id, 16)
+	net.Send(ply)
+
+	return true
 end
 
 function TOOL:Reload(trace)
