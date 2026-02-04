@@ -132,7 +132,7 @@ if SERVER then
         if vehicle.IsGlideVehicle then
             return vehicle:GetHeadlightState()
         elseif vcmod_main and vehicle:GetClass() == "prop_vehicle_jeep" then
-            return vehicle:VC_getRunningLights()
+            return 0 -- TODO: Implement VC_getRunningLights()
         end
     end
 
