@@ -13,7 +13,7 @@ local MODE_CHECKPOINT = 0
 local MODE_GRID = 1
 local MODE_NODE = 2
 
-local MAX_MODE = 1 -- Restrict to GRID only for now
+local MAX_MODE = 2 -- Restrict to GRID only for now
 
 local MAX_TRACE_LENGTH = math.sqrt(3) * 2 * 16384
 local checkpointTable = {}
@@ -123,7 +123,7 @@ if SERVER then
 		net.Broadcast()
 	end
 
-	function TOOL:ClearNodes()
+	function UVRaceClearNodes()
 		for id, _ in pairs(UVRace_Nodes) do
 			-- Inform clients to remove the node
 			net.Start("UVRace_NodeRemove")
@@ -132,12 +132,17 @@ if SERVER then
 		end
 
 		UVRace_Nodes = {}
-		self.LastPlacedNode = nil
-		self.SelectedNode = nil
 		UVRace_NextNodeID = 0
-		
+
 		net.Start("UVRace_ClearAllNodes")
 		net.Broadcast()
+	end
+	
+	function TOOL:ClearNodes()
+		UVRaceClearNodes()
+
+		self.LastPlacedNode = nil
+		self.SelectedNode = nil
 	end
 
 	net.Receive("UVRace_UpdateNodeSettings", function(_, ply)
@@ -281,24 +286,24 @@ if SERVER then
 			net.Broadcast()
 		end
 
-		undo.Create("UVRaceImport")
+		-- undo.Create("UVRaceImport")
 
-		-- add entities
-		for _, ent in pairs(UVRace_LoadedEntities) do
-			undo.AddEntity(ent)
-		end
+		-- -- add entities
+		-- for _, ent in pairs(UVRace_LoadedEntities) do
+		-- 	undo.AddEntity(ent)
+		-- end
 
-		-- add node cleanup
-		undo.AddFunction(function()
-			for id in pairs(importedIDs) do
-				if UVRace_Nodes[id] then
-					tool:RemoveNode(id)
-				end
-			end
-		end)
+		-- -- add node cleanup
+		-- undo.AddFunction(function()
+		-- 	for id in pairs(importedIDs) do
+		-- 		if UVRace_Nodes[id] then
+		-- 			tool:RemoveNode(id)
+		-- 		end
+		-- 	end
+		-- end)
 
-		undo.SetPlayer(ply)
-		undo.Finish()
+		-- undo.SetPlayer(ply)
+		-- undo.Finish()
 	end
 
 	function UVSaveRace( saveProps, saveDV )
@@ -373,20 +378,20 @@ if SERVER then
 			str = str .. "spawn " .. tostring(ent:GetPos()) .. " " .. tostring(ent:GetAngles().y) .. " " .. tostring(ent:GetGridSlot()) .. "\n"
 		end
 		
-		-- Export nodes
-		for id, node in pairs(UVRace_Nodes) do
-			if node then
-				local line = "node " .. id .. " "
-				line = line .. string.format("%.6f %.6f %.6f %d", node.Pos.x, node.Pos.y, node.Pos.z, node.SpeedLimit)
+		-- -- Export nodes
+		-- for id, node in pairs(UVRace_Nodes) do
+		-- 	if node then
+		-- 		local line = "node " .. id .. " "
+		-- 		line = line .. string.format("%.6f %.6f %.6f %d", node.Pos.x, node.Pos.y, node.Pos.z, node.SpeedLimit)
 
-				-- Export links
-				for linkedID in pairs(node.Links) do
-					line = line .. " " .. linkedID
-				end
+		-- 		-- Export links
+		-- 		for linkedID in pairs(node.Links) do
+		-- 			line = line .. " " .. linkedID
+		-- 		end
 
-				str = str .. line .. "\n"
-			end
-		end
+		-- 		str = str .. line .. "\n"
+		-- 	end
+		-- end
 
 		file.CreateDir("unitvehicles/races/" .. game.GetMap())
 		file.Write(filename, str)
@@ -816,6 +821,11 @@ function TOOL:LeftClick(trace)
 		-- Clicked empty space → create node
 		if not id then
 			local newID = self:AddNode(pos)
+
+			self.SelectedNode = newID
+			net.Start("UVRace_NodeSelect")
+				net.WriteUInt(newID, 16)
+			net.Send(ply)
 
 			undo.Create("UVRaceNode")
 				undo.AddFunction(function()

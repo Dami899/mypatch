@@ -461,6 +461,8 @@ if SERVER then
 			UVRace_LoadedConstraints[entityId] = nil
 		end
 
+		UVRaceClearNodes()
+
 		if UVRace_LoadedWaypoints then
 			--dvd.Waypoints = {}
 			--concommand.Run(ply. "dv_route_load")
@@ -1038,6 +1040,8 @@ if SERVER then
 			UVRace_LoadedConstraints[entityId] = nil
 		end
 
+		UVRaceClearNodes()
+
 		local jsonfilename = string.Replace( "unitvehicles/races/" .. game.GetMap() .. "/" .. args[1], ".txt", ".json" )
 		if file.Exists(jsonfilename, "DATA") then 
 			UVLoadRace( file.Read(jsonfilename) )
@@ -1129,16 +1133,6 @@ if SERVER then
 					--concommand.Run()
 					dvd.LoadWaypoints( 'decentvehicle/' .. game.GetMap() )
 					UVRace_LoadedWaypoints = false
-				end
-
-				for entityId, entityObject in pairs( UVRace_LoadedEntities ) do
-					if IsValid( entityObject ) then entityObject:Remove() end
-					UVRace_LoadedEntities[entityId] = nil
-				end
-		
-				for entityId, entityObject in pairs( UVRace_LoadedConstraints ) do
-					if IsValid( entityObject ) then entityObject:Remove() end
-					UVRace_LoadedConstraints[entityId] = nil
 				end
 
 				UVRaceEnd()
