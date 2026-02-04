@@ -34,7 +34,7 @@ You'll need two addons for Unit Vehicles to work flawlessly:
 [h3] General [/h3]
 [list]
 	[*] Easy-to-use custom menu
-	[*] Offers support for Glide, Simfphys, Photon 2 and Base HL2 Jeeps
+	[*] Offers support for Glide, Simfphys, and Base HL2 Jeeps with VCMod/Photon 1 & 2 support
 	[*] Various UI Styles resembling older NFS titles to choose from
 	[*] Fine-tune every little bit of the addon to fit your preference
 	[*] Localization support:
@@ -92,7 +92,7 @@ And [b]so much more[/b]!
     [/tr]
     [tr]
         [td]What vehicle bases are supported?[/td]
-        [td][b]Glide[/b] is highly recommended and has the most support, but you can also use [b]Simfphys[/b] or even [b]Base HL2 with Photon 1/2 support[/b].[/td]
+        [td][b]Glide[/b] is highly recommended and has the most support, but you can also use [b]Simfphys[/b] or even [b]Base HL2 Jeeps with VCMod/Photon 1 & 2 support[/b].[/td]
     [/tr]
     [tr]
         [td]Where is my created data stored?[/td]
