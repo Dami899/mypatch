@@ -16,6 +16,7 @@ ENT.Purpose = "It ain't over until I say it's over."
 ENT.Instruction = "Spawn on/under the vehicle until it shows a spawn effect."
 ENT.Spawnable = false
 ENT.Modelname = "models/props_lab/huladoll.mdl"
+ENT.UV_CurrentNode = nil
 
 local dvd = DecentVehicleDestination
 
@@ -23,7 +24,10 @@ if SERVER then
 	--Setting ConVars.
 	local DetectionRange = GetConVar("unitvehicle_detectionrange")
 	local RacerPursuitTech = GetConVar("unitvehicle_racerpursuittech")
-	
+		
+	local UV_NODE_RADIUS_MIN = 300
+	local UV_NODE_RADIUS_SPEED = 0.35
+
 	function GetClosestPoint(ent, pos, margin, safeDistance)
 		if not IsValid(ent) then return nil end
 		
@@ -69,7 +73,99 @@ if SERVER then
 		
 		return a_padded + ab_padded * t
 	end
-	
+
+	function ENT:UV_AssignClosestNode()
+		if not UVRace_UsingNodes then return end
+		if not UVRace_Nodes or #UVRace_Nodes == 0 then return end
+
+		local myPos = self.v:WorldSpaceCenter()
+		local bestDist, bestIndex
+
+		for i, node in ipairs(UVRace_Nodes) do
+			if node.Pos then
+				local d = myPos:DistToSqr(node.Pos)
+				if not bestDist or d < bestDist then
+					bestDist = d
+					bestIndex = i
+				end
+			end
+		end
+
+		local node = UVRace_Nodes[self.UV_CurrentNode]
+		if node and self:UV_NodeReached(node) then
+			self:UV_AdvanceNode()
+		end
+
+		self.UV_CurrentNode = bestIndex
+	end
+
+	function ENT:UV_GetCurrentNode()
+		if not self.UV_CurrentNode then return nil end
+		return UVRace_Nodes[self.UV_CurrentNode]
+	end
+
+	function ENT:UV_AdvanceNode()
+		local currentNode = self:UV_GetCurrentNode()
+		if not currentNode then return end
+
+		local links = currentNode.Links
+		if not links then
+			print("[UV AI] Node " .. tostring(self.UV_CurrentNode) .. " has no links!")
+			return
+		end
+
+		-- Collect all valid connected node IDs
+		local nextNodes = {}
+		for nodeID, _ in pairs(links) do
+			nodeID = tonumber(nodeID)
+			if UVRace_Nodes[nodeID] then
+				table.insert(nextNodes, nodeID)
+			end
+		end
+
+		if #nextNodes == 0 then
+			print("[UV AI] Node " .. tostring(self.UV_CurrentNode) .. " has links but none are valid!")
+			return
+		end
+
+		-- Pick randomly if multiple connections exist
+		self.UV_CurrentNode = nextNodes[math.random(#nextNodes)]
+	end
+
+	function ENT:UV_NodeReached(node)
+		if not node or not node.Pos then return false end
+
+		local carPos = self.v:WorldSpaceCenter()
+		local vel = self.v:GetVelocity()
+		local speed = vel:Length()
+
+		-- Dynamic radius: faster car = bigger acceptance zone
+		local radius = UV_NODE_RADIUS_MIN + speed * UV_NODE_RADIUS_SPEED
+		local radiusSqr = radius * radius
+
+		-- Close enough?
+		if carPos:DistToSqr(node.Pos) <= radiusSqr then
+			return true
+		end
+
+		-- Passed the node?
+		if speed > 50 then
+			local toNode = (node.Pos - carPos)
+			if vel:Dot(toNode) < 0 then
+				return true
+			end
+		end
+
+		return false
+	end
+
+	function ENT:UV_GetNodeSpeed(node)
+		if not node or not node.SpeedLimit or node.SpeedLimit <= 0 then
+			return math.huge
+		end
+		return node.SpeedLimit
+	end
+
 	function ENT:OnRemove()
 		--By undoing, driving, diving in water, or getting stuck, and the vehicle is remaining.
 		if IsValid(self.v) and self.v:IsVehicle() then
@@ -241,8 +337,29 @@ if SERVER then
 		local tr = util.TraceLine({start = self.v:WorldSpaceCenter(), endpos = (self.v:WorldSpaceCenter()+(self.v:GetVelocity()*2)), mask = MASK_NPCWORLDSTATIC}).Fraction ~= 1
 		return tobool(tr)
 	end
-	
+
 	function ENT:FindRace()
+			-- NODE-BASED RACING OVERRIDE
+		if self.v and self.v.uvraceparticipant and UVRaceInProgress and UVRace_UsingNodes and UVRace_Nodes and #UVRace_Nodes > 0 then
+			if not self.UV_CurrentNode then
+				self:UV_AssignClosestNode()
+			end
+
+			local node = self:UV_GetCurrentNode()
+			if node and node.Pos then
+				self.PatrolWaypoint = {
+					Target = node.Pos,
+					SpeedLimit = self:UV_GetNodeSpeed(node)
+				}
+
+				if self:UV_NodeReached(node) then
+					self:UV_AdvanceNode()
+				end
+
+				return -- IMPORTANT: skip checkpoint logic
+			end
+		end
+
 		if (self.v.uvraceparticipant and UVRaceInEffect) and (UVRaceTable['Participants'] and UVRaceTable['Participants'][self.v]) then
 			if not UVRaceInProgress then self.PatrolWaypoint = nil; return end
 			
@@ -348,10 +465,12 @@ if SERVER then
 	end
 	
 	function ENT:Race()
-		
 		self:FindRace()
-		
-		
+
+		if not UVRaceInProgress then
+			self.UV_CurrentNode = nil
+		end
+
 		if self.PatrolWaypoint then
 			
 			if not self.racing then

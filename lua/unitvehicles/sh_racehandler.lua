@@ -13,6 +13,8 @@ UVHUDRaceAnimTriggered = false
 UVHUDRacePursuitEndTime = nil
 UVHUDRacePursuitStartTime = nil
 
+UVRace_UsingNodes = nil
+
 UVRaceLaps = CreateConVar( "unitvehicle_racelaps", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Number of laps to complete. Set to 1 to have sprint races." )
 UVRaceDNFTimer = CreateConVar( "unitvehicle_racednftimer", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "How long, once one racer crosses the line, the rest have to finish before DNF'ing." )
 UVRaceVisibleCheckpoints = CreateConVar( "unitvehicle_racevisiblecheckpoints", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Whether to show the checkpoints to the players." )
@@ -377,6 +379,12 @@ if SERVER then
 		UVRaceStartTime = CurTime()
 		UVRaceInProgress = true
 
+		if UVRace_Nodes and #UVRace_Nodes > 0 then
+			UVRace_UsingNodes = true
+		else
+			UVRace_UsingNodes = nil
+		end
+
 		UVRaceTable['Info']['Time'] = UVRaceStartTime
 
 		net.Start( "uvrace_begin" )
@@ -398,6 +406,14 @@ if SERVER then
 		UVRaceInEffect = nil
 		UVRaceInProgress = nil
 		UVRaceFirstSplitTriggered = nil
+		UVRace_UsingNodes = nil
+		
+		for _, ent in ipairs(ents.FindByClass("npc_racervehicle")) do
+			if ent.ClearDestination then
+				ent:ClearDestination()
+			end
+			ent.UV_CurrentNode = nil
+		end
 		
 		net.Start("UVRace_TrackReady")
 			net.WriteString("?")
