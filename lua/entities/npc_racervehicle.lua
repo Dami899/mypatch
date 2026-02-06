@@ -618,73 +618,77 @@ if SERVER then
 			elseif selfvelocity > self.Speeding*300 then
 				throttle = 0
 			end
-			
-			if self.v.IsGlideVehicle then
-				speedlimitmph = self:UV_ComputeDynamicNodeSpeed()
-			end
 
-			-- Compute dynamic node speed based on upcoming turns
-			local currentSpeed = self.v:GetVelocity():Length()
-			local dynamicSpeed = self.v.IsGlideVehicle and self:UV_ComputeDynamicNodeSpeed() or self.PatrolWaypoint.SpeedLimit
-			local speedDiff = dynamicSpeed - currentSpeed
-			local Kp = 0.0035
-			local deadzone = 10
+			local throttleInput = nil
+			local brakeInput = nil
 
-			local throttleInput = 0
-			local brakeInput = 0
-
-			-- Base proportional throttle
-			if speedDiff > deadzone then
-				throttleInput = math.Clamp(speedDiff * Kp, 0, 1)
-			end
-
-			-- Turn severity braking (enhanced)
-			local lookaheadCount = math.Clamp(math.floor(currentSpeed / dynamicSpeed), 3, 20)
-			-- local lookaheadCount = 10
-			local lookaheadNodes = self:UV_GetLookaheadNodes(lookaheadCount)
-
-			local turnSeverity = 0
-			for i = 1, math.min(5, #lookaheadNodes-2) do
-				turnSeverity = math.max(turnSeverity, EstimateTurnSeverity(lookaheadNodes[i].Pos, lookaheadNodes[i+1].Pos, lookaheadNodes[i+2].Pos))
-			end
-
-			-- Adjust braking by speed (faster = brake earlier) and by turn angle
-			local turnFactor = math.Clamp(turnSeverity / math.rad(45), 0, 1) -- sharper turns
-			local speedFactor = math.Clamp(currentSpeed / (dynamicSpeed * 0.75), 0, 1)        -- faster cars brake harder
-			brakeInput = math.max(brakeInput, turnFactor * speedFactor)
-
-			-- Braking proportional to speedDiff
-			if speedDiff < -deadzone then
-				brakeInput = math.max(brakeInput, math.Clamp(-speedDiff * Kp, 0, 1))
-			end
-
-			-- Ignore brakes when essentially stopped
-			local minMovingSpeed = 20
-			if currentSpeed < minMovingSpeed then
+			if self.UV_CurrentNode then
+				throttleInput = 0
 				brakeInput = 0
-			end
+				if self.v.IsGlideVehicle then
+					speedlimitmph = self:UV_ComputeDynamicNodeSpeed()
+				end
 
-			-- Smooth brake decay/approach
-			self.AI_Brake = self.AI_Brake or 0
-			if self.AI_Brake < brakeInput then
-				self.AI_Brake = math.min(self.AI_Brake + FrameTime()*2, brakeInput)
-			else
-				self.AI_Brake = math.max(self.AI_Brake - FrameTime()*2, brakeInput)
-			end
-			brakeInput = self.AI_Brake
+				-- Compute dynamic node speed based on upcoming turns
+				local currentSpeed = self.v:GetVelocity():Length()
+				local dynamicSpeed = self.v.IsGlideVehicle and self:UV_ComputeDynamicNodeSpeed() or self.PatrolWaypoint.SpeedLimit
+				local speedDiff = dynamicSpeed - currentSpeed
+				local Kp = 0.0035
+				local deadzone = 10
 
-			-- Reduce throttle while braking
-			local brakeThreshold = 0.05
-			if brakeInput > brakeThreshold then
-				throttleInput = throttleInput * 0.15
-			end
+				-- Base proportional throttle
+				if speedDiff > deadzone then
+					throttleInput = math.Clamp(speedDiff * Kp, 0, 1)
+				end
 
-			-- Reverse if target behind
-			local forward = self.v:GetForward()
-			local targetDir = (self.PatrolWaypoint.Target - self.v:WorldSpaceCenter()):GetNormalized()
-			if forward:Dot(targetDir) < 0 and currentSpeed < 50 then
-				throttleInput = -math.Clamp(-speedDiff * Kp, 0, 1)
-				brakeInput = 0
+				-- Turn severity braking (enhanced)
+				local lookaheadCount = math.Clamp(math.floor(currentSpeed / dynamicSpeed), 3, 20)
+				-- local lookaheadCount = 10
+				local lookaheadNodes = self:UV_GetLookaheadNodes(lookaheadCount)
+
+				local turnSeverity = 0
+				for i = 1, math.min(5, #lookaheadNodes-2) do
+					turnSeverity = math.max(turnSeverity, EstimateTurnSeverity(lookaheadNodes[i].Pos, lookaheadNodes[i+1].Pos, lookaheadNodes[i+2].Pos))
+				end
+
+				-- Adjust braking by speed (faster = brake earlier) and by turn angle
+				local turnFactor = math.Clamp(turnSeverity / math.rad(45), 0, 1) -- sharper turns
+				local speedFactor = math.Clamp(currentSpeed / (dynamicSpeed * 0.75), 0, 1)        -- faster cars brake harder
+				brakeInput = math.max(brakeInput, turnFactor * speedFactor)
+
+				-- Braking proportional to speedDiff
+				if speedDiff < -deadzone then
+					brakeInput = math.max(brakeInput, math.Clamp(-speedDiff * Kp, 0, 1))
+				end
+
+				-- Ignore brakes when essentially stopped
+				local minMovingSpeed = 20
+				if currentSpeed < minMovingSpeed then
+					brakeInput = 0
+				end
+
+				-- Smooth brake decay/approach
+				self.AI_Brake = self.AI_Brake or 0
+				if self.AI_Brake < brakeInput then
+					self.AI_Brake = math.min(self.AI_Brake + FrameTime()*2, brakeInput)
+				else
+					self.AI_Brake = math.max(self.AI_Brake - FrameTime()*2, brakeInput)
+				end
+				brakeInput = self.AI_Brake
+
+				-- Reduce throttle while braking
+				local brakeThreshold = 0.05
+				if brakeInput > brakeThreshold then
+					throttleInput = throttleInput * 0.15
+				end
+
+				-- Reverse if target behind
+				local forward = self.v:GetForward()
+				local targetDir = (self.PatrolWaypoint.Target - self.v:WorldSpaceCenter()):GetNormalized()
+				if forward:Dot(targetDir) < 0 and currentSpeed < 50 then
+					throttleInput = -math.Clamp(-speedDiff * Kp, 0, 1)
+					brakeInput = 0
+				end
 			end
 
 			-- Traction control
@@ -712,7 +716,8 @@ if SERVER then
 					else
 						self.AI_ThrottleMul = math.min(self.AI_ThrottleMul + recoverRate, 1)
 					end
-					throttleInput = throttleInput * self.AI_ThrottleMul --Glide traction control
+					throttleInput = throttleInput and (throttleInput * self.AI_ThrottleMul) or nil --Glide traction control in Node races
+					throttle = throttle * self.AI_ThrottleMul --Glide traction control
 					self.usenitrous = UVCFEligibleToUse(self) and self.AI_ThrottleMul == 1 and true or false
 				end
 			end
@@ -720,7 +725,7 @@ if SERVER then
 			if self.stuck then
 				steer = 0
 				throttle = throttle * -1
-				throttleInput = 0
+				throttleInput = nil
 			end --Getting unstuck
 
 			if self:ObstaclesNearby() and not self.v.uvraceparticipant and not (self.v.UVWanted and UVTargeting) then
@@ -791,8 +796,8 @@ if SERVER then
 					CFtoggleNitrous( self.v, self.usenitrous )
 				end
 				self.v:TriggerInput("Handbrake", 0)
-				self.v:TriggerInput("Throttle", throttleInput)
-				self.v:TriggerInput("Brake", brakeInput)
+				self.v:TriggerInput("Throttle", throttleInput or throttle)
+				self.v:TriggerInput("Brake", brakeInput or (throttle * -1))
 				steer = steer * ((self.v.uvraceparticipant and 1.5) or 2) --Attempt to make steering more sensitive.
 				self.v:TriggerInput("Steer", steer)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
