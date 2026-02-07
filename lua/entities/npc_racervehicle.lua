@@ -79,36 +79,37 @@ if SERVER then
 		if not UVRace_Nodes or #UVRace_Nodes == 0 then return end
 
 		local myPos = self.v:WorldSpaceCenter()
-		local bestDist, bestIndex
+		local forward = self.v:GetForward()
 
-		for i, node in ipairs(UVRace_Nodes) do
-			if node.Pos then
-				local dirToNode = (node.Pos - myPos):GetNormalized()
-				local forward = self.v:GetForward()
-				local dot = forward:Dot(dirToNode)
+		local bestScore
+		local bestIndex
 
-				-- Only consider nodes roughly in front of the vehicle
-				if dot > 0.5 then
-					local d = myPos:DistToSqr(node.Pos)
-					if not bestDist or d < bestDist then
-						bestDist = d
-						bestIndex = i
+		for i, node in pairs(UVRace_Nodes) do
+			if not node.Pos then continue end
+
+			local distSqr = myPos:DistToSqr(node.Pos)
+
+			-- Base score = distance
+			local score = distSqr
+
+			-- Bonus if node has a forward-connected link
+			if node.Links then
+				for nextID in pairs(node.Links) do
+					local nextNode = UVRace_Nodes[tonumber(nextID)]
+					if nextNode and nextNode.Pos then
+						local dir = (nextNode.Pos - node.Pos):GetNormalized()
+						local dot = forward:Dot(dir)
+						if dot > 0.3 then
+							score = score * 0.5 -- strong preference
+							break
+						end
 					end
 				end
 			end
-		end
 
-		-- Fallback: if no node is ahead, pick the absolute closest
-		if not bestIndex then
-			bestDist = nil
-			for i, node in ipairs(UVRace_Nodes) do
-				if node.Pos then
-					local d = myPos:DistToSqr(node.Pos)
-					if not bestDist or d < bestDist then
-						bestDist = d
-						bestIndex = i
-					end
-				end
+			if not bestScore or score < bestScore then
+				bestScore = score
+				bestIndex = i
 			end
 		end
 
@@ -198,10 +199,11 @@ if SERVER then
 		-- Should fix brake/acc/brake/acc tapping
 		self.Debug_RawTargetSpeed = speed
 
+		local approachRate = math.Clamp(speed / 3, 300, 800)
 		self.DynamicNodeSpeed = math.Approach(
 			self.DynamicNodeSpeed or speed,
 			speed,
-			FrameTime() * 600
+			FrameTime() * approachRate
 		)
 		
 		self.Debug_Nodes = nodes
@@ -448,8 +450,14 @@ if SERVER then
 	function ENT:FindRace()
 			-- NODE-BASED RACING OVERRIDE
 		if self.v and self.v.uvraceparticipant and UVRaceInProgress and UVRace_UsingNodes and UVRace_Nodes and #UVRace_Nodes > 0 then
+
 			if not self.UV_CurrentNode then
 				self:UV_AssignClosestNode()
+			end
+
+			-- Hard reset only if node becomes invalid
+			if self.UV_CurrentNode and not UVRace_Nodes[self.UV_CurrentNode] then
+				self.UV_CurrentNode = nil
 			end
 
 			local node = self:UV_GetCurrentNode()
@@ -621,6 +629,7 @@ if SERVER then
 
 			local throttleInput = nil
 			local brakeInput = nil
+			self.maxTurn = 0
 
 			if self.UV_CurrentNode then
 				throttleInput = 0
@@ -629,63 +638,66 @@ if SERVER then
 					speedlimitmph = self:UV_ComputeDynamicNodeSpeed()
 				end
 
-				-- Compute dynamic node speed based on upcoming turns
+				-- Compute dynamic node speed
 				local currentSpeed = self.v:GetVelocity():Length()
 				local dynamicSpeed = self.v.IsGlideVehicle and self:UV_ComputeDynamicNodeSpeed() or self.PatrolWaypoint.SpeedLimit
-				local speedDiff = dynamicSpeed - currentSpeed
-				local Kp = 0.0035
-				local deadzone = 10
+				local speedDiff = dynamicSpeed - (currentSpeed * 0.5)
+				local Kp = 0.016
+				local deadzone = 4
 
-				-- Base proportional throttle
+				-- Proportional throttle
+				throttleInput = 0
+				brakeInput = 0
 				if speedDiff > deadzone then
 					throttleInput = math.Clamp(speedDiff * Kp, 0, 1)
 				end
 
-				-- Turn severity braking (enhanced)
-				local lookaheadCount = math.Clamp(math.floor(currentSpeed / dynamicSpeed), 3, 20)
-				-- local lookaheadCount = 10
+				-- Lookahead nodes for predictive braking
+				local lookaheadCount = math.Clamp(math.floor(currentSpeed / math.max(dynamicSpeed,1)), 12, 64)
+				-- local lookaheadCount = 20
 				local lookaheadNodes = self:UV_GetLookaheadNodes(lookaheadCount)
 
-				local turnSeverity = 0
-				for i = 1, math.min(5, #lookaheadNodes-2) do
-					turnSeverity = math.max(turnSeverity, EstimateTurnSeverity(lookaheadNodes[i].Pos, lookaheadNodes[i+1].Pos, lookaheadNodes[i+2].Pos))
+				local maxTurn = 0
+				for i = 1, math.min(lookaheadCount-2, #lookaheadNodes-2) do
+					self.maxTurn = math.max(self.maxTurn, EstimateTurnSeverity(lookaheadNodes[i].Pos, lookaheadNodes[i+1].Pos, lookaheadNodes[i+2].Pos))
 				end
 
-				-- Adjust braking by speed (faster = brake earlier) and by turn angle
-				local turnFactor = math.Clamp(turnSeverity / math.rad(45), 0, 1) -- sharper turns
-				local speedFactor = math.Clamp(currentSpeed / (dynamicSpeed * 0.75), 0, 1)        -- faster cars brake harder
-				brakeInput = math.max(brakeInput, turnFactor * speedFactor)
+				-- Turn and speed factors
+				local turnFactor = math.Clamp(self.maxTurn / math.rad(50), 0, 1)       -- sharper turns brake harder
+				local speedFactor = math.Clamp(currentSpeed / (dynamicSpeed * 0.8), 0, 1) -- faster cars brake earlier
 
-				-- Braking proportional to speedDiff
+				-- Predictive braking
+				local predictiveBrake = math.min(1, (turnFactor^1.5) * speedFactor)
 				if speedDiff < -deadzone then
-					brakeInput = math.max(brakeInput, math.Clamp(-speedDiff * Kp, 0, 1))
+					predictiveBrake = math.max(predictiveBrake, math.Clamp(-speedDiff * Kp, 0, 1))
 				end
+				
+				self.AI_Throttle = self.AI_Throttle or 0
+				self.AI_Throttle = Lerp(FrameTime() * 3, self.AI_Throttle, throttleInput or throttle)
+				throttleInput = self.AI_Throttle
 
-				-- Ignore brakes when essentially stopped
-				local minMovingSpeed = 20
-				if currentSpeed < minMovingSpeed then
-					brakeInput = 0
-				end
+				-- Ignore brakes at low speeds
+				local minSpeed = 30
+				if currentSpeed < minSpeed then predictiveBrake = 0 end
 
-				-- Smooth brake decay/approach
+				-- Smooth brake approach
 				self.AI_Brake = self.AI_Brake or 0
-				if self.AI_Brake < brakeInput then
-					self.AI_Brake = math.min(self.AI_Brake + FrameTime()*2, brakeInput)
+				if self.AI_Brake < predictiveBrake then
+					self.AI_Brake = math.min(self.AI_Brake + FrameTime() * 50, predictiveBrake)
 				else
-					self.AI_Brake = math.max(self.AI_Brake - FrameTime()*2, brakeInput)
+					self.AI_Brake = math.max(self.AI_Brake - FrameTime() * 50, predictiveBrake)
 				end
-				brakeInput = self.AI_Brake
+				brakeInput = (self.AI_Brake * 1)
 
-				-- Reduce throttle while braking
-				local brakeThreshold = 0.05
-				if brakeInput > brakeThreshold then
-					throttleInput = throttleInput * 0.15
+				-- Reduce throttle proportionally while braking
+				if brakeInput > 0.05 then
+					throttleInput = throttleInput * 0.05
 				end
 
-				-- Reverse if target behind
+				-- Reverse if target behind and nearly stopped
 				local forward = self.v:GetForward()
 				local targetDir = (self.PatrolWaypoint.Target - self.v:WorldSpaceCenter()):GetNormalized()
-				if forward:Dot(targetDir) < 0 and currentSpeed < 50 then
+				if forward:Dot(targetDir) < 0 and currentSpeed < 40 then
 					throttleInput = -math.Clamp(-speedDiff * Kp, 0, 1)
 					brakeInput = 0
 				end
@@ -797,8 +809,9 @@ if SERVER then
 				end
 				self.v:TriggerInput("Handbrake", 0)
 				self.v:TriggerInput("Throttle", throttleInput or throttle)
-				self.v:TriggerInput("Brake", brakeInput or (throttle * -1))
-				steer = steer * ((self.v.uvraceparticipant and 1.5) or 2) --Attempt to make steering more sensitive.
+				self.v:TriggerInput("Brake", brakeInput and (brakeInput * 10) or (throttle * -1))
+				steer = steer * (self.v.uvraceparticipant and self.UV_CurrentNode and 3 or 1.5 or 3) -- Real sens if race nodes or freemode, less if checkpoints
+				
 				self.v:TriggerInput("Steer", steer)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
 				self.v:SetThrottle(throttle)
