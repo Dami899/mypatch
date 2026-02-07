@@ -752,10 +752,10 @@ if SERVER then
 				end
 				throttleInput = throttleInput * self.AI_ThrottleMul
 			
-				print("throttleInput", throttleInput)
-				print("brakeInput", brakeInput)
-				print("currentSpeed", currentSpeed)
-				print("targetSpeed", targetSpeed)
+				-- print("throttleInput", throttleInput)
+				-- print("brakeInput", brakeInput)
+				-- print("currentSpeed", currentSpeed)
+				-- print("targetSpeed", targetSpeed)
 
 			else -- Non-Node Racing
 				if selfvelocity > self.Speeding*350 and self.v.uvraceparticipant then 
