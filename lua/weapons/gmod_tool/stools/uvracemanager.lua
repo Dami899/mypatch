@@ -22,10 +22,115 @@ local secondClick = false
 
 if SERVER then
 	UVRace_Nodes = UVRace_Nodes or {}
+	UVRace_CompiledPaths = UVRace_CompiledPaths or {}
 	UVRace_NextNodeID = UVRace_NextNodeID or 0
 	TOOL.LastPlacedNode = nil
 	local tool = TOOL
-	
+
+	local function BezierQuadratic(p0, p1, p2, t)
+		local u = 1 - t
+		return
+			p0 * (u * u) +
+			p1 * (2 * u * t) +
+			p2 * (t * t)
+	end
+
+	local function GetCurveControlPoint(a, b, curve)
+		-- Straight line fallback
+		if curve <= 0 then
+			return (a + b) * 0.5
+		end
+
+		local mid = (a + b) * 0.5
+		local dir = (b - a)
+		local len = dir:Length()
+		if len <= 0 then return mid end
+
+		dir:Normalize()
+
+		-- Perpendicular (world-up based)
+		local right = dir:Cross(Vector(0, 0, 1))
+		if right:LengthSqr() < 0.001 then
+			-- Degenerate case: vertical segment
+			right = Vector(1, 0, 0)
+		else
+			right:Normalize()
+		end
+
+		-- Tuning constant: adjust once, globally
+		local strength = curve * len * 0.25
+
+		return mid + right * strength
+	end
+
+	function UVRace_GenerateInternalPath(fromNode, toNode, step)
+		if not fromNode or not toNode then return nil end
+
+		step = step or 200 -- Hammer units between samples
+
+		local a = fromNode.Pos
+		local b = toNode.Pos
+		local curve = fromNode.Curve or 0
+
+		local dist = a:Distance(b)
+		if dist <= 0 then return { a } end
+
+		local segments = math.max(2, math.ceil(dist / step))
+		local ctrl = GetCurveControlPoint(a, b, curve)
+
+		local points = {}
+
+		for i = 0, segments do
+			local t = i / segments
+			points[#points + 1] = BezierQuadratic(a, ctrl, b, t)
+		end
+
+		return points
+	end
+
+	function UVRace_BuildCompiledPaths(step)
+		local compiled = {}
+
+		for fromID, node in pairs(UVRace_Nodes) do
+			for toID in pairs(node.Links) do
+				local other = UVRace_Nodes[toID]
+				if other then
+					compiled[#compiled + 1] = {
+						From = fromID,
+						To = toID,
+						Points = UVRace_GenerateInternalPath(node, other, step),
+						StartSpeed = node.SpeedLimit or 0,
+						EndSpeed = other.SpeedLimit or 0
+					}
+				end
+			end
+		end
+
+		return compiled
+	end
+
+	function UVRace_RebuildCompiledPaths()
+		UVRace_CompiledPaths = {}
+
+		for fromID, node in pairs(UVRace_Nodes) do
+			for toID in pairs(node.Links) do
+				local other = UVRace_Nodes[toID]
+				if not other then continue end
+
+				local points = UVRace_GenerateInternalPath(node, other, 200)
+				if not points or #points < 2 then continue end
+
+				UVRace_CompiledPaths[#UVRace_CompiledPaths + 1] = {
+					From = fromID,
+					To = toID,
+					Points = points,
+					StartSpeed = node.SpeedLimit or 0,
+					EndSpeed = other.SpeedLimit or 0
+				}
+			end
+		end
+	end
+
 	function TOOL:GetNearestNode(pos, radius)
 		local best, bestID
 		local r2 = radius * radius
@@ -51,6 +156,8 @@ if SERVER then
 			SpeedLimit = GetConVar("uvracemanager_speedlimit"):GetInt(),
 			Curve = 0
 		}
+		
+		UVRace_RebuildCompiledPaths()
 
 		-- Auto-link logic
 		local from = self.SelectedNode or self.LastPlacedNode
@@ -102,6 +209,8 @@ if SERVER then
 				net.WriteUInt(0, 16)
 			net.Broadcast()
 		end
+		
+		UVRace_RebuildCompiledPaths()
 	end
 
 	function TOOL:ToggleLink(from, to)
@@ -112,10 +221,10 @@ if SERVER then
 		if A.Links[to] then
 			A.Links[to] = nil
 		else
-			A.Links[to] = {
-				Curve = 0 -- default straight
-			}
+			A.Links[to] = true
 		end
+		
+		UVRace_RebuildCompiledPaths()
 
 		net.Start("UVRace_NodeLinks")
 			net.WriteUInt(from, 16)
@@ -136,6 +245,8 @@ if SERVER then
 
 		net.Start("UVRace_ClearAllNodes")
 		net.Broadcast()
+		
+		UVRace_RebuildCompiledPaths()
 	end
 	
 	function TOOL:ClearNodes()
@@ -143,6 +254,8 @@ if SERVER then
 
 		self.LastPlacedNode = nil
 		self.SelectedNode = nil
+
+		UVRace_RebuildCompiledPaths()
 	end
 
 	net.Receive("UVRace_UpdateNodeSettings", function(_, ply)
@@ -150,16 +263,19 @@ if SERVER then
 
 		local id = net.ReadUInt(16)
 		local speed = net.ReadUInt(16)
+		local curve = net.ReadFloat()
 
 		local node = UVRace_Nodes[id]
 		if not node then return end
 
 		node.SpeedLimit = speed
+		node.Curve = curve
 
 		net.Start("UVRace_NodeAdd")
 			net.WriteUInt(id, 16)
 			net.WriteVector(node.Pos)
 			net.WriteUInt(node.SpeedLimit, 16)
+			net.WriteFloat(node.Curve)
 		net.Broadcast()
 	end)
 
@@ -256,7 +372,8 @@ if SERVER then
 				UVRace_Nodes[id] = {
 					Pos = Vector(ndata.Pos.x, ndata.Pos.y, ndata.Pos.z),
 					Links = {},
-					SpeedLimit = ndata.SpeedLimit or 0
+					SpeedLimit = ndata.SpeedLimit or 0,
+					Curve = ndata.Curve or 0
 				}
 			end
 
@@ -276,6 +393,7 @@ if SERVER then
 				net.WriteUInt(id, 16)
 				net.WriteVector(node.Pos)
 				net.WriteUInt(node.SpeedLimit, 16)
+				net.WriteFloat(node.Curve)
 			net.Broadcast()
 		end
 
@@ -285,25 +403,6 @@ if SERVER then
 				net.WriteTable(node.Links)
 			net.Broadcast()
 		end
-
-		-- undo.Create("UVRaceImport")
-
-		-- -- add entities
-		-- for _, ent in pairs(UVRace_LoadedEntities) do
-		-- 	undo.AddEntity(ent)
-		-- end
-
-		-- -- add node cleanup
-		-- undo.AddFunction(function()
-		-- 	for id in pairs(importedIDs) do
-		-- 		if UVRace_Nodes[id] then
-		-- 			tool:RemoveNode(id)
-		-- 		end
-		-- 	end
-		-- end)
-
-		-- undo.SetPlayer(ply)
-		-- undo.Finish()
 	end
 
 	function UVSaveRace( saveProps, saveDV )
@@ -342,7 +441,8 @@ if SERVER then
 				ID = id,
 				Pos = {x = node.Pos.x, y = node.Pos.y, z = node.Pos.z},
 				SpeedLimit = node.SpeedLimit or 0,
-				Links = Links
+				Links = Links,
+				Curve = node.Curve or 0
 			})
 		end
 
@@ -429,14 +529,49 @@ elseif CLIENT then
 	local HoverNode
 	local SelectedNode = nil
 
+	local function GenerateNodePath(fromNode, toNode, step)
+		if not fromNode or not toNode then return {} end
+		step = step or 200
+
+		local a = fromNode.Pos
+		local b = toNode.Pos
+		local curve = fromNode.Curve or 0
+		local dist = a:Distance(b)
+		if dist <= 0 then return {a} end
+
+		local segments = math.max(2, math.ceil(dist / step))
+
+		-- control point
+		local mid = (a + b) * 0.5
+		local dir = (b - a)
+		local len = dir:Length()
+		if len <= 0 then return {mid} end
+		dir:Normalize()
+
+		local right = dir:Cross(Vector(0, 0, 1))
+		if right:LengthSqr() < 0.001 then right = Vector(1,0,0) else right:Normalize() end
+		local strength = curve * len * 0.25
+		local ctrl = mid + right * strength
+
+		local points = {}
+		for i = 0, segments do
+			local t = i / segments
+			points[#points+1] = (1-t)^2*a + 2*(1-t)*t*ctrl + t^2*b
+		end
+
+		return points
+	end
+
 	net.Receive("UVRace_NodeAdd", function()
 		local id = net.ReadUInt(16)
 		local pos = net.ReadVector()
 		local speed = net.ReadUInt(16)
+		local curve = net.ReadFloat()
 
 		ClientNodes[id] = ClientNodes[id] or {}
 		ClientNodes[id].Pos = pos
 		ClientNodes[id].SpeedLimit = speed
+		ClientNodes[id].Curve = curve
 		ClientNodes[id].Links = ClientNodes[id].Links or {}
 	end)
 
@@ -568,6 +703,9 @@ elseif CLIENT then
 				local other = ClientNodes[toID]
 				if not other then continue end
 
+				local pathPoints = GenerateNodePath(node, other, 200)
+				if #pathPoints < 2 then continue end
+
 				local col = col_white
 				if fromID == SelectedNode or toID == SelectedNode then
 					col = col_red
@@ -575,7 +713,10 @@ elseif CLIENT then
 					col = col_blue
 				end
 
-				render.DrawBeam( node.Pos, other.Pos, 30, 0, 1, col )
+				-- Draw beams along the path segments
+				for i = 1, #pathPoints - 1 do
+					render.DrawBeam(pathPoints[i], pathPoints[i+1], 30, 0, 1, col)
+				end
 			end
 		end
 
@@ -610,15 +751,11 @@ elseif CLIENT then
 		if HoverNode and ClientNodes[HoverNode] then
 			local node = ClientNodes[HoverNode]
 
-			local text = "Speed: " .. (node.SpeedLimit or 0)
-			draw.SimpleText(
-				text,
-				"DermaDefaultBold",
-				ScrW() / 2,
-				ScrH() / 2 + 20,
-				color_white,
-				TEXT_ALIGN_CENTER
-			)
+			local speed = "Speed: " .. (node.SpeedLimit or 0)
+			local curve = "Curve Strength: " .. string.format("%.2f", node.Curve or 0)
+			
+			draw.SimpleTextOutlined( speed, "UVFont5UI", ScrW() * 0.51, ScrH() / 2 + 20, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
+			draw.SimpleTextOutlined( curve, "UVFont5UI", ScrW() * 0.51, ScrH() / 2 + 60, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
 		end
 	end
 
@@ -707,6 +844,16 @@ elseif CLIENT then
 			speed:SetValue(node.SpeedLimit or 0)
 		end
 
+		local curveSlider = vgui.Create("DNumSlider", frame)
+		curveSlider:Dock(TOP)
+		curveSlider:SetText("Curve Strength")
+		curveSlider:SetMin(-5)
+		curveSlider:SetMax(5)
+		curveSlider:SetDecimals(1)
+		if node then
+			curveSlider:SetValue(node.Curve or 0)
+		end
+
 		local apply = vgui.Create("DButton", frame)
 		apply:Dock(BOTTOM)
 		apply:SetText("Apply")
@@ -714,6 +861,7 @@ elseif CLIENT then
 			net.Start("UVRace_UpdateNodeSettings")
 				net.WriteUInt(id, 16)
 				net.WriteUInt(speed:GetValue(), 16)
+				net.WriteFloat(curveSlider:GetValue())
 			net.SendToServer()
 			frame:Close()
 		end
