@@ -4498,7 +4498,7 @@ function UVMenu:Open(menu)
             surface.DrawRect(0, 0, w, h)
 
 			if self.SelectedConVar then
-				draw.SimpleText(self.SelectedConVar, "UVMostWantedLeaderboardFont2", w * 0.5, h * 0.98 - 40, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(self.SelectedConVar, "UVMostWantedLeaderboardFont2", w * 0.5, h * 0.98 - 40, Color(175, 175, 175, a), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
 			if self.SelectedDefault and self.SelectedDefault ~= "" then
 				draw.SimpleText( string.format( UVString("uv.settings.default"), self.SelectedDefault ), "UVMostWantedLeaderboardFont2", 10, h * 0.98 - 20, Color(175, 175, 175, a), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
