@@ -24,31 +24,59 @@ if SERVER then
 	local DetectionRange = GetConVar("unitvehicle_detectionrange")
 	local RacerPursuitTech = GetConVar("unitvehicle_racerpursuittech")
 
-	function ENT:FindClosestNodeAhead()
+	function ENT:FindBestStartNode()
 		if not self.v or not UVRace_CompiledPaths then return nil end
 
 		local pos = self.v:WorldSpaceCenter()
-		local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
-		local closestNode = nil
-		local closestDist = math.huge
+		local forward = self.v.IsSimfphyscar
+			and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward()
+			or self.v:GetForward()
 
-		for _, node in ipairs(UVRace_CompiledPaths) do
-			if node.Points and #node.Points > 0 then
-				local targetPos = node.Points[1]
-				if not isvector(targetPos) then continue end
+		-- degrees → dot thresholds
+		local cones = {
+			math.cos(math.rad(10)),
+			math.cos(math.rad(15)),
+			math.cos(math.rad(20)),
+			math.cos(math.rad(30)),
+		}
 
-				local dirToNode = targetPos - pos
-				if dirToNode:Dot(forward) > 0 then
-					local dist = dirToNode:LengthSqr()
-					if dist < closestDist then
-						closestDist = dist
-						closestNode = node
-					end
+		local bestNode, bestDist
+
+		for _, dotThreshold in ipairs(cones) do
+			bestNode, bestDist = nil, math.huge
+
+			for _, node in ipairs(UVRace_CompiledPaths) do
+				local p = node.Points and node.Points[1]
+				if not isvector(p) then continue end
+
+				local dir = p - pos
+				local dist = dir:LengthSqr()
+				local ndir = dir:GetNormalized()
+
+				if ndir:Dot(forward) < dotThreshold then continue end
+
+				-- LOS check (prevents wall issues)
+				if util.TraceLine({
+					start = pos,
+					endpos = p,
+					mask = MASK_NPCWORLDSTATIC,
+					filter = { self, self.v }
+				}).Fraction < 1 then
+					continue
 				end
+
+				if dist < bestDist then
+					bestDist = dist
+					bestNode = node
+				end
+			end
+
+			if bestNode then
+				return bestNode
 			end
 		end
 
-		return closestNode
+		return nil
 	end
 
 	local function GetNextNode(current, forward)
@@ -65,16 +93,33 @@ if SERVER then
 		return bestNode or current.Paths[1]
 	end
 
-	function ENT:BuildNodePath(startNode)
-		if not startNode then return {} end
-		local path = {startNode}
-		local current = startNode
+	function ENT:BuildNodePath(start)
+		local path = {}
+		local visited = {}
+		local current = start
 
-		while current.Paths and #current.Paths > 0 do
-			local forward = (current.Paths[1].Points[1] - current.Points[#current.Points]):GetNormalized()
-			local nextNode = GetNextNode(current, forward)
-			table.insert(path, nextNode)
-			current = nextNode
+		while current and not visited[current] do
+			visited[current] = true
+			table.insert(path, current)
+
+			if not current.Out or #current.Out == 0 then
+				break
+			end
+
+			-- simple heuristic: choose most forward
+			local best, bestDot = nil, -1
+			local curDir = (current.Points[#current.Points] - current.Points[1]):GetNormalized()
+
+			for _, nextNode in ipairs(current.Out) do
+				local dir = (nextNode.Points[#nextNode.Points] - nextNode.Points[1]):GetNormalized()
+				local dot = curDir:Dot(dir)
+				if dot > bestDot then
+					bestDot = dot
+					best = nextNode
+				end
+			end
+
+			current = best
 		end
 
 		return path
@@ -83,9 +128,9 @@ if SERVER then
 	function ENT:StartNodeRace()
 		if not self.v then return end
 
-		local closestNode = self:FindClosestNodeAhead()
-		if closestNode then
-			self.NodePath = self:BuildNodePath(closestNode)
+		local startNode = self:FindBestStartNode()
+		if startNode then
+			self.NodePath = self:BuildNodePath(startNode)
 			self.CurrentNodeIndex = 1
 			self.CurrentNode = self.NodePath[self.CurrentNodeIndex]
 			self.NextNode = self.NodePath[self.CurrentNodeIndex + 1]
@@ -293,8 +338,8 @@ if SERVER then
 			rightstart:Rotate(Angle(0, -90, 0))
 		end
 		
-		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC}).Fraction
-		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC}).Fraction
+		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+(vector_up * 50)), mask = MASK_SOLID}).Fraction
+		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+(vector_up * 50)), mask = MASK_SOLID}).Fraction
 		
 		if trleft > trright then
 			return turnleft
@@ -311,7 +356,7 @@ if SERVER then
 		if not self.v then
 			return
 		end
-		local tr = util.TraceLine({start = self.v:WorldSpaceCenter(), endpos = (self.v:WorldSpaceCenter()+(self.v:GetVelocity()*2)), mask = MASK_NPCWORLDSTATIC}).Fraction ~= 1
+		local tr = util.TraceLine({start = self.v:WorldSpaceCenter(), endpos = (self.v:WorldSpaceCenter()+(self.v:GetVelocity()*2)), mask = MASK_SOLID}).Fraction ~= 1
 		return tobool(tr)
 	end
 
@@ -467,7 +512,7 @@ if SERVER then
 			local cornerDist = 400
 			
 			if dist < cornerDist then
-				throttle = math.Clamp(dist / cornerDist, 0.3, 1) -- slows down as approaching
+				throttle = math.Clamp(dist / cornerDist, -1, 1) -- slows down as approaching
 			end
 			
 			if speed > speedLimit * 350 then
@@ -475,6 +520,16 @@ if SERVER then
 			elseif speed > speedLimit * 300 then
 				throttle = math.min(throttle, 0.5)
 			end
+
+			-- local avoid = self:ObstaclesNearbySide()
+			-- if avoid then
+				-- steer = steer + (avoid * 0.5)
+				-- throttle = throttle * 0.8
+			-- end
+
+			-- if self:ObstaclesNearby() then
+				-- throttle = 0.25
+			-- end
 
 			-- Traction control
 			if GetConVar("unitvehicle_tractioncontrol"):GetBool() and selfvelocity > 10000 and not self.stuck then
@@ -528,7 +583,7 @@ if SERVER then
 				self.v:TriggerInput("Handbrake", 0)
 				self.v:TriggerInput("Throttle", throttleInput or throttle)
 				self.v:TriggerInput("Brake", throttle * -1)
-				self.v:TriggerInput("Steer", steer * 1.5)
+				self.v:TriggerInput("Steer", steer * 3)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
 				self.v:SetThrottle(throttle)
 				self.v:SetSteering(steer, 0)

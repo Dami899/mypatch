@@ -13,7 +13,7 @@ local MODE_CHECKPOINT = 0
 local MODE_GRID = 1
 local MODE_NODE = 2
 
-local MAX_MODE = 2 -- Restrict to GRID only for now
+local MAX_MODE = 2 -- Restrict to GRID only for WS release until fully complete
 
 local MAX_TRACE_LENGTH = math.sqrt(3) * 2 * 16384
 local checkpointTable = {}
@@ -753,12 +753,37 @@ elseif CLIENT then
 		if HoverNode and ClientNodes[HoverNode] then
 			local node = ClientNodes[HoverNode]
 
-			local speed = "Speed: " .. (node.SpeedLimit or 0)
-			local curve = "Curve Strength: " .. string.format("%.2f", node.Curve or 0)
-			
-			draw.SimpleTextOutlined( speed, "UVFont5UI", ScrW() * 0.51, ScrH() / 2 + 20, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
-			draw.SimpleTextOutlined( curve, "UVFont5UI", ScrW() * 0.51, ScrH() / 2 + 60, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
+			local idText = "ID: " .. HoverNode
+
+			local links = node.Links or {}
+			local connected = {}
+
+			for linkedID in pairs(links) do
+				connected[#connected + 1] = linkedID
+			end
+
+			table.sort(connected)
+
+			local contoText
+			if #connected > 0 then
+				contoText = string.format(
+					"Connected to: %d < %s >",
+					#connected,
+					table.concat(connected, ", ")
+				)
+			else
+				contoText = "Connected to: NONE"
+			end
+
+			local speedText = "Speed: " .. (node.SpeedLimit or 0)
+			local curveText = "Curve Strength: " .. string.format("%.2f", node.Curve or 0)
+
+			draw.SimpleTextOutlined(idText, "UVFont5Shadow", ScrW() * 0.51, ScrH() / 2 + 0, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
+			draw.SimpleTextOutlined(contoText, "UVFont5Shadow", ScrW() * 0.51, ScrH() / 2 + 30, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
+			draw.SimpleTextOutlined(speedText, "UVFont5Shadow", ScrW() * 0.51, ScrH() / 2 + 60, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
+			draw.SimpleTextOutlined(curveText, "UVFont5Shadow", ScrW() * 0.51, ScrH() / 2 + 90, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
 		end
+
 	end
 
 	local function Count()
