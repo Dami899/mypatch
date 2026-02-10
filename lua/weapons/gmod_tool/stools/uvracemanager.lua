@@ -37,9 +37,9 @@ if SERVER then
 
 	local function GetCurveControlPoint(a, b, curve)
 		-- Straight line fallback
-		if curve <= 0 then
-			return (a + b) * 0.5
-		end
+		-- if curve == 0 then
+			-- return (a + b) * 0.5
+		-- end
 
 		local mid = (a + b) * 0.5
 		local dir = (b - a)
@@ -385,6 +385,8 @@ if SERVER then
 					node.Links = table.Copy(ndata.Links)
 				end
 			end
+			
+			UVRace_RebuildCompiledPaths()
 		end
 
 		-- Broadcast nodes to clients
@@ -807,7 +809,7 @@ elseif CLIENT then
 		
 		local cpID = ent:GetID()
 		
-		Derma_StringRequest("#tool.uvracemanager.checkpoint.setid", "#tool.uvracemanager.checkpoint.setid.desc", cpID, function(text)
+		Derma_StringRequest(UVString("tool.uvracemanager.checkpoint.settings"), UVString("tool.uvracemanager.checkpoint.setid.desc"), cpID, function(text)
 			local id = tonumber(text)
 			selectedCP:SetID(id)
 			if GetConVar("uvracemanager_speedlimit"):GetInt() > 0 then
@@ -820,7 +822,7 @@ elseif CLIENT then
 			net.WriteUInt(GetConVar("uvracemanager_speedlimit"):GetInt(), 16)
 			net.SendToServer()
 			
-		end, nil, "#addons.confirm", "#addons.cancel")
+		end, nil, UVString("addons.confirm"), UVString("addons.cancel"))
 	end
 	net.Receive("UVRace_SelectID", SelectID)
 
@@ -829,14 +831,15 @@ elseif CLIENT then
 		local node = ClientNodes[id]
 
 		local frame = vgui.Create("DFrame")
-		frame:SetSize(300, 160)
+		frame:SetSize(500, 130)
 		frame:Center()
-		frame:SetTitle("Node Settings")
+		frame:SetTitle(UVString("tool.uvracemanager.node.settings"))
 		frame:MakePopup()
 
 		local speed = vgui.Create("DNumSlider", frame)
 		speed:Dock(TOP)
-		speed:SetText("Speed Limit")
+		speed:SetText(UVString("tool.uvracemanager.node.speedlimit"))
+		speed:SetTooltip(UVString("tool.uvracemanager.node.speedlimit.desc"))
 		speed:SetMin(0)
 		speed:SetMax(500)
 		speed:SetDecimals(0)
@@ -846,7 +849,8 @@ elseif CLIENT then
 
 		local curveSlider = vgui.Create("DNumSlider", frame)
 		curveSlider:Dock(TOP)
-		curveSlider:SetText("Curve Strength")
+		curveSlider:SetText(UVString("tool.uvracemanager.node.curve"))
+		curveSlider:SetTooltip(UVString("tool.uvracemanager.node.curve.desc"))
 		curveSlider:SetMin(-5)
 		curveSlider:SetMax(5)
 		curveSlider:SetDecimals(1)
@@ -856,7 +860,7 @@ elseif CLIENT then
 
 		local apply = vgui.Create("DButton", frame)
 		apply:Dock(BOTTOM)
-		apply:SetText("Apply")
+		apply:SetText(UVString("uv.applysett"))
 		apply.DoClick = function()
 			net.Start("UVRace_UpdateNodeSettings")
 				net.WriteUInt(id, 16)

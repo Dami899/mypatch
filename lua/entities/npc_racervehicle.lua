@@ -16,7 +16,6 @@ ENT.Purpose = "It ain't over until I say it's over."
 ENT.Instruction = "Spawn on/under the vehicle until it shows a spawn effect."
 ENT.Spawnable = false
 ENT.Modelname = "models/props_lab/huladoll.mdl"
-ENT.UV_CurrentNode = nil
 
 local dvd = DecentVehicleDestination
 
@@ -24,9 +23,79 @@ if SERVER then
 	--Setting ConVars.
 	local DetectionRange = GetConVar("unitvehicle_detectionrange")
 	local RacerPursuitTech = GetConVar("unitvehicle_racerpursuittech")
-		
-	local UV_NODE_RADIUS_MIN = 300
-	local UV_NODE_RADIUS_SPEED = 0.35
+
+	function ENT:FindClosestNodeAhead()
+		if not self.v or not UVRace_CompiledPaths then return nil end
+
+		local pos = self.v:WorldSpaceCenter()
+		local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
+		local closestNode = nil
+		local closestDist = math.huge
+
+		for _, node in ipairs(UVRace_CompiledPaths) do
+			if node.Points and #node.Points > 0 then
+				local targetPos = node.Points[1]
+				if not isvector(targetPos) then continue end
+
+				local dirToNode = targetPos - pos
+				if dirToNode:Dot(forward) > 0 then
+					local dist = dirToNode:LengthSqr()
+					if dist < closestDist then
+						closestDist = dist
+						closestNode = node
+					end
+				end
+			end
+		end
+
+		return closestNode
+	end
+
+	local function GetNextNode(current, forward)
+		local bestNode = nil
+		local closestDot = -math.huge
+		for _, node in ipairs(current.Paths) do
+			local dir = (node.Points[1] - current.Points[#current.Points]):GetNormalized()
+			local dot = dir:Dot(forward)
+			if dot > closestDot then
+				closestDot = dot
+				bestNode = node
+			end
+		end
+		return bestNode or current.Paths[1]
+	end
+
+	function ENT:BuildNodePath(startNode)
+		if not startNode then return {} end
+		local path = {startNode}
+		local current = startNode
+
+		while current.Paths and #current.Paths > 0 do
+			local forward = (current.Paths[1].Points[1] - current.Points[#current.Points]):GetNormalized()
+			local nextNode = GetNextNode(current, forward)
+			table.insert(path, nextNode)
+			current = nextNode
+		end
+
+		return path
+	end
+
+	function ENT:StartNodeRace()
+		if not self.v then return end
+
+		local closestNode = self:FindClosestNodeAhead()
+		if closestNode then
+			self.NodePath = self:BuildNodePath(closestNode)
+			self.CurrentNodeIndex = 1
+			self.CurrentNode = self.NodePath[self.CurrentNodeIndex]
+			self.NextNode = self.NodePath[self.CurrentNodeIndex + 1]
+		else
+			self.NodePath = nil
+			self.CurrentNodeIndex = nil
+			self.CurrentNode = nil
+			self.NextNode = nil
+		end
+	end
 
 	function GetClosestPoint(ent, pos, margin, safeDistance)
 		if not IsValid(ent) then return nil end
@@ -72,264 +141,6 @@ if SERVER then
 		t = math.Clamp(t, 0, 1)
 		
 		return a_padded + ab_padded * t
-	end
-
-	function ENT:UV_AssignClosestNode()
-		if not UVRace_UsingNodes then return end
-		if not UVRace_Nodes or #UVRace_Nodes == 0 then return end
-
-		local myPos = self.v:WorldSpaceCenter()
-		local forward = self.v:GetForward()
-
-		local bestScore
-		local bestIndex
-
-		for i, node in pairs(UVRace_Nodes) do
-			if not node.Pos then continue end
-
-			local distSqr = myPos:DistToSqr(node.Pos)
-
-			-- Base score = distance
-			local score = distSqr
-
-			-- Bonus if node has a forward-connected link
-			if node.Links then
-				for nextID in pairs(node.Links) do
-					local nextNode = UVRace_Nodes[tonumber(nextID)]
-					if nextNode and nextNode.Pos then
-						local dir = (nextNode.Pos - node.Pos):GetNormalized()
-						local dot = forward:Dot(dir)
-						if dot > 0.3 then
-							score = score * 0.5 -- strong preference
-							break
-						end
-					end
-				end
-			end
-
-			if not bestScore or score < bestScore then
-				bestScore = score
-				bestIndex = i
-			end
-		end
-
-		self.UV_CurrentNode = bestIndex
-	end
-
-	function ENT:UV_GetCurrentNode()
-		if not self.UV_CurrentNode then return nil end
-		return UVRace_Nodes[self.UV_CurrentNode]
-	end
-
-	function ENT:UV_GetLookaheadNodes(count)
-		local nodes = {}
-		local idx = self.UV_CurrentNode
-		local visited = {}
-
-		for i = 1, count do
-			if not idx or visited[idx] then break end
-			visited[idx] = true
-
-			local node = UVRace_Nodes[idx]
-			if not node then break end
-
-			table.insert(nodes, node)
-
-			-- Pick the most "forward" link
-			local bestDot, bestNext
-			for nextID in pairs(node.Links or {}) do
-				local nextNode = UVRace_Nodes[tonumber(nextID)]
-				if nextNode then
-					local dir = (nextNode.Pos - node.Pos):GetNormalized()
-					local dot = dir:Dot(self.v:GetForward())
-					if not bestDot or dot > bestDot then
-						bestDot = dot
-						bestNext = tonumber(nextID)
-					end
-				end
-			end
-
-			idx = bestNext
-		end
-
-		return nodes
-	end
-
-	local function ComputeCurvature(p1, p2, p3)
-		local a = (p2 - p1)
-		local b = (p3 - p2)
-
-		local lenA = a:Length()
-		local lenB = b:Length()
-		if lenA < 1 or lenB < 1 then return 0 end
-
-		local dirA = a / lenA
-		local dirB = b / lenB
-
-		local dot = math.Clamp(dirA:Dot(dirB), -1, 1)
-		local angle = math.acos(dot)
-
-		local avgLen = (lenA + lenB) * 0.5
-		return angle / math.max(avgLen, 1)
-	end
-
-	function ENT:UV_GetPathSamples(maxDistance, step)
-		step = step or 300
-
-		local samples = {}
-		local distAccum = 0
-		local idx = self.UV_CurrentNode
-		local visited = {}
-
-		local lastPos
-
-		while idx and not visited[idx] and distAccum < maxDistance do
-			visited[idx] = true
-			local node = UVRace_Nodes[idx]
-			if not node or not node.Pos then break end
-
-			if lastPos then
-				local d = node.Pos:Distance(lastPos)
-				distAccum = distAccum + d
-			end
-
-			table.insert(samples, node.Pos)
-
-			lastPos = node.Pos
-
-			-- choose forward-most link
-			local bestDot, bestNext
-			for nextID in pairs(node.Links or {}) do
-				local nextNode = UVRace_Nodes[tonumber(nextID)]
-				if nextNode then
-					local dir = (nextNode.Pos - node.Pos):GetNormalized()
-					local dot = dir:Dot(self.v:GetForward())
-					if not bestDot or dot > bestDot then
-						bestDot = dot
-						bestNext = tonumber(nextID)
-					end
-				end
-			end
-
-			idx = bestNext
-		end
-
-		return samples
-	end
-	
-	function ENT:UV_ComputeTargetSpeed()
-		if not self.v.IsGlideVehicle then return math.huge end
-
-		local currentSpeed = self.v:GetVelocity():Length()
-		self.UV_MaxObservedSpeed = math.max(self.UV_MaxObservedSpeed or 0, currentSpeed)
-
-		-- Dynamic lookahead: longer at higher speed
-		local lookaheadDist = math.max(1200, currentSpeed * 0.8)
-		local points = self:UV_GetPathSamples(lookaheadDist, 180)
-		if #points < 3 then return math.huge end
-
-		-- Calculate curvature along path
-		local totalAngle = 0
-		local totalDist  = 0
-
-		for i = 2, #points - 1 do
-			local a = (points[i] - points[i-1]):GetNormalized()
-			local b = (points[i+1] - points[i]):GetNormalized()
-			local dot = math.Clamp(a:Dot(b), -1, 1)
-			local angle = math.acos(dot)
-
-			local segLen = points[i]:Distance(points[i-1])
-			totalAngle = totalAngle + angle
-			totalDist  = totalDist + segLen
-		end
-
-		local curvature = totalAngle / math.max(totalDist, 1)
-
-		-- Hysteresis smoothing
-		self.LastCurvature = self.LastCurvature or curvature
-		curvature = math.max(curvature, self.LastCurvature * 0.85)
-		self.LastCurvature = curvature
-
-		-- Detect straights
-		local straightThreshold = 0.00025 -- slightly higher than before
-		if curvature < straightThreshold then
-			local vmax = math.max(self.UV_MaxObservedSpeed * 1.2, 1200)
-			self.DynamicNodeSpeed = Lerp(FrameTime() * 3, self.DynamicNodeSpeed or vmax, vmax)
-			self.Debug_Curvature = curvature
-			return self.DynamicNodeSpeed
-		end
-
-		-- Lateral acceleration limit (curves)
-		local a_lat_max = 8500
-		local targetSpeed = math.sqrt(a_lat_max / math.max(curvature, 0.00005))
-
-		-- Smooth target speed over time
-		self.DynamicNodeSpeed = Lerp(FrameTime() * 2, self.DynamicNodeSpeed or targetSpeed, targetSpeed)
-		self.Debug_Curvature = curvature
-
-		return self.DynamicNodeSpeed
-	end
-
-	function ENT:UV_AdvanceNode()
-		local currentNode = self:UV_GetCurrentNode()
-		if not currentNode then return end
-
-		local links = currentNode.Links
-		if not links then
-			print("[UV AI] Node " .. tostring(self.UV_CurrentNode) .. " has no links!")
-			return
-		end
-
-		-- Collect all valid connected node IDs
-		local nextNodes = {}
-		for nodeID, _ in pairs(links) do
-			nodeID = tonumber(nodeID)
-			if UVRace_Nodes[nodeID] then
-				table.insert(nextNodes, nodeID)
-			end
-		end
-
-		if #nextNodes == 0 then
-			print("[UV AI] Node " .. tostring(self.UV_CurrentNode) .. " has links but none are valid!")
-			return
-		end
-
-		-- Pick randomly if multiple connections exist
-		self.UV_CurrentNode = nextNodes[math.random(#nextNodes)]
-	end
-
-	function ENT:UV_NodeReached(node)
-		if not node or not node.Pos then return false end
-
-		local carPos = self.v:WorldSpaceCenter()
-		local vel = self.v:GetVelocity()
-		local speed = vel:Length()
-
-		-- Dynamic radius: faster car = bigger acceptance zone
-		local radius = UV_NODE_RADIUS_MIN + speed * UV_NODE_RADIUS_SPEED
-		local radiusSqr = radius * radius
-
-		-- Close enough?
-		if carPos:DistToSqr(node.Pos) <= radiusSqr then
-			return true
-		end
-
-		-- Passed the node?
-		if speed > 50 then
-			local toNode = (node.Pos - carPos)
-			if vel:Dot(toNode) < 0 then
-				return true
-			end
-		end
-
-		return false
-	end
-
-	function ENT:UV_GetNodeSpeed(node)
-		if not node or not node.SpeedLimit or node.SpeedLimit <= 0 then
-			return math.huge
-		end
-		return node.SpeedLimit
 	end
 
 	function ENT:OnRemove()
@@ -505,35 +316,6 @@ if SERVER then
 	end
 
 	function ENT:FindRace()
-			-- NODE-BASED RACING OVERRIDE
-		if self.v and self.v.uvraceparticipant and UVRaceInProgress and UVRace_UsingNodes and UVRace_Nodes and #UVRace_Nodes > 0 then
-
-			if not self.UV_CurrentNode then
-				self:UV_AssignClosestNode()
-			end
-
-			-- Hard reset only if node becomes invalid
-			-- if self.UV_CurrentNode and not UVRace_Nodes[self.UV_CurrentNode] then
-				-- self.UV_CurrentNode = nil
-			-- end
-
-			local node = self:UV_GetCurrentNode()
-			if node and node.Pos then
-				self.PatrolWaypoint = {
-					Target = node.Pos,
-					SpeedLimit = self.v.IsGlideVehicle
-						and (self.DynamicNodeSpeed or math.huge)
-						or self:UV_GetNodeSpeed(node)
-				}
-
-				if self:UV_NodeReached(node) then
-					self:UV_AdvanceNode()
-				end
-
-				return -- IMPORTANT: skip checkpoint logic
-			end
-		end
-
 		if (self.v.uvraceparticipant and UVRaceInEffect) and (UVRaceTable['Participants'] and UVRaceTable['Participants'][self.v]) then
 			if not UVRaceInProgress then self.PatrolWaypoint = nil; return end
 			
@@ -640,13 +422,166 @@ if SERVER then
 	
 	function ENT:Race()
 		self:FindRace()
-
-		if not UVRaceInProgress then
-			self.UV_CurrentNode = nil
+		
+		local selfvelocity = self.v:GetVelocity():LengthSqr()
+		
+		-- Node-based navigation override
+		if not self.NodePath and self.v.uvraceparticipant then
+			self:StartNodeRace()
 		end
 
-		if self.PatrolWaypoint then
+		if self.PatrolWaypoint and self.NodePath and self.CurrentNode then
+			if not self.racing then
+				self.racing = true
+			end
 			
+			-- Determine target position inside the node
+			self.CurrentPointIndex = self.CurrentPointIndex or 1
+			local points = self.CurrentNode.Points or {}
+			if #points == 0 then return end -- Safety check
+			
+			local pos = self.v:WorldSpaceCenter()
+			local points = self.CurrentNode.Points
+			if #points == 0 then return end
+
+			-- Use path guidance: get current point and the following point
+			local nextPoint = points[self.CurrentPointIndex]
+			local followingPoint = points[self.CurrentPointIndex + 1] or points[#points]
+
+			-- Guidance position along the segment
+			local targetPos = ClosestPointOnLineSegment(pos, nextPoint, followingPoint, 100)
+
+			-- Steering calculation
+			local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
+			local toTarget = targetPos - pos
+			local dist = toTarget:Length()
+			local dir = toTarget:GetNormalized()
+			local right = dir:Cross(forward)
+			local steer_amount = right:Length()
+			local steer = right.z > 0 and steer_amount or -steer_amount
+
+			-- Smooth throttle near corners
+			local speed = self.v:GetVelocity():LengthSqr()
+			local speedLimit = self.CurrentNode.StartSpeed^2 or math.huge
+			local throttle = 1
+			local cornerDist = 400
+			
+			if dist < cornerDist then
+				throttle = math.Clamp(dist / cornerDist, 0.3, 1) -- slows down as approaching
+			end
+			
+			if speed > speedLimit * 350 then
+				throttle = -1
+			elseif speed > speedLimit * 300 then
+				throttle = math.min(throttle, 0.5)
+			end
+
+			-- Traction control
+			if GetConVar("unitvehicle_tractioncontrol"):GetBool() and selfvelocity > 10000 and not self.stuck then
+				if self.v.IsSimfphyscar then 
+					if istable(self.v.Wheels) then
+						for i = 1, table.Count( self.v.Wheels ) do
+							local Wheel = self.v.Wheels[ i ]
+							if not Wheel then return end
+							if Wheel:GetGripLoss() > 0 then
+								throttle = throttle * Wheel:GetGripLoss() --Simfphys traction control
+							end
+						end
+					end
+				elseif self.v.IsGlideVehicle then
+					local maxSlip = 0
+					for _, wheel in ipairs(self.v.wheels) do
+						maxSlip = math.max(maxSlip, math.abs(wheel:GetForwardSlip() or 0))
+					end
+					local minThrottle = 0.5
+					local recoverRate = FrameTime()
+					self.AI_ThrottleMul = self.AI_ThrottleMul or 1
+					if maxSlip > 8 then
+						self.AI_ThrottleMul = math.max(self.AI_ThrottleMul - FrameTime()*2, minThrottle)
+					else
+						self.AI_ThrottleMul = math.min(self.AI_ThrottleMul + recoverRate, 1)
+					end
+					throttle = throttle * self.AI_ThrottleMul --Glide traction control
+					throttleInput = throttleInput and (throttleInput * self.AI_ThrottleMul) --Glide traction control
+					self.usenitrous = UVCFEligibleToUse(self) and self.AI_ThrottleMul == 1 and true or false
+				end
+			end
+
+			if self.stuck then
+				-- steer = 0
+				throttle = throttle * -1
+			end --Getting unstuck
+
+			-- Apply throttle/steer (same as your existing code block)
+			if self.v.IsScar then
+				if throttle > 0 then self.v:GoForward(throttle) else self.v:GoBack(-throttle) end
+				if steer > 0 then self.v:TurnRight(steer) elseif steer < 0 then self.v:TurnLeft(-steer) else self.v:NotTurning() end
+			elseif self.v.IsSimfphyscar then
+				self.v.PressedKeys = self.v.PressedKeys or {}
+				self.v.PressedKeys["joystick_throttle"] = throttle
+				self.v.PressedKeys["joystick_brake"] = throttle * -1
+				self.v:PlayerSteerVehicle(self, steer < 0 and -steer or 0, steer > 0 and steer or 0)
+			elseif self.v.IsGlideVehicle then
+				if cffunctions then
+					CFtoggleNitrous( self.v, self.usenitrous )
+				end
+				self.v:TriggerInput("Handbrake", 0)
+				self.v:TriggerInput("Throttle", throttleInput or throttle)
+				self.v:TriggerInput("Brake", throttle * -1)
+				self.v:TriggerInput("Steer", steer * 1.5)
+			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
+				self.v:SetThrottle(throttle)
+				self.v:SetSteering(steer, 0)
+			end
+
+			-- Move to next node if close
+			self.CurrentPointIndex = self.CurrentPointIndex or 1
+			local points = self.CurrentNode.Points
+			local targetPos = points[self.CurrentPointIndex]
+
+			if dist < 600 then
+				self.CurrentPointIndex = self.CurrentPointIndex + 1
+				if self.CurrentPointIndex > #points then
+					self.CurrentNodeIndex = self.CurrentNodeIndex + 1
+					self.CurrentNode = self.NodePath[self.CurrentNodeIndex]
+					self.NextNode = self.NodePath[self.CurrentNodeIndex + 1]
+					self.CurrentPointIndex = 1
+					if not self.CurrentNode then
+						self.NodePath = nil
+					end
+				end
+			end
+
+			--Resetting
+			if not (selfvelocity < 10000 and (throttle > 0 or throttle < 0)) then 
+				self.moving = CurTime()
+			end
+			if self.stuck then 
+				self.moving = CurTime()
+			end
+			
+			local timeout = 1
+			if timeout and timeout > 0 then
+				if CurTime() > self.moving + timeout then --If it has got stuck for enough time.
+					self.stuck = true
+					self.moving = CurTime()
+					timer.Simple(2, function() 
+						if IsValid(self.v) then 
+							self.stuck = nil 
+							self.PatrolWaypoint = nil 
+							
+							if self.v.uvraceparticipant and ((not self.v.UVBustingProgress) or self.v.UVBustingProgress <= 0) then
+								UVResetPosition( self.v )
+								self:StartNodeRace()
+							end
+						end 
+					end)
+				end
+			end
+
+			-- Skip old PatrolWaypoint code
+			return
+		elseif self.PatrolWaypoint then
 			if not self.racing then
 				self.racing = true
 			end
@@ -662,8 +597,6 @@ if SERVER then
 			elseif isfunction(self.v.SetHandbrake) and not self.v.IsGlideVehicle then
 				self.v:SetHandbrake(false)
 			end
-
-			local selfvelocity = self.v:GetVelocity():LengthSqr()
 			
 			--Racing techniques
 			local WaypointPos = self.PatrolWaypoint["Target"]
@@ -682,87 +615,10 @@ if SERVER then
 			local brakeInput = nil
 			self.maxTurn = 0
 
-			if self.UV_CurrentNode and self.v.IsGlideVehicle then -- Node-based racing (Glide only)
-				local currentSpeed = self.v:GetVelocity():Length()
-				local targetSpeed = self:UV_ComputeTargetSpeed()
-
-				-- Determine distance to next node
-				local toNode = (self.PatrolWaypoint.Target - self.v:WorldSpaceCenter())
-				local nodeDist = toNode:Length()
-				local alignment = math.Clamp(toNode:GetNormalized():Dot(forward), 0, 1)
-				targetSpeed = targetSpeed * alignment * math.Clamp(nodeDist / 2000, 0.5, 1)
-
-				-- Initialize throttle/brake
-				throttleInput, brakeInput = 0, 0
-
-				-- Compute wheel-based braking and traction
-				local avgBrakePower = 0
-				local avgTraction   = 0
-				local wheelCount = #self.v.wheels
-				if wheelCount > 0 then
-					for _, wheel in ipairs(self.v.wheels) do
-						if IsValid(wheel) then
-							avgBrakePower = avgBrakePower + (wheel.brakePower or 1)
-							avgTraction   = avgTraction + (wheel.forwardTractionMax or 1)
-						end
-					end
-					avgBrakePower = avgBrakePower / wheelCount
-					avgTraction   = avgTraction / wheelCount
-				else
-					avgBrakePower = 1
-					avgTraction   = 1
-				end
-
-				-- PID-style speed control
-				local KpThrottle = 0.6 * avgTraction
-				local KpBrake    = 0.8 * avgBrakePower
-				local speedError = targetSpeed - currentSpeed
-
-				if speedError > 0 then
-					throttleInput = math.Clamp(speedError * KpThrottle / 100, 0, 1)
-					brakeInput    = 0
-				else
-					throttleInput = 0
-					brakeInput    = math.Clamp(-speedError * KpBrake / 100, 0, 1)
-				end
-
-				-- Smooth throttle/brake
-				self.AI_Throttle = Lerp(FrameTime() * 6, self.AI_Throttle or 0, throttleInput)
-				self.AI_Brake    = Lerp(FrameTime() * 10, self.AI_Brake or 0, brakeInput)
-
-				throttleInput = self.AI_Throttle
-				brakeInput    = self.AI_Brake
-
-				-- Ensure AI doesn't get stuck at very low speed
-				if currentSpeed < 400 and not self.stuck then
-					throttleInput = 1
-					brakeInput    = 0
-				end
-
-				-- Apply traction control
-				local maxSlip = 0
-				for _, wheel in ipairs(self.v.wheels) do
-					maxSlip = math.max(maxSlip, math.abs(wheel:GetForwardSlip() or 0))
-				end
-				self.AI_ThrottleMul = self.AI_ThrottleMul or 1
-				if maxSlip > 8 then
-					self.AI_ThrottleMul = math.max(self.AI_ThrottleMul - FrameTime()*2, 0.5)
-				else
-					self.AI_ThrottleMul = math.min(self.AI_ThrottleMul + FrameTime(), 1)
-				end
-				throttleInput = throttleInput * self.AI_ThrottleMul
-			
-				-- print("throttleInput", throttleInput)
-				-- print("brakeInput", brakeInput)
-				-- print("currentSpeed", currentSpeed)
-				-- print("targetSpeed", targetSpeed)
-
-			else -- Non-Node Racing
-				if selfvelocity > self.Speeding*350 and self.v.uvraceparticipant then 
-					throttle = -1
-				elseif selfvelocity > self.Speeding*300 then
-					throttle = 0
-				end
+			if selfvelocity > self.Speeding*350 then -- Above it - slam on brakes!
+				throttle = -1
+			elseif selfvelocity > self.Speeding*300 then -- Near or on the speed limit - half throttle
+				throttle = 0.5
 			end
 
 			if self.stuck then
@@ -848,9 +704,8 @@ if SERVER then
 					self.v:TriggerInput("Brake", throttle * -1)
 				end
 
-				
-				if self.v.uvraceparticipant and self.UV_CurrentNode then
-					steer = steer * 3
+				if self.v.uvraceparticipant then
+					steer = steer * 2
 				else
 					steer = steer * 1.5
 				end
@@ -881,7 +736,6 @@ if SERVER then
 							
 							if self.v.uvraceparticipant and ((not self.v.UVBustingProgress) or self.v.UVBustingProgress <= 0) then
 								UVResetPosition( self.v )
-								self:UV_AssignClosestNode()
 							end
 						end 
 					end)
@@ -970,6 +824,25 @@ if SERVER then
 		-- 	self:NextThink( CurTime() )
 		-- 	return true
 		-- end
+		
+		
+    -- ====== DEBUG: Draw line to target node ======
+		local targetPos = nil
+		
+		-- Use NodePath target if racing on nodes
+		if self.NodePath and self.CurrentNode then
+			local points = self.CurrentNode.Points or {}
+			if #points > 0 then
+				targetPos = points[self.CurrentPointIndex or 1]
+			end
+		-- elseif self.PatrolWaypoint then
+			-- targetPos = self.PatrolWaypoint["Target"]
+		end
+
+		if targetPos then
+			debugoverlay.Line(self.v:WorldSpaceCenter(), targetPos, 1, Color(255,0,0), true)
+			debugoverlay.Sphere(targetPos, 20, 1, Color(0,255,0), true)
+		end
 	end
 
 	function ENT:Initialize()
@@ -1225,18 +1098,6 @@ else
 		self:SetNoDraw(true)
 		self:SetMoveType(MOVETYPE_NONE)
 		self:SetModel(self.Modelname)
-	end
-		
-	function ENT:Think()
-		if self.Debug_Curvature then
-			debugoverlay.Text(
-				self.v:GetPos() + Vector(0,0,120),
-				string.format("Curvature: %.4f\nTargetSpeed: %.0f",
-					self.Debug_Curvature,
-					self.DynamicNodeSpeed or 0),
-				0.05
-			)
-		end
 	end
 end
 
