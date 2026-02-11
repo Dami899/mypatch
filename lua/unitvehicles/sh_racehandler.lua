@@ -1371,7 +1371,7 @@ else -- CLIENT stuff
 						path = trackPath,
 						artist = artist,
 						title = title,
-						folder = themeFolder,
+						folder = folder,
 					} )
 				end
 			end
