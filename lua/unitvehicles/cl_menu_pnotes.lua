@@ -8,6 +8,24 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
+["v1.2.0"] = {
+Date = { year = 2026, month = 2, day = 16 },
+Text = [[
+**New Features**
+- Racing: Added support for *AI Path Nodes*
+ |-- When included, AI Racers will follow these paths instead of checkpoints
+ |-- Path Nodes support multi-path racing, where the AI will now randomly pick a route
+ |-- *Curve Strength* allows the user to apply a gradual turn for longer paths
+
+**Changes**
+- Updated the description for tracks when importing them to signal if they have Path Nodes and/or Props
+- Updated default Cop1 vehicle identification lines
+
+**Fixes**
+- Fixed that UVTrax provided the raw folder name in the notification rather than the metadata folder name
+]],
+},
+
 ["v1.1.0"] = {
 Date = { year = 2026, month = 2, day = 3 },
 Text = [[

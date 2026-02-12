@@ -479,21 +479,6 @@ if SERVER then
 			ent.DoNotDuplicate = true
 			str = str .. "spawn " .. tostring(ent:GetPos()) .. " " .. tostring(ent:GetAngles().y) .. " " .. tostring(ent:GetGridSlot()) .. "\n"
 		end
-		
-		-- -- Export nodes
-		-- for id, node in pairs(UVRace_Nodes) do
-		-- 	if node then
-		-- 		local line = "node " .. id .. " "
-		-- 		line = line .. string.format("%.6f %.6f %.6f %d", node.Pos.x, node.Pos.y, node.Pos.z, node.SpeedLimit)
-
-		-- 		-- Export links
-		-- 		for linkedID in pairs(node.Links) do
-		-- 			line = line .. " " .. linkedID
-		-- 		end
-
-		-- 		str = str .. line .. "\n"
-		-- 	end
-		-- end
 
 		file.CreateDir("unitvehicles/races/" .. game.GetMap())
 		file.Write(filename, str)

@@ -2,7 +2,7 @@ UV = UV or {}
 UVMenu = UVMenu or {}
 
 -- Current Version -- Change this whenever a new update is releasing!
-UV.CurVersion = "v1.1.0" --MAJOR.MINOR.PATCH
+UV.CurVersion = "v1.2.0" --MAJOR.MINOR.PATCH
 
 -- Credits List
 UV.Credits = {
@@ -820,14 +820,54 @@ UVMenu.RaceManagerTrackSelect = function()
 	local raceEntries = {}
 
 	for _, fname in ipairs(files) do
-		local rec = ParseRaceFile("unitvehicles/races/" .. game.GetMap() .. "/" .. fname)
+		local pathBase = "unitvehicles/races/" .. game.GetMap() .. "/"
+		local rec = ParseRaceFile(pathBase .. fname)
+
 		if rec then
+			local descLines = {
+				string.format(UVString("uv.rm.author"), rec.author),
+				string.format(UVString("uv.rm.checkpoints"), #rec.checkpoints),
+				string.format(UVString("uv.rm.startslots"), #rec.spawns)
+			}
+
+			-- Attempt to read matching JSON file
+			local jsonName = string.Replace(fname, ".txt", ".json")
+			if file.Exists(pathBase .. jsonName, "DATA") then
+				local jsonData = util.JSONToTable(file.Read(pathBase .. jsonName, "DATA") or "")
+
+				if jsonData then
+					-- Count props (duplicator saves entities inside an array-style table)
+					local propCount = 0
+
+					if jsonData.Entities and istable(jsonData.Entities) then
+						for _, ent in pairs(jsonData.Entities) do
+							if istable(ent) and ent.Class then
+								-- Optional: only count actual props
+								if string.StartWith(ent.Class, "prop_") then
+									propCount = propCount + 1
+								end
+							end
+						end
+					end
+
+					if propCount > 0 then
+						table.insert(descLines, string.format(UVString("uv.rm.hasprops"), propCount))
+					end
+
+					-- Count path nodes
+					if jsonData.Nodes and istable(jsonData.Nodes) then
+						local nodeCount = table.Count(jsonData.Nodes)
+						if nodeCount > 0 then
+							table.insert(descLines, string.format(UVString("uv.rm.hasnodes"), nodeCount))
+						end
+					end
+				end
+			end
+
 			table.insert(raceEntries, {
 				type = "button",
 				text = rec.name,
-				desc = string.format( UVString( "uv.rm.author" ), rec.author ) .. "\n"  .. 
-				string.format( UVString( "uv.rm.checkpoints" ), #rec.checkpoints ) .. "\n" .. 
-				string.format( UVString( "uv.rm.startslots" ), #rec.spawns ),
+				desc = table.concat(descLines, "\n"),
 				playsfx = "clickopen",
 				prompts = {"uv.prompt.load"},
 				func = function()
@@ -835,13 +875,13 @@ UVMenu.RaceManagerTrackSelect = function()
 					UVMenu.CloseCurrentMenu(true)
 					timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
 						UVMenu.OpenMenu(UVMenu.RaceManager)
-						UVMenu.PlaySFX("menuopen") -- This shouldn't be necessary but ah well
+						UVMenu.PlaySFX("menuopen")
 					end)
 				end
 			})
 		end
 	end
-	
+
 	local entriesWithBack = {}
 	for _, entry in ipairs(raceEntries) do
 		table.insert(entriesWithBack, entry)
