@@ -337,7 +337,7 @@ UV_UI.racing.underground2.events = {
 		if not IsValid(my_vehicle) then return end
 
 		-- Pull cached diffs from general racing HUD
-		local cached = UV_UI.general.racing.SplitDiffCache and UV_UI.general.racing.SplitDiffCache[my_vehicle]
+		local cached = UV_UI.racing.general.SplitDiffCache and UV_UI.racing.general.SplitDiffCache[my_vehicle]
 		local aheadDiff, behindDiff = "N/A", "N/A"
 
 		if cached then

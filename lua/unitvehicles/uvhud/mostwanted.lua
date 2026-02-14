@@ -808,7 +808,7 @@ end,
 		if not IsValid(my_vehicle) then return end
 
 		-- Pull cached diffs from general racing HUD
-		local cached = UV_UI.general.racing.SplitDiffCache and UV_UI.general.racing.SplitDiffCache[my_vehicle]
+		local cached = UV_UI.racing.general.SplitDiffCache and UV_UI.racing.general.SplitDiffCache[my_vehicle]
 		local aheadDiff, behindDiff = "N/A", "N/A"
 
 		if cached then
@@ -1344,6 +1344,118 @@ end,
 		})
 	end,
 }
+
+UV_UI.pursuit.mostwanted.scannerConfig = {
+	radius = 30,
+	innerRadius = 14,
+	blipRadius = 8,
+	maxRange = 5000,
+	maxArc = 130,
+	posX = ScrW() * 0.5,
+	posY = ScrH() * 0.1,
+}
+
+local function ScannerCode(cfg)
+    local radius = cfg.radius or 30
+    local innerRadius = cfg.innerRadius or 14
+    local blipRadius = cfg.blipRadius or 8
+    local maxRange = cfg.maxRange or 5000
+    local maxArc = cfg.maxArc or 360
+    local centerx = cfg.posX
+    local centery = cfg.posY
+
+	local localPlayer = cfg.localPlayer
+	local w, h = cfg.w, cfg.h
+
+	local enemypos = localPlayer:GetPos()
+	local closestDist = math.huge
+	local found = false
+	local closestPos
+
+	local corner8tex, corner32tex = surface.GetTextureID("gui/corner8"), surface.GetTextureID("gui/corner32")
+	local function drawCircle(x, y, radius, seg)
+		surface.SetTexture(radius <= 8 and corner8tex or corner32tex)
+		surface.DrawTexturedRectUV( x-radius, y-radius, radius, radius, 0, 0, 1, 1 )
+		surface.DrawTexturedRectUV( x, y-radius, radius, radius, 1, 0, 0, 1 )
+		surface.DrawTexturedRectUV( x-radius, y, radius, radius, 0, 1, 1, 0 )
+		surface.DrawTexturedRectUV( x, y, radius, radius, 1, 1, 0, 0 )
+		draw.NoTexture()
+	end
+
+	for _, v in pairs(UnitTable) do
+		if IsValid(v) then
+			local dist = v:GetPos():DistToSqr(enemypos)
+
+			if dist < closestDist then
+				closestDist = dist
+				closestPos = v:GetPos()
+				found = true
+			end
+		end
+	end
+
+	if not found then return end
+
+	local realDistance = math.sqrt(closestDist)
+
+	-- Range limit
+	-- if realDistance > maxRange then return end
+
+	surface.SetMaterial(UVMaterials["SCANNER_BG"])
+	surface.SetDrawColor(0,0,0,200)
+    surface.DrawTexturedRect(UV_UI.XScaled(w * 0.375), centery - (h * 0.04), UV_UI.W(w * 0.25), h * 0.06)
+
+	surface.SetMaterial(UVMaterials["SCANNER_MIDDLE"])
+	surface.SetDrawColor(175,255,100)
+    surface.DrawTexturedRect(UV_UI.XScaled(w * 0.48), centery - (h * 0.04), UV_UI.W(w * 0.04), h * 0.06)
+
+	local distanceFrac = math.Clamp(realDistance / maxRange, 0, 1)
+	local beepfrequency = math.Clamp(distanceFrac, 0.1, 1)
+
+	-- Direction
+	local angleDiff = math.AngleDifference(
+		EyeAngles().y,
+		(closestPos - enemypos):Angle().y
+	)
+
+	-- Ignore targets outside forward arc
+	if math.abs(angleDiff) > maxArc/2 then
+		return
+	end
+
+	local angle = math.rad(angleDiff) + math.pi/2
+
+	surface.SetMaterial(UVMaterials["SCANNER_ARROW"])
+	surface.SetDrawColor(175,255,100,255)
+	surface.DrawTexturedRectRotated( centerx, centery, UV_UI.W(w * 0.04), UV_UI.W(w * 0.04), -angleDiff )
+
+	-- Beeping
+	-- local Beeped = Beeped or nil
+	if UVHUDBlipSoundTime < CurTime() then
+		UVHUDBlipSoundTime = CurTime() + beepfrequency
+
+		if PursuitSFX:GetBool() then
+			surface.PlaySound("ui/pursuit/spotting_blip.wav")
+		end
+
+		Beeped = true
+		timer.Simple(beepfrequency/2, function()
+			Beeped = false
+		end)
+	end
+
+	local beepcolor = Beeped and Color(175,255,100) or Color(0,0,0,0)
+
+	surface.SetDrawColor(beepcolor)
+	surface.SetMaterial(UVMaterials["SCANNER_LEDS"])
+    surface.DrawTexturedRect(UV_UI.XScaled(w * 0.3415), centery - (h * 0.04), UV_UI.W(w * 0.1725), h * 0.06)
+	
+	surface.SetMaterial(UVMaterials["SCANNER_LEDS_INV"])
+	
+    surface.DrawTexturedRect(UV_UI.XScaled(w * 0.486), centery - (h * 0.04), UV_UI.W(w * 0.1725), h * 0.06)
+end
+
+UV_UI.pursuit.mostwanted.scanner = ScannerCode
 
 -- Functions
 local function mw_racing_main( ... )

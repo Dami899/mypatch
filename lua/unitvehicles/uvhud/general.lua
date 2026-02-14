@@ -15,18 +15,18 @@ local function uv_general()
     if not UVHUDPursuitTech then return end
 
     local PT_Replacement_Strings = {
-        ['EMP'] = '#uv.ptech.emp.short',
-        ['ESF'] = '#uv.ptech.esf.short',
-        ['Killswitch'] = '#uv.ptech.killswitch.short',
-        ['Jammer'] = '#uv.ptech.jammer.short',
-        ['Shockwave'] = '#uv.ptech.shockwave.short',
-        ['Stunmine'] = '#uv.ptech.stunmine.short',
-        ['Spikestrip'] = '#uv.ptech.spikes.short',
-        ['Repair Kit'] = '#uv.ptech.repairkit.short',
-        ['Power Play'] = '#uv.ptech.powerplay.short',
-        ['Shock Ram'] = '#uv.ptech.shockram.short',
-        ['GPS Dart'] = '#uv.ptech.gpsdart.short',
-        ['Juggernaut'] = '#uv.ptech.juggernaut.short',
+        ['EMP'] = 'uv.ptech.emp.short',
+        ['ESF'] = 'uv.ptech.esf.short',
+        ['Killswitch'] = 'uv.ptech.killswitch.short',
+        ['Jammer'] = 'uv.ptech.jammer.short',
+        ['Shockwave'] = 'uv.ptech.shockwave.short',
+        ['Stunmine'] = 'uv.ptech.stunmine.short',
+        ['Spikestrip'] = 'uv.ptech.spikes.short',
+        ['Repair Kit'] = 'uv.ptech.repairkit.short',
+        ['Power Play'] = 'uv.ptech.powerplay.short',
+        ['Shock Ram'] = 'uv.ptech.shockram.short',
+        ['GPS Dart'] = 'uv.ptech.gpsdart.short',
+        ['Juggernaut'] = 'uv.ptech.juggernaut.short',
     }
 
 	-- local debugjam = true
@@ -93,7 +93,7 @@ local function uv_general()
                 end
 
                 ammoText = tech.Ammo > 0 and tech.Ammo or " - "
-                techText = PT_Replacement_Strings[tech.Tech] or tech.Tech
+                techText = UVString(PT_Replacement_Strings[tech.Tech]) or tech.Tech
             end
 
             if hudyes then
@@ -320,9 +320,10 @@ UV_UI.general.events = {
 	end,
 }
 
-UV_UI.general.racing = {}
+UV_UI.racing.general = {}
+UV_UI.pursuit.general = {}
 
-UV_UI.general.racing.SplitDiffCache = UV_UI.general.racing.SplitDiffCache or {}
+UV_UI.racing.general.SplitDiffCache = UV_UI.racing.general.SplitDiffCache or {}
 
 local function general_racing_main( ... )
     local w = ScrW()
@@ -389,7 +390,7 @@ local function general_racing_main( ... )
 		-- Color(0,0,0)
 	-- )
 	
-	UV_UI.general.racing.SplitDiffCache[my_vehicle] = { -- Store said debug data
+	UV_UI.racing.general.SplitDiffCache[my_vehicle] = { -- Store said debug data
 		Ahead = aheadText,
 		Behind = behindText,
 		LastCheckpoint = checkpoint_count -- optional
@@ -397,4 +398,122 @@ local function general_racing_main( ... )
 
 end
 
-UV_UI.general.racing.main = general_racing_main
+UV_UI.racing.general.main = general_racing_main
+
+UV_UI.pursuit.general.scannerConfig = {
+	radius = 30,
+	innerRadius = 14,
+	blipRadius = 8,
+	maxRange = 5000,
+	maxArc = 360,
+	posX = ScrW() * 0.5,
+	posY = ScrH() * 0.1,
+}
+
+local function ScannerCode(cfg)
+    local radius = cfg.radius or 30
+    local innerRadius = cfg.innerRadius or 14
+    local blipRadius = cfg.blipRadius or 8
+    local maxRange = cfg.maxRange or 5000
+    local maxArc = cfg.maxArc or 360
+    local centerx = cfg.posX
+    local centery = cfg.posY
+
+	local localPlayer = cfg.localPlayer
+	local w, h = cfg.w, cfg.h
+
+	local enemypos = localPlayer:GetPos()
+	local closestDist = math.huge
+	local found = false
+	local closestPos
+
+	local corner8tex, corner32tex = surface.GetTextureID("gui/corner8"), surface.GetTextureID("gui/corner32")
+	local function drawCircle(x, y, radius, seg)
+		surface.SetTexture(radius <= 8 and corner8tex or corner32tex)
+		surface.DrawTexturedRectUV( x-radius, y-radius, radius, radius, 0, 0, 1, 1 )
+		surface.DrawTexturedRectUV( x, y-radius, radius, radius, 1, 0, 0, 1 )
+		surface.DrawTexturedRectUV( x-radius, y, radius, radius, 0, 1, 1, 0 )
+		surface.DrawTexturedRectUV( x, y, radius, radius, 1, 1, 0, 0 )
+		draw.NoTexture()
+	end
+
+	for _, v in pairs(UnitTable) do
+		if IsValid(v) then
+			local dist = v:GetPos():DistToSqr(enemypos)
+
+			if dist < closestDist then
+				closestDist = dist
+				closestPos = v:GetPos()
+				found = true
+			end
+		end
+	end
+
+	if not found then return end
+
+	local realDistance = math.sqrt(closestDist)
+
+	-- Range limit
+	-- if realDistance > maxRange then return end
+
+	surface.SetDrawColor(0,0,0,200)
+	drawCircle(centerx, centery, radius, 50)
+
+	local distanceFrac = math.Clamp(realDistance / maxRange, 0, 1)
+	local beepfrequency = math.Clamp(distanceFrac, 0.1, 1)
+
+	if beepfrequency >= 1 then
+		drawCircle(centerx, centery, innerRadius, 50)
+		return
+	end
+
+	surface.SetDrawColor(255,255,255,255)
+	drawCircle(centerx, centery, innerRadius, 50)
+
+	-- Direction
+	local angleDiff = math.AngleDifference(
+		EyeAngles().y,
+		(closestPos - enemypos):Angle().y
+	)
+
+	-- Ignore targets outside forward arc
+	if math.abs(angleDiff) > maxArc/2 then
+		return
+	end
+
+	local angle = math.rad(angleDiff) + math.pi/2
+
+	surface.SetMaterial(UVMaterials["SCANNER_ARROW"])
+	surface.SetDrawColor(255,255,255,255)
+
+	-- Rotate relative to forward
+	surface.DrawTexturedRectRotated(
+		centerx,
+		centery,
+		radius * 2.5,   -- size
+		radius * 2.5,
+		-angleDiff       -- rotation in degrees
+	)
+
+	-- Beeping
+	-- local Beeped = Beeped or nil
+	if UVHUDBlipSoundTime < CurTime() then
+		UVHUDBlipSoundTime = CurTime() + beepfrequency
+
+		if PursuitSFX:GetBool() then
+			surface.PlaySound("ui/pursuit/spotting_blip.wav")
+		end
+
+		Beeped = true
+		timer.Simple(beepfrequency/2, function()
+			Beeped = false
+		end)
+	end
+
+	local beepcolor = Beeped and Color(0,255,0) or Color(0,0,0)
+
+	surface.SetDrawColor(beepcolor)
+	drawCircle(centerx, centery, blipRadius, 50)
+end
+
+UV_UI.pursuit.general.scanner = ScannerCode

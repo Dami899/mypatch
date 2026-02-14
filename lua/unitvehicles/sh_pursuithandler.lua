@@ -2407,7 +2407,7 @@ else -- CLIENT Settings | HUD/Options
 
 	local UVClosestSuspect = nil
 
-	local UVHUDBlipSoundTime = CurTime()
+	UVHUDBlipSoundTime = CurTime()
 	UVHUDScannerPos = Vector(0,0,0)
 
 	KeyBindButtons = {}
@@ -4074,77 +4074,45 @@ else -- CLIENT Settings | HUD/Options
 		local areUnitsPresent = (#UnitTable > 0)
 
 		--Police Scanner
-		if UVPoliceScanner:GetBool() then
-			if (not UVHUDDisplayPursuit or UVHUDDisplayCooldown) and not UVHUDCopMode and not uvclientjammed and localPlayer:InVehicle() and areUnitsPresent then
-				-- Get closest unit
-	
-				local enemypos = localPlayer:GetPos()
-				local closestdistancetounit = math.huge
-				local found = false
-	
-				for _, v in pairs(UnitTable) do
-					if IsValid(v) then
-						found = true
-						local unitPos = v:GetPos()
-						local dist = unitPos:DistToSqr(enemypos)
-	
-						if closestdistancetounit > dist then
-							closestdistancetounit = dist
-							UVHUDScannerPos = unitPos
-						end
-					end
-				end
-	
-				if found then
-					local closestdistancetounit = UVHUDScannerPos:DistToSqr(enemypos)
-					surface.SetDrawColor( 0, 0, 0, 200)
-					drawCircle( w/2, h/10, 30, 50 )
-					local beepfrequency = math.Clamp(math.sqrt(closestdistancetounit/100000000),0.1,1)
-					if beepfrequency >= 1 then
-						surface.SetDrawColor( 0, 0, 0, 200)
-						drawCircle( w/2, h/10, 14, 50 )
-					else
-						surface.SetDrawColor(255,255,255,255)
-						drawCircle( w/2, h/10, 14, 50 )
-	
-						local angle = math.rad(math.AngleDifference(EyeAngles().y, (enemypos-UVHUDScannerPos):Angle().y)) + 1.57--(math.pi/2)
-						local radius = 25
-						local centerx = w/2
-						local centery = h/10
-	
-						local triangle = {
-							{ x = radius*math.cos(angle) + centerx, y = radius*math.sin(angle) + centery },
-							{ x = (radius-12)*math.cos(angle-5.5) + centerx, y = (radius-12)*math.sin(angle-5.5) + centery },
-							{ x = (radius-12)*math.cos(angle+5.5) + centerx, y = (radius-12)*math.sin(angle+5.5) + centery }
-						}
-						draw.NoTexture()
-						surface.DrawPoly( triangle )
-						local beepcolor
-						local botimeout = 10
-						if UVHUDBlipSoundTime < CurTime() and beepfrequency < 1 then
-							UVHUDBlipSoundTime = CurTime() + beepfrequency
-							if PursuitSFX:GetBool() then
-								surface.PlaySound(UVHUDBlipSound)
-							end
-							UVHUDBeeping = true
-							timer.Simple(beepfrequency/2, function()
-								UVHUDBeeping = false
-							end)
-						end
-						if UVHUDBeeping then
-							beepcolor = Color(0,255,0)
-						else
-							beepcolor = Color(0,0,0)
-						end
-						surface.SetDrawColor(beepcolor)
-						drawCircle( w/2, h/10, 8, 50 )
-					end
-				end
-			elseif UVHUDDisplayCooldown and not UVHUDCopMode then
-				surface.SetDrawColor( 0, 0, 0, 200)
-				drawCircle( w/2, h/10, 30, 50 )
-				drawCircle( w/2, h/10, 14, 50 )
-			end	
+		if UVPoliceScanner:GetBool() and (not UVHUDDisplayPursuit or UVHUDDisplayCooldown) and not UVHUDCopMode and not uvclientjammed and localPlayer:InVehicle() and areUnitsPresent then
+			local scannerHandler
+
+			-- Main HUD scanner config
+			local scannerConfig =
+			(UV_UI.pursuit[main] and UV_UI.pursuit[main].scannerConfig)
+			or (UV_UI.pursuit[backup] and UV_UI.pursuit[backup].scannerConfig)
+			or UV_UI.pursuit.general.scannerConfig
+			or {
+				radius = 30,
+				innerRadius = 14,
+				blipRadius = 8,
+				maxRange = 5000,
+				maxArc = 360,
+				posX = w/2,
+				posY = h/10,
+			}
+
+			-- HUD scanner
+			if UV_UI.pursuit[main] and UV_UI.pursuit[main].scanner then scannerHandler = UV_UI.pursuit[main].scanner end
+			if not scannerHandler and UV_UI.pursuit[backup] and UV_UI.pursuit[backup].scanner then scannerHandler = UV_UI.pursuit[backup].scanner end
+			
+			if not scannerHandler then scannerHandler = UV_UI.pursuit.general.scanner end
+			
+			if scannerHandler then
+				scannerHandler({
+					radius = scannerConfig.radius,
+					innerRadius = scannerConfig.innerRadius,
+					blipRadius = scannerConfig.blipRadius,
+					maxRange = scannerConfig.maxRange,
+					maxArc = scannerConfig.maxArc,
+					posX = scannerConfig.posX,
+					posY = scannerConfig.posY,
+
+					localPlayer = localPlayer,
+					w = w,
+					h = h
+				})
+			end
 		end
 
 		if UVEMPLockingTarget then

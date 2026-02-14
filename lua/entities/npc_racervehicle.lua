@@ -583,7 +583,7 @@ if SERVER then
 				self.v:TriggerInput("Handbrake", 0)
 				self.v:TriggerInput("Throttle", throttleInput or throttle)
 				self.v:TriggerInput("Brake", throttle * -1)
-				self.v:TriggerInput("Steer", steer * 1.25)
+				self.v:TriggerInput("Steer", steer * 1)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
 				self.v:SetThrottle(throttle)
 				self.v:SetSteering(steer, 0)

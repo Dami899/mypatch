@@ -73,6 +73,16 @@ UVMaterials = {
     ["BACKGROUND"] = Material("unitvehicles/hud/NFSMW_BACKGROUND.png"),
     ["BACKGROUND_BIG"] = Material("unitvehicles/hud/NFSMW_BACKGROUND_BIG.png"),
     ["BACKGROUND_BIGGER"] = Material("unitvehicles/hud/NFSMW_BACKGROUND_BIGGER.png"),
+	
+    ["SCANNER_BG"] = Material("unitvehicles/hud/RADAR_BACKING.png"),
+    ["SCANNER_MIDDLE"] = Material("unitvehicles/hud/RADAR_ICON.png"),
+    ["SCANNER_ARROW"] = Material("unitvehicles/hud/RADAR_DIRECTIONARROW.png"),
+	
+    ["SCANNER_LEDS_BG"] = Material("unitvehicles/hud/RADAR_LEDS.png"),
+    ["SCANNER_LEDS_BG_INV"] = Material("unitvehicles/hud/RADAR_LEDS_INV.png"),
+    
+    ["SCANNER_LEDS"] = Material("unitvehicles/hud/RADAR_LEDS_COLOR.png"),
+    ["SCANNER_LEDS_INV"] = Material("unitvehicles/hud/RADAR_LEDS_COLOR_INV.png"),
     
     -- Carbon
     ["TAKEDOWN_CIRCLE_CARBON"] = Material("unitvehicles/icons_carbon/FULL_CIRCLE.png"),
