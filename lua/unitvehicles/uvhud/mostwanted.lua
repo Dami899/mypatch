@@ -1371,35 +1371,42 @@ local function ScannerCode(cfg)
 	local closestDist = math.huge
 	local found = false
 	local closestPos
+	local anyUnits = false
 
-	local corner8tex, corner32tex = surface.GetTextureID("gui/corner8"), surface.GetTextureID("gui/corner32")
-	local function drawCircle(x, y, radius, seg)
-		surface.SetTexture(radius <= 8 and corner8tex or corner32tex)
-		surface.DrawTexturedRectUV( x-radius, y-radius, radius, radius, 0, 0, 1, 1 )
-		surface.DrawTexturedRectUV( x, y-radius, radius, radius, 1, 0, 0, 1 )
-		surface.DrawTexturedRectUV( x-radius, y, radius, radius, 0, 1, 1, 0 )
-		surface.DrawTexturedRectUV( x, y, radius, radius, 1, 1, 0, 0 )
-		draw.NoTexture()
+	-- Direction
+	local forwardYaw
+
+	if GetConVar("unitvehicle_policescanner_vehicle"):GetBool()
+		and IsValid(localPlayer:GetVehicle()) then
+		
+		forwardYaw = localPlayer:GetVehicle():GetAngles().y + 90
+	else
+		forwardYaw = EyeAngles().y
 	end
 
 	for _, v in pairs(UnitTable) do
 		if IsValid(v) then
-			local dist = v:GetPos():DistToSqr(enemypos)
+			anyUnits = true
 
-			if dist < closestDist then
-				closestDist = dist
-				closestPos = v:GetPos()
-				found = true
+			local pos = v:GetPos()
+			local dist = pos:DistToSqr(enemypos)
+
+			local angleDiff = math.AngleDifference(
+				forwardYaw,
+				(pos - enemypos):Angle().y
+			)
+
+			if math.abs(angleDiff) <= maxArc / 2 then
+				if dist < closestDist then
+					closestDist = dist
+					closestPos = pos
+					found = true
+				end
 			end
 		end
 	end
 
-	if not found then return end
-
-	local realDistance = math.sqrt(closestDist)
-
-	-- Range limit
-	-- if realDistance > maxRange then return end
+	if not anyUnits then return end
 
 	surface.SetMaterial(UVMaterials["SCANNER_BG"])
 	surface.SetDrawColor(0,0,0,200)
@@ -1409,19 +1416,20 @@ local function ScannerCode(cfg)
 	surface.SetDrawColor(175,255,100)
     surface.DrawTexturedRect(UV_UI.XScaled(w * 0.48), centery - (h * 0.04), UV_UI.W(w * 0.04), h * 0.06)
 
+	if not found then return end
+
+	local realDistance = math.sqrt(closestDist)
+
+	-- Range limit
+	if realDistance > maxRange then return end
+
 	local distanceFrac = math.Clamp(realDistance / maxRange, 0, 1)
 	local beepfrequency = math.Clamp(distanceFrac, 0.1, 1)
 
-	-- Direction
 	local angleDiff = math.AngleDifference(
-		EyeAngles().y,
+		forwardYaw,
 		(closestPos - enemypos):Angle().y
 	)
-
-	-- Ignore targets outside forward arc
-	if math.abs(angleDiff) > maxArc/2 then
-		return
-	end
 
 	local angle = math.rad(angleDiff) + math.pi/2
 
@@ -1451,7 +1459,6 @@ local function ScannerCode(cfg)
     surface.DrawTexturedRect(UV_UI.XScaled(w * 0.3415), centery - (h * 0.04), UV_UI.W(w * 0.1725), h * 0.06)
 	
 	surface.SetMaterial(UVMaterials["SCANNER_LEDS_INV"])
-	
     surface.DrawTexturedRect(UV_UI.XScaled(w * 0.486), centery - (h * 0.04), UV_UI.W(w * 0.1725), h * 0.06)
 end
 

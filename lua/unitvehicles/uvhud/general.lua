@@ -437,14 +437,33 @@ local function ScannerCode(cfg)
 		draw.NoTexture()
 	end
 
+	-- Direction
+	local forwardYaw
+
+	if GetConVar("unitvehicle_policescanner_vehicle"):GetBool()
+		and IsValid(localPlayer:GetVehicle()) then
+
+		forwardYaw = localPlayer:GetVehicle():GetAngles().y + 90
+	else
+		forwardYaw = EyeAngles().y
+	end
+
 	for _, v in pairs(UnitTable) do
 		if IsValid(v) then
-			local dist = v:GetPos():DistToSqr(enemypos)
+			local pos = v:GetPos()
+			local dist = pos:DistToSqr(enemypos)
 
-			if dist < closestDist then
-				closestDist = dist
-				closestPos = v:GetPos()
-				found = true
+			local angleDiff = math.AngleDifference(
+				forwardYaw,
+				(pos - enemypos):Angle().y
+			)
+
+			if math.abs(angleDiff) <= maxArc / 2 then
+				if dist < closestDist then
+					closestDist = dist
+					closestPos = pos
+					found = true
+				end
 			end
 		end
 	end
@@ -454,7 +473,7 @@ local function ScannerCode(cfg)
 	local realDistance = math.sqrt(closestDist)
 
 	-- Range limit
-	-- if realDistance > maxRange then return end
+	if realDistance > maxRange then return end
 
 	surface.SetDrawColor(0,0,0,200)
 	drawCircle(centerx, centery, radius, 50)
@@ -470,16 +489,10 @@ local function ScannerCode(cfg)
 	surface.SetDrawColor(255,255,255,255)
 	drawCircle(centerx, centery, innerRadius, 50)
 
-	-- Direction
 	local angleDiff = math.AngleDifference(
-		EyeAngles().y,
+		forwardYaw,
 		(closestPos - enemypos):Angle().y
 	)
-
-	-- Ignore targets outside forward arc
-	if math.abs(angleDiff) > maxArc/2 then
-		return
-	end
 
 	local angle = math.rad(angleDiff) + math.pi/2
 

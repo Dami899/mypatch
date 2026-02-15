@@ -712,7 +712,6 @@ if SERVER then
 						self.AI_ThrottleMul = math.min(self.AI_ThrottleMul + recoverRate, 1)
 					end
 					throttle = throttle * self.AI_ThrottleMul --Glide traction control
-					throttleInput = throttleInput and (throttleInput * self.AI_ThrottleMul) --Glide traction control
 					self.usenitrous = UVCFEligibleToUse(self) and self.AI_ThrottleMul == 1 and true or false
 				end
 			end
@@ -752,12 +751,8 @@ if SERVER then
 					CFtoggleNitrous( self.v, self.usenitrous )
 				end
 				self.v:TriggerInput("Handbrake", 0)
-				self.v:TriggerInput("Throttle", throttleInput or throttle)
-				if brakeInput and brakeInput > 0 then
-					self.v:TriggerInput("Brake", brakeInput)
-				else
-					self.v:TriggerInput("Brake", throttle * -1)
-				end
+				self.v:TriggerInput("Throttle", throttle)
+				self.v:TriggerInput("Brake", throttle * -1)
 
 				if self.v.uvraceparticipant then
 					steer = steer * 2
