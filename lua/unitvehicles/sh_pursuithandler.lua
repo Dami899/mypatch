@@ -1888,7 +1888,7 @@ if SERVER then
 		UpdatePursuitTable( 'Bounty', UVBounty )
 
 		--SPOTTED CAMERA
-		local FREEZE_DURATION = 3
+		local FREEZE_DURATION = 2.7
 
 		if game.SinglePlayer() and SpottedFreezeCam:GetBool() then
 			local ply = Entity(1)
@@ -2444,6 +2444,7 @@ else -- CLIENT Settings | HUD/Options
 	UVGlyphSet = CreateClientConVar("unitvehicle_glyph_set", "", true, false, "Unit Vehicles: The glyph set used for the Glyph Override.")
 
 	UVPoliceScanner = CreateClientConVar("unitvehicle_policescanner", 1, true, false, "Unit Vehicles: If set to 1, the police scanner will be enabled.")
+	UVPoliceScannerVehicle = CreateClientConVar("unitvehicle_policescanner_vehicle", 0, true, false, "Unit Vehicles: If set to 1, the police scanner will use your vehicle as its anchor rather than the camera viewpoint.")
 
 	-- for i = 1, MAX_HEAT_LEVEL do
 	-- 	local prevIterator = i - 1

@@ -16,8 +16,12 @@ Text = [[
  |-- When included, AI Racers will follow these paths instead of checkpoints
  |-- Path Nodes support multi-path racing, where the AI will now randomly pick a route
  |-- *Curve Strength* allows the user to apply a gradual turn for longer paths
+- Added support for themed Police Scanners
+ |-- Only Most Wanted has its themed scanner for the time being
+ |-- Also added the option to have the vehicle's forward axis be used for the scanner rather than the camera
 
 **Changes**
+- Removed the legacy text-based police chatter
 - Updated the description for tracks when importing them to signal if they have Path Nodes and/or Props
 - Updated default Cop1 vehicle identification lines
 

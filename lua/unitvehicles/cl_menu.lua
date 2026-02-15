@@ -391,10 +391,7 @@ UVMenu.Settings = function()
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
 				{ type = "combo", text = "uv.ui.backup", desc = "uv.ui.backup.desc", convar = "unitvehicle_hudtype_backup", content = backupHUDList },
 				{ type = "bool", text = "uv.ui.racertags", desc = "uv.ui.racertags.desc", convar = "unitvehicle_racertags" },
-				{ type = "bool", text = "uv.ui.policescanner", desc = "uv.ui.policescanner.desc", convar = "unitvehicle_policescanner" },
 				{ type = "bool", text = "uv.ui.preracepopup", desc = "uv.ui.preracepopup.desc", convar = "unitvehicle_preraceinfo" },
-				{ type = "bool", text = "uv.ui.subtitles", desc = "uv.ui.subtitles.desc", convar = "unitvehicle_subtitles" },
-				{ type = "bool", text = "uv.ui.vehnametakedown", desc = "uv.ui.vehnametakedown.desc", convar = "unitvehicle_vehiclenametakedown" },
 				{ type = "combo", text = "uv.ui.unitstype", desc = "uv.ui.unitstype.desc", convar = "unitvehicle_unitstype", content = {
 						{ "uv.ui.unitstype.meter", 0 },
 						{ "uv.ui.unitstype.feet", 1 },
@@ -403,6 +400,12 @@ UVMenu.Settings = function()
 				},
 				{ type = "slider", text = "uv.ui.deadzone", desc = "uv.ui.deadzone.desc", convar = "unitvehicle_hud_deadzone", min = 0, max = 500, decimals = 0 },
 				{ type = "slider", text = "uv.ui.scale", desc = "uv.ui.scale.desc", convar = "unitvehicle_hud_scale", min = 0.1, max = 1, decimals = 2 },
+
+				{ type = "label", text = "uv.pursuit" },
+				{ type = "bool", text = "uv.ui.policescanner", desc = "uv.ui.policescanner.desc", convar = "unitvehicle_policescanner" },
+				{ type = "bool", text = "uv.ui.policescanner.vehicle", desc = "uv.ui.policescanner.vehicle.desc", convar = "unitvehicle_policescanner_vehicle", requireparentconvar = "unitvehicle_policescanner" },
+				{ type = "bool", text = "uv.ui.subtitles", desc = "uv.ui.subtitles.desc", convar = "unitvehicle_subtitles" },
+				{ type = "bool", text = "uv.ui.vehnametakedown", desc = "uv.ui.vehnametakedown.desc", convar = "unitvehicle_vehiclenametakedown" },
 
 				{ type = "label", text = "uv.ui.menu", desc = "uv.ui.menu.desc" },
 				{ type = "bool", text = "uv.ui.menu.hidedesc", desc = "uv.ui.menu.hidedesc.desc", convar = "uvmenu_hide_description" },
