@@ -1613,17 +1613,17 @@ if SERVER then
 						local fvect = fdist:GetNormalized() --Friendly direction vector.
 						local fvectdot = fvect:Dot(self.v:GetVelocity()) --Dot product, velocity and direction.
 						local fright = fvect:Cross(forward) --The friendly is right side or not.
-						-- if dist:LengthSqr() > fedist:LengthSqr() then
-						-- 	if fvectdot > 0 then
-						-- 		if UVCalm and fdist:LengthSqr() < 100000 then
-						-- 			throttle = -1
-						-- 		elseif fdist:LengthSqr() < 100000 and enemyvelocity > 200000 and not self.formationpoint then
-						-- 			if selfvelocity > f.v:GetVelocity():LengthSqr() and fdist:Dot(forward) > 0 then
-						-- 				steer = steer * 0
-						-- 			end
-						-- 		end
-						-- 	end
-						-- end -- Follow behind
+						if dist:LengthSqr() > fedist:LengthSqr() then
+							if fvectdot > 0 then
+								if UVCalm and fdist:LengthSqr() < 100000 then
+									throttle = -1
+								elseif fdist:LengthSqr() < 100000 and enemyvelocity > 200000 and not self.formationpoint then
+									if selfvelocity > f.v:GetVelocity():LengthSqr() and fdist:Dot(forward) > 0 then
+										steer = steer * 0
+									end
+								end
+							end
+						end -- Follow behind
 						if fvectdot > 0 and f.v:GetVelocity():LengthSqr() < (UVBustSpeed*2) and dist:LengthSqr() < 2500000 and selfvelocity > fdist:LengthSqr() and enemyvelocity < (UVBustSpeed*2) then
 							if fright.z < 0.1 and fright.z > -0.9 then
 								steer = 1
