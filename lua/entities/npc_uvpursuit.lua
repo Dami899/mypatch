@@ -382,8 +382,6 @@ if SERVER then
 				targetVel = vel * 5
 			end
 
-			targetVel = vector_origin
-
 			targetPos = targetPos + targetVel
 			local trace = util.TraceLine({
 				start = target:WorldSpaceCenter(), 
