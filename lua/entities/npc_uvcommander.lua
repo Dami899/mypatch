@@ -1570,13 +1570,13 @@ if SERVER then
 						local fright = fvect:Cross(forward) --The friendly is right side or not.
 						if dist:LengthSqr() > fedist:LengthSqr() then
 							if fvectdot > 0 then
-								if UVCalm and fdist:LengthSqr() < 100000 then
-									throttle = -1
-								elseif fdist:LengthSqr() < 100000 and enemyvelocity > 200000 then
-									if selfvelocity > f.v:GetVelocity():LengthSqr() and fdist:Dot(forward) > 0 and not self.formationpoint then
-										throttle = 2
-									end
-								end
+								-- if UVCalm and fdist:LengthSqr() < 100000 then
+								-- 	throttle = -1
+								-- elseif fdist:LengthSqr() < 100000 and enemyvelocity > 200000 then
+								-- 	if selfvelocity > f.v:GetVelocity():LengthSqr() and fdist:Dot(forward) > 0 and not self.formationpoint then
+								-- 		throttle = 2
+								-- 	end
+								-- end
 							end
 						end -- Follow behind
 						if fvectdot > 0 and f.v:GetVelocity():LengthSqr() < (UVBustSpeed*2) and dist:LengthSqr() < 2500000 and selfvelocity > fdist:LengthSqr() and enemyvelocity < (UVBustSpeed*2) then
@@ -1854,7 +1854,7 @@ if SERVER then
 						self:ChangeELSSiren()
 					end
 					if Chatter:GetBool() and IsValid(self.v) and enemyvelocity > 100000 and self:StraightToTarget(self.e) and MathAggressive ~= 1 then
-						UVChatterCloseToEnemy(self) 
+						UVChatterCloseToEnemy(self, self.e) 
 					end
 				end
 			end

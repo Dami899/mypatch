@@ -2164,15 +2164,17 @@ if SERVER then
 		end
 	end
 	
-	function UVChatterCloseToEnemy(self)
+	function UVChatterCloseToEnemy(self, target)
 		if UVChatterDelayed then return end
 		if not GetConVar("unitvehicle_chattertext"):GetBool() then
-			local randomno = math.random(1,2)
+			local randomno = math.random(1,3)
 			if randomno == 1 then
 				return UVSoundChatter(self, self.voice, "closetoenemy")
-			else
+			elseif target.UVHUDBusting then
 				return UVSoundChatter(self, self.voice, "closetoenemy", 2)
 			end
+
+			return 0
 		end
 		-- UVDelayChatter()
 		
@@ -4029,12 +4031,12 @@ if SERVER then
 		if not GetConVar("unitvehicle_chattertext"):GetBool() then
 			local timecheck = 5
 			timecheck = UVSoundChatter(self, self.voice, "pursuitstartwanted", 4)
-			timer.Simple(timecheck, function()
-				if IsValid(self) and IsValid(self.e) then
+			--timer.Simple(timecheck, function()
+				--if IsValid(self) and IsValid(self.e) then
 					local e = UVGetVehicleMakeAndModel(self.e)
 					UVChatterVehicleDescription(self, self.e, e)
-				end
-			end)
+				--end
+			--end)
 			return
 		end
 		-- UVDelayChatter()
@@ -4092,12 +4094,12 @@ if SERVER then
 	function UVChatterVehicleDescription(self, vehicle)
 		if not GetConVar("unitvehicle_chattertext"):GetBool() then
 			local timecheck = UVSoundChatter(self, self.voice, nil, 10, "", vehicle)
-			if not timecheck then return end
-			timer.Simple(timecheck, function()
-				if IsValid(self) then
+			--if not timecheck then return end
+			-- timer.Simple(timecheck, function()
+			-- 	if IsValid(self) then
 					UVChatterPursuitStartAcknowledge(self)
-				end
-			end)
+			-- 	end
+			-- end)
 			return
 		end
 	end

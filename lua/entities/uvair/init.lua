@@ -447,7 +447,7 @@ function ENT:PhysicsUpdate()
 				end
 			end
 			if isValidTarget and Chatter:GetBool() and not (self.crashing or self.disengaging) and target:GetVelocity():LengthSqr() > 100000 and self:IsSeeTarget() and MathAggressive ~= 1 then
-				UVChatterCloseToEnemy(self)
+				UVChatterCloseToEnemy(self, target)
 			end
 		end
 				
