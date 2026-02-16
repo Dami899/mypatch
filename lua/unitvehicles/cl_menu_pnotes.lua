@@ -9,7 +9,7 @@ UV = UV or {}
 
 UV.PNotes = {
 ["v1.2.0"] = {
-Date = { year = 2026, month = 2, day = 16 },
+Date = { year = 2026, month = 2, day = 20 },
 Text = [[
 **New Features**
 - Racing: Added support for *AI Path Nodes*
@@ -29,6 +29,7 @@ Text = [[
 
 **Fixes**
 - Fixed that UVTrax provided the raw folder name in the notification rather than the metadata folder name
+ |-- This only applies to UVTrax profiles that utilize JSON files for song titles, authors and folder names
 - Fixed that Pursuit Breakers, when wrecking Units, caused a Pursuit to engage, even if there was no racers to pursue
 ]],
 },
