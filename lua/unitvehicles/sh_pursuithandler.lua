@@ -616,6 +616,22 @@ function UVSoundEscaped(heatlevel)
 	UVPlayingEscaped = true
 end
  
+if CLIENT then
+	cvars.RemoveChangeCallback("unitvehicle_pursuitthemevolume", "UV_PursuitVolumeChanged")
+	cvars.AddChangeCallback("unitvehicle_pursuitthemevolume", function(convar, old, new)
+		local vol = tonumber(new)
+		if not vol then return end
+
+		if IsValid(UVSoundLoop) then
+			UVSoundLoop:SetVolume(vol)
+		end
+
+		if IsValid(UVSoundSource) then
+			UVSoundSource:SetVolume(vol)
+		end
+	end, "UV_PursuitVolumeChanged")
+end
+ 
 function UVInitSound( src, loop, stoploop, timeout, applyMusicVolume )
 	if not IsValid(src) then UVStopSound() return end
 

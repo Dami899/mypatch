@@ -21,12 +21,15 @@ Text = [[
  |-- Also added the option to have the vehicle's forward axis be used for the scanner rather than the camera
 
 **Changes**
+- Improved Unit AI pathing
 - Removed the legacy text-based police chatter
 - Updated the description for tracks when importing them to signal if they have Path Nodes and/or Props
 - Updated default Cop1 vehicle identification lines
+- Music Volume now affects currently playing UVTrax and Pursuit Themes
 
 **Fixes**
 - Fixed that UVTrax provided the raw folder name in the notification rather than the metadata folder name
+- Fixed that Pursuit Breakers, when wrecking Units, caused a Pursuit to engage, even if there was no racers to pursue
 ]],
 },
 
