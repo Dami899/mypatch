@@ -1364,7 +1364,7 @@ else -- CLIENT stuff
 						local parts = string.Explode(" - ", track)
 						artist = (#parts == 1) and "Unknown Artist" or parts[1]
 						title = (#parts == 1) and track or parts[2]
-						folder = trackFolder
+						folder = themeFolder
 					end
 
 					table.insert( UVPlaylists[themeFolder][trackFolder], {
