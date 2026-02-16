@@ -244,12 +244,10 @@ if CLIENT then
 	-- UV.DebugRes = { w = 640, h = 480 } -- 16:9 480p (For testing - never work with this as a baseline)
 	
 	function UV_GetW()
-		--print(ScrW())
 		return UV.DebugRes and UV.DebugRes.w or ScrW()
 	end
 
 	function UV_GetH()
-		--print(ScrH())
 		return UV.DebugRes and UV.DebugRes.h or ScrH()
 	end
 
@@ -266,7 +264,6 @@ if CLIENT then
 	end
 
 	-- Original HUD & General
-	print(UV.ScaleH(50))
 	surface.CreateFont("UVFont", { font = "Arial", size = UV.ScaleH(50), weight = 500, italic = true, extended = true })
 	surface.CreateFont("UVFont-Shadow", { font = "Arial", size = UV.ScaleH(50), weight = 500, italic = true, shadow = true, extended = true })
 	surface.CreateFont("UVFont-Smaller", { font = "Arial", size = UV.ScaleH(46), weight = 500, italic = true, extended = true })
