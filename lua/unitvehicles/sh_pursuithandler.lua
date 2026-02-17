@@ -941,7 +941,6 @@ SpikeStripDuration = CreateConVar("unitvehicle_spikestripduration", 20, {FCVAR_A
 Pathfinding = CreateConVar("unitvehicle_pathfinding", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units uses A* pathfinding algorithm on navmesh/Decent Vehicle Waypoints to navigate. Impacts computer performance.")
 VCModELSPriority = CreateConVar("unitvehicle_vcmodelspriority", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units using base HL2 vehicles will attempt to use VCMod ELS over Photon if both are installed.")
 CallResponse = CreateConVar("unitvehicle_callresponse", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units will spawn and respond to the location regarding various calls.")
-ChatterText = CreateConVar("unitvehicle_chattertext", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units' radio chatter will be displayed in the chatbox instead.")
 Headlights = CreateConVar("unitvehicle_enableheadlights", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: AI Vehicles will shine their headlights. 0 = Off, 1 = Automatic, 2 = Always on")
 UseNitrousRacer = CreateConVar("unitvehicle_usenitrousracer", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racer vehicles will use nitrous.")
 UseNitrousUnit = CreateConVar("unitvehicle_usenitrousunit", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Unit vehicles will use nitrous.")

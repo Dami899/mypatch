@@ -16,7 +16,6 @@ local SpikeStripDuration = GetConVar("unitvehicle_spikestripduration")
 local Pathfinding = GetConVar("unitvehicle_pathfinding")
 local VCModELSPriority = GetConVar("unitvehicle_vcmodelspriority")
 local CallResponse = GetConVar("unitvehicle_callresponse")
-local ChatterText = GetConVar("unitvehicle_chattertext")
 local Headlights = GetConVar("unitvehicle_enableheadlights")
 local SpawnMainUnits = GetConVar("unitvehicle_spawnmainunits")
 local RepairCooldown = GetConVar("unitvehicle_repaircooldown")
@@ -58,7 +57,6 @@ NETWORK_STRINGS = {
 	-- Chatter / Sounds
 	"UV_Chatter",
 	"UV_Sound",
-	"UV_Text",
 	
 	-- Settings
 	"UVGetSettings_Local",
@@ -356,7 +354,6 @@ concommand.Add("uv_resetallsettings", function(ply)
 	Pathfinding:Revert()
 	VCModELSPriority:Revert()
 	CallResponse:Revert()
-	ChatterText:Revert()
 	Headlights:Revert()
 	SpawnMainUnits:Revert()
 	RepairCooldown:Revert()

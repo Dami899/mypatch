@@ -697,7 +697,6 @@ UVMenu.Settings = function()
 				
 				{ type = "label", text = "uv.chatter", sv = true },
 				{ type = "bool", text = "uv.chatter.enable", desc = "uv.chatter.enable.desc", convar = "unitvehicle_chatter", sv = true },
-				{ type = "bool", text = "uv.chatter.text", desc = "uv.chatter.text.desc", convar = "unitvehicle_chattertext", sv = true },
 				
 				{ type = "label", text = "uv.response", sv = true },
 				{ type = "bool", text = "uv.response.enable", desc = "uv.response.enable.desc", convar = "unitvehicle_callresponse", sv = true },
