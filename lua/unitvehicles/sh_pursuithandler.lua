@@ -869,6 +869,11 @@ UVPTJuggernautDuration = CreateConVar("uvpursuittech_juggernaut_duration", 10, {
 UVPTJuggernautMaxAmmo = CreateConVar("uvpursuittech_juggernaut_maxammo", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Max Ammo")
 UVPTJuggernautCooldown = CreateConVar("uvpursuittech_juggernaut_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")
 
+-- Ghost
+UVPTGhostDuration = CreateConVar("uvpursuittech_ghost_duration", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVPTGhostMaxAmmo = CreateConVar("uvpursuittech_ghost_maxammo", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Max Ammo")
+UVPTGhostCooldown = CreateConVar("uvpursuittech_ghost_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")
+
 -- RepairKit
 UVPTRepairKitMaxAmmo = CreateConVar("uvpursuittech_repairkit_maxammo", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Max Ammo")
 UVPTRepairKitCooldown = CreateConVar("uvpursuittech_repairkit_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")

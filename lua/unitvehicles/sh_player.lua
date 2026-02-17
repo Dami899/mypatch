@@ -1064,6 +1064,28 @@ if SERVER then
             car:CallOnRemove("uvjuggernaut"..car:EntIndex(), function()
                 UVDeactivateJuggernaut(car)
             end)
+        elseif pursuit_tech.Tech == "Ghost" then --Ghost
+            local Cooldown = pursuit_tech.Cooldown
+            if CurTime() - pursuit_tech.LastUsed < Cooldown then return end
+            car:RemoveCallOnRemove("uvghost"..car:EntIndex())
+            
+            UVDeployGhost(car)
+            
+            pursuit_tech.LastUsed = CurTime()
+            pursuit_tech.Ammo = pursuit_tech.Ammo - 1
+            used = true
+
+            if IsValid(driver) then
+                UVPTEvent({driver}, 'Ghost', 'Use')
+            end
+            
+            timer.Simple(UVPTGhostDuration:GetInt(), function()
+                UVDeactivateGhost(car)
+            end)
+            
+            car:CallOnRemove("uvghost"..car:EntIndex(), function()
+                UVDeactivateGhost(car)
+            end)
         end
 
         if used then
@@ -1990,10 +2012,6 @@ if SERVER then
         net.Start("UVWeaponJuggernautEnable")
         net.WriteEntity(car)
         net.Broadcast()
-
-        if car.UnitVehicle then
-            UVChatterJuggernautDeployed(car)
-        end
     end
     
     function UVDeactivateJuggernaut(car)
@@ -2014,10 +2032,37 @@ if SERVER then
             car:EmitSound("gadgets/juggernaut/juggernautoff.wav")
 
             car.uvjuggernauthit = nil
-            
-            if car.UnitVehicle then
-                UVChatterJuggernautMissed(car)
-            end
+        end
+    end
+
+    --GHOST
+    function UVDeployGhost(car)
+        local driver = UVGetDriver(car)
+
+        car.ghoston = true
+        
+        car:SetCollisionGroup(20)
+
+        car.ogrendermode = car:GetRenderMode()
+        car:SetRenderMode(RENDERMODE_TRANSALPHA) --Required for transparency
+
+        local c = car:GetColor()
+        car:SetColor(Color(c.r, c.g, c.b, 100))
+    end
+    
+    function UVDeactivateGhost(car)
+        if not car.ghoston then return end
+
+        if IsValid(car) then
+            car.ghoston = nil
+
+            car:SetCollisionGroup(0)
+
+            car:SetRenderMode(car.ogrendermode)
+            car.ogrendermode = nil
+
+            local c = car:GetColor()
+            car:SetColor(Color(c.r, c.g, c.b, 255))
         end
     end
     

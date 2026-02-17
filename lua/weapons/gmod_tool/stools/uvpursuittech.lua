@@ -128,6 +128,19 @@ local PursuitTechDefs = {
             maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
         }
     },
+
+	["Ghost"] = {
+        name = "#uv.ptech.ghost",
+        sname = "#uv.ptech.ghost.short",
+        description = "#uv.ptech.ghost.desc",
+        shortname = "ghost",
+        racer = true, unit = false,
+        convars = {
+            duration = { default = 5, min = 1, max = 30, decimals = 0 },
+            cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
+            maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
+        }
+    },
 	
     ["Jammer"] = {
         name = "#uv.ptech.jammer",
