@@ -436,6 +436,15 @@ UV_PT.Ghost = {
         })
     end
 }
+UV_PT.Grappler = {
+    Use = function(...)
+        local userString = "uv.ptech.grappler.activated"
+
+        UV_UI.general.events.CenterNotification({
+            text = UVString( userString ),
+        })
+    end
+}
 
 --
 

@@ -141,6 +141,22 @@ local PursuitTechDefs = {
             maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
         }
     },
+
+	["Grappler"] = {
+        name = "#uv.ptech.grappler",
+        sname = "#uv.ptech.grappler.short",
+        description = "#uv.ptech.grappler.desc",
+        shortname = "grappler",
+        racer = false, unit = true,
+        convars = {
+            duration = { default = 10, min = 1, max = 30, decimals = 0 },
+			disableduration = { default = 10, min = 1, max = 30, decimals = 0 },
+			length = { default = 500, min = 1, max = 1000, decimals = 0 },
+			strength = { default = 10000, min = 1, max = 100000, decimals = 0 },
+            cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
+            maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
+        }
+    },
 	
     ["Jammer"] = {
         name = "#uv.ptech.jammer",

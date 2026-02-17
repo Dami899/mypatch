@@ -38,6 +38,9 @@ NETWORK_STRINGS = {
 
 	"UVWeaponJuggernautEnable",
 	"UVWeaponJuggernautDisable",
+
+	"UVWeaponGrapplerEnable",
+	"UVWeaponGrapplerDisable",
 	
 	"UVWeaponJammerEnable",
 	"UVWeaponJammerDisable",
