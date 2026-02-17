@@ -427,6 +427,24 @@ UV_PT.Juggernaut = {
         })
     end
 }
+UV_PT.Ghost = {
+    Use = function(...)
+        local userString = "uv.ptech.ghost.activated"
+
+        UV_UI.general.events.CenterNotification({
+            text = UVString( userString ),
+        })
+    end
+}
+UV_PT.Grappler = {
+    Use = function(...)
+        local userString = "uv.ptech.grappler.activated"
+
+        UV_UI.general.events.CenterNotification({
+            text = UVString( userString ),
+        })
+    end
+}
 
 --
 

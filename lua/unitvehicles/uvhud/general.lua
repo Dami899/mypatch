@@ -27,6 +27,8 @@ local function uv_general()
         ['Shock Ram'] = 'uv.ptech.shockram.short',
         ['GPS Dart'] = 'uv.ptech.gpsdart.short',
         ['Juggernaut'] = 'uv.ptech.juggernaut.short',
+		['Ghost'] = 'uv.ptech.ghost.short',
+		['Grappler'] = 'uv.ptech.grappler.short',
     }
 
 	-- local debugjam = true

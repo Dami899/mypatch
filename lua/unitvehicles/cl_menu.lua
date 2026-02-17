@@ -33,6 +33,231 @@ mustang
 ]],
 }
 
+-- Formats PNote Strings
+local MonthNames = {
+    en = {
+        full  = { "January","February","March","April","May","June","July","August","September","October","November","December" },
+        short = { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec" },
+    },
+
+    fr = {
+        full  = { "janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre" },
+        short = { "janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc." },
+    },
+
+    de = {
+        full  = { "Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember" },
+        short = { "Jan.","Feb.","März","Apr.","Mai","Juni","Juli","Aug.","Sept.","Okt.","Nov.","Dez." },
+    },
+
+    ["es-ES"] = {
+        full  = { "enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre" },
+        short = { "ene.","feb.","mar.","abr.","may.","jun.","jul.","ago.","sept.","oct.","nov.","dic." },
+    },
+
+    it = {
+        full  = { "gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre" },
+        short = { "gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic" },
+    },
+
+    ["pt-BR"] = {
+        full  = { "janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro" },
+        short = { "jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez" },
+    },
+
+    ["pt-PT"] = {
+        full  = { "janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro" },
+        short = { "jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez" },
+    },
+
+    nl = {
+        full  = { "januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december" },
+        short = { "jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec" },
+    },
+
+    pl = {
+        full  = { "stycznia","lutego","marca","kwietnia","maja","czerwca","lipca","sierpnia","września","października","listopada","grudnia" },
+        short = { "sty","lut","mar","kwi","maj","cze","lip","sie","wrz","paź","lis","gru" },
+    },
+
+    cs = {
+        full  = { "ledna","února","března","dubna","května","června","července","srpna","září","října","listopadu","prosince" },
+        short = { "led","úno","bře","dub","kvě","čer","čvc","srp","zář","říj","lis","pro" },
+    },
+
+    sk = {
+        full  = { "januára","februára","marca","apríla","mája","júna","júla","augusta","septembra","októbra","novembra","decembra" },
+        short = { "jan","feb","mar","apr","máj","jún","júl","aug","sep","okt","nov","dec" },
+    },
+
+    ["sv-SE"] = {
+        full  = { "januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december" },
+        short = { "jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec" },
+    },
+
+    da = {
+        full  = { "januar","februar","marts","april","maj","juni","juli","august","september","oktober","november","december" },
+        short = { "jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec" },
+    },
+
+    no = {
+        full  = { "januar","februar","mars","april","mai","juni","juli","august","september","oktober","november","desember" },
+        short = { "jan","feb","mar","apr","mai","jun","jul","aug","sep","okt","nov","des" },
+    },
+
+    fi = {
+        full  = { "tammikuuta","helmikuuta","maaliskuuta","huhtikuuta","toukokuuta","kesäkuuta","heinäkuuta","elokuuta","syyskuuta","lokakuuta","marraskuuta","joulukuuta" },
+        short = { "tammi","helmi","maalis","huhti","touko","kesä","heinä","elo","syys","loka","marras","joulu" },
+    },
+
+    et = {
+        full  = { "jaanuar","veebruar","märts","aprill","mai","juuni","juuli","august","september","oktoober","november","detsember" },
+        short = { "jaan","veebr","märts","apr","mai","juuni","juuli","aug","sept","okt","nov","dets" },
+    },
+
+    lt = {
+        full  = { "sausio","vasario","kovo","balandžio","gegužės","birželio","liepos","rugpjūčio","rugsėjo","spalio","lapkričio","gruodžio" },
+        short = { "sau","vas","kov","bal","geg","bir","lie","rgp","rgs","spa","lap","gru" },
+    },
+
+    hr = {
+        full  = { "siječnja","veljače","ožujka","travnja","svibnja","lipnja","srpnja","kolovoza","rujna","listopada","studenoga","prosinca" },
+        short = { "sij","velj","ožu","tra","svi","lip","srp","kol","ruj","lis","stu","pro" },
+    },
+
+    hu = {
+        full  = { "január","február","március","április","május","június","július","augusztus","szeptember","október","november","december" },
+        short = { "jan","feb","márc","ápr","máj","jún","júl","aug","szept","okt","nov","dec" },
+    },
+
+    ro = {
+        full  = { "ianuarie","februarie","martie","aprilie","mai","iunie","iulie","august","septembrie","octombrie","noiembrie","decembrie" },
+        short = { "ian","feb","mar","apr","mai","iun","iul","aug","sept","oct","nov","dec" },
+    },
+
+    bg = {
+        full  = { "януари","февруари","март","април","май","юни","юли","август","септември","октомври","ноември","декември" },
+        short = { "ян.","фев.","март","апр.","май","юни","юли","авг.","септ.","окт.","ноем.","дек." },
+    },
+
+    ru = {
+        full  = { "января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря" },
+        short = { "янв.","февр.","март","апр.","май","июнь","июль","авг.","сент.","окт.","нояб.","дек." },
+    },
+
+    uk = {
+        full  = { "січня","лютого","березня","квітня","травня","червня","липня","серпня","вересня","жовтня","листопада","грудня" },
+        short = { "січ","лют","бер","квіт","трав","черв","лип","серп","вер","жовт","лист","груд" },
+    },
+
+    el = {
+        full  = { "Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου","Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου" },
+        short = { "Ιαν","Φεβ","Μαρ","Απρ","Μαΐ","Ιουν","Ιουλ","Αυγ","Σεπ","Οκτ","Νοε","Δεκ" },
+    },
+
+    tr = {
+        full  = { "Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık" },
+        short = { "Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara" },
+    },
+
+    he = {
+        full  = { "ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר" },
+        short = { "ינו׳","פבר׳","מרץ","אפר׳","מאי","יונ׳","יול׳","אוג׳","ספט׳","אוק׳","נוב׳","דצמ׳" },
+    },
+
+    ja = {
+        full  = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+        short = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+    },
+
+    ko = {
+        full  = { "1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월" },
+        short = { "1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월" },
+    },
+
+    ["zh-CN"] = {
+        full  = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+        short = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+    },
+
+    ["zh-TW"] = {
+        full  = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+        short = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+    },
+
+    th = {
+        full  = { "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม" },
+        short = { "ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค." },
+    },
+
+    -- vi = {
+        -- full  = { "tháng 1","tháng 2","tháng 3","tháng 4","tháng 5","tháng 6","tháng 7","tháng 8","tháng 9","tháng 10","tháng 11","tháng 12" },
+        -- short = { "Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12" },
+    -- },
+}
+
+local DateFormats = {
+    en = "{day} {month} {year}",
+    fr = "{day} {month} {year}",
+    de = "{day}. {month} {year}",
+    ["es-ES"] = "{day} {month} {year}",
+    it = "{day} {month} {year}",
+    ["pt-BR"] = "{day} {month} {year}",
+    ["pt-PT"] = "{day} {month} {year}",
+    nl = "{day} {month} {year}",
+    pl = "{day} {month} {year}",
+    cs = "{day} {month} {year}",
+    sk = "{day} {month} {year}",
+    ["sv-SE"] = "{day} {month} {year}",
+    da = "{day} {month} {year}",
+    no = "{day} {month} {year}",
+    fi = "{day}. {month} {year}",
+    et = "{day}. {month} {year}",
+    lt = "{year} m. {month} {day} d.",
+    hr = "{day}. {month} {year}.",
+    hu = "{year}. {month} {day}.",
+    ro = "{day} {month} {year}",
+    bg = "{day} {month} {year}",
+    ru = "{day} {month} {year}",
+    uk = "{day} {month} {year}",
+    el = "{day} {month} {year}",
+    tr = "{day} {month} {year}",
+    he = "{day} ב{month} {year}",
+    ja = "{year}年{month}{day}日",
+    ko = "{year}년 {month} {day}일",
+    ["zh-CN"] = "{year}年{month}{day}日",
+    ["zh-TW"] = "{year}年{month}{day}日",
+    th = "{day} {month} {year}",
+    -- vi = "{day} {month} {year}",
+}
+
+local function FormatPatchDate(dateTbl, useFullMonth)
+    local lang = GetConVar("gmod_language"):GetString()
+    local format = DateFormats[lang] or "%Y-%m-%d"
+
+	-- Fallback
+    if format:find("%%") then
+        local time = os.time({
+            year  = dateTbl.year,
+            month = dateTbl.month,
+            day   = dateTbl.day,
+            hour  = 12
+        })
+
+        return os.date(format, time)
+    end
+
+    -- Fancy shit
+    local months = MonthNames[lang] or MonthNames["en"]
+    local monthType = useFullMonth and "full" or "short"
+    local monthName = months[monthType][dateTbl.month]
+
+    return format
+        :gsub("{day}", dateTbl.day)
+        :gsub("{month}", monthName)
+        :gsub("{year}", dateTbl.year)
+end
+
 if CLIENT then
 	list.Set("DesktopWindows", "UnitVehiclesMenu", {
 		title = UVString("uv.unitvehicles"),
@@ -131,70 +356,6 @@ local function BuildHUDComboLists()
 end
 
 local mainHUDList, backupHUDList = BuildHUDComboLists()
-
--- Formats PNote Strings
-local DateFormats = {
-    -- English
-    ["en"]  = "%d/%m/%Y",
-
-    -- European
-    ["fr"] = "%d/%m/%Y", -- French
-    ["de"] = "%d.%m.%Y", -- German
-    ["es-ES"] = "%d/%m/%Y", -- Spanish
-    ["it"] = "%d/%m/%Y", -- Italian
-    ["pt"] = "%d/%m/%Y", -- Portuguese
-    ["pt-BR"] = "%d/%m/%Y", -- Brazilian Portuguese
-    ["nl"] = "%d-%m-%Y", -- Dutch
-    ["pl"] = "%d.%m.%Y", -- Polish
-    ["cs"] = "%d.%m.%Y", -- Czech
-    ["sk"] = "%d.%m.%Y", -- Slovak
-    ["hu"] = "%Y.%m.%d", -- Hungarian
-    ["ro"] = "%d.%m.%Y", -- Romanian
-    ["bg"] = "%d.%m.%Y", -- Bulgarian
-    ["hr"] = "%d.%m.%Y", -- Croatian
-    ["sr"] = "%d.%m.%Y", -- Serbian
-    ["sl"] = "%d.%m.%Y", -- Slovenian
-    ["el"] = "%d/%m/%Y", -- Greek
-    ["sv-SE"] = "%Y-%m-%d", -- Swedish
-    ["fi"] = "%d.%m.%Y", -- Finnish
-    ["da"] = "%d-%m-%Y", -- Danish
-    ["no"] = "%d.%m.%Y", -- Norwegian
-    ["lt"] = "%Y-%m-%d", -- Lithuanian
-    ["lv"] = "%d.%m.%Y", -- Latvian
-    ["et"] = "%d.%m.%Y", -- Estonian
-    ["uk"] = "%d.%m.%Y", -- Ukrainian
-    ["ru"] = "%d.%m.%Y", -- Russian
-
-    -- Asian
-    ["ja"] = "%Y/%m/%d", -- Japanese
-    ["zh-CN"] = "%Y-%m-%d", -- Simplified Chinese
-    ["zh-TW"] = "%Y-%m-%d", -- Traditional Chinese
-    ["ko"] = "%Y-%m-%d", -- Korean
-    ["th"] = "%d/%m/%Y", -- Thai
-    ["vi"] = "%d/%m/%Y", -- Vietnamese
-
-    -- Other
-    ["tr"] = "%d.%m.%Y", -- Turkish
-    ["ar"] = "%d/%m/%Y", -- Arabic
-    ["he"] = "%d/%m/%Y", -- Hebrew
-}
-
-local function FormatPatchDate(dateTbl)
-    local lang = GetConVar("gmod_language"):GetString()
-
-    -- Fallback if language isn't defined
-    local format = DateFormats[lang] or "%Y/%m/%d"
-
-    -- Convert to Unix time
-    local time = os.time({
-        year  = dateTbl.year,
-        month = dateTbl.month,
-        day   = dateTbl.day,
-        hour  = 12 -- avoids DST weirdness
-    })
-
-    return os.date(format, time)
-end
 
 ------- [ Main Menu ]-------
 UVMenu.Main = function()
@@ -536,7 +697,6 @@ UVMenu.Settings = function()
 				
 				{ type = "label", text = "uv.chatter", sv = true },
 				{ type = "bool", text = "uv.chatter.enable", desc = "uv.chatter.enable.desc", convar = "unitvehicle_chatter", sv = true },
-				{ type = "bool", text = "uv.chatter.text", desc = "uv.chatter.text.desc", convar = "unitvehicle_chattertext", sv = true },
 				
 				{ type = "label", text = "uv.response", sv = true },
 				{ type = "bool", text = "uv.response.enable", desc = "uv.response.enable.desc", convar = "unitvehicle_callresponse", sv = true },
@@ -1181,7 +1341,7 @@ local function BuildPatchNoteTabs()
         table.insert(tabs, {
             TabName = version,
             { type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"}, func = function() UVMenu.OpenMenu(UVMenu.Main) end },
-            { type = "label", text = FormatPatchDate(note.Date) },
+            { type = "label", text = FormatPatchDate(note.Date, true) },
 			
 			{ type = "image", image = "unitvehicles/icons_settings/pnotes/" .. version .. ".png" },
             { type = "info", text = note.Text },

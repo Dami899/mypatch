@@ -324,14 +324,13 @@ if SERVER then
         end
         
         local Chatter = GetConVar("unitvehicle_chatter")
-        local ChatterText = GetConVar("unitvehicle_chattertext")
         
         --Check if it's a gas station
         if UVTargeting then
             if string.find(jsonfile:lower(), "gas") then
                 UVSoundChatter(hitent, 1, "pursuitbreakergas", 8)
             else
-                if Chatter:GetBool() and not ChatterText:GetBool() then
+                if Chatter:GetBool() then
                     local units = ents.FindByClass("npc_uv*")
                     local airUnits = ents.FindByClass("uvair")
                     

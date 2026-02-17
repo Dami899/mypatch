@@ -1064,6 +1064,50 @@ if SERVER then
             car:CallOnRemove("uvjuggernaut"..car:EntIndex(), function()
                 UVDeactivateJuggernaut(car)
             end)
+        elseif pursuit_tech.Tech == "Ghost" then --Ghost
+            local Cooldown = pursuit_tech.Cooldown
+            if CurTime() - pursuit_tech.LastUsed < Cooldown then return end
+            car:RemoveCallOnRemove("uvghost"..car:EntIndex())
+            
+            UVDeployGhost(car)
+            
+            pursuit_tech.LastUsed = CurTime()
+            pursuit_tech.Ammo = pursuit_tech.Ammo - 1
+            used = true
+
+            if IsValid(driver) then
+                UVPTEvent({driver}, 'Ghost', 'Use')
+            end
+            
+            timer.Simple(UVPTGhostDuration:GetInt(), function()
+                UVDeactivateGhost(car)
+            end)
+            
+            car:CallOnRemove("uvghost"..car:EntIndex(), function()
+                UVDeactivateGhost(car)
+            end)
+        elseif pursuit_tech.Tech == "Grappler" then --Grappler
+            local Cooldown = pursuit_tech.Cooldown
+            if CurTime() - pursuit_tech.LastUsed < Cooldown then return end
+            car:RemoveCallOnRemove("uvgrappler"..car:EntIndex())
+            
+            UVDeployGrappler(car)
+            
+            pursuit_tech.LastUsed = CurTime()
+            pursuit_tech.Ammo = pursuit_tech.Ammo - 1
+            used = true
+
+            if IsValid(driver) then
+                UVPTEvent({driver}, 'Grappler', 'Use')
+            end
+            
+            timer.Simple(UVUnitPTGrapplerDuration:GetInt(), function()
+                UVDeactivateGrappler(car)
+            end)
+            
+            car:CallOnRemove("uvgrappler"..car:EntIndex(), function()
+                UVDeactivateGrappler(car)
+            end)
         end
 
         if used then
@@ -1990,10 +2034,6 @@ if SERVER then
         net.Start("UVWeaponJuggernautEnable")
         net.WriteEntity(car)
         net.Broadcast()
-
-        if car.UnitVehicle then
-            UVChatterJuggernautDeployed(car)
-        end
     end
     
     function UVDeactivateJuggernaut(car)
@@ -2014,10 +2054,62 @@ if SERVER then
             car:EmitSound("gadgets/juggernaut/juggernautoff.wav")
 
             car.uvjuggernauthit = nil
-            
-            if car.UnitVehicle then
-                UVChatterJuggernautMissed(car)
-            end
+        end
+    end
+
+    --GHOST
+    function UVDeployGhost(car)
+        local driver = UVGetDriver(car)
+
+        car.ghoston = true
+        
+        car:SetCollisionGroup(20)
+
+        car.ogrendermode = car:GetRenderMode()
+        car:SetRenderMode(RENDERMODE_TRANSALPHA) --Required for transparency
+
+        local c = car:GetColor()
+        car:SetColor(Color(c.r, c.g, c.b, 100))
+    end
+    
+    function UVDeactivateGhost(car)
+        if not car.ghoston then return end
+
+        if IsValid(car) then
+            car.ghoston = nil
+
+            car:SetCollisionGroup(0)
+
+            car:SetRenderMode(car.ogrendermode)
+            car.ogrendermode = nil
+
+            local c = car:GetColor()
+            car:SetColor(Color(c.r, c.g, c.b, 255))
+        end
+    end
+
+    --GRAPPLER
+    function UVDeployGrappler(car)
+        local driver = UVGetDriver(car)
+
+        car.grappleron = true
+        
+        net.Start("UVWeaponGrapplerEnable")
+        net.WriteEntity(car)
+        net.Broadcast()
+    end
+    
+    function UVDeactivateGrappler(car)
+        if not car.grappleron then return end
+
+        if IsValid(car) then
+            car.grappleron = nil
+
+            net.Start("UVWeaponGrapplerDisable")
+            net.WriteEntity(car)
+            net.Broadcast()
+
+            car.uvgrapplerhit = nil
         end
     end
     
@@ -2025,6 +2117,7 @@ else -- client settings
 
     UVWithESF = {}
     UVWithJuggernaut = {}
+    UVWithGrappler = {}
     
     net.Receive("UVUnitTakedown", function()
 		if UVHUDCopMode then return end
@@ -2093,6 +2186,9 @@ else -- client settings
         if not UVWithJuggernaut then
             UVWithJuggernaut = {}
         end
+        if not UVWithGrappler then
+            UVWithGrappler = {}
+        end
     end)
     
     net.Receive("UVWeaponESFEnable", function()
@@ -2123,6 +2219,21 @@ else -- client settings
     hook.Add("PreDrawHalos", "UVWeaponJuggernautShow", function()
         if next(UVWithJuggernaut) == nil then return end
         halo.Add( UVWithJuggernaut, Color(255,93,0), 10, 10, 1 )
+    end)
+
+    net.Receive("UVWeaponGrapplerEnable", function()
+        local unit = net.ReadEntity()
+        table.insert(UVWithGrappler, unit)
+    end)
+    
+    net.Receive("UVWeaponGrapplerDisable", function()
+        local unit = net.ReadEntity()
+        table.RemoveByValue(UVWithGrappler, unit)
+    end)
+    
+    hook.Add("PreDrawHalos", "UVWeaponGrapplerShow", function()
+        if next(UVWithGrappler) == nil then return end
+        halo.Add( UVWithGrappler, Color(225,255,0), 10, 10, 1 )
     end)
 
 end

@@ -869,6 +869,11 @@ UVPTJuggernautDuration = CreateConVar("uvpursuittech_juggernaut_duration", 10, {
 UVPTJuggernautMaxAmmo = CreateConVar("uvpursuittech_juggernaut_maxammo", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Max Ammo")
 UVPTJuggernautCooldown = CreateConVar("uvpursuittech_juggernaut_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")
 
+-- Ghost
+UVPTGhostDuration = CreateConVar("uvpursuittech_ghost_duration", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVPTGhostMaxAmmo = CreateConVar("uvpursuittech_ghost_maxammo", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Max Ammo")
+UVPTGhostCooldown = CreateConVar("uvpursuittech_ghost_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")
+
 -- RepairKit
 UVPTRepairKitMaxAmmo = CreateConVar("uvpursuittech_repairkit_maxammo", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Max Ammo")
 UVPTRepairKitCooldown = CreateConVar("uvpursuittech_repairkit_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")
@@ -924,6 +929,14 @@ UVUnitPTGPSDartDuration = CreateConVar("uvpursuittech_gpsdart_duration_unit", 30
 UVUnitPTGPSDartMaxAmmo = CreateConVar("uvpursuittech_gpsdart_maxammo_unit", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUnitPTGPSDartCooldown = CreateConVar("uvpursuittech_gpsdart_cooldown_unit", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 
+-- Grappler
+UVUnitPTGrapplerDuration = CreateConVar("uvpursuittech_grappler_duration_unit", 10, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVUnitPTGrapplerDisableduration = CreateConVar("uvpursuittech_grappler_disableduration_unit", 10, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVUnitPTGrapplerLength = CreateConVar("uvpursuittech_grappler_length_unit", 500, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVUnitPTGrapplerStrength = CreateConVar("uvpursuittech_grappler_strength_unit", 10000, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVUnitPTGrapplerMaxAmmo = CreateConVar("uvpursuittech_grappler_maxammo_unit", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVUnitPTGrapplerCooldown = CreateConVar("uvpursuittech_grappler_cooldown_unit", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+
 HeatLevels = CreateConVar("unitvehicle_heatlevels", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If set to 1, Heat Levels will increase from its minimum value to its maximum value during a pursuit." )
 DetectionRange = CreateConVar("unitvehicle_detectionrange", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: Minimum spawning distance to the vehicle in studs when manually spawning Units. Use greater values if you have trouble spawning Units.")
 NeverEvade = CreateConVar("unitvehicle_neverevade", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, you won't be able to evade the Unit Vehicles. Good luck.")
@@ -941,7 +954,6 @@ SpikeStripDuration = CreateConVar("unitvehicle_spikestripduration", 20, {FCVAR_A
 Pathfinding = CreateConVar("unitvehicle_pathfinding", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units uses A* pathfinding algorithm on navmesh/Decent Vehicle Waypoints to navigate. Impacts computer performance.")
 VCModELSPriority = CreateConVar("unitvehicle_vcmodelspriority", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units using base HL2 vehicles will attempt to use VCMod ELS over Photon if both are installed.")
 CallResponse = CreateConVar("unitvehicle_callresponse", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units will spawn and respond to the location regarding various calls.")
-ChatterText = CreateConVar("unitvehicle_chattertext", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units' radio chatter will be displayed in the chatbox instead.")
 Headlights = CreateConVar("unitvehicle_enableheadlights", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: AI Vehicles will shine their headlights. 0 = Off, 1 = Automatic, 2 = Always on")
 UseNitrousRacer = CreateConVar("unitvehicle_usenitrousracer", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racer vehicles will use nitrous.")
 UseNitrousUnit = CreateConVar("unitvehicle_usenitrousunit", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Unit vehicles will use nitrous.")
@@ -989,6 +1001,7 @@ UVUPursuitTech_Killswitch = CreateConVar("unitvehicle_unit_pursuittech_killswitc
 UVUPursuitTech_RepairKit = CreateConVar("unitvehicle_unit_pursuittech_repairkit", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, AI and player-controlled Unit Vehicles can spawn with repair kits.")
 UVUPursuitTech_ShockRam = CreateConVar("unitvehicle_unit_pursuittech_shockram", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, AI and player-controlled Unit Vehicles can spawn with shock rams.")
 UVUPursuitTech_GPSDart = CreateConVar("unitvehicle_unit_pursuittech_gpsdart", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, AI and player-controlled Unit Vehicles can spawn with gps darts.")
+UVUPursuitTech_Grappler = CreateConVar("unitvehicle_unit_pursuittech_grappler", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, AI and player-controlled Unit Vehicles can spawn with gps darts.")
 
 UVUHelicopterModel = CreateConVar("unitvehicle_unit_helicoptermodel", "Default", {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: Helicopter model to use with Air Unit.")
 UVUHelicopterBarrels = CreateConVar("unitvehicle_unit_helicopterbarrels", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "1 = Barrels\n0 = No Barrels")

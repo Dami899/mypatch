@@ -3,7 +3,6 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 local CanWreck = GetConVar("unitvehicle_canwreck")
 local Chatter = GetConVar("unitvehicle_chatter")
-local ChatterText = GetConVar("unitvehicle_chattertext")
 local PursuitTech = GetConVar("unitvehicle_unit_pursuittech")
 local Barrels = GetConVar("unitvehicle_unit_helicopterbarrels")
 local SpikeStrips = GetConVar("unitvehicle_unit_helicopterspikestrip")
@@ -926,7 +925,7 @@ function ENT:StartTouch(prop)
 			self.damaged = true
 			self:SetHealth(self:Health()/2)
 			ParticleEffectAttach("smoke_burning_engine_01", PATTACH_ABSORIGIN_FOLLOW, self, 0)
-			if Chatter:GetBool() and not ChatterText:GetBool() then
+			if Chatter:GetBool() then
 				UVSoundChatter(self, self.voice, "hit")
 			end
 		else
