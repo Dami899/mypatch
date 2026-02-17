@@ -597,12 +597,23 @@ if SERVER then
 			if dist < 600 then
 				self.CurrentPointIndex = self.CurrentPointIndex + 1
 				if self.CurrentPointIndex > #points then
-					self.CurrentNodeIndex = self.CurrentNodeIndex + 1
-					self.CurrentNode = self.NodePath[self.CurrentNodeIndex]
-					self.NextNode = self.NodePath[self.CurrentNodeIndex + 1]
-					self.CurrentPointIndex = 1
-					if not self.CurrentNode then
+					local nextNodes = {}
+					local currentPosNode = self.CurrentNode.To
+					if UVRace_CompiledPaths and currentPosNode then
+						for _, seg in ipairs( UVRace_CompiledPaths ) do if seg.From == currentPosNode then table.insert( nextNodes, seg ) end end
+					end
+
+					if #nextNodes > 0 then
+						local chosen = nextNodes[math.random(#nextNodes)]
+						-- print(self.v, "BRANCH COUNT: " .. #nextNodes)
+						-- PrintTable(chosen)
+						self.CurrentNode = chosen
+						self.NextNode = nil
+						self.CurrentPointIndex = 1
+					else
 						self.NodePath = nil
+						self.CurrentNode = nil
+						self.NextNode = nil
 					end
 				end
 			end
