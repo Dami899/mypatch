@@ -397,6 +397,11 @@ if SERVER then
 		end
 		
 		local targetPos = target:WorldSpaceCenter()
+
+		if checkDist then
+			if targetPos:DistToSqr(self.v:WorldSpaceCenter()) > checkDist then return false end
+		end
+		
 		if considerVelocity then
 			local targetVel = vector_origin
 			local physObj = target:GetPhysicsObject()
@@ -407,10 +412,6 @@ if SERVER then
 			else
 				local vel = target:GetVelocity()
 				targetVel = vel * 5
-			end
-
-			if checkDist then
-				if targetPos:DistToSqr(self.v:WorldSpaceCenter()) > checkDist then return false end
 			end
 
 			targetPos = targetPos + targetVel
@@ -1370,6 +1371,7 @@ if SERVER then
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
 			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, 4000000)
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid or useDirectDrive)
+			if suspectHeadingAwayFromNPC and self:StraightToTarget(self.e, true) then useDirectDriveBranch = true end
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver) and next(self.tableroutetoenemy) ~= nil then
 					self.tableroutetoenemy = {}
