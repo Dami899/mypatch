@@ -2064,6 +2064,10 @@ if SERVER then
 
         local closest_entpos = closest_ent:WorldSpaceCenter()
         local closest_entlocal = object:WorldToLocal(closest_entpos)
+
+        local weld_entity = nil
+
+        local grapplerThinkID = "UVGrapplerThink"..car:EntIndex()
         
         if object.IsSimfphyscar then
             if istable(object.Wheels) then
@@ -2075,20 +2079,22 @@ if SERVER then
                         if dist < shortest_distance then
                             shortest_distance = dist
                             closest_ent = Wheel
+                            selected_index = i
                         end
                     end
 			    end
             end
 
-            object = closest_ent
             closest_entpos = closest_ent:WorldSpaceCenter()
             closest_entlocal = object:WorldToLocal(closest_entpos)
+            closest_entphys = closest_ent:GetPhysicsObject()
         elseif object.IsGlideVehicle then 
             for _, v in pairs(object.wheels) do
 				if IsValid(v) then
                     local dist = carpos:DistToSqr(v:WorldSpaceCenter())
 
                     if dist < shortest_distance then
+                        
                         shortest_distance = dist
                         closest_ent = v
                     end
@@ -2097,6 +2103,12 @@ if SERVER then
 
             closest_entpos = closest_ent:WorldSpaceCenter()
             closest_entlocal = object:WorldToLocal(closest_entpos)
+            closest_entphys = closest_ent:GetPhysicsObject()
+
+            hook.Add("Think", grapplerThinkID, function()
+                if not IsValid(car) or not IsValid(object) then hook.Remove("Think", grapplerThinkID) return end
+                closest_ent.state.angularVelocity = 0
+            end)
         end
 
         local length = UVUnitPTGrapplerLength:GetInt()
@@ -2136,6 +2148,8 @@ if SERVER then
             timer.Simple(time, function()
                 if IsValid(car) then
                     constraint.RemoveConstraints( car, "Rope" )
+                    hook.Remove("Think", grapplerThinkID)
+                    if IsValid(weld_entity) then weld_entity:Remove() end
                 end
             end)
         end)
