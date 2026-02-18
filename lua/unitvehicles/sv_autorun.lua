@@ -2180,7 +2180,6 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 }
 
 function UVSetVehiclePerformanceMultiplier( vehicle, mult )
-	print( "UVSetVehiclePerformanceMultiplier", vehicle, mult )
 	mult = tonumber(mult) or 1
 
 	local isSimfphysVehicle = vehicle.IsSimfphyscar
