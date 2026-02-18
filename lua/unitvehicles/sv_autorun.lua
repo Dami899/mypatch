@@ -2205,11 +2205,6 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult )
 
 			if isfunction( getFunc ) and isfunction( setFunc ) then
 				if not vehicle.__UVOriginalPerformance[stat] then vehicle.__UVOriginalPerformance[stat] = getFunc() end
-				print('Set'..stat, MUTATOR_FUNCTIONS[data.Info.Type](
-					vehicle.__UVOriginalPerformance[stat], 
-					mult, 
-					data.Info
-				))
 				setFunc( vehicle, MUTATOR_FUNCTIONS[data.Info.Type](
 					vehicle.__UVOriginalPerformance[stat], 
 					mult, 
