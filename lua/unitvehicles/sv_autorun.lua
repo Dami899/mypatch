@@ -972,6 +972,10 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 
 			local object = coldata.HitEntity
 
+			if car.grappleron and object.UVWanted then --Grappler
+				UVGrapple(car, object)
+			end
+
 			if car.juggernauton and not object:IsWorld() then --Juggernaut
 				local ourOldVel = coldata.OurOldVelocity
 				local ourOldAngVel = coldata.OurOldAngularVelocity
@@ -1030,11 +1034,10 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 				local enemyDriver = UVGetDriver(enemyVehicle)
 				local power
 				local damage
-				local pursuit_tech = car.PursuitTech[slot]
 				if car.UnitVehicle then
 					power = UVUnitPTESFPower:GetInt()
 					damage = UVUnitPTESFDamage:GetFloat()
-					if pursuit_tech and pursuit_tech.Upgraded then
+					if UVIsPTUpgraded(car) then
 						power = power * 2
 						damage = damage * 2
 					end
@@ -1299,6 +1302,10 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 		end	
 	end
 
+	if car.grappleron and object.UVWanted then --Grappler
+		UVGrapple(car, object)
+	end
+
 	if car.juggernauton and not object:IsWorld() then --Juggernaut
 		local ourOldVel = coldata.OurOldVelocity
 		local ourOldAngVel = coldata.OurOldAngularVelocity
@@ -1354,11 +1361,10 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 		local power
 		local damage
 
-		local pursuit_tech = car.PursuitTech[slot]
 		if car.UnitVehicle then
 			power = UVUnitPTESFPower:GetInt()
 			damage = UVUnitPTESFDamage:GetFloat()
-			if pursuit_tech and pursuit_tech.Upgraded then
+			if UVIsPTUpgraded(car) then
 				power = power * 2
 				damage = damage * 2
 			end
@@ -1670,6 +1676,10 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			end
 		end
 
+		if car.grappleron and object.UVWanted then --Grappler
+			UVGrapple(car, object)
+		end
+
 		if car.juggernauton and not object:IsWorld() then --Juggernaut
 			local ourOldAngVel = coldata.OurOldAngularVelocity
 			local objectPhys = object:GetPhysicsObject()
@@ -1723,11 +1733,10 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			local enemyDriver = UVGetDriver(enemyVehicle)
 			local power
 			local damage
-			local pursuit_tech = car.PursuitTech[slot]
 			if car.UnitVehicle then
 				power = UVUnitPTESFPower:GetInt()
 				damage = UVUnitPTESFDamage:GetFloat()
-				if pursuit_tech and pursuit_tech.Upgraded then
+				if UVIsPTUpgraded(car) then
 					power = power * 2
 					damage = damage * 2
 				end

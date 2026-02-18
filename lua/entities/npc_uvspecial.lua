@@ -233,6 +233,7 @@ if SERVER then
 			end)
 			UVDeactivateESF(self.v)
 			UVDeactivateKillSwitch(self.v)
+			UVDeactivateGrappler(self.v)
 			if not timer.Exists("uvcombotime") then
 				timer.Create("uvcombotime", 5, 1, function() 
 					UVComboBounty = 1 
@@ -1870,6 +1871,24 @@ if SERVER then
 							UVDeployWeapon(self.v, i)
 							self.gps = CurTime()
 						end
+					elseif v.Tech == 'Grappler' then
+						local pttimeout = 0.5
+						if self.e.IsSimfphyscar then
+							if not (eedist:LengthSqr() < 1000000) then
+								self.grappler = CurTime()
+							end
+						elseif self.e:GetClass() == "prop_vehicle_jeep" then
+							if not (eedist:LengthSqr() < 1000000) then
+								self.grappler = CurTime()
+							end
+						end
+						if IsValid(self.v.grappler) or UVCalm or UVEnemyEscaping or not self.aggressive or self.v.rhino then
+							self.grappler = CurTime() 
+						end
+						if self.grappler ~= CurTime() and pttimeout > 0 and PursuitTech:GetBool() and not self.v.roadblocking then
+							UVDeployWeapon(self.v, i)
+							self.grappler = CurTime()
+						end
 					end
 				end
 			end
@@ -2039,6 +2058,22 @@ if SERVER then
 				throttle = 0
 				steer = 0
 			end
+
+			if IsValid(self.v.grappler) then
+				if self.v.IsSimfphyscar then
+					if self.v:GetGear() >= 3 then
+						throttle = -1
+					else
+						throttle = 1
+					end
+				elseif self.v.IsGlideVehicle then
+					if self.v:GetGear() >= 1 then
+						throttle = -1
+					else
+						throttle = 1
+					end
+				end --Slow down when grappling
+			end
 			
 			--Set throttle/steering
 			if self.v.IsScar then
@@ -2174,6 +2209,7 @@ if SERVER then
 			if v.IsScar then --If it's a SCAR.
 				if not v:HasDriver() then --If driver's seat is empty.
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.UVSpecial = self
 					v.UnitVehicle = self
 					v.HasDriver = function() return true end --SCAR script assumes there's a driver.
@@ -2183,6 +2219,7 @@ if SERVER then
 			elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
 				if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.UVSpecial = self
 					v.UnitVehicle = self
 					v:SetActive(true)
@@ -2195,6 +2232,7 @@ if SERVER then
 			elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
 				if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.UVSpecial = self
 					v.UnitVehicle = self
 					v:EnableEngine(true)
@@ -2203,6 +2241,7 @@ if SERVER then
 			elseif v.IsGlideVehicle then --Glide
 				if not IsValid(v:GetDriver()) then
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.UVSpecial = self
 					v.UnitVehicle = self
 					v:SetEngineState(2)
@@ -2227,6 +2266,7 @@ if SERVER then
 					if v.IsScar then --If it's a SCAR.
 						if not v:HasDriver() then --If driver's seat is empty.
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.UVSpecial = self
 							v.UnitVehicle = self
 							v.HasDriver = function() return true end --SCAR script assumes there's a driver.
@@ -2236,6 +2276,7 @@ if SERVER then
 					elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
 						if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.UVSpecial = self
 							v.UnitVehicle = self
 							v:SetActive(true)
@@ -2248,6 +2289,7 @@ if SERVER then
 					elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
 						if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.UVSpecial = self
 							v.UnitVehicle = self
 							v:EnableEngine(true)
@@ -2256,6 +2298,7 @@ if SERVER then
 					elseif v.IsGlideVehicle then --Glide
 						if not IsValid(v:GetDriver()) then
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.UVSpecial = self
 							v.UnitVehicle = self
 							v:TurnOn()

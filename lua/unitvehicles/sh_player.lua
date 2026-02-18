@@ -14,78 +14,6 @@ hook.Add( "PlayerButtonDown", "PlayerButtonDownHandler", function( ply, button )
         return
     end
     
-    -- if button == KEY_M then
-    --     local car = UVGetVehicle( ply )
-    
-    --     if car then
-    --         if not table.HasValue( UVRaceCurrentParticipants, car ) then return end
-    --         if not UVRaceInProgress then return end
-    
-    --         local key = "VehicleReset_"..car:EntIndex()
-    --         if timer.Exists( key ) then return end
-    
-    --         if car.hasreset then
-    --             net.Start("uvrace_resetfailed")
-    --             net.WriteString("uv.race.resetcooldown")
-    --             net.Send(ply)
-    --             return
-    --         end
-    
-    --         if car:GetVelocity():LengthSqr() > 5000 then
-    --             net.Start("uvrace_resetfailed")
-    --             net.WriteString("uv.race.resetstationary")
-    --             net.Send(ply)
-    --             return
-    --         end
-    
-    --         if car.UVBustingProgress and car.UVBustingProgress > 0 then
-    --             timer.Remove(key)
-    --             net.Start("uvrace_resetfailed")
-    --             net.WriteString("uv.race.resetbusting")
-    --             net.Send(ply)
-    --             return
-    --         end
-    
-    --         net.Start( "uvrace_resetcountdown" )
-    --         net.WriteInt(2, 4)
-    --         net.Send(ply)
-    
-    --         timer.Create( key, 1, 2, function()
-    --             local remaining_reps = timer.RepsLeft( key )
-    
-    --             if not IsValid(car) or car:GetDriver() ~= ply then
-    --                 timer.Remove(key)
-    --             end
-    
-    --             if car:GetVelocity():LengthSqr() > 5000 then
-    --                 net.Start("uvrace_resetfailed")
-    --                 net.WriteString("uv.race.resetstationary")
-    --                 net.Send(ply)
-    --                 return
-    --             end
-    
-    --             if car.UVBustingProgress and car.UVBustingProgress > 0 then
-    --                 timer.Remove(key)
-    --                 net.Start("uvrace_resetfailed")
-    --                 net.WriteString("uv.race.resetbusting")
-    --                 net.Send(ply)
-    --                 return
-    --             end
-    
-    --             if remaining_reps > 0 then
-    --                 net.Start( "uvrace_resetcountdown" )
-    --                 net.WriteInt(remaining_reps, 4)
-    --                 net.Send(ply)
-    --             else
-    --                 if IsValid(car) and car:GetDriver() == ply then
-    --                     UVResetPosition(car)
-    --                 end
-    --             end
-    --         end)
-    --         --UVResetPosition(car)
-    --     end
-    -- end
-    
     if keybind_requests[ply] then
         local slot = keybind_requests[ply]
         keybind_requests[ply] = nil
@@ -717,6 +645,10 @@ if SERVER then
         
     end)
 
+    function UVIsPTUpgraded(car)
+        return car.uvclasstospawnon == "npc_uvspecial" or car.uvclasstospawnon == "npc_uvcommander"
+    end
+
 	function UVReplicatePT(car, slot)
 		-- If the car or slot is invalid, stop
 		if not IsValid(car) then return end
@@ -742,7 +674,6 @@ if SERVER then
 				net.WriteUInt(ptSlot.Ammo or 0, 8)
 				net.WriteUInt(ptSlot.Cooldown or 0, 16)
 				net.WriteFloat(ptSlot.LastUsed or 0)
-				net.WriteBool(ptSlot.Upgraded or false)
 			net.Broadcast()
 		else
 			-- Clear this slot on clients
@@ -938,7 +869,7 @@ if SERVER then
 
             timer.Simple( .5, function()
                 if IsValid(car) and (not UVJammerDeployed or car.exemptfromjammer) then
-                    if (car.UnitVehicle and pursuit_tech.Upgraded) or (car.RacerVehicle) then
+                    if (car.UnitVehicle and UVIsPTUpgraded(car)) or (car.RacerVehicle) then
                         UVDeploySpikeStrip(car, not car.UnitVehicle)
                     end
                 end
@@ -1031,7 +962,7 @@ if SERVER then
             UVDeployGPSDart(car)
 
             timer.Simple( .5, function()
-                if IsValid(car) and pursuit_tech.Upgraded and (not UVJammerDeployed or car.exemptfromjammer) then
+                if IsValid(car) and UVIsPTUpgraded(car) and (not UVJammerDeployed or car.exemptfromjammer) then
                     UVDeployGPSDart(car)
                 end
             end)
@@ -1272,8 +1203,7 @@ if SERVER then
                 local force = ( isUnit and UVUnitPTEMPForce:GetInt() ) or UVPTEMPForce:GetInt()
                 local lastHeadlightState = UVGetHeadlight( target )
 
-                local pursuit_tech = car.PursuitTech[slot]
-				if pursuit_tech and pursuit_tech.Upgraded then
+				if UVIsPTUpgraded(car) then
 					damage = damage * 2
 					force = force * 2
 				end
@@ -1543,8 +1473,7 @@ if SERVER then
                             local enemyCallsign = enemyVehicle.racer or "Racer "..enemyVehicle:EntIndex()
                             local enemyDriver = UVGetDriver(enemyVehicle)
 
-                            local pursuit_tech = car.PursuitTech[slot]
-				            if pursuit_tech and pursuit_tech.Upgraded then
+                            if UVIsPTUpgraded(car) then
 				            	kstime = kstime * 2
 				            end
                             
@@ -1929,8 +1858,7 @@ if SERVER then
                 local power = UVUnitPTShockRamPower:GetFloat()
                 local damage = UVUnitPTShockRamDamage:GetFloat()
 
-                local pursuit_tech = car.PursuitTech[slot]
-				if pursuit_tech and pursuit_tech.Upgraded then
+                if UVIsPTUpgraded(car) then
 					power = power * 2
                     damage = damage * 2
 				end
@@ -2090,26 +2018,130 @@ if SERVER then
 
     --GRAPPLER
     function UVDeployGrappler(car)
-        local driver = UVGetDriver(car)
-
         car.grappleron = true
+
+        constraint.RemoveConstraints( car, "Rope" )
         
         net.Start("UVWeaponGrapplerEnable")
         net.WriteEntity(car)
         net.Broadcast()
+
+        if car.UnitVehicle then
+            UVChatterGrapplerDeployed(car)
+        end
     end
     
     function UVDeactivateGrappler(car)
-        if not car.grappleron then return end
+        car.grappleron = nil
+
+        if car.wrecked then
+            constraint.RemoveConstraints( car, "Rope" )
+        end
 
         if IsValid(car) then
-            car.grappleron = nil
-
             net.Start("UVWeaponGrapplerDisable")
             net.WriteEntity(car)
             net.Broadcast()
+        end
 
-            car.uvgrapplerhit = nil
+        timer.Simple(1, function()
+            if IsValid(car) and car.UnitVehicle and not IsValid(car.grappler) then
+                UVChatterGrapplerMissed(car)
+            end
+        end)
+    end
+
+    function UVGrapple(car, object)
+        local carpos = car:WorldSpaceCenter()
+        local carlocal = car:WorldToLocal(carpos)
+
+        local closest_ent = object
+        local shortest_distance = math.huge
+
+        local closest_entpos = closest_ent:WorldSpaceCenter()
+        local closest_entlocal = object:WorldToLocal(closest_entpos)
+        
+        if object.IsSimfphyscar then
+            if istable(object.Wheels) then
+			    for i = 1, table.Count( object.Wheels ) do
+                    local Wheel = object.Wheels[ i ]
+			    	if IsValid(Wheel) then
+                        local dist = carpos:DistToSqr(Wheel:WorldSpaceCenter())
+
+                        if dist < shortest_distance then
+                            shortest_distance = dist
+                            closest_ent = Wheel
+                        end
+                    end
+			    end
+            end
+
+            object = closest_ent
+            closest_entpos = closest_ent:WorldSpaceCenter()
+            closest_entlocal = object:WorldToLocal(closest_entpos)
+        elseif object.IsGlideVehicle then 
+            for _, v in pairs(object.wheels) do
+				if IsValid(v) then
+                    local dist = carpos:DistToSqr(v:WorldSpaceCenter())
+
+                    if dist < shortest_distance then
+                        shortest_distance = dist
+                        closest_ent = v
+                    end
+                end
+			end
+
+            closest_entpos = closest_ent:WorldSpaceCenter()
+            closest_entlocal = object:WorldToLocal(closest_entpos)
+        end
+
+        local length = UVUnitPTGrapplerLength:GetInt()
+        local strength = UVUnitPTGrapplerStrength:GetInt()
+        local disableduration = UVUnitPTGrapplerDisableDuration:GetInt()
+
+        if UVIsPTUpgraded(car) then --shorter, stronger, lasting
+            length = length / 2
+			strength = strength * 2
+			disableduration = disableduration * 2
+		end
+
+        local cons, rope
+
+        --Create rope constraint
+        timer.Simple(0, function()
+            cons, rope = constraint.Rope( 
+                car, --Entity 1
+                object, --Entity 2
+                0, -- bone1
+                0, -- bone2
+                carlocal, --localPos1
+                closest_entlocal, --localPos2
+                length, --length
+                0, --addlength
+                strength, --strength
+                5, --width
+                "cable/new_cable_lit", --material
+                false, --rigid
+                Color(225,255,0) --color
+            )
+
+            car.grappler = rope
+
+            local time = disableduration
+
+            timer.Simple(time, function()
+                if IsValid(car) then
+                    constraint.RemoveConstraints( car, "Rope" )
+                end
+            end)
+        end)
+
+        UVDeactivateGrappler(car)
+
+        ReportPTEvent( car, object, 'Grappler', 'Hit' )
+
+        if car.UnitVehicle then
+            UVChatterGrapplerHit(car)
         end
     end
     

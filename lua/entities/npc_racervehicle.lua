@@ -489,8 +489,6 @@ if SERVER then
 			elseif isfunction(self.v.SetHandbrake) and not self.v.IsGlideVehicle then
 				self.v:SetHandbrake(false)
 			end
-
-			UVSetVehiclePerformanceMultiplier(self.v, 3)
 			
 			-- Determine target position inside the node
 			self.CurrentPointIndex = self.CurrentPointIndex or 1
@@ -941,6 +939,7 @@ if SERVER then
 			if v.IsScar then --If it's a SCAR.
 				if not v:HasDriver() then --If driver's seat is empty.
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.RacerVehicle = self
 					v.HasDriver = function() return true end --SCAR script assumes there's a driver.
 					v.SpecialThink = function() end --Tanks or something sometimes make errors so disable thinking.
@@ -949,6 +948,7 @@ if SERVER then
 			elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
 				if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.RacerVehicle = self
 					v:SetActive(true)
 					v:StartEngine()
@@ -963,6 +963,7 @@ if SERVER then
 			elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
 				if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.RacerVehicle = self
 					v:EnableEngine(true)
 					v:StartEngine(true)
@@ -978,6 +979,7 @@ if SERVER then
 			elseif v.IsGlideVehicle then --Glide
 				if not IsValid(v:GetDriver()) then
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.RacerVehicle = self
 					v:SetEngineState(2)
 					v.inputThrottleModifierMode = 2
@@ -1002,6 +1004,7 @@ if SERVER then
 					if v.IsScar then --If it's a SCAR.
 						if not v:HasDriver() then --If driver's seat is empty.
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.RacerVehicle = self
 							v.HasDriver = function() return true end --SCAR script assumes there's a driver.
 							v.SpecialThink = function() end --Tanks or something sometimes make errors so disable thinking.
@@ -1011,6 +1014,7 @@ if SERVER then
 					elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
 						if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.RacerVehicle = self
 							v:SetActive(true)
 							v:StartEngine()
@@ -1026,6 +1030,7 @@ if SERVER then
 					elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
 						if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.RacerVehicle = self
 							v:EnableEngine(true)
 							v:StartEngine(true)
@@ -1042,6 +1047,7 @@ if SERVER then
 					elseif v.IsGlideVehicle then --Glide
 						if not IsValid(v:GetDriver()) then
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.RacerVehicle = self
 							v:TurnOn()
 							v.inputThrottleModifierMode = 2
@@ -1112,7 +1118,6 @@ if SERVER then
 						Ammo = ammo_count,
 						Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown"):GetInt(),
 						LastUsed = -math.huge,
-						Upgraded = false
 					}
 				end
 				

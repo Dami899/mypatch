@@ -151,7 +151,7 @@ local PursuitTechDefs = {
         convars = {
             duration = { default = 10, min = 1, max = 30, decimals = 0 },
 			disableduration = { default = 10, min = 1, max = 30, decimals = 0 },
-			length = { default = 500, min = 1, max = 1000, decimals = 0 },
+			length = { default = 1000, min = 1, max = 5000, decimals = 0 },
 			strength = { default = 10000, min = 1, max = 100000, decimals = 0 },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
@@ -730,7 +730,6 @@ function TOOL:LeftClick(trace)
 				Ammo     = ammo_val,
 				Cooldown = cd_val,
 				LastUsed = -math.huge,
-				Upgraded = false
 			}
 
 			UVReplicatePT(car, slot)

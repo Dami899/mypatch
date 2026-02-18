@@ -931,8 +931,8 @@ UVUnitPTGPSDartCooldown = CreateConVar("uvpursuittech_gpsdart_cooldown_unit", 30
 
 -- Grappler
 UVUnitPTGrapplerDuration = CreateConVar("uvpursuittech_grappler_duration_unit", 10, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
-UVUnitPTGrapplerDisableduration = CreateConVar("uvpursuittech_grappler_disableduration_unit", 10, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
-UVUnitPTGrapplerLength = CreateConVar("uvpursuittech_grappler_length_unit", 500, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVUnitPTGrapplerDisableDuration = CreateConVar("uvpursuittech_grappler_disableduration_unit", 10, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVUnitPTGrapplerLength = CreateConVar("uvpursuittech_grappler_length_unit", 1000, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUnitPTGrapplerStrength = CreateConVar("uvpursuittech_grappler_strength_unit", 10000, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUnitPTGrapplerMaxAmmo = CreateConVar("uvpursuittech_grappler_maxammo_unit", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUnitPTGrapplerCooldown = CreateConVar("uvpursuittech_grappler_cooldown_unit", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
@@ -2569,6 +2569,7 @@ else -- CLIENT Settings | HUD/Options
 	conVarList["pursuittech_repairkit"] = 1
 	conVarList["pursuittech_shockram"] = 1
 	conVarList["pursuittech_gpsdart"] = 1
+	conVarList["pursuittech_grappler"] = 1
 	
 	conVarList["minheat"] = 1
 	conVarList["maxheat"] = 6
@@ -3059,7 +3060,6 @@ else -- CLIENT Settings | HUD/Options
 			car.PursuitTech[slot].Ammo = net.ReadUInt(8)
 			car.PursuitTech[slot].Cooldown = net.ReadUInt(16)
 			car.PursuitTech[slot].LastUsed = net.ReadFloat()
-			car.PursuitTech[slot].Upgraded = net.ReadBool()
 		elseif car.PursuitTech then
 			car.PursuitTech[slot] = nil
 			-- If both slots are now nil, clear the table completely for cleanliness

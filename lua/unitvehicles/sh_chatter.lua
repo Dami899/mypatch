@@ -1227,6 +1227,18 @@ if SERVER then
 		return UVSoundChatter(self, self.voice, "ptgpsdartmissed")
 	end
 
+	function UVChatterGrapplerDeployed( self )
+		return UVSoundChatter(self, self.voice, "ptgrapplerdeployed")
+	end
+
+	function UVChatterGrapplerHit( self )
+		return UVSoundChatter(self, self.voice, "ptgrapplerhit")
+	end
+
+	function UVChatterGrapplerMissed( self )
+		return UVSoundChatter(self, self.voice, "ptgrapplermissed")
+	end
+
 	function UVChatterRepairKitDeployed(self)
 		return UVSoundChatter(self, self.voice, "ptrepairkitdeployed")
 	end

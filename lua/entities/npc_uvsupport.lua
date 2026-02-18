@@ -1957,6 +1957,7 @@ if SERVER then
 			if v.IsScar then --If it's a SCAR.
 				if not v:HasDriver() then --If driver's seat is empty.
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.UVSupport = self
 					v.UnitVehicle = self
 					v.HasDriver = function() return true end --SCAR script assumes there's a driver.
@@ -1966,6 +1967,7 @@ if SERVER then
 			elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
 				if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.UVSupport = self
 					v.UnitVehicle = self
 					v:SetActive(true)
@@ -1978,6 +1980,7 @@ if SERVER then
 			elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
 				if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.UVSupport = self
 					v.UnitVehicle = self
 					v:EnableEngine(true)
@@ -1986,6 +1989,7 @@ if SERVER then
 			elseif v.IsGlideVehicle then --Glide
 				if not IsValid(v:GetDriver()) then
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.UVSupport = self
 					v.UnitVehicle = self
 					v:SetEngineState(2)
@@ -2010,6 +2014,7 @@ if SERVER then
 					if v.IsScar then --If it's a SCAR.
 						if not v:HasDriver() then --If driver's seat is empty.
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.UVSupport = self
 							v.UnitVehicle = self
 							v.HasDriver = function() return true end --SCAR script assumes there's a driver.
@@ -2019,6 +2024,7 @@ if SERVER then
 					elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
 						if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.UVSupport = self
 							v.UnitVehicle = self
 							v:SetActive(true)
@@ -2031,6 +2037,7 @@ if SERVER then
 					elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
 						if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.UVSupport = self
 							v.UnitVehicle = self
 							v:EnableEngine(true)
@@ -2039,6 +2046,7 @@ if SERVER then
 					elseif v.IsGlideVehicle then --Glide
 						if not IsValid(v:GetDriver()) then
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.UVSupport = self
 							v.UnitVehicle = self
 							v:TurnOn()

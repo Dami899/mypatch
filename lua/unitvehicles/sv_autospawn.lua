@@ -826,6 +826,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 				if UVUPursuitTech_GPSDart:GetBool() then
 					table.insert(pool, "GPS Dart")
 				end
+				if UVUPursuitTech_Grappler:GetBool() then
+					table.insert(pool, "Grappler")
+				end
 				
 				for i=1,2,1 do
 					if #pool > 0 then
@@ -840,7 +843,6 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 							Ammo = ammo_count,
 							Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown_unit"):GetInt(),
 							LastUsed = -math.huge,
-							Upgraded = (Ent.uvclasstospawnon == "npc_uvspecial" or Ent.uvclasstospawnon == "npc_uvcommander")
 						}
 						
 						for i, v in pairs(pool) do
@@ -1182,6 +1184,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 				if UVUPursuitTech_GPSDart:GetBool() then
 					table.insert(pool, "GPS Dart")
 				end
+				if UVUPursuitTech_Grappler:GetBool() then
+					table.insert(pool, "Grappler")
+				end
 				
 				for i=1,2,1 do
 					if #pool > 0 then
@@ -1196,7 +1201,6 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 							Ammo = ammo_count,
 							Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown_unit"):GetInt(),
 							LastUsed = -math.huge,
-							Upgraded = (Ent.uvclasstospawnon == "npc_uvspecial" or Ent.uvclasstospawnon == "npc_uvcommander")
 						}
 						
 						for i, v in pairs(pool) do
@@ -1414,6 +1418,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 				if UVUPursuitTech_GPSDart:GetBool() then
 					table.insert(pool, "GPS Dart")
 				end
+				if UVUPursuitTech_Grappler:GetBool() then
+					table.insert(pool, "Grappler")
+				end
 				
 				for i=1,2,1 do
 					if #pool > 0 then
@@ -1428,7 +1435,6 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 							Ammo = ammo_count,
 							Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown_unit"):GetInt(),
 							LastUsed = -math.huge,
-							Upgraded = (Ent.uvclasstospawnon == "npc_uvspecial" or Ent.uvclasstospawnon == "npc_uvcommander")
 						}
 						
 						for i, v in pairs(pool) do

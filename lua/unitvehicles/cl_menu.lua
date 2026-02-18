@@ -1435,6 +1435,7 @@ UVMenu.HeatManager = function()
 		{ type = "bool", text = "uv.ptech.repairkit", desc = "uv.hm.pt.spawnwith.desc", convar = "unitvehicle_unit_pursuittech_repairkit", requireparentconvar = "unitvehicle_unit_pursuittech", sv = true },
 		{ type = "bool", text = "uv.ptech.shockram", desc = "uv.hm.pt.spawnwith.desc", convar = "unitvehicle_unit_pursuittech_shockram", requireparentconvar = "unitvehicle_unit_pursuittech", sv = true },
 		{ type = "bool", text = "uv.ptech.gpsdart", desc = "uv.hm.pt.spawnwith.desc", convar = "unitvehicle_unit_pursuittech_gpsdart", requireparentconvar = "unitvehicle_unit_pursuittech", sv = true },
+		{ type = "bool", text = "uv.ptech.grappler", desc = "uv.hm.pt.spawnwith.desc", convar = "unitvehicle_unit_pursuittech_grappler", requireparentconvar = "unitvehicle_unit_pursuittech", sv = true },
 		
 		{ type = "label", text = "uv.hm.disablebounty" },
 		{ type = "slider", text = "uv.unit.patrol", desc = "uv.hm.disablebounty.desc", convar = "unitvehicle_unit_bountypatrol", min = 1, max = 9999999, decimals = 0, sv = true },
