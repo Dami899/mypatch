@@ -1718,6 +1718,8 @@ if SERVER then
             if unit.v then
                 UVDeactivateESF(unit.v)
                 UVDeactivateKillSwitch(unit.v)
+                UVDeactivateGrappler(unit.v)
+                constraint.RemoveConstraints( unit.v, "Rope" )
                 if car.empCleanup then 
                     car.empCleanup()
                 end
@@ -1728,6 +1730,8 @@ if SERVER then
             if IsValid(unitplayers) then
                 UVDeactivateESF(UVPlayerUnitTableVehicle)
                 UVDeactivateKillSwitch(UVPlayerUnitTableVehicle)
+                UVDeactivateGrappler(UVPlayerUnitTableVehicle)
+                constraint.RemoveConstraints( UVPlayerUnitTableVehicle, "Rope" )
                 if car.empCleanup then 
                     car.empCleanup() 
                 end
