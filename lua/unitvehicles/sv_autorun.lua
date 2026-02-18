@@ -2042,6 +2042,185 @@ function UVAddToWantedListDriver(driver)
 	end
 end
 
+local MUTATOR_FUNCTIONS = {
+	['Multiply'] = function( baseValue, multiplier, info ) 
+		return baseValue * ( multiplier * info.Modifier ) 
+	end,
+	['ModifierComparison'] = function( baseValue, multiplier, info ) 
+		return baseValue * ( multiplier > info.Modifier and info.Max or info.Min )
+	end
+}
+
+local VEHICLE_BASE_PERFORMANCE_SETS = {
+	['Simfphys'] = {
+		['Efficiency'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxTraction'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['BrakePower'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		}
+	},
+	['Glide'] = {
+		['BrakePower'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		-- Note: The cornering accuracy of the AI on Glide heavily depends on SteerConeMaxAngle, this also applies for units
+		['SteerConeMaxAngle'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxRPMTorque'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MinRPMTorque'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['ForwardTractionMax'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMax'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMin'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SuspensionLength'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 0.75
+			}
+		},
+		['SpringStrength'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 1.25
+			}
+		},
+		['SpringDamper'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 1.5
+			}
+		}
+	},
+	['prop_vehicle_jeep'] = {
+
+	}
+}
+
+function UVSetVehiclePerformanceMultiplier( vehicle, mult )
+	print( "UVSetVehiclePerformanceMultiplier", vehicle, mult )
+	mult = tonumber(mult) or 1
+
+	local isSimfphysVehicle = vehicle.IsSimfphyscar
+	local isGlideVehicle = vehicle.IsGlideVehicle
+
+	local needle = nil
+
+	if vehicle.IsSimfphyscar then
+		needle = VEHICLE_BASE_PERFORMANCE_SETS['Simfphys']
+	elseif vehicle.IsGlideVehicle then
+		needle = VEHICLE_BASE_PERFORMANCE_SETS['Glide']
+	else
+		needle = VEHICLE_BASE_PERFORMANCE_SETS['prop_vehicle_jeep']
+	end
+
+	if not vehicle.__UVOriginalPerformance then vehicle.__UVOriginalPerformance = {} end
+
+	for stat, data in pairs( needle ) do
+		if data.DataType == "NetworkVar" then
+			local getFunc = vehicle['Get'..stat]
+			local setFunc = vehicle['Set'..stat]
+
+			if isfunction( getFunc ) and isfunction( setFunc ) then
+				if not vehicle.__UVOriginalPerformance[stat] then vehicle.__UVOriginalPerformance[stat] = getFunc() end
+				print('Set'..stat, MUTATOR_FUNCTIONS[data.Info.Type](
+					vehicle.__UVOriginalPerformance[stat], 
+					mult, 
+					data.Info
+				))
+				setFunc( vehicle, MUTATOR_FUNCTIONS[data.Info.Type](
+					vehicle.__UVOriginalPerformance[stat], 
+					mult, 
+					data.Info
+				) )
+			end
+		end
+	end
+end
+
+
 function UVAddToPlayerUnitListVehicle(vehicle, ply)
 	net.Start("UVHUDAddUV")
 	net.WriteInt(vehicle:EntIndex(), 32)

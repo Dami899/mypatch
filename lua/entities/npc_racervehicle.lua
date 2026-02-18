@@ -474,10 +474,20 @@ if SERVER then
 		if not self.NodePath and self.v.uvraceparticipant then
 			self:StartNodeRace()
 		end
-
+		
 		if self.PatrolWaypoint and self.NodePath and self.CurrentNode then
 			if not self.racing then
 				self.racing = true
+			end
+
+			--Set handbrake
+			if self.v.IsScar then
+				self.v:HandBrakeOff()
+			elseif self.v.IsSimfphyscar then
+				self.v.PressedKeys = self.v.PressedKeys or {}
+				self.v.PressedKeys["Space"] = false
+			elseif isfunction(self.v.SetHandbrake) and not self.v.IsGlideVehicle then
+				self.v:SetHandbrake(false)
 			end
 			
 			-- Determine target position inside the node
