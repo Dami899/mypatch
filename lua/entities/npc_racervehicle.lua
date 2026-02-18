@@ -489,6 +489,8 @@ if SERVER then
 			elseif isfunction(self.v.SetHandbrake) and not self.v.IsGlideVehicle then
 				self.v:SetHandbrake(false)
 			end
+
+			UVSetVehiclePerformanceMultiplier(self.v, 3)
 			
 			-- Determine target position inside the node
 			self.CurrentPointIndex = self.CurrentPointIndex or 1

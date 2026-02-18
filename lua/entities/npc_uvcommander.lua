@@ -382,7 +382,7 @@ if SERVER then
 		end
 	end
 	
-	function ENT:StraightToTarget(target, considerVelocity)
+	function ENT:StraightToTarget(target, considerVelocity, checkDist)
 		if not self.v or not target then
 			return false
 		end
@@ -398,6 +398,10 @@ if SERVER then
 			else
 				local vel = target:GetVelocity()
 				targetVel = vel * 5
+			end
+
+			if checkDist then
+				if targetPos:DistToSqr(self.v:WorldSpaceCenter()) > checkDist then return false end
 			end
 
 			targetPos = targetPos + targetVel

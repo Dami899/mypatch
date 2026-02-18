@@ -364,7 +364,7 @@ if SERVER then
 		end
 	end
 	
-	function ENT:StraightToTarget(target, considerVelocity)
+	function ENT:StraightToTarget(target, considerVelocity, checkDist)
 		if not self.v or not target then
 			return false
 		end
@@ -380,6 +380,10 @@ if SERVER then
 			else
 				local vel = target:GetVelocity()
 				targetVel = vel * 5
+			end
+
+			if checkDist then
+				if targetPos:DistToSqr(self.v:WorldSpaceCenter()) > checkDist then return false end
 			end
 
 			targetPos = targetPos + targetVel
@@ -1400,7 +1404,7 @@ if SERVER then
 			end
 
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
-			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true)
+			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, 4000000)
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid or useDirectDrive)
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver) and next(self.tableroutetoenemy) ~= nil then
