@@ -1060,26 +1060,6 @@ if SERVER then
 			self:Stop()
 			self:FindPatrol()
 		end
-
-		local isBlocked = self:IsPathBlocked()
-
-		if isBlocked then
-   		 	throttle = 0
-  		  	steer = 0
-  		  	self:UVHandbrakeOn() 
-			if not self.LastHonk or CurTime() > self.LastHonk + 2 then
-    		    self:SetHorn(true)
-				throttle = 0
-  		  		steer = 0
-  		  		self:UVHandbrakeOn() 
-     			timer.Simple(0.5, function() if IsValid(self) then self:SetHorn(false) end end)
-      		  	self.LastHonk = CurTime()
-    		end
-			
-		    self.moving = CurTime() 
-		else
-		    self:UVHandbrakeOff()
-		end
 		
 	end
 	
