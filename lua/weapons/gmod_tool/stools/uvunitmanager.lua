@@ -738,7 +738,7 @@ if CLIENT then
 
 				btn.DoClick = function()
 					selecteditem = entry.filename
-					-- SetClipboardText(selecteditem)
+					SetClipboardText(selecteditem)
 
 					if entry.base.type == "json" then
 						UVTOOLMemory = util.JSONToTable(
