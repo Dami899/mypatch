@@ -1393,7 +1393,7 @@ if SERVER then
 			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, not self.v.rhino and 4000000)
 			local rhinoForceDirect = self.v.rhino and suspectInView and suspectHeadingTowardNPC
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid or useDirectDrive or rhinoForceDirect)
-			if suspectHeadingAwayFromNPC and self:StraightToTarget(self.e, true) then useDirectDriveBranch = true end
+			if suspectHeadingAwayFromNPC and self:StraightToTarget(self.e, true, 1000000) then useDirectDriveBranch = true end
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver or rhinoForceDirect) and next(self.tableroutetoenemy) ~= nil then
 					self.tableroutetoenemy = {}

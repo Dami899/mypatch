@@ -1374,7 +1374,7 @@ if SERVER then
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
 			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, 4000000)
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid or useDirectDrive)
-			if suspectHeadingAwayFromNPC and self:StraightToTarget(self.e, true) then useDirectDriveBranch = true end
+			if suspectHeadingAwayFromNPC and self:StraightToTarget(self.e, true, 1000000) then useDirectDriveBranch = true end
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver) and next(self.tableroutetoenemy) ~= nil then
 					self.tableroutetoenemy = {}
