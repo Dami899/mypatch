@@ -480,6 +480,15 @@ if SERVER then
 				self.racing = true
 			end
 
+			-- SAFETY: If node invalid, rebuild path
+			if self.NodePath and (not self.CurrentNode or not self.CurrentNode.Points) then
+				self.NodePath = nil
+				self.CurrentNode = nil
+				self.CurrentPointIndex = nil
+				self:StartNodeRace()
+				return
+			end
+
 			--Set handbrake
 			if self.v.IsScar then
 				self.v:HandBrakeOff()
@@ -499,12 +508,41 @@ if SERVER then
 			local points = self.CurrentNode.Points
 			if #points == 0 then return end
 
-			-- Use path guidance: get current point and the following point
-			local nextPoint = points[self.CurrentPointIndex]
-			local followingPoint = points[self.CurrentPointIndex + 1] or points[#points]
+			-- Lookahead path sampling
+			local lookAheadPoints = 6
+			local lookAheadDist = 1200
+			local weightedTarget = Vector(0,0,0)
+			local totalWeight = 0
+			local accumulatedDist = 0
 
-			-- Guidance position along the segment
-			local targetPos = ClosestPointOnLineSegment(pos, nextPoint, followingPoint, 100)
+			for i = 0, lookAheadPoints do
+				local idx = self.CurrentPointIndex + i
+				local pt = points[idx]
+				if not pt then break end
+
+				local dist = pos:Distance(pt)
+				accumulatedDist = accumulatedDist + dist
+				if accumulatedDist > lookAheadDist then break end
+
+				local weight = 1 / (i + 1) -- closer points matter more
+				weightedTarget = weightedTarget + pt * weight
+				totalWeight = totalWeight + weight
+			end
+
+			local targetPos
+			if totalWeight > 0 then
+				targetPos = weightedTarget / totalWeight
+			else
+				targetPos = points[self.CurrentPointIndex]
+			end
+
+			if not isvector(targetPos) then
+				self.NodePath = nil
+				self.CurrentNode = nil
+				self.CurrentPointIndex = nil
+				self:StartNodeRace()
+				return
+			end
 
 			-- Steering calculation
 			local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
@@ -514,13 +552,31 @@ if SERVER then
 			local right = dir:Cross(forward)
 			local steer_amount = right:Length()
 			local steer = right.z > 0 and steer_amount or -steer_amount
-
-			-- Smooth throttle near corners
 			local speed = self.v:GetVelocity():LengthSqr()
-			local speedLimit = self.CurrentNode.StartSpeed^2 or math.huge
+			
+			-- speed blending
+			local currentSpeedLimit = self.CurrentNode.StartSpeed or math.huge
+			local nextSpeedLimit = currentSpeedLimit
+
+			if self.NextNode and self.NextNode.StartSpeed then
+				nextSpeedLimit = self.NextNode.StartSpeed
+			end
+
+			-- distance remaining in node
+			local finalPoint = points[#points]
+			local distToEnd = pos:Distance(finalPoint)
+			local nodeLength = points[1]:Distance(finalPoint)
+
+			local blendFactor = math.Clamp(1 - (distToEnd / nodeLength), 0, 1)
+
+			-- Smoothly interpolate speed
+			local blendedSpeedLimit = Lerp(blendFactor, currentSpeedLimit, nextSpeedLimit)
+
+			local speedLimit = blendedSpeedLimit ^ 2
+
 			local throttle = 1
 			local cornerDist = 400
-			
+
 			if dist < cornerDist then
 				throttle = math.Clamp(dist / cornerDist, -1, 1) -- slows down as approaching
 			end
@@ -577,6 +633,13 @@ if SERVER then
 				throttle = throttle * -1
 			end --Getting unstuck
 
+			-- === SPEED BASED STEERING MULTIPLIER ===
+			local velocity = self.v:GetVelocity():Length() -- real speed (not squared)
+			local maxSpeedForScaling = 2400  -- speed where steering becomes fully relaxed
+			local speedFactor = math.Clamp(velocity / maxSpeedForScaling, 0, 1)
+			local steerMultiplier = Lerp(speedFactor, 3, 1)
+			steer = steer * steerMultiplier
+
 			-- Apply throttle/steer (same as your existing code block)
 			if self.v.IsScar then
 				if throttle > 0 then self.v:GoForward(throttle) else self.v:GoBack(-throttle) end
@@ -601,8 +664,10 @@ if SERVER then
 
 			-- Move to next node if close
 			self.CurrentPointIndex = self.CurrentPointIndex or 1
-			local points = self.CurrentNode.Points
-			local targetPos = points[self.CurrentPointIndex]
+			local points = self.CurrentNode.Points or {}
+			local nextPoint = points[self.CurrentPointIndex]
+
+			if not isvector(nextPoint) then return end
 
 			if dist < 600 then
 				self.CurrentPointIndex = self.CurrentPointIndex + 1
