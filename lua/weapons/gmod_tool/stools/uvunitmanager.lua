@@ -498,11 +498,25 @@ if CLIENT then
 		local count = 0
 		local count1 = 0
 
+		-- Backwards compatibility, a little hacky but it works
 		for _, newCV in pairs(conVarList) do
+			local cont
+
 			if string.match(newCV, "_chance") and not data[newCV] then 
 				_setConVar( newCV, 100 )
+				cont = true
+			end
+
+			if string.match(newCV, "_chance") and not data[newCV] then 
+				_setConVar( newCV, 100 )
+				cont = true
+			end
+
+			if cont then
+				cont = nil
 				continue
-			end -- Backwards compatibility, a little hacky but it works
+			end
+
 			if not data[newCV] and GetConVar(newCV) and not PROTECTED_CONVARS[newCV] then _setConVar( newCV, DEFAULTS[newCV] or "" ) end--RunConsoleCommand(newCV, DEFAULTS[newCV] or "") end
 		end
 

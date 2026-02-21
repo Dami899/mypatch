@@ -182,6 +182,26 @@ function UVGetRandom( pool )
 	return nil
 end
 
+function UVCountActiveUnits( class )
+	local count = 0
+	for _, ent in pairs( ents.FindByClass( class ) ) do
+		if IsValid( ent ) and ent.v and not ent.v.roadblocking and not ent.v.rhino then
+			count = count + 1
+		end
+	end
+	return count
+end
+
+function UVCountActiveRhinos() -- Rhino Unit is npc_uvspecial with self.v.rhino tag
+	local count = 0
+	for _, ent in pairs( ents.FindByClass( "npc_uvspecial" ) ) do
+		if IsValid( ent ) and ent.v and ent.v.rhino then
+			count = count + 1
+		end
+	end
+	return count
+end
+
 function UVGetRandomUnit( heat, modifiers )
 	heat = heat or UVHeatLevel
 
@@ -247,10 +267,17 @@ function UVGetRandomUnit( heat, modifiers )
 	for _, v in pairs( {'Patrol', 'Support', 'Pursuit', 'Interceptor', 'Special', 'Commander', 'Rhino'} ) do
 		local unitConVarKey = string.format( 'unitvehicle_unit_units%s%s', string.lower(v), heat )
 		local chanceConVarKey = unitConVarKey .. '_chance'
+		local limitConvarKey = unitConVarKey .. '_limit'
+		local rhinolimitConvarKey = rhinoConVarKey .. '_limit'
 		local npcClassName = 'npc_uv' .. string.lower(v)
+
+		local limit = GetConVar( limitConvarKey ):GetInt()
+		local rhinolimit = GetConVar( rhinolimitConvarKey ):GetInt()
 
 		if modifiers then
 			if v == 'Rhino' then
+				if modifiers.posspecified and not modifiers.rhinoattack then continue end
+				if not modifiers.posspecified and rhinolimit ~= 0 and rhinolimit <= UVCountActiveRhinos() then continue end
 				if UVEnemyEscaping then continue end
 			end
 
@@ -265,10 +292,13 @@ function UVGetRandomUnit( heat, modifiers )
 
 		local unitCollection = GetConVar( unitConVarKey ):GetString()
 		if string.match( unitCollection, "^%s*$" ) then continue end
+
+		if limit ~= 0 and limit <= UVCountActiveUnits( npcClassName ) and not modifiers.posspecified then continue end
 		
 		table.insert(selectionPool, {
 			name = string.lower(v),
 			weight = GetConVar( chanceConVarKey ):GetInt(),
+			limit = GetConVar( limitConvarKey ):GetInt(),
 			units = string.Trim( GetConVar( unitConVarKey ):GetString() ),
 			npc = npcClassName
 		})

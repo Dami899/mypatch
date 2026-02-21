@@ -3083,6 +3083,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		local chanceCVar = GetConVar(st.convar .. "_chance")
 
 		UV.BuildSetting( panel, { type = "slider", text = "uv.hm.units.spawnchance", desc = "uv.hm.units.spawnchance.desc", convar = st.convar .. "_chance", min = 0, max = 100, decimals = 0, sv = true } )
+		UV.BuildSetting( panel, { type = "slider", text = "uv.hm.units.limit", desc = "uv.hm.units.limit.desc", convar = st.convar .. "_limit", min = -1, max = 20, decimals = 0, sv = true } )
 
 		local vehicleBases = {
 			{ id = 1, name = "HL2",      path = "unitvehicles/prop_vehicle_jeep/units/", type = "txt"  },

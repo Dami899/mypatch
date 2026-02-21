@@ -1064,6 +1064,7 @@ for i = 1, MAX_HEAT_LEVEL do
 
 		CreateConVar( "unitvehicle_unit_" .. conVarKey, "", {ShouldArchive})
 		CreateConVar( "unitvehicle_unit_" .. conVarKey .. "_chance", 100, {FCVAR_REPLICATED, FCVAR_ARCHIVE})
+		CreateConVar( "unitvehicle_unit_" .. conVarKey .. "_limit", 0, {FCVAR_REPLICATED, FCVAR_ARCHIVE})
 	end
 
 	for _, conVar in pairs( HEAT_SETTINGS ) do
@@ -2679,6 +2680,7 @@ else -- CLIENT Settings | HUD/Options
 			local lowercaseUnit = string.lower( v )
 			local conVarKey = string.format( 'units%s%s', lowercaseUnit, i )
 			local chanceConVarKey = string.format( 'units%s%s_chance', lowercaseUnit, i )
+			local limitConVarKey = string.format( 'units%s%s_limit', lowercaseUnit, i )
 			
 			-------------------------------------------
 			if i == 1 then
@@ -2698,6 +2700,7 @@ else -- CLIENT Settings | HUD/Options
 			end
 			
 			conVarList[chanceConVarKey] = 100
+			conVarList[limitConVarKey] = 0
 		end
 		
 		for _, conVar in pairs( HEAT_SETTINGS ) do
@@ -2749,10 +2752,22 @@ else -- CLIENT Settings | HUD/Options
 
 		for key, value in pairs(conVarList) do
 			local incomingData = data[key] or data["unitvehicle_unit_" .. key] or data["uvunitmanager_" .. key]
+			local cont
 
+			-- MUST BE FIXED TO USE UVUPDATESETTINGS
 			if string.match(key, "_chance") and not incomingData then
-				_setConVar( key, 100 ) -- MUST BE FIXED TO USE UVUPDATESETTINGS
-				continue 
+				_setConVar( key, 100 )
+				cont = true 
+			end
+
+			if string.match(key, "_limit") and not incomingData then
+				_setConVar( key, 0 )
+				cont = true 
+			end
+
+			if cont then
+				cont = nil
+				continue
 			end
 
 			if not incomingData and GetConVar("unitvehicle_unit_" .. key) and not PROTECTED_CONVARS[key] then
