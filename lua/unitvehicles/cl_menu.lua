@@ -1490,7 +1490,9 @@ UVMenu.HeatManager = function()
 		local units = { "Patrol", "Support", "Pursuit", "Interceptor", "Special", "Commander", "Rhino" }
 		for _, unit in ipairs(units) do
 			local lower = string.lower(unit)
-			table.insert(heatTab, { type = "unitselect", text = "uv.unit." .. lower, convar = "unitvehicle_unit_units" .. lower .. i, chanceconvar = true, sv = true })
+			table.insert(heatTab, { type = "unitselect", text = "uv.unit." .. lower, convar = "unitvehicle_unit_units" .. lower .. i, sv = true })
+			table.insert(heatTab, { type = "slider", text = "uv.hm.units.spawnchance", desc = "uv.hm.units.spawnchance.desc", convar = "unitvehicle_unit_units" .. lower .. i .. "_chance", min = 0, max = 100, decimals = 0, sv = true })
+			table.insert(heatTab, { type = "slider", text = "uv.hm.units.limit", desc = "uv.hm.units.limit.desc", convar = "unitvehicle_unit_units" .. lower .. i .. "_limit", min = -1, max = 20, decimals = 0, sv = true })
 		end
 
 		table.insert(tabs, heatTab)
