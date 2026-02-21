@@ -72,7 +72,7 @@ if SERVER then
         end
     end
 
-    function UVDamage(vehicle, damage)
+    function UVDamage(vehicle, damage) --damage in fraction of max health (0.1 = 10% of max health)
         if vehicle.IsSimfphyscar then
 
             local MaxHealth = vehicle:GetMaxHealth()
@@ -85,7 +85,17 @@ if SERVER then
             vehicle:UpdateHealthOutputs()
             
         elseif vehicle:GetClass() == "prop_vehicle_jeep" then
-            
+            if VC then
+                local damage = Vehicle:VC_getHealthMax()*damage
+                Vehicle:VC_damageHealth(damage)
+                return 
+            end
+
+            local NPC = vehicle.UnitVehicle and vehicle.UnitVehicle:IsNPC()
+            if not NPC then return end
+		    
+            local damage = NPC:GetMaxHealth()*damage
+		    target:SetHealth(target:Health()-damage)
         end
     end
 

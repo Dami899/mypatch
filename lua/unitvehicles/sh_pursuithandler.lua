@@ -969,6 +969,7 @@ OptimizeRespawn = CreateConVar("unitvehicle_optimizerespawn", 1, {FCVAR_ARCHIVE,
 SpottedFreezeCam = CreateConVar("unitvehicle_spottedfreezecam", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, the game will freeze and the camera will point to the closest Unit when starting a pursuit (single-player only).")
 RandomPlayerUnits = CreateConVar("unitvehicle_randomplayerunits", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, player-controlled Units will be chosen randomly from the available units.")
 TractionControl = CreateConVar("unitvehicle_tractioncontrol", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units and Racer Vehicles will apply reduced throttle when wheel spinning.")
+CanExitVehicle = CreateConVar("unitvehicle_canexitvehicle", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, players can exit their vehicle during pursuits or races.")
 
 UVUCommanderEvade = CreateConVar("unitvehicle_unit_onecommanderevading", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If enabled, will allow racers to escape while commander is on scene.")
 UVUOneCommander = CreateConVar("unitvehicle_unit_onecommander", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
@@ -1116,21 +1117,22 @@ if SERVER then
 		--['ChasedVehicles'] = {},
 	}
 
-	--Enemies can't exit the vehicle during pursuits or races
+	--Exiting the vehicle during pursuits or races
 	hook.Add("CanExitVehicle", "UVExitingVehicleWhlistInPursuit", function( veh, ply)
 		local vehicle_entity = veh:GetParent()
 
+		if CanExitVehicle:GetBool() then return true end
+
 		if UVTargeting then return false end
 		if (IsValid(vehicle_entity) and vehicle_entity.uvraceparticipant) or veh.uvraceparticipant then return false end
-		--return (not UVTargeting)
 	end)
 
-	--Damage to UVs
+	--Non-collision damage to prop_vehicle_jeep UVs
 	hook.Add( "EntityTakeDamage", "UVDamage", function( target, dmginfo )
 		if VC then return end
-		if target.UVPatrol or target.UVSupport or target.UVPursuit or target.UVInterceptor or target.UVSpecial or target.UVCommander then
-			local damage = (dmginfo:GetDamage()*10)
-			target:SetHealth(target:Health()-damage)
+		if target.v and target.v:GetClass() == "prop_vehicle_jeep" and target.v.UnitVehicle then
+			local damage = target:GetMaxHealth()*(dmginfo:GetDamage()*10)
+			UVDamage(target.v, damage)
 		end
 	end )
 
