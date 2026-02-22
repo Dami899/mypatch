@@ -388,6 +388,15 @@ function UV_StartPursuit(ply, skipCountdown)
 
 		-- Random police unit announcement
 		UVChatterPursuitStartAcknowledge(Entity(1))
+
+		timer.Simple(5, function()
+			if not UVTargeting then return end
+			local _, v = next( UVWantedTableVehicle )
+			if v then
+				UVChatterDispatchCallVehicleDescription( Entity(1), v )
+				UVSoundChatter(Entity(1), nil, "heat" .. UVHeatLevel, nil, "DISPATCH")
+			end
+		end)	
 		return
 	end
 
@@ -430,6 +439,15 @@ function UV_StartPursuit(ply, skipCountdown)
 
 			-- Random police unit announcement
 			UVChatterPursuitStartAcknowledge(Entity(1))
+
+			timer.Simple(5, function()
+				if not UVTargeting then return end
+				local _, v = next( UVWantedTableVehicle )
+				if v then
+					UVChatterDispatchCallVehicleDescription( Entity(1), v )
+					UVSoundChatter(Entity(1), nil, "heat" .. UVHeatLevel, nil, "DISPATCH")
+				end
+			end)	
 		end
 	end)
 end

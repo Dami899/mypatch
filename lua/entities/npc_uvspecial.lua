@@ -1373,9 +1373,6 @@ if SERVER then
 			local suspectHeadingTowardNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(eedistNorm) < -0.3
 			local suspectHeadingAwayFromNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(eedistNorm) > 0.3
 
-			local closeToSuspectSqr = 500000
-			local useDirectDrive = eedist:LengthSqr() < closeToSuspectSqr or self.v.rhino
-
 			local suspectOnWaypointGrid = true
 			if dvd and next(dvd.Waypoints or {}) ~= nil then
 				local suspectPos = self.e:WorldSpaceCenter()
@@ -1390,10 +1387,9 @@ if SERVER then
 			end
 
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
-			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, not self.v.rhino and 4000000)
+			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, false, not self.v.rhino and DVWaypointsDistanceBased:GetBool() and 4000000)
 			local rhinoForceDirect = self.v.rhino and suspectInView and suspectHeadingTowardNPC
-			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid or useDirectDrive or rhinoForceDirect)
-			if suspectHeadingAwayFromNPC and self:StraightToTarget(self.e, true, 1000000) then useDirectDriveBranch = true end
+			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid or rhinoForceDirect)
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver or rhinoForceDirect) and next(self.tableroutetoenemy) ~= nil then
 					self.tableroutetoenemy = {}
