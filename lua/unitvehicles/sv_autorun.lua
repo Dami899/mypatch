@@ -239,6 +239,9 @@ NETWORK_STRINGS = {
 	-- Glide Nodes
 	"RequestGlideVehicles",
 	"GlideVehiclesTable",
+	
+	-- DV Warning
+	"UV_OpenDVWarning",
 }
 
 for _, v in pairs( NETWORK_STRINGS ) do

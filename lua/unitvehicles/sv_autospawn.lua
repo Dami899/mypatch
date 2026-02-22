@@ -419,16 +419,22 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	-- else
 	-- 	enemylocation = (suspect:GetPos()+ (vector_up * 50))
 	-- end
-	
+
 	if next(dvd.Waypoints) == nil then
 		if not UVNoDVWaypointsNotify then
-			UVNoDVWaypointsNotify = true
-			PrintMessage( HUD_PRINTTALK, "There's no Decent Vehicle waypoints to spawn vehicles! Download Decent Vehicle (if you haven't) and place some waypoints!")
+			net.Start("UV_OpenDVWarning")
+			net.Broadcast()
 		end
 		return
 	end
 	UVNoDVWaypointsNotify = nil
-	
+
+	if next(dvd.Waypoints) == nil then
+		net.Start("UV_OpenDVWarning")
+		net.Broadcast() -- or target a specific player
+		return
+	end
+
 	if next(UVWantedTableVehicle) ~= nil then
 		local suspects = UVWantedTableVehicle
 		local random_entry = math.random(#suspects)
@@ -1533,14 +1539,15 @@ function UVAutoSpawnTraffic()
 	local enemylocation
 	local suspect
 	local suspectvelocity = Vector(0,0,0)
-	
+			
 	if next(dvd.Waypoints) == nil then
 		if not UVNoDVWaypointsNotify then
-			UVNoDVWaypointsNotify = true
-			PrintMessage( HUD_PRINTTALK, "There's no Decent Vehicle waypoints to spawn vehicles! Download Decent Vehicle (if you haven't) and place some waypoints!")
+			net.Start("UV_OpenDVWarning")
+			net.Broadcast()
 		end
 		return
 	end
+
 	UVNoDVWaypointsNotify = nil
 	
 	if next(UVWantedTableVehicle) ~= nil then
@@ -2242,14 +2249,15 @@ function UVAutoSpawnRacer()
 	local enemylocation
 	local suspect
 	local suspectvelocity = Vector(0,0,0)
-	
+
 	if next(dvd.Waypoints) == nil then
 		if not UVNoDVWaypointsNotify then
-			UVNoDVWaypointsNotify = true
-			PrintMessage( HUD_PRINTTALK, "There's no Decent Vehicle waypoints to spawn vehicles! Download Decent Vehicle (if you haven't) and place some waypoints!")
+			net.Start("UV_OpenDVWarning")
+			net.Broadcast()
 		end
 		return
 	end
+
 	UVNoDVWaypointsNotify = nil
 	
 	if next(UVWantedTableVehicle) ~= nil then

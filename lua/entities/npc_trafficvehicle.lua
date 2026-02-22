@@ -624,6 +624,13 @@ if SERVER then
 	end
 	
 	function ENT:Initialize()
+		if next(dvd.Waypoints) == nil then
+			net.Start("UV_OpenDVWarning")
+			net.Broadcast() -- or target a specific player
+			SafeRemoveEntity(self)
+			return
+		end
+
 		self:SetNoDraw(true)
 		self:SetMoveType(MOVETYPE_NONE)
 		self:SetModel(self.Modelname)

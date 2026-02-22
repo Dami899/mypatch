@@ -403,13 +403,7 @@ UVMenu.Main = function()
 				end,
 			},
 			
-			{ TabName = "uv.pm", Icon = "unitvehicles/icons/milestone_911.png", -- Pursuit Manager				
-				{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_unit_vehiclebase", sv = true, content = {
-						{ "uv.base.hl2", 1 } ,
-						{ "uv.base.simfphys", 2 } ,
-						{ "uv.base.glide", 3 } ,
-					},
-				},
+			{ TabName = "uv.pm", Icon = "unitvehicles/icons/milestone_911.png", -- Pursuit Manager
 				{ type = "button", text = "uv.pm.spawnas", desc = "uv.pm.spawnas.desc", convar = "uv_spawn_as_unit", prompts = {"uv.prompt.open.menu"}, func = 
 				function(self2)
 					UVMenu.CloseCurrentMenu(true)
@@ -626,8 +620,8 @@ UVMenu.Settings = function()
 				{ type = "keybind", text = "uv.keybind.resetposition", desc = "uv.keybind.resetposition.desc", convar = "unitvehicle_keybind_resetposition", slot = 4 },
 				{ type = "keybind", text = "uv.keybind.showresults", desc = "uv.keybind.showresults.desc", convar = "unitvehicle_keybind_raceresults", slot = 5 },
 				
-				-- { type = "label", text = "uv.controls.controllermode" },
-				-- { type = "bool", text = "uv.controls.controllermode.enable", desc = "uv.controls.controllermode.enable.desc", convar = "unitvehicle_controllermode" },
+				{ type = "label", text = "uv.controls.controllermode" },
+				{ type = "bool", text = "uv.controls.controllermode.enable", desc = "uv.controls.controllermode.enable.desc", convar = "unitvehicle_controllermode" },
 				
 				{ type = "label", text = "uv.controls.glyphs" },
 				{ type = "bool", text = "uv.controls.glyphs.enable", desc = "uv.controls.glyphs.enable.desc", convar = "unitvehicle_glyph_override" },
@@ -1399,7 +1393,13 @@ UVMenu.HeatManager = function()
 
     -- General settings tab
     table.insert(tabs, {
-        TabName = "uv.settings.general",
+        TabName = "uv.settings.general",	
+		{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_unit_vehiclebase", sv = true, content = {
+				{ "uv.base.hl2", 1 } ,
+				{ "uv.base.simfphys", 2 } ,
+				{ "uv.base.glide", 3 } ,
+			},
+		},
 		{ type = "bool", text = "uv.hm.timedhl", desc = "uv.hm.timedhl.desc", convar = "unitvehicle_unit_timetillnextheatenabled", sv = true },
 		{ type = "slider", text = "uv.hm.minhl", desc = "uv.hm.minhl.desc", convar = "unitvehicle_unit_minheat", min = 1, max = MAX_HEAT_LEVEL, decimals = 0, sv = true },
 		{ type = "slider", text = "uv.hm.maxhl", desc = "uv.hm.maxhl.desc", convar = "unitvehicle_unit_maxheat", min = 1, max = MAX_HEAT_LEVEL, decimals = 0, func = function() UVMenu.OpenMenu(UVMenu.HeatManager, true) end, sv = true },
@@ -1516,7 +1516,6 @@ UVMenu.HeatManager = function()
         Tabs = tabs
     })
 end
-
 
 ------- [ First-Time Setup ] -------
 UVMenu.FirstTimeSetup = function()
@@ -1735,3 +1734,29 @@ UVMenu.FirstTimeSetupDone = function()
 		}
 	})
 end
+
+
+------- [ DV Warning ] -------
+UVMenu.DVWarning = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(900),
+		Height = UV.ScaleH(400),
+		DynamicHeight = false,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.hm.presets.warning", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.system.dvnowp" },
+				{ type = "info", text = "uv.system.dvnowp2" },
+				{ type = "button", text = "close", playsfx = "clickback", prompts = {"uv.prompt.confirm"}, func = function(self2) UVMenu.CloseCurrentMenu(true) end
+				},
+			}
+		}
+	})
+end
+
+net.Receive("UV_OpenDVWarning", function()
+    UVMenu.OpenMenu(UVMenu.DVWarning, true)
+end)

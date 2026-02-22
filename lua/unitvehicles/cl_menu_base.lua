@@ -4577,6 +4577,12 @@ function UVMenu:Open(menu)
 			end
 
 			local text = table.concat(resolved, "      ")
+
+			if GetConVar("unitvehicle_controllermode"):GetBool() then
+				text = string.Replace(text, "+attack2", "+reload")
+				text = string.Replace(text, "+attack", "+jump")
+			end
+
 			text = UVReplaceKeybinds(text)
 
 			local markupText =
@@ -4993,3 +4999,39 @@ function UVMenu:Open(menu)
         if UV.SettingsFrame == frame then UV.SettingsFrame = nil end
     end
 end
+
+hook.Add("PlayerBindPress", "UVMenu_ControllerMode", function(ply, bind, pressed) -- Controller mode uwu?
+    if not pressed then return end
+    if not IsValid(UVMenu.CurrentMenu) then return end
+
+    local cvar = GetConVar("unitvehicle_controllermode")
+    if not cvar or not cvar:GetBool() then return end
+
+    local hovered = vgui.GetHoveredPanel()
+    if not IsValid(hovered) then return end
+
+    if bind == "+jump" then
+        if hovered.DoClick then
+            hovered:DoClick()
+        elseif hovered.OnMousePressed then
+            hovered:OnMousePressed(MOUSE_LEFT)
+            if hovered.OnMouseReleased then
+                hovered:OnMouseReleased(MOUSE_LEFT)
+            end
+        end
+
+        return true
+    end
+
+	if bind == "+reload" then
+		local hovered = vgui.GetHoveredPanel()
+		if IsValid(hovered) then
+			hovered:MouseCapture(true)
+			hovered:OnMousePressed(MOUSE_RIGHT)
+			hovered:OnMouseReleased(MOUSE_RIGHT)
+			hovered:MouseCapture(false)
+		end
+
+		return true
+	end
+end)

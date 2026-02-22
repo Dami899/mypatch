@@ -962,7 +962,7 @@ SpawnMainUnits = CreateConVar("unitvehicle_spawnmainunits", 1, {FCVAR_ARCHIVE, F
 DVWaypointsPriority = CreateConVar("unitvehicle_dvwaypointspriority", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units will attempt to navigate on Decent Vehicle Waypoints FIRST instead of navmesh (if both are installed).")
 RepairCooldown = CreateConVar("unitvehicle_repaircooldown", 60, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicle: Time in seconds between each repair. Set this to 0 to make all repair shops a one-time use.")
 RepairRange = CreateConVar("unitvehicle_repairrange", 100, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicle: Distance in studs between the repair shop and the vehicle to repair.")
-RacerTags = CreateConVar("unitvehicle_racertags", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racers and Commander Units will have name tags above their vehicles.")
+-- RacerTags = CreateConVar("unitvehicle_racertags", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racers and Commander Units will have name tags above their vehicles.")
 RacerPursuitTech = CreateConVar("unitvehicle_racerpursuittech", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racers will spawn with pursuit tech (spike strips, ESF, etc.).")
 RacerFriendlyFire = CreateConVar("unitvehicle_racerfriendlyfire", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racers will be able to attack eachother with Pursuit Tech.")
 OptimizeRespawn = CreateConVar("unitvehicle_optimizerespawn", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units will be teleported ahead of the suspect instead of despawning (does not work with simfphys).")
@@ -2471,7 +2471,9 @@ else -- CLIENT Settings | HUD/Options
 	UVVehicleNameTakedown = CreateClientConVar("unitvehicle_vehiclenametakedown", 0, true, false, "Unit Vehicles: If set to 1, Unit takedowns use the vehicle name instead of the unit name.")
 	UVDisplayUnits = CreateClientConVar("unitvehicle_unitstype", 0, true, false, "Unit Vehicles: If set to 0 (or an invalid value), displays units in meters. If set to 1, displays units in feet. If set to 2, displays units in yards.")
 	
-	-- UVControllerMode = CreateClientConVar("unitvehicle_controllermode", 0, true, false, "Unit Vehicles: If set to 1, certain actions in the UV Menu are swapped to work with more controller-friendly alternatives, such as JUMP instead of MOUSE1.")
+	RacerTags = CreateClientConVar("unitvehicle_racertags", 1, true, false, "Unit Vehicles: If set to 1, Racers and Commander Units will have name tags above their vehicles.")
+
+	UVControllerMode = CreateClientConVar("unitvehicle_controllermode", 0, true, false, "Unit Vehicles: If set to 1, certain actions in the UV Menu are swapped to work with more controller-friendly alternatives, such as JUMP instead of MOUSE1.")
 	UVGlyphOverride = CreateClientConVar("unitvehicle_glyph_override", 0, true, false, "Unit Vehicles: If set to 1, it enables an override to display specified glyphs in the UV Menu and certain other elements rather than their accurate ones.")
 	UVGlyphSet = CreateClientConVar("unitvehicle_glyph_set", "", true, false, "Unit Vehicles: The glyph set used for the Glyph Override.")
 
