@@ -512,7 +512,7 @@ if SERVER then
 	end
 	net.Receive("UVRace_SetID", SetID)
 elseif CLIENT then
-	local ClientNodes = {}
+	UVRace_ClientCompiledPaths = UVRace_ClientCompiledPaths or {}
 	local HoverNode
 	local SelectedNode = nil
 
@@ -555,11 +555,11 @@ elseif CLIENT then
 		local speed = net.ReadUInt(16)
 		local curve = net.ReadFloat()
 
-		ClientNodes[id] = ClientNodes[id] or {}
-		ClientNodes[id].Pos = pos
-		ClientNodes[id].SpeedLimit = speed
-		ClientNodes[id].Curve = curve
-		ClientNodes[id].Links = ClientNodes[id].Links or {}
+		UVRace_ClientCompiledPaths[id] = UVRace_ClientCompiledPaths[id] or {}
+		UVRace_ClientCompiledPaths[id].Pos = pos
+		UVRace_ClientCompiledPaths[id].SpeedLimit = speed
+		UVRace_ClientCompiledPaths[id].Curve = curve
+		UVRace_ClientCompiledPaths[id].Links = UVRace_ClientCompiledPaths[id].Links or {}
 	end)
 
 	net.Receive("UVRace_NodeRemove", function()
@@ -573,15 +573,15 @@ elseif CLIENT then
 			HoverNode = nil
 		end
 
-		ClientNodes[id] = nil
+		UVRace_ClientCompiledPaths[id] = nil
 	end)
 
 	net.Receive("UVRace_NodeLinks", function()
 		local id = net.ReadUInt(16)
 		local links = net.ReadTable()
 
-		if ClientNodes[id] then
-			ClientNodes[id].Links = links
+		if UVRace_ClientCompiledPaths[id] then
+			UVRace_ClientCompiledPaths[id].Links = links
 		end
 	end)
 
@@ -605,7 +605,7 @@ elseif CLIENT then
 	end)
 
 	net.Receive("UVRace_ClearAllNodes", function()
-		ClientNodes = {}
+		UVRace_ClientCompiledPaths = {}
 		HoverNode = nil
 		SelectedNode = nil
 	end)
@@ -643,7 +643,7 @@ elseif CLIENT then
 		local aim = ply:GetAimVector()
 		local bestID, bestDist
 
-		for id, node in pairs(ClientNodes) do
+		for id, node in pairs(UVRace_ClientCompiledPaths) do
 			local to = node.Pos - eye
 			local proj = to:Dot(aim)
 
@@ -685,9 +685,9 @@ elseif CLIENT then
 
 		render.SetMaterial(matBeam)
 
-		for fromID, node in pairs(ClientNodes) do
+		for fromID, node in pairs(UVRace_ClientCompiledPaths) do
 			for toID in pairs(node.Links) do
-				local other = ClientNodes[toID]
+				local other = UVRace_ClientCompiledPaths[toID]
 				if not other then continue end
 
 				local pathPoints = GenerateNodePath(node, other, 200)
@@ -703,13 +703,14 @@ elseif CLIENT then
 				-- Draw beams along the path segments
 				for i = 1, #pathPoints - 1 do
 					render.DrawBeam(pathPoints[i], pathPoints[i+1], 30, 0, 1, col)
+					-- PrintTable(UVRace_ClientCompiledPaths)
 				end
 			end
 		end
 
 		render.SetColorMaterial()
 
-		for id, node in pairs(ClientNodes) do
+		for id, node in pairs(UVRace_ClientCompiledPaths) do
 			local col = col_white
 
 			if id == HoverNode then
@@ -735,8 +736,8 @@ elseif CLIENT then
 
 		cam.End3D()
 		
-		if HoverNode and ClientNodes[HoverNode] then
-			local node = ClientNodes[HoverNode]
+		if HoverNode and UVRace_ClientCompiledPaths[HoverNode] then
+			local node = UVRace_ClientCompiledPaths[HoverNode]
 
 			local idText = "ID: " .. HoverNode
 
@@ -838,7 +839,7 @@ elseif CLIENT then
 
 	net.Receive("UVRace_NodeSettings", function()
 		local id = net.ReadUInt(16)
-		local node = ClientNodes[id]
+		local node = UVRace_ClientCompiledPaths[id]
 
 		local frame = vgui.Create("DFrame")
 		frame:SetSize(500, 130)
@@ -863,7 +864,7 @@ elseif CLIENT then
 		curveSlider:SetTooltip(UVString("tool.uvracemanager.node.curve.desc"))
 		curveSlider:SetMin(-5)
 		curveSlider:SetMax(5)
-		curveSlider:SetDecimals(1)
+		curveSlider:SetDecimals(2)
 		if node then
 			curveSlider:SetValue(node.Curve or 0)
 		end

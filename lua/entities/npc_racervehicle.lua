@@ -568,7 +568,12 @@ if SERVER then
 
 			for i = 1, #points - 1 do totalPathLen = totalPathLen + points[i]:Distance( points[i + 1] ) end
 
-			local lookAheadDist = 1000
+
+			local velocity = self.v:GetVelocity():Length()
+			local speedFactor = math.Clamp(velocity / 2500, 0, 1)
+			local lookAheadDist = Lerp(speedFactor, 150, 1200)
+			
+			-- local lookAheadDist = 1000
 			local targetPathDist = pathDistFromStart + lookAheadDist
 			local targetPos
 
@@ -728,9 +733,9 @@ if SERVER then
 
 			-- === SPEED BASED STEERING MULTIPLIER ===
 			local velocity = self.v:GetVelocity():Length() -- real speed (not squared)
-			local maxSpeedForScaling = 2400  -- speed where steering becomes fully relaxed
+			local maxSpeedForScaling = 3600  -- speed where steering becomes fully relaxed
 			local speedFactor = math.Clamp(velocity / maxSpeedForScaling, 0, 1)
-			local steerMultiplier = Lerp(speedFactor, 3, 1)
+			local steerMultiplier = Lerp(speedFactor, 3, 1.5)
 			steer = steer * steerMultiplier
 
 			-- Apply throttle/steer (same as your existing code block)
@@ -761,10 +766,10 @@ if SERVER then
 				if UVRace_CompiledPaths and currentPosNode then
 					for _, seg in ipairs( UVRace_CompiledPaths ) do if seg.From == currentPosNode then table.insert( nextNodes, seg ) end end
 				end
-				print('BRANCH COUNT: ', #nextNodes)
+				-- print('BRANCH COUNT: ', #nextNodes)
 				if #nextNodes > 0 then
 					local chosen = nextNodes[math.random(#nextNodes)]
-					PrintTable(chosen)
+					-- PrintTable(chosen)
 					self.CurrentNode = chosen
 					self.NextNode = nil
 					self.CurrentPointIndex = 1
