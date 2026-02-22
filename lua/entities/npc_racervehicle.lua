@@ -182,10 +182,71 @@ if SERVER then
 		local b_padded = b - dir * padding
 		
 		local ab_padded = b_padded - a_padded
-		local t = ((p - a_padded):Dot(ab_padded)) / ab_padded:LengthSqr()
+		local t = (( p - a_padded ):Dot( ab_padded )) / ab_padded:LengthSqr()
 		t = math.Clamp(t, 0, 1)
 		
 		return a_padded + ab_padded * t
+	end
+
+	local function ClosestPointOnPolyline(pos, points)
+		if not points or #points == 0 then return nil, 1, 0, 0 end
+		if #points == 1 then return points[1], 1, 0, 0 end
+
+		local bestPoint = points[1]
+		local bestSeg, bestT = 1, 0
+		local bestDistSq = ( pos - bestPoint ):LengthSqr()
+		local pathDist = 0
+		local totalDistToBest = 0
+
+		for i = 1, #points - 1 do
+			local a, b = points[i], points[i + 1]
+			local ab = b - a
+			local len = ab:Length()
+			local segLen = len
+
+			if segLen <= 0 then
+				pathDist = pathDist + 0
+			else
+				local t = math.Clamp( (( pos - a ):Dot( ab )) / (ab:LengthSqr()), 0, 1)
+				local pt = a + ab * t
+				local dSq = ( pos - pt ):LengthSqr()
+
+				if dSq < bestDistSq then
+					bestDistSq = dSq
+					bestPoint = pt
+					bestSeg = i
+					bestT = t
+					totalDistToBest = pathDist + t * segLen
+				end
+
+				pathDist = pathDist + segLen
+			end
+		end
+
+		return bestPoint, bestSeg, bestT, totalDistToBest
+	end
+
+	local function PointAtPathDistance(points, pathDist)
+		if not points or #points == 0 then return nil end
+		if #points == 1 or pathDist <= 0 then return points[1] end
+
+		local remaining = pathDist
+
+		for i = 1, #points - 1 do
+			local a, b = points[i], points[i + 1]
+			local segLen = a:Distance(b)
+
+			if segLen > 0 then
+				if remaining <= segLen then
+					local t = remaining / segLen
+					return Lerp( t, a, b )
+				end
+
+				remaining = remaining - segLen
+			end
+		end
+
+		return points[#points]
 	end
 
 	function ENT:OnRemove()
@@ -399,11 +460,9 @@ if SERVER then
 				)
 				
 				local velocity = self.v:GetVelocity()
-				--print(velocity:LengthSqr())
 				local normalized_velocity = velocity:GetNormalized()
 				
 				local tolerance = 750
-				--local dotThreshold = 1
 				
 				if next_point then
 					local toCheckpoint = (target_pos - self.v:WorldSpaceCenter()):GetNormalized()
@@ -412,7 +471,7 @@ if SERVER then
 					local dot = forward:Dot(toCheckpoint)
 					local dist = self.v:WorldSpaceCenter():Distance(target_pos)
 					
-					if dist < tolerance and velocity:LengthSqr() > 100000 then --dot > dotThreshold
+					if dist < tolerance and velocity:LengthSqr() > 100000 then
 						target = next_point
 
 						pos1 = (InfMap and InfMap.unlocalize_vector( target:GetPos1(), target:GetChunk() )) or target:GetPos1()
@@ -480,11 +539,11 @@ if SERVER then
 				self.racing = true
 			end
 
-			-- SAFETY: If node invalid, rebuild path
 			if self.NodePath and (not self.CurrentNode or not self.CurrentNode.Points) then
 				self.NodePath = nil
 				self.CurrentNode = nil
 				self.CurrentPointIndex = nil
+				self.NodeDebugTarget = nil
 				self:StartNodeRace()
 				return
 			end
@@ -499,58 +558,92 @@ if SERVER then
 				self.v:SetHandbrake(false)
 			end
 			
-			-- Determine target position inside the node
-			self.CurrentPointIndex = self.CurrentPointIndex or 1
 			local points = self.CurrentNode.Points or {}
-			if #points == 0 then return end -- Safety check
-			
-			local pos = self.v:WorldSpaceCenter()
-			local points = self.CurrentNode.Points
 			if #points == 0 then return end
 
-			-- Lookahead path sampling
-			local lookAheadPoints = 6
-			local lookAheadDist = 1200
-			local weightedTarget = Vector(0,0,0)
-			local totalWeight = 0
-			local accumulatedDist = 0
+			local pos = self.v:WorldSpaceCenter()
 
-			for i = 0, lookAheadPoints do
-				local idx = self.CurrentPointIndex + i
-				local pt = points[idx]
-				if not pt then break end
+			local closestPoint, bestSeg, _, pathDistFromStart = ClosestPointOnPolyline(pos, points)
+			local totalPathLen = 0
 
-				local dist = pos:Distance(pt)
-				accumulatedDist = accumulatedDist + dist
-				if accumulatedDist > lookAheadDist then break end
+			for i = 1, #points - 1 do totalPathLen = totalPathLen + points[i]:Distance( points[i + 1] ) end
 
-				local weight = 1 / (i + 1) -- closer points matter more
-				weightedTarget = weightedTarget + pt * weight
-				totalWeight = totalWeight + weight
-			end
-
+			local lookAheadDist = 1000
+			local targetPathDist = pathDistFromStart + lookAheadDist
 			local targetPos
-			if totalWeight > 0 then
-				targetPos = weightedTarget / totalWeight
+
+			if targetPathDist <= totalPathLen then targetPos = PointAtPathDistance( points, targetPathDist )
 			else
-				targetPos = points[self.CurrentPointIndex]
+				local overflow = targetPathDist - totalPathLen
+				local nextNodes = {}
+
+				if UVRace_CompiledPaths and self.CurrentNode.To then
+					for _, seg in ipairs( UVRace_CompiledPaths ) do
+						if seg.From == self.CurrentNode.To and seg.Points and #seg.Points > 0 then
+							table.insert( nextNodes, seg )
+						end
+					end
+				end
+
+				if #nextNodes > 0 then
+					local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
+					local forwardFlat = Vector( forward.x, forward.y, 0 )
+
+					local endPt = points[#points]
+					local bestDot, bestSeg = -math.huge, nextNodes[1]
+
+					for _, seg in ipairs( nextNodes ) do
+						local segStart = seg.Points[1]
+
+						local toSeg = segStart - endPt
+						local len = toSeg:Length()
+
+						if len < 1 then continue end
+
+						local dir = toSeg / len
+						local flatLen = forwardFlat:Length()
+
+						local dot = flatLen > 0.01 and ( dir:Dot( forwardFlat / flatLen ) ) or 0
+						if dot > bestDot then bestDot = dot bestSeg = seg end
+					end
+
+					targetPos = PointAtPathDistance( bestSeg.Points, overflow )
+				end
+
+				if not targetPos then targetPos = PointAtPathDistance( points, totalPathLen ) end
 			end
 
-			if not isvector(targetPos) then
-				self.NodePath = nil
+			if not targetPos and points[#points] then targetPos = points[#points]
+			elseif not targetPos then
+				self.NodePath = nil	
 				self.CurrentNode = nil
 				self.CurrentPointIndex = nil
+				self.NodeDebugTarget = nil
 				self:StartNodeRace()
 				return
 			end
 
-			-- Steering calculation
-			local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
+			local dist = ( targetPos - pos ):Length()
+			self.NodeDebugTarget = targetPos
+
+			local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles( self.v.VehicleData.LocalAngForward ):Forward() or self.v:GetForward()
 			local toTarget = targetPos - pos
-			local dist = toTarget:Length()
-			local dir = toTarget:GetNormalized()
-			local right = dir:Cross(forward)
-			local steer_amount = right:Length()
+			local forwardFlat = Vector(	forward.x, forward.y, 0	)
+			local toTargetFlat = Vector( toTarget.x, toTarget.y, 0	)
+			local lenFlat = toTargetFlat:Length()
+
+			if lenFlat < 1 then
+				toTargetFlat = forwardFlat
+				lenFlat = toTargetFlat:Length()
+			end
+
+			if lenFlat > 0 then toTargetFlat = toTargetFlat / lenFlat end
+
+			local forwardLen = forwardFlat:Length()
+			if forwardLen > 0 then forwardFlat = forwardFlat / forwardLen end
+
+			local right = toTargetFlat:Cross(forwardFlat)
+			local steer_amount = math.abs(right.z)
 			local steer = right.z > 0 and steer_amount or -steer_amount
 			local speed = self.v:GetVelocity():LengthSqr()
 			
@@ -578,9 +671,9 @@ if SERVER then
 			local cornerDist = 400
 
 			if dist < cornerDist then
-				throttle = math.Clamp(dist / cornerDist, -1, 1) -- slows down as approaching
+				throttle = math.Clamp(dist / cornerDist, -1, 1) 
 			end
-			
+
 			if speed > speedLimit * 350 then
 				throttle = -1
 			elseif speed > speedLimit * 300 then
@@ -662,34 +755,24 @@ if SERVER then
 				self.v:SetSteering(steer, 0)
 			end
 
-			-- Move to next node if close
-			self.CurrentPointIndex = self.CurrentPointIndex or 1
-			local points = self.CurrentNode.Points or {}
-			local nextPoint = points[self.CurrentPointIndex]
-
-			if not isvector(nextPoint) then return end
-
-			if dist < 600 then
-				self.CurrentPointIndex = self.CurrentPointIndex + 1
-				if self.CurrentPointIndex > #points then
-					local nextNodes = {}
-					local currentPosNode = self.CurrentNode.To
-					if UVRace_CompiledPaths and currentPosNode then
-						for _, seg in ipairs( UVRace_CompiledPaths ) do if seg.From == currentPosNode then table.insert( nextNodes, seg ) end end
-					end
-
-					if #nextNodes > 0 then
-						local chosen = nextNodes[math.random(#nextNodes)]
-						-- print(self.v, "BRANCH COUNT: " .. #nextNodes)
-						-- PrintTable(chosen)
-						self.CurrentNode = chosen
-						self.NextNode = nil
-						self.CurrentPointIndex = 1
-					else
-						self.NodePath = nil
-						self.CurrentNode = nil
-						self.NextNode = nil
-					end
+			if totalPathLen > 0 and pathDistFromStart >= totalPathLen - 80 then
+				local nextNodes = {}
+				local currentPosNode = self.CurrentNode.To
+				if UVRace_CompiledPaths and currentPosNode then
+					for _, seg in ipairs( UVRace_CompiledPaths ) do if seg.From == currentPosNode then table.insert( nextNodes, seg ) end end
+				end
+				print('BRANCH COUNT: ', #nextNodes)
+				if #nextNodes > 0 then
+					local chosen = nextNodes[math.random(#nextNodes)]
+					PrintTable(chosen)
+					self.CurrentNode = chosen
+					self.NextNode = nil
+					self.CurrentPointIndex = 1
+				else
+					self.NodePath = nil
+					self.CurrentNode = nil
+					self.NextNode = nil
+					self.NodeDebugTarget = nil
 				end
 			end
 
@@ -965,12 +1048,8 @@ if SERVER then
     -- ====== DEBUG: Draw line to target node ======
 		local targetPos = nil
 		
-		-- Use NodePath target if racing on nodes
-		if self.NodePath and self.CurrentNode then
-			local points = self.CurrentNode.Points or {}
-			if #points > 0 then
-				targetPos = points[self.CurrentPointIndex or 1]
-			end
+		if self.NodePath and self.CurrentNode and self.NodeDebugTarget then
+			targetPos = self.NodeDebugTarget
 		-- elseif self.PatrolWaypoint then
 			-- targetPos = self.PatrolWaypoint["Target"]
 		end
