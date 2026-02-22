@@ -22,6 +22,8 @@ Text = [[
 - Added support for themed Police Scanners
  |-- Only *Most Wanted* has its themed scanner for the time being
  |-- Also added the option to have the vehicle's forward axis be used for the scanner rather than the camera
+- Added the ability to limit how many Units can be part of the pursuit
+ |-- Applied in [string:uv.hm]
 
 **Changes**
 - Improved Unit AI pathing
