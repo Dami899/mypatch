@@ -12,16 +12,19 @@ UV.PNotes = {
 Date = { year = 2026, month = 2, day = 20 },
 Text = [[
 **New Features**
-- Added two new Pursuit Techs:
- |-- Racers: [string:uv.ptech.ghost] - Become non-collidable with props and other vehicles for a short time
- |-- Units: [string:uv.ptech.grappler] - Grab a fleeing vehicle's wheels and hold them in place!
 - Racing: Added support for *AI Path Nodes*
  |-- When included, AI Racers will follow these paths instead of checkpoints
  |-- Path Nodes support multi-path racing, where the AI will now randomly pick a route
  |-- *Curve Strength* allows the user to apply a gradual turn for longer paths
+ 
+- Added two new Pursuit Techs:
+ |-- [string:uv.ptech.ghost] (Racers) - Become non-collidable with props and other vehicles for a short time
+ |-- [string:uv.ptech.grappler] (Units) - Grab a fleeing vehicle's wheels and hold them in place
+ 
 - Added support for themed Police Scanners
  |-- Only *Most Wanted* has its themed scanner for the time being
  |-- Also added the option to have the vehicle's forward axis be used for the scanner rather than the camera
+ 
 - Added the ability to limit how many Units can be part of the pursuit
  |-- Applied in [string:uv.hm]
 
@@ -36,6 +39,7 @@ Text = [[
 - Fixed that UVTrax provided the raw folder name in the notification rather than the metadata folder name
  |-- This only applies to UVTrax profiles that utilize JSON files for song titles, authors and folder names
 - Fixed that Pursuit Breakers, when wrecking Units, caused a Pursuit to engage, even if there was no racers to pursue
+- Fixed that the *Name Tags* variable was a server variable when it should've been a client variable
 ]],
 },
 

@@ -75,7 +75,6 @@ You can follow us on our Trello page, or our Discord server, both of which you c
 
 If someone has prepared a race, and they send an invite, you'll receive an on-screen notification inviting you to it, assuming that you are in a vehicle and no pursuit is ongoing.
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- How do I race with AI?
 
@@ -96,7 +95,6 @@ There are two ways of doing that:
 **Notes**
  |-- Ensure the [string:uv.tool.base.title] variable matches your desired base.
 ]],
-
 ["Racing.Resetting"] = [[
 # -- I'm stuck! How do I reset?
 
@@ -108,7 +106,6 @@ There are two ways of doing that:
  |-- You cannot reset when being busted
  |-- You cannot reset while already moving
 ]],
-
 ["Racing.Starting"] = [[
 # -- How do I start racing?
 
@@ -125,7 +122,6 @@ Begin a race by going to [string:uv.rm] in the UV Menu:
  |-- If there are no existing races, you'll have to make your own
  |-- Alternatively, find some on the Workshop!
 ]],
-
 ["Racing.Create"] = [[
 # -- How do I create races?
 Use the [string:tool.uvracemanager.name] tool:
@@ -164,6 +160,24 @@ If the AI is going too fast, you'll have to alter the speedlimit value found in 
 If you have a race already loaded, you can press [+attack2] on the Checkpoint to edit it and apply the updated speedlimit.
 Alternatively, you can edit the last number in the race data file.
 ]],
+["Racing.Create.PathNode"] = [[
+# -- What are "Path Nodes" and how do I use them?
+
+Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+
+
+**-- Creating Path Nodes**
+With the [string:tool.uvracemanager.name] tool equipped:
+ |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ |-- Press [+attack] anywhere on the map to create a node
+ |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+
+**-- Editing Path Nodes**
+With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -174,7 +188,6 @@ Alternatively, you can edit the last number in the race data file.
  |-- Alternatively, drive into or drive recklessly near a Unit
  |-- Away you go!
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- Can I join the Pursuit as a Unit?
 
@@ -321,7 +334,6 @@ Du kan följa oss på vår Trello-sida, eller på vår Discord-server. Du hittar
 
 Om något har förberett ett race och skickat en inbjudan så får du en notifikation på skärmen som bjuder in dig till den, förutsatt att du är i ett fordon och ingen jakt pågår.
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- Hur tävlar jag med AI?
 
@@ -342,7 +354,6 @@ Det finns två sätt att göra det:
 **Notera**
  |-- Kolla så att [string:uv.tool.base.title]-variabeln matchar din valda bas.
 ]],
-
 ["Racing.Resetting"] = [[
 # -- Jag har fastnat! Hur återställer jag?
 
@@ -354,7 +365,6 @@ Det finns två sätt att göra det:
  |-- Du kan inte återställa när du arresteras
  |-- Du kan inte återställa när du är i rörelse
 ]],
-
 ["Racing.Starting"] = [[
 # -- Hur börjar jag ett race?
 
@@ -371,7 +381,6 @@ Påbörja ett race genom att gå till [string:uv.rm] i UV-menyn:
  |-- Om det inte finns något race så behöver du skapa ditt eget
  |-- Alternativt så hittar du några på Workshop!
 ]],
-
 ["Racing.Create"] = [[
 # -- Hur skapar jag ett race?
 Använd verktyget [string:tool.uvracemanager.name]:
@@ -410,6 +419,23 @@ Om AI:n kör för fort så behöver du redigera hastighetsbegränsningsvärdet s
 Om ett race redan är laddat så kan du trycka på [+attack2] på Kontrollpunkten för att redigera den och tillämpa den uppdaterade gränsen.
 Alternativt så kan du redigera det sista värdet i racets datafil.
 ]],
+["Racing.Create.PathNode"] = [[
+# -- Vad är "sökvägsnoder", och hur använder jag dem?
+
+Sökvägsnoder är en alternativ navigeringsmetod som används av Racing AI:n under lopp. Dem skapas med verktyget [string:tool.uvracemanager.name].
+
+**-- Skapa sökvägsnoder**
+Med verktyget [string:tool.uvracemanager.name] framtaget:
+ |-- Tryck på [+reload] tills du bytt till [string:tool.uvracemanager.node]-läget
+ |-- Tryck på [+attack] på kartan för att skapa en nod
+ |-- Tryck på [+attack] på ett annat ställe på kartan för att skapa en ny nod; den föregående noden ansluter sig automatiskt till den
+ |-- Tryck på [+attack] på en existerande nod för att markera den; klicka på den igen för att ta bort den, eller klicka på en annan nod för att ansluta den markerade noden till den
+
+**-- Redigera sökvägsnoder**
+Med verktyget [string:tool.uvracemanager.name] satt till [string:tool.uvracemanager.node], tryck på [+attack2] på en existerande nod för att öppna [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] sätter hastigheten som AI:n följer efter dem passerat denna nod
+ |-- [string:tool.uvracemanager.node.curve] tillämpar en kurva till noden denna ansluter sig till, vilket är användbart på noder placerade i och runt kurvor
+]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -420,7 +446,6 @@ Alternativt så kan du redigera det sista värdet i racets datafil.
  |-- Alternativt så krockar du med, eller köra galet nära en Enhet
  |-- Iväg med dig!
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- Kan jag gå med jakten som en Enhet?
 
@@ -518,7 +543,7 @@ Du kan hitta all din UV-data i spelets *data/unitvehicles*-mapp.
 
 -- Español (Spanish) es-es
 UV.FAQ["es-es"] = {
--- Introducción
+-- Introduction
 ["Intro"] = [[
 # -- ¿De qué trata esta extensión?
 
@@ -561,13 +586,12 @@ Puedes seguirnos en nuestra página de Trello, o en nuestro servidor de Discord,
  |-- uv_spawn_as_unit - Te permite unirte como unidad policial.
 ]],
 
--- Carreras
+-- Racing
 ["Racing.Joining"] = [[
 # -- ¿Cómo me uno a las carreras?
 
 Si alguien ya preparó una carrera, y te envian una invitación, recibirás una notificación en pantalla en la que te invitan a ella, asumiendo que estás en un vehículo y no hay ninguna persecución en curso.
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- ¿Cómo corro con la IA?
 
@@ -588,7 +612,6 @@ Hay 2 maneras de hacerlo:
 **Notas**
  |-- Asegúrate que la variable [string:uv.tool.base.title] es la misma a la de tu base de vehículos asignada.
 ]],
-
 ["Racing.Resetting"] = [[
 # -- ¡Me atasqué! ¿Cómo reaparezco?
 
@@ -600,7 +623,6 @@ Hay 2 maneras de hacerlo:
  |-- No puedes restablecer mientras estás siendo arrestado.
  |-- No puedes restablecer cuando ya te estás moviendo.
 ]],
-
 ["Racing.Starting"] = [[
 # -- ¿Cómo comienzo a correr?
 
@@ -617,7 +639,6 @@ Comienza una carrera yendo a [string:uv.rm] en el menú de UV:
  |-- Si no hay carreras existentes, tendrás que crear una.
  |-- ¡Como alternativa, busca si hay en la workshop!
 ]],
-
 ["Racing.Create"] = [[
 # -- ¿Cómo creo carreras?
 Usa la herramienta [string:tool.uvracemanager.name]:
@@ -656,8 +677,26 @@ Si la IA va muy rápido, tendrás que cambiar el límite de velocidad que encont
 Si tienes una carrera ya cargada, puedes presionar [+attack2] en el punto de control para editarlo y aplicar el límite de velocidad actualizado.
 Alternativamente, puedes editar el ultimo numero en el archivo "race data".
 ]],
+-- ["Racing.Create.PathNode"] = [[
+-- # -- What are "Path Nodes" and how do I use them?
 
--- Persecuciones
+-- Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+
+
+-- **-- Creating Path Nodes**
+-- With the [string:tool.uvracemanager.name] tool equipped:
+ -- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ -- |-- Press [+attack] anywhere on the map to create a node
+ -- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ -- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+
+-- **-- Editing Path Nodes**
+-- With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ -- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ -- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+-- ]],
+
+-- Pursuits
 ["Pursuit.Starting"] = [[
 # -- ¿Cómo empiezo una persecución?
 
@@ -666,7 +705,6 @@ Alternativamente, puedes editar el ultimo numero en el archivo "race data".
  |-- Alternativamente, conduce agresivamente o colisiona con una unidad policial
  |-- ¡Y allí vas!
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- ¿Puedo unirme a la persecución como unidad policial?
 
@@ -813,7 +851,6 @@ Unit Vehicles - это аддон, ориентированный на песо�
 
 Если кто-то приготовил гонку, а затем отправил приглашение, у тебя появится уведомление на экране, предполагая, что ты в машине и не в погоне.
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- Как мне устроить гонку с ИИ?
 
@@ -834,7 +871,6 @@ Unit Vehicles - это аддон, ориентированный на песо�
 **Примечания**
  |-- Убедись, что значение [string:uv.tool.base.title] соответсвует твоей желаемой базе.
 ]],
-
 ["Racing.Resetting"] = [[
 # -- Я застрял! Как мне вернуться?
 
@@ -846,7 +882,6 @@ Unit Vehicles - это аддон, ориентированный на песо�
  |-- Ты не сможешь вернуться во время ареста
  |-- Ты не сможешь вернуться во время движения
 ]],
-
 ["Racing.Starting"] = [[
 # -- Как мне начать гонку?
 
@@ -863,7 +898,6 @@ Unit Vehicles - это аддон, ориентированный на песо�
  |-- Если нет имеющихся гонок, ты можешь создать свою
  |-- Или же ты можешь найти некоторые в Мастерской!
 ]],
-
 ["Racing.Create"] = [[
 # -- Как мне создавать гонки?
 Use the [string:tool.uvracemanager.name] tool:
@@ -902,6 +936,24 @@ Use the [string:tool.uvracemanager.name] tool:
 Если у тебя есть уже загруженная гонка, ты можешь нажать [+attack2] по Контрольной Точке, чтобы изменить её и принять обновлённое ограничение скорости.
 Или же ты можешь изменить последний номер в файле данных гонки.
 ]],
+-- ["Racing.Create.PathNode"] = [[
+-- # -- What are "Path Nodes" and how do I use them?
+
+-- Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+
+
+-- **-- Creating Path Nodes**
+-- With the [string:tool.uvracemanager.name] tool equipped:
+ -- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ -- |-- Press [+attack] anywhere on the map to create a node
+ -- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ -- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+
+-- **-- Editing Path Nodes**
+-- With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ -- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ -- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+-- ]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -912,7 +964,6 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- Или же превышай скорость или врежься в Юнита
  |-- Уходи скорей!
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- Могу ли я присоединиться к Погоне в качестве Юнита?
 
@@ -1091,8 +1142,6 @@ Jak gracz przygotuje Wyścig i Cię zaprosi, dostaniesz powiadomienie na ekranie
  |-- Nie można zresetować podczas aresztowania
  |-- Nie można zresetować podczas jazdy
 ]],
-
-
 ["Racing.Starting"] = [[
 # -- Jak rozpocząć Wyścig?
 
@@ -1109,8 +1158,6 @@ Rozpocząć Wyścig można w [string:uv.rm] w oknie UV:
  |-- Jeśli nie istnieje gotowa trasa, musisz stworzyć nową
  |-- Ewentualnie możesz przeszukać Warsztat Steam!
 ]],
-
-
 ["Racing.Create"] = [[
 # -- Jak stworzyć Wyścig?
 Przy użyciu narzędzia [string:tool.uvracemanager.name]:
@@ -1150,6 +1197,24 @@ Jeśli SI jedzie zbyt szybko, będzie trzeba zmienić wartość limitu prędkoś
 Jeśli wyścig jest już wczytany, możesz wcisnąć [+attack2] na pkt kontrolny żeby go edytować i ustawić wybraną wartość limitu prędkości.
 Zamiast tego możesz też zmienić ostatnią liczbę w pliku danych wyścigu.
 ]],
+-- ["Racing.Create.PathNode"] = [[
+-- # -- What are "Path Nodes" and how do I use them?
+
+-- Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+
+
+-- **-- Creating Path Nodes**
+-- With the [string:tool.uvracemanager.name] tool equipped:
+ -- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ -- |-- Press [+attack] anywhere on the map to create a node
+ -- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ -- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+
+-- **-- Editing Path Nodes**
+-- With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ -- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ -- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+-- ]],
 
 
 -- Pursuits
@@ -1161,8 +1226,6 @@ Zamiast tego możesz też zmienić ostatnią liczbę w pliku danych wyścigu.
  |-- Ewentualnie uderz w Jednostkę lub jeździj nieostrożnie w jej pobliżu.
  |-- Gaz do dechy!
 ]],
-
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- Mogę dołączyć do Pościgu jako Jednostka?
 
@@ -1216,7 +1279,6 @@ Używając narzędzia [string:tool.uvpursuitbreaker.name]:
  |-- 3. Po zespawaniu, wciśnij [+attack2] na którykolwiek obiekt Spowalniacza
  |-- 4. Zmień ustawienia według uznania, następnie wciśnij [string:uv.tool.create]
 ]],
-
 
 ["Other.CreateTraffic"] = [[
 # -- Jak pojawić Ruch Drogowy?
@@ -1311,7 +1373,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 
 如果有人已经创建了一场比赛并向你发送了邀请，在你处于车辆中且当前没有进行中的追逐的情况下，你将会收到一个屏幕提示通知，邀请你加入该比赛。
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- 我该如何与 AI 进行比赛？
 
@@ -1332,7 +1393,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 **注意事项**
  |-- 请确保 [string:uv.tool.base.title] 变量与你想要使用的载具Base一致。
 ]],
-
 ["Racing.Resetting"] = [[
 # -- 我卡住了！该如何重置？
 
@@ -1344,7 +1404,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  |-- 被逮捕时无法重置
  |-- 车辆正在移动时无法重置
 ]],
-
 ["Racing.Starting"] = [[
 # -- 我该如何开始比赛？
 
@@ -1361,7 +1420,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  |-- 如果当前没有任何比赛，你需要自己创建一场
  |-- 或者，也可以前往创意工坊查找现成的比赛！
 ]],
-
 ["Racing.Create"] = [[
 # -- 我该如何创建比赛？
 使用 [string:tool.uvracemanager.name] 工具：
@@ -1400,6 +1458,24 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 如果当前已经加载了一场比赛，你可以对检查点按下 [+attack2] 进行编辑，并应用新的 speedlimit 设置。
 另外，你也可以直接编辑比赛数据文件中最后一个数值来修改该检查点的速度限制。
 ]],
+-- ["Racing.Create.PathNode"] = [[
+-- # -- What are "Path Nodes" and how do I use them?
+
+-- Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+
+
+-- **-- Creating Path Nodes**
+-- With the [string:tool.uvracemanager.name] tool equipped:
+ -- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ -- |-- Press [+attack] anywhere on the map to create a node
+ -- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ -- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+
+-- **-- Editing Path Nodes**
+-- With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ -- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ -- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+-- ]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1410,7 +1486,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  |-- 或者，在单位附近高速行驶或进行危险驾驶
  |-- 然后，追逐正式开始！
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- 我可以作为单位加入追逐吗？
 

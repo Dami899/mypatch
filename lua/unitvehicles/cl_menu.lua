@@ -776,6 +776,7 @@ UVMenu.FAQ = function()
 				{ type = "info", text = UVGetFAQText("Racing.SpawnAI"), sv = true },
 				{ type = "info", text = UVGetFAQText("Racing.Create"), sv = true },
 				{ type = "info", text = UVGetFAQText("Racing.Create.Speedlimit"), sv = true },
+				{ type = "info", text = UVGetFAQText("Racing.Create.PathNode"), sv = true },
 				
 				{ type = "info", text = UVGetFAQText("Racing.Joining") },
 				{ type = "info", text = UVGetFAQText("Racing.Resetting") },

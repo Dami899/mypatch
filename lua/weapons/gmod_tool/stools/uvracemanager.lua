@@ -739,7 +739,7 @@ elseif CLIENT then
 		if HoverNode and UVRace_ClientCompiledPaths[HoverNode] then
 			local node = UVRace_ClientCompiledPaths[HoverNode]
 
-			local idText = "ID: " .. HoverNode
+			local idText = string.format(UVString("uv.racemanager.id"), HoverNode)
 
 			local links = node.Links or {}
 			local connected = {}
@@ -752,22 +752,21 @@ elseif CLIENT then
 
 			local contoText
 			if #connected > 0 then
-				contoText = string.format(
-					"Connected to: %d < %s >",
-					#connected,
-					table.concat(connected, ", ")
-				)
+				contoText = string.format( UVString("uv.racemanager.connectedto"), #connected .. " (" .. string.format(UVString("uv.racemanager.id"), table.concat(connected, ", ") ) .. ")" )
 			else
-				contoText = "Connected to: NONE"
+				contoText = string.format( UVString("uv.racemanager.connectedto"), "[ NONE ]" )
 			end
 
 			local speedText = "Speed: " .. (node.SpeedLimit or 0)
 			local curveText = "Curve Strength: " .. string.format("%.2f", node.Curve or 0)
 
-			draw.SimpleTextOutlined(idText, "UVFont5Shadow", ScrW() * 0.51, ScrH() / 2 + 0, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
-			draw.SimpleTextOutlined(contoText, "UVFont5Shadow", ScrW() * 0.51, ScrH() / 2 + 30, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
-			draw.SimpleTextOutlined(speedText, "UVFont5Shadow", ScrW() * 0.51, ScrH() / 2 + 60, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
-			draw.SimpleTextOutlined(curveText, "UVFont5Shadow", ScrW() * 0.51, ScrH() / 2 + 90, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
+			local speedText = string.format( UVString("uv.racemanager.speedlimit"), node.SpeedLimit or 0 )
+			local curveText = string.format( UVString("uv.racemanager.curve"), string.format("%.2f", node.Curve or 0) )
+
+			draw.SimpleTextOutlined(idText, "UVFont4", ScrW() * 0.51, ScrH() / 2 + 0, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
+			draw.SimpleTextOutlined(contoText, "UVFont4", ScrW() * 0.51, ScrH() / 2 + 25, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
+			draw.SimpleTextOutlined(speedText, "UVFont4", ScrW() * 0.51, ScrH() / 2 + 50, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
+			draw.SimpleTextOutlined(curveText, "UVFont4", ScrW() * 0.51, ScrH() / 2 + 75, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 2, color_black )
 		end
 
 	end
