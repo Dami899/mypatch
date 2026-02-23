@@ -660,7 +660,6 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 		local rawText = UVString(st.text or "") or ""
 		rawText = UVReplaceKeybinds(rawText, "Small")
-		-- rawText = UVReplaceKeybinds(rawText)
 		rawText = UVDiscordTextFormat(rawText)
 
 		local mk
@@ -4309,7 +4308,17 @@ function UVMenu.EstimateTabHeight(tab, availableWidth)
 			local base
 			local text = UVString(st.text) or ""
 
-			if st.type == "infosimple" then
+			if st.type == "info" then
+				local rawText = UVReplaceKeybinds(text, "Small")
+				rawText = UVDiscordTextFormat(text)
+
+				local available = availableWidth - 20
+				if available < 1 then available = 1 end
+
+				local mk = markup.Parse( "<font=UVSettingsFontSmall>" .. rawText .. "</font>", available )
+
+				base = (mk and mk:GetHeight() or 0) + 20
+			elseif st.type == "infosimple" then
 				base = math.max(UV.ScaleH(32), GetDynamicTall(text, availableWidth * 0.95, "UVMostWantedLeaderboardFont", "UVMostWantedLeaderboardFont"))
 			elseif st.type == "info_flags" then
 				base = UV.ScaleH(20) * 2 + (#st.entries * 24)
