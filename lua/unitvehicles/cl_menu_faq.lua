@@ -197,6 +197,21 @@ Yes you can! And it's simple:
  |-- Pick the vehicle you want to drive
  |-- Away you go!
 ]],
+["Pursuit.PursuitSettings"] = [[
+# -- How do I switch up Units and other Pursuit settings?
+
+Most crucial settings are found inside of [string:uv.hm]:
+ |-- Go to [string:uv.pm]
+ |-- Click [string:uv.hm]
+
+-- Here's what you can do in [string:uv.hm]:
+ |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
+ |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
+ |-- [string:uv.hm.vp]: Set voices of each Unit type.
+ |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+
+Other pursuit/AI settings can be found in [string:uv.settings].
+]],
 ["Pursuit.Respawn"] = [[
 # -- I'm stuck or too far from the suspect(s)! How do I reset?
 

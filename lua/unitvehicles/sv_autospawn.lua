@@ -640,7 +640,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	-- end
 	
 	if not isstring(appliedunits) then
-		PrintMessage( HUD_PRINTTALK, "There's currently no assigned Units to spawn. Use the Unit Manager tool to assign Units at that particular Heat Level!")
+		PrintMessage( HUD_PRINTTALK, "There's currently no assigned Units to spawn. Use the Unit Manager tool to assign Units at that particular Heat Level! Ensure that you have selected the correct vehicle base inside Heat Level Manager settings!")
 		return
 	end
 	
@@ -673,7 +673,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if next(availableunits) == nil then
 			if not string.match(appliedunits, "^%s*$") then
-				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Unit that is NOT in the database. Unit name(s) to cross-check: "..appliedunits)
+				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Unit that is NOT in the database. Unit name(s) to cross-check: "..appliedunits..". Ensure that you have selected the correct vehicle base inside Heat Level Manager settings!")
 			end
 			return
 		end
@@ -792,7 +792,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			end
 		end
 
-		if not IsValid(Ent) then PrintMessage( HUD_PRINTTALK, "The vehicle '"..availableunit.."' is missing!") return end
+		if not IsValid(Ent) then PrintMessage( HUD_PRINTTALK, "The vehicle '"..availableunit.."' is missing! Ensure that you have selected the correct vehicle base inside Heat Level Manager settings!") return end
 
 		if MEMORY.SubMaterials then
 			if istable( MEMORY.SubMaterials ) then
@@ -954,7 +954,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if next(availableunits) == nil then
 			if not string.match(appliedunits, "^%s*$") then
-				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Unit that is NOT in the database. Unit name(s) to cross-check: "..appliedunits)
+				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Unit that is NOT in the database. Unit name(s) to cross-check: "..appliedunits..". Ensure that you have selected the correct vehicle base inside Heat Level Manager settings!")
 			end
 			return
 		end
@@ -1005,7 +1005,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		local vehicle = VehicleList[ vname ]
 		
 		if not vehicle then 
-			PrintMessage( HUD_PRINTTALK, "The vehicle class '"..vname.."' dosen't seem to be installed!")
+			PrintMessage( HUD_PRINTTALK, "The vehicle class '"..vname.."' dosen't seem to be installed! Ensure that you have selected the correct vehicle base inside Heat Level Manager settings!")
 			return false 
 		end
 		
@@ -1320,7 +1320,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if next(availableunits) == nil then
 			if not string.match(appliedunits, "^%s*$") then
-				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Unit that is NOT in the database. Unit name(s) to cross-check: "..appliedunits)
+				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Unit that is NOT in the database. Unit name(s) to cross-check: "..appliedunits..". Ensure that you have selected the correct vehicle base inside Heat Level Manager settings!")
 			end
 			return
 		end
@@ -1369,7 +1369,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		local vehicles = list.Get("Vehicles")
 		local lst = vehicles[class]
 		if not lst then
-			PrintMessage( HUD_PRINTTALK, "The vehicle '"..class.."' is missing!")
+			PrintMessage( HUD_PRINTTALK, "The vehicle '"..class.."' is missing! Ensure that you have selected the correct vehicle base inside Heat Level Manager settings!")
 			return
 		end
 		
@@ -1647,7 +1647,7 @@ function UVAutoSpawnTraffic()
 					table.insert(UVVehicleInitializing, Ent)
 				end
 			else
-				PrintMessage(HUD_PRINTTALK, "Simfphys vehicle '"..class_name.."' not found!")
+				PrintMessage(HUD_PRINTTALK, "Simfphys vehicle '"..class_name.."' not found! Ensure that you have selected the correct vehicle base inside Traffic Manager settings!")
 			end
 
 		elseif vehiclebase == 1 then
@@ -1670,7 +1670,7 @@ function UVAutoSpawnTraffic()
 				Ent.uvclasstospawnon = uvnextclasstospawn
 				table.insert(UVVehicleInitializing, Ent)
 			else
-				PrintMessage(HUD_PRINTTALK, "HL2 Jeep vehicle '"..class_name.."' not found!")
+				PrintMessage(HUD_PRINTTALK, "HL2 Jeep vehicle '"..class_name.."' not found! Ensure that you have selected the correct vehicle base inside Traffic Manager settings!")
 			end
 		end
 
@@ -1931,7 +1931,7 @@ function UVAutoSpawnTraffic()
 		local vehicle = VehicleList[ vname ]
 		
 		if not vehicle then 
-			PrintMessage( HUD_PRINTTALK, "The vehicle class '"..vname.."' dosen't seem to be installed!")
+			PrintMessage( HUD_PRINTTALK, "The vehicle class '"..vname.."' dosen't seem to be installed! Ensure that you have selected the correct vehicle base inside Traffic Manager settings!")
 			return false 
 		end
 		
@@ -2177,7 +2177,7 @@ function UVAutoSpawnTraffic()
 		local vehicles = list.Get("Vehicles")
 		local lst = vehicles[class]
 		if not lst then
-			PrintMessage( HUD_PRINTTALK, "The vehicle '"..class.."' is missing!")
+			PrintMessage( HUD_PRINTTALK, "The vehicle '"..class.."' is missing! Ensure that you have selected the correct vehicle base inside Traffic Manager settings!")
 			return
 		end
 		
@@ -2358,7 +2358,7 @@ function UVAutoSpawnRacer()
 					table.insert(UVVehicleInitializing, Ent)
 				end
 			else
-				PrintMessage(HUD_PRINTTALK, "Simfphys vehicle '"..class_name.."' not found!")
+				PrintMessage(HUD_PRINTTALK, "Simfphys vehicle '"..class_name.."' not found! Ensure that you have selected the correct vehicle base inside AI Racer Manager settings!")
 			end
 
 		elseif vehiclebase == 1 then
@@ -2381,7 +2381,7 @@ function UVAutoSpawnRacer()
 				Ent.uvclasstospawnon = uvnextclasstospawn
 				table.insert(UVVehicleInitializing, Ent)
 			else
-				PrintMessage(HUD_PRINTTALK, "HL2 Jeep vehicle '"..class_name.."' not found!")
+				PrintMessage(HUD_PRINTTALK, "HL2 Jeep vehicle '"..class_name.."' not found! Ensure that you have selected the correct vehicle base inside AI Racer Manager settings!")
 			end
 		end
 
@@ -2418,7 +2418,7 @@ function UVAutoSpawnRacer()
 			end
 
 			if next(availableracers) == nil then
-				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Racer that is NOT in the database.")
+				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Racer that is NOT in the database. Ensure that you have selected the correct vehicle base inside AI Racer Manager settings!")
 				return
 			end
 
@@ -2555,7 +2555,7 @@ function UVAutoSpawnRacer()
 			end
 
 			if next(availableracers) == nil then
-				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Racer that is NOT in the database.")
+				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Racer that is NOT in the database. Ensure that you have selected the correct vehicle base inside AI Racer Manager settings!")
 				return
 			end
 
@@ -2603,7 +2603,7 @@ function UVAutoSpawnRacer()
 		local vehicle = VehicleList[ vname ]
 		
 		if not vehicle then 
-			PrintMessage( HUD_PRINTTALK, "The vehicle class '"..vname.."' dosen't seem to be installed!")
+			PrintMessage( HUD_PRINTTALK, "The vehicle class '"..vname.."' dosen't seem to be installed! Ensure that you have selected the correct vehicle base inside AI Racer Manager settings!")
 			return false 
 		end
 		
@@ -2815,7 +2815,7 @@ function UVAutoSpawnRacer()
 			end
 
 			if next(availableracers) == nil then
-				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Racer that is NOT in the database.")
+				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Racer that is NOT in the database. Ensure that you have selected the correct vehicle base inside AI Racer Manager settings!")
 				return
 			end
 
@@ -2861,7 +2861,7 @@ function UVAutoSpawnRacer()
 		local vehicles = list.Get("Vehicles")
 		local lst = vehicles[class]
 		if not lst then
-			PrintMessage( HUD_PRINTTALK, "The vehicle '"..class.."' is missing!")
+			PrintMessage( HUD_PRINTTALK, "The vehicle '"..class.."' is missing! Ensure that you have selected the correct vehicle base inside AI Racer Manager settings!")
 			return
 		end
 		

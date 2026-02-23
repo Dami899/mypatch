@@ -785,6 +785,7 @@ UVMenu.FAQ = function()
 			{ TabName = "uv.faq.pursuits", Icon = "unitvehicles/icons/milestone_911.png",
 				{ type = "info", text = UVGetFAQText("Pursuit.Starting"), sv = true },
 				{ type = "info", text = UVGetFAQText("Pursuit.CreateUnits"), sv = true },
+				{ type = "info", text = UVGetFAQText("Pursuit.PursuitSettings"), sv = true },
 				{ type = "info", text = UVGetFAQText("Pursuit.Roadblocks"), sv = true },
 				{ type = "info", text = UVGetFAQText("Pursuit.Pursuitbreaker"), sv = true },
 				
