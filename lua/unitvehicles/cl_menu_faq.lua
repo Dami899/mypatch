@@ -470,6 +470,21 @@ Ja, det kan du! Och simpelt är det:
  |-- Välj fordonet du vill köra
  |-- Iväg med dig!
 ]],
+["Pursuit.PursuitSettings"] = [[
+# -- Hur byter jag enheter och andra jaktinställningar?
+
+Dem flesta kritiska inställningarna finns inne i [string:uv.hm]:
+ |-- Gå till [string:uv.pm]
+ |-- Klicka på [string:uv.hm]
+
+-- Här är det du kan göra i [string:uv.hm]:
+ |-- [string:uv.hm.presets]: Du kan ladda en förinställning för att snabbt tillämpa en samling inställningar till en Jakt, skapade av andra spelare eller du själv.
+ |-- [string:uv.settings.general]: Ändra generella inställningar i din jakt med spaningsnivåer, belöningar och mer.
+ |-- [string:uv.hm.vp]: Välj röster till varje enhetstyp.
+ |-- [string:uv.pursuit.heatlevels]: Välj vilka enhetsfordon som jagar dig vid spaningsnivå X, och andra inställningar relaterad till den spaningsnivån.
+
+Andra jakt/AI-inställningar hittar du i [string:uv.settings].
+]],
 ["Pursuit.Respawn"] = [[
 # -- Jag har fastnat eller är för långt bort från dem misstänkta! Hur återställer jag?
 
@@ -692,24 +707,24 @@ Si la IA va muy rápido, tendrás que cambiar el límite de velocidad que encont
 Si tienes una carrera ya cargada, puedes presionar [+attack2] en el punto de control para editarlo y aplicar el límite de velocidad actualizado.
 Alternativamente, puedes editar el ultimo numero en el archivo "race data".
 ]],
--- ["Racing.Create.PathNode"] = [[
--- # -- What are "Path Nodes" and how do I use them?
+--[[["Racing.Create.PathNode"] = [[
+# -- What are "Path Nodes" and how do I use them?
 
--- Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
 
 
--- **-- Creating Path Nodes**
--- With the [string:tool.uvracemanager.name] tool equipped:
- -- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
- -- |-- Press [+attack] anywhere on the map to create a node
- -- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
- -- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+**-- Creating Path Nodes**
+With the [string:tool.uvracemanager.name] tool equipped:
+ |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ |-- Press [+attack] anywhere on the map to create a node
+ |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
 
--- **-- Editing Path Nodes**
--- With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
- -- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
- -- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
--- ]],
+**-- Editing Path Nodes**
+With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+]] --]]
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -729,6 +744,21 @@ Alternativamente, puedes editar el ultimo numero en el archivo "race data".
  |-- Elige el vehículo que quieras conducir
  |-- ¡Y allí vas!
 ]],
+--[[["Pursuit.PursuitSettings"] = [[
+# -- How do I switch up Units and other Pursuit settings?
+
+Most crucial settings are found inside of [string:uv.hm]:
+ |-- Go to [string:uv.pm]
+ |-- Click [string:uv.hm]
+
+-- Here's what you can do in [string:uv.hm]:
+ |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
+ |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
+ |-- [string:uv.hm.vp]: Set voices of each Unit type.
+ |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+
+Other pursuit/AI settings can be found in [string:uv.settings].
+]] --]]
 ["Pursuit.Respawn"] = [[
 # -- ¡Estoy atascado o muy lejos de el/los sospechoso(s)! ¿Cómo reaparezco?
 
@@ -951,24 +981,24 @@ Use the [string:tool.uvracemanager.name] tool:
 Если у тебя есть уже загруженная гонка, ты можешь нажать [+attack2] по Контрольной Точке, чтобы изменить её и принять обновлённое ограничение скорости.
 Или же ты можешь изменить последний номер в файле данных гонки.
 ]],
--- ["Racing.Create.PathNode"] = [[
--- # -- What are "Path Nodes" and how do I use them?
+--[[["Racing.Create.PathNode"] = [[
+# -- What are "Path Nodes" and how do I use them?
 
--- Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
 
 
--- **-- Creating Path Nodes**
--- With the [string:tool.uvracemanager.name] tool equipped:
- -- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
- -- |-- Press [+attack] anywhere on the map to create a node
- -- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
- -- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+**-- Creating Path Nodes**
+With the [string:tool.uvracemanager.name] tool equipped:
+ |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ |-- Press [+attack] anywhere on the map to create a node
+ |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
 
--- **-- Editing Path Nodes**
--- With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
- -- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
- -- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
--- ]],
+**-- Editing Path Nodes**
+With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+]]--]]
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -988,6 +1018,21 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- Выбери машину, на которой хочешь ехать
  |-- Поезжай!
 ]],
+--[[["Pursuit.PursuitSettings"] = [[
+# -- How do I switch up Units and other Pursuit settings?
+
+Most crucial settings are found inside of [string:uv.hm]:
+ |-- Go to [string:uv.pm]
+ |-- Click [string:uv.hm]
+
+-- Here's what you can do in [string:uv.hm]:
+ |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
+ |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
+ |-- [string:uv.hm.vp]: Set voices of each Unit type.
+ |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+
+Other pursuit/AI settings can be found in [string:uv.settings].
+]] --]]
 ["Pursuit.Respawn"] = [[
 # -- Я застрял или слишком далеко от подозреваемого(мых)! Как мне вернуться?
 
@@ -1124,28 +1169,26 @@ Możesz obserwować naszą stronę na Trello lub dołączyć na Discorda. Oba li
 
 Jak gracz przygotuje Wyścig i Cię zaprosi, dostaniesz powiadomienie na ekranie pod warunkiem że znajdujesz się w pojeździe i nie goni Cię policja.
 ]],
+--[[["Racing.SpawnAI"] = [[
+# -- How do I race with AI?
 
--- ["Racing.SpawnAI"] = [[
--- # -- How do I race with AI?
+There are two ways of doing that:
 
--- There are two ways of doing that:
-
--- **Option 1**
- -- |-- 1. Spawn any Glide, Simfphys or HL2 Jeep vehicle.
- -- |-- 2. Pull out the [string:tool.uvracermanager.name] tool.
- -- |-- 3. Press [+attack2] on the vehicle.
- -- |-- 4. Tweak the settings to your liking, then click [string:uv.tool.create].
- -- |-- 5. Repeat for every vehicle you want the AI to use.
+**Option 1**
+ |-- 1. Spawn any Glide, Simfphys or HL2 Jeep vehicle.
+ |-- 2. Pull out the [string:tool.uvracermanager.name] tool.
+ |-- 3. Press [+attack2] on the vehicle.
+ |-- 4. Tweak the settings to your liking, then click [string:uv.tool.create].
+ |-- 5. Repeat for every vehicle you want the AI to use.
  
--- **Option 2 (Recommended)**
- -- |-- 1. Open the [string:uv.airacer] tab.
- -- |-- 2. Enable [string:uv.airacer.override].
- -- |-- 3. In the list below the option, open the menus containing cars and press [+attack2] to add the vehicles to an AI vehicle list
+**Option 2 (Recommended)**
+ |-- 1. Open the [string:uv.airacer] tab.
+ |-- 2. Enable [string:uv.airacer.override].
+ |-- 3. In the list below the option, open the menus containing cars and press [+attack2] to add the vehicles to an AI vehicle list
 
--- **Notes**
- -- |-- Ensure the [string:uv.tool.base.title] variable matches your desired base.
--- ]],
-
+**Notes**
+ |-- Ensure the [string:uv.tool.base.title] variable matches your desired base.
+]]--]]
 ["Racing.Resetting"] = [[
 # -- Samochód utknął! Co robić?
 
@@ -1212,25 +1255,24 @@ Jeśli SI jedzie zbyt szybko, będzie trzeba zmienić wartość limitu prędkoś
 Jeśli wyścig jest już wczytany, możesz wcisnąć [+attack2] na pkt kontrolny żeby go edytować i ustawić wybraną wartość limitu prędkości.
 Zamiast tego możesz też zmienić ostatnią liczbę w pliku danych wyścigu.
 ]],
--- ["Racing.Create.PathNode"] = [[
--- # -- What are "Path Nodes" and how do I use them?
+--[[["Racing.Create.PathNode"] = [[
+# -- What are "Path Nodes" and how do I use them?
 
--- Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
 
 
--- **-- Creating Path Nodes**
--- With the [string:tool.uvracemanager.name] tool equipped:
- -- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
- -- |-- Press [+attack] anywhere on the map to create a node
- -- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
- -- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+**-- Creating Path Nodes**
+With the [string:tool.uvracemanager.name] tool equipped:
+ |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ |-- Press [+attack] anywhere on the map to create a node
+ |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
 
--- **-- Editing Path Nodes**
--- With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
- -- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
- -- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
--- ]],
-
+**-- Editing Path Nodes**
+With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+]]--]]
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1250,6 +1292,21 @@ Tak! To dość proste:
  |-- Wybierz pojazd do którego chcesz wsiąść
  |-- Powodzenia!
 ]],
+--[[["Pursuit.PursuitSettings"] = [[
+# -- How do I switch up Units and other Pursuit settings?
+
+Most crucial settings are found inside of [string:uv.hm]:
+ |-- Go to [string:uv.pm]
+ |-- Click [string:uv.hm]
+
+-- Here's what you can do in [string:uv.hm]:
+ |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
+ |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
+ |-- [string:uv.hm.vp]: Set voices of each Unit type.
+ |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+
+Other pursuit/AI settings can be found in [string:uv.settings].
+]] --]]
 ["Pursuit.Respawn"] = [[
 # -- Auto utknęło lub jestem zbyt daleko od akcji! Jak je zresetować?
 
@@ -1473,24 +1530,24 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 如果当前已经加载了一场比赛，你可以对检查点按下 [+attack2] 进行编辑，并应用新的 speedlimit 设置。
 另外，你也可以直接编辑比赛数据文件中最后一个数值来修改该检查点的速度限制。
 ]],
--- ["Racing.Create.PathNode"] = [[
--- # -- What are "Path Nodes" and how do I use them?
+--[[["Racing.Create.PathNode"] = [[
+# -- What are "Path Nodes" and how do I use them?
 
--- Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
 
 
--- **-- Creating Path Nodes**
--- With the [string:tool.uvracemanager.name] tool equipped:
- -- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
- -- |-- Press [+attack] anywhere on the map to create a node
- -- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
- -- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+**-- Creating Path Nodes**
+With the [string:tool.uvracemanager.name] tool equipped:
+ |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ |-- Press [+attack] anywhere on the map to create a node
+ |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
 
--- **-- Editing Path Nodes**
--- With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
- -- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
- -- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
--- ]],
+**-- Editing Path Nodes**
+With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+]]--]]
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1510,6 +1567,21 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  |-- 选择你想驾驶的车辆
  |-- 然后，立即加入追逐！
 ]],
+--[[["Pursuit.PursuitSettings"] = [[
+# -- How do I switch up Units and other Pursuit settings?
+
+Most crucial settings are found inside of [string:uv.hm]:
+ |-- Go to [string:uv.pm]
+ |-- Click [string:uv.hm]
+
+-- Here's what you can do in [string:uv.hm]:
+ |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
+ |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
+ |-- [string:uv.hm.vp]: Set voices of each Unit type.
+ |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+
+Other pursuit/AI settings can be found in [string:uv.settings].
+]] --]]
 ["Pursuit.Respawn"] = [[
 # -- 我卡住了，或者离嫌疑人太远了！该如何重置？
 
