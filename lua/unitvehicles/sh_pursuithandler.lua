@@ -3843,55 +3843,52 @@ else -- CLIENT Settings | HUD/Options
 		
 		local devMode = GetConVar("developer"):GetBool()
 		
-		if UVSubtitles:GetBool() and UV_CurrentSubtitle and CurTime() < (UV_SubtitleEnd or 0) then
-			local text = lang(UV_CurrentSubtitle)
-			local textcs = lang(UV_CurrentSubtitleCallsign or " ")
-			local font = "UVMostWantedLeaderboardFont"
-			local maxWidth = w * 0.4  -- maximum width of the subtitle block
-			local bgPadding = 8
-			local outlineAlpha = 150
+		-- if UVSubtitles:GetBool() and UV_CurrentSubtitle and CurTime() < (UV_SubtitleEnd or 0) then
+			-- local text = lang(UV_CurrentSubtitle)
+			-- local textcs = lang(UV_CurrentSubtitleCallsign or " ")
+			-- local font = "UVMostWantedLeaderboardFont"
+			-- local maxWidth = w * 0.4  -- maximum width of the subtitle block
+			-- local bgPadding = 8
+			-- local outlineAlpha = 150
 
-			surface.SetFont(font)
-			if text == "" or text == UV_CurrentSubtitle then -- invalid or missing localization; Active for debugging purposes
-			else
-				local lines = {}
-				local currentLine = ""
-				for word in text:gmatch("%S+") do
-					local testLine = (currentLine == "" and "" or currentLine .. " ") .. word
-					local textWidth, _ = surface.GetTextSize(testLine)
-					if textWidth > maxWidth then
-						if currentLine ~= "" then
-							table.insert(lines, currentLine)
-						end
-						currentLine = word
-					else
-						currentLine = testLine
-					end
-				end
-				if currentLine ~= "" then
-					table.insert(lines, currentLine)
-				end
+			-- surface.SetFont(font)
+			-- if text == "" or text == UV_CurrentSubtitle then -- invalid or missing localization; Active for debugging purposes
+			-- else
+				-- local lines = {}
+				-- local currentLine = ""
+				-- for word in text:gmatch("%S+") do
+					-- local testLine = (currentLine == "" and "" or currentLine .. " ") .. word
+					-- local textWidth, _ = surface.GetTextSize(testLine)
+					-- if textWidth > maxWidth then
+						-- if currentLine ~= "" then
+							-- table.insert(lines, currentLine)
+						-- end
+						-- currentLine = word
+					-- else
+						-- currentLine = testLine
+					-- end
+				-- end
+				-- if currentLine ~= "" then
+					-- table.insert(lines, currentLine)
+				-- end
 
-				-- Calculate total height
-				local lineHeight = select(2, surface.GetTextSize("A")) * 1.2
-				local totalHeight = #lines * lineHeight + (h * 0.02)
+				-- local lineHeight = select(2, surface.GetTextSize("A")) * 1.2
+				-- local totalHeight = #lines * lineHeight + (h * 0.02)
 
-				-- Background box
-				local bgX = w * 0.5 - maxWidth * 0.5 - bgPadding
-				local bgY = h * 0.7275 - bgPadding
-				local bgW = maxWidth + bgPadding * 2
-				local bgH = totalHeight + bgPadding * 2
+				-- local bgX = w * 0.5 - maxWidth * 0.5 - bgPadding
+				-- local bgY = h * 0.7275 - bgPadding
+				-- local bgW = maxWidth + bgPadding * 2
+				-- local bgH = totalHeight + bgPadding * 2
 
-				draw.RoundedBox(12, bgX, bgY, bgW, bgH, Color(0, 0, 0, 150))
+				-- draw.RoundedBox(12, bgX, bgY, bgW, bgH, Color(0, 0, 0, 150))
 
-				-- Draw each line of text
-				for i, line in ipairs(lines) do
+				-- for i, line in ipairs(lines) do
 									
-					draw.SimpleTextOutlined( textcs, font, w * 0.5, h * 0.725, Color(255, 255, 100), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
-					draw.SimpleTextOutlined( line, font, w * 0.5, h * 0.755 + (i - 1) * lineHeight, pcol, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
-				end
-			end
-		end
+					-- draw.SimpleTextOutlined( textcs, font, w * 0.5, h * 0.725, Color(255, 255, 100), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
+					-- draw.SimpleTextOutlined( line, font, w * 0.5, h * 0.755 + (i - 1) * lineHeight, pcol, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
+				-- end
+			-- end
+		-- end
 
 		-- if UVHUDCopMode and input.IsKeyDown(var) and not gui.IsGameUIVisible() and vgui.GetKeyboardFocus() == nil then
 		if input.IsKeyDown(var) and not gui.IsGameUIVisible() and vgui.GetKeyboardFocus() == nil then

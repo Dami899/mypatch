@@ -9,26 +9,25 @@ UV = UV or {}
 
 UV.PNotes = {
 ["v1.2.0"] = {
-Date = { year = 2026, month = 2, day = 20 },
+Date = { year = 2026, month = 2, day = 24 },
 Text = [[
 **New Features**
 - Racing: Added support for *AI Path Nodes*
- |-- When included, AI Racers will follow these paths instead of checkpoints
- |-- Path Nodes support multi-path racing, where the AI will now randomly pick a route
- |-- *Curve Strength* allows the user to apply a gradual turn for longer paths
- 
+      |-- When included, AI Racers will follow these paths instead of checkpoints
+      |-- Path Nodes support multi-path racing, where the AI will now randomly pick a route
+      |-- *Curve Strength* allows the user to apply a gradual turn for longer paths
 - Added two new Pursuit Techs:
- |-- [string:uv.ptech.ghost] (Racers) - Become non-collidable with props and other vehicles for a short time
- |-- [string:uv.ptech.grappler] (Units) - Grab a fleeing vehicle's wheels and hold them in place
- 
+      |-- [string:uv.ptech.ghost] (Racers) - Become non-collidable with props and other vehicles for a short time
+      |-- [string:uv.ptech.grappler] (Units) - Grab a fleeing vehicle's wheels and hold them in place
 - Added support for themed Police Scanners
- |-- Only *Most Wanted* has its themed scanner for the time being
- |-- Also added the option to have the vehicle's forward axis be used for the scanner rather than the camera
- 
+      |-- Only *Most Wanted* has its themed scanner for the time being
+      |-- Also added the option to have the vehicle's forward axis be used for the scanner rather than the camera 
 - Added the ability to limit how many Units can be part of the pursuit
- |-- Applied in [string:uv.hm]
+      |-- Applied in [string:uv.hm]
+- Added a warning for when you try to spawn any AI without having Decent Vehicle waypoints loaded
 
 **Changes**
+- Temporarily disabled subtitles due to mismatching subtitles compared to existing, replaced and added default voice lines
 - Improved Unit AI pathing
 - Removed the legacy text-based police chatter
 - Updated the description for tracks when importing them to signal if they have Path Nodes and/or Props
@@ -37,7 +36,7 @@ Text = [[
 
 **Fixes**
 - Fixed that UVTrax provided the raw folder name in the notification rather than the metadata folder name
- |-- This only applies to UVTrax profiles that utilize JSON files for song titles, authors and folder names
+      |-- This only applies to UVTrax profiles that utilize JSON files for song titles, authors and folder names
 - Fixed that Pursuit Breakers, when wrecking Units, caused a Pursuit to engage, even if there was no racers to pursue
 - Fixed that the *Name Tags* variable was a server variable when it should've been a client variable
 ]],
@@ -48,17 +47,17 @@ Date = { year = 2026, month = 2, day = 3 },
 Text = [[
 **New Features**
 - UV Menu: Added a new First-Time Setup menu
- |-- Will automatically display for all users, forcing them to go through necessary settings
- |-- Existing users from v1.0.0 can choose to skip the Preset selection
+      |-- Will automatically display for all users, forcing them to go through necessary settings
+      |-- Existing users from v1.0.0 can choose to skip the Preset selection
 - Added a Police Scanner SFX toggle
 
 **Changes**
 - UV Menu: [string:uv.menu.welcome] now has [string:uv.pm.pursuit.start] and [string:uv.pm.pursuit.start] options.
 - Creator: Races tool: Tweaked its functionality slightly:
- |-- [+reload] now cycles modes between Checkpoint and Grid Slots
- |-- [+attack] now creates Checkpoints or Grid Slots, depending on whichever is selected
- |-- Updated HUD tooltips to reflect these changes
- |-- If the speed limit is set to 0, editing a checkpoint's ID no longer alters its speed limit value
+      |-- [+reload] now cycles modes between Checkpoint and Grid Slots
+      |-- [+attack] now creates Checkpoints or Grid Slots, depending on whichever is selected
+      |-- Updated HUD tooltips to reflect these changes
+      |-- If the speed limit is set to 0, editing a checkpoint's ID no longer alters its speed limit value
 - Race Invites can now be sent and accepted/declined while a pursuit is active
 - Units will no longer spam-use bullhorn voice lines
 
@@ -93,10 +92,10 @@ This lists changes that were made after v.0.42.0 and have been applied to v1.0:
 - UV Menu: Added button prompts at the bottom of the menu to display which button does what on the highlighted setting; Can be toggled on/off in the UI Settings
 - UV Menu: Added the ability for addon creators to have settings added into the UV Menu
 - Several UVTrax additions:
- |-- Added a song manager where you can choose which songs play and which don't
- |-- Added the ability to shuffle the UVTrax playlist, or play them in alphabetical order
- |-- Added the ability to go to the previously played track
- |-- Added button prompts on the UVTrax pop-up
+      |-- Added a song manager where you can choose which songs play and which don't
+      |-- Added the ability to shuffle the UVTrax playlist, or play them in alphabetical order
+      |-- Added the ability to go to the previously played track
+      |-- Added button prompts on the UVTrax pop-up
 - Added new Glyphs that replace "[ SPC ]" and various other keybind notifications across the addon
 - UV Menu: Added a "Glyph Override" function, allowing you to define not only your own keyboard and mouse glyphs (cosmetically, of course), but also assign Xbox, PlayStation and Switch glyphs
 - Added a "Default" preset for the Heat Level Manager
@@ -107,12 +106,12 @@ This lists changes that were made after v.0.42.0 and have been applied to v1.0:
 
 **Changes**
 - UV Menu: "VCMod ELS" and "Circular Functions" sections in the Settings Addon tab now show/hide themselves if depending on if they are installed or not
- |-- Additionally, third-party addons can now use a custom function to integrate their settings into the UV Menu
+      |-- Additionally, third-party addons can now use a custom function to integrate their settings into the UV Menu
 - Race participants are now teleported in 12-participant batches
- |-- This now allows races with more than 24 racers
+      |-- This now allows races with more than 24 racers
 - Lowered the size on the "Respawning as" and "Race ends in" notifications
 - "Spawn X AI" and "Fill Grid with AI" pre-race buttons no longer appear if AI cannot spawn in any vehicles
- |-- Either when "Vehicle Override" is enabled but no vehicles are selected, or if it's disabled but no presets exist
+      |-- Either when "Vehicle Override" is enabled but no vehicles are selected, or if it's disabled but no presets exist
 - The Race host will now be added as a proper participant rather than a hidden one
 - The Race host's car will dynamically change if they enter/exit a vehicle
 - Race participants will get auto-removed from the participants list if they decline their invite, or if their vehicle is destroyed before the race starts
@@ -125,7 +124,7 @@ This lists changes that were made after v.0.42.0 and have been applied to v1.0:
 - Fixed that Units sometimes used the *Shock Ram* Pursuit Tech when busting racers
 - Fixed an error that caused Simfphys and default HL2 Jeep vehicles to create Lua errors when the AI turned their headlights on
 - Fixed an error that caused Dispatch to not recognize "default" vehicle colors
- |-- Fixes that the NFS World and NFS Undercover Glide packs' police cars always played "no make and model" voicelines
+      |-- Fixes that the NFS World and NFS Undercover Glide packs' police cars always played "no make and model" voicelines
 - Fixed that localizations, on the Workshop addon, mysteriously had an extra blank space after them, causing them to shift very slightly to the left
 ]],
 },
@@ -140,22 +139,22 @@ Mark your calendars, it's almost time to **Race, Chase or Escape**!
 **New Features**
 - Added the *UVPD Rhino Truck*
 - Added the *Heat Level Manager* to the *Pursuit Manager* UV Menu Tab
- |-- This replaces the *Manager: Units* settings.
+      |-- This replaces the *Manager: Units* settings.
 - Added a Race Countdown to the NFS: ProStreet HUD
 - Added a new, updated list appearance to the AI Racers, Pursuit Breaker, Roadblocks, Traffic & Units tools
- |-- AI Racers, Traffic and Units also have new base sorting to only list vehicles from a particular base
+      |-- AI Racers, Traffic and Units also have new base sorting to only list vehicles from a particular base
 - Added Vehicle Override for the Traffic Manager, working identically to the AI Racer one
 
 **Changes**
 - UV Menu: All convars in the menu now control their correct server convars
- |-- This means that the "Apply Settings" buttons will be removed across the board
+      |-- This means that the "Apply Settings" buttons will be removed across the board
 - Moved the "Creator: Pursuit Breaker" and "Creator: Roadblocks" settings to the UV Menu
 - Renamed the "Manager: Units" tool to "Creator: Units"
 - Removed all settings from all Creator tools
 - Removed "Relentless" AI option and replaced it with a dynamic behaviour system
- |-- Patrol and Support Units are never relentless
- |-- Pursuit, Interceptor and Air Units have a random chance to become relentless
- |-- Special, Commander and Rhino Units are always relentless
+      |-- Patrol and Support Units are never relentless
+      |-- Pursuit, Interceptor and Air Units have a random chance to become relentless
+      |-- Special, Commander and Rhino Units are always relentless
 - Improved AI Unit pursuit tactics
 - Removed some default cop chatter and updated others
 - Air Unit's wreck callout will now have priority over all others
@@ -198,15 +197,15 @@ We're now preparing Unit Vehicles for its v1.0 release. There's lots to do still
 - Added the *UVPD Chevrolet Corvette Grand Sport (C7) Police Cruiser*
 - Added the ability to reset in freeroam and in pursuits
 - AI Racers and Units will no longer rotate while mid-air
-  |-- Only applies to Glide vehicles
+       |-- Only applies to Glide vehicles
 - The UV Menu and all fonts will now scale properly on all resolutions
 - Added the ability for the community to create custom HUDs
- |-- These are automatically added to the UV Menu Settings
+      |-- These are automatically added to the UV Menu Settings
 - Added Polish translations
   
 **UV Menu**
 - Added new *AI Racer Manager*, *Traffic Manager* and *Credits* tabs
-  |-- Moved all of the "Manager: AI Racers" and "Manager: Traffic" settings to these tabs
+       |-- Moved all of the "Manager: AI Racers" and "Manager: Traffic" settings to these tabs
 - Added new *Keybinds* tab inside the Settings instance
 - Added a *Timer* variable in the UV Menu, applied to the *Totaled* and *Race Invite* menus
 - Added a custom dropdown menu in the UV Menu, used by the *UVTrax Profile* and *HUD Types*
