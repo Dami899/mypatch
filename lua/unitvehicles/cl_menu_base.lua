@@ -644,7 +644,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		if parentName then
 			local cv = GetConVar(parentName)
 			if cv and cv:GetBool() then
-				prefix = "|--- "
+				prefix = "	|-- "
 			end
 		end
 
@@ -767,7 +767,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		end
 
 		function p:PerformLayout()
-			p:SetTall(padding * 2 + (#st.entries * 24))
+			p:SizeToChildren(false, true)
 		end
 
 		function p:Paint(w, h)
@@ -4321,7 +4321,11 @@ function UVMenu.EstimateTabHeight(tab, availableWidth)
 			elseif st.type == "infosimple" then
 				base = math.max(UV.ScaleH(32), GetDynamicTall(text, availableWidth * 0.95, "UVMostWantedLeaderboardFont", "UVMostWantedLeaderboardFont"))
 			elseif st.type == "info_flags" then
-				base = UV.ScaleH(20) * 2 + (#st.entries * 24)
+				local rowHeight = 16
+				local rowSpacing = 4
+				local count = #(st.entries or {})
+
+				base = count * (rowHeight + rowSpacing)
 			elseif st.type == "image" then
 				base = math.floor((availableWidth / 16) * 9)
 			elseif st.type == "label" then
