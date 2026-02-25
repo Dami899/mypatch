@@ -2074,7 +2074,7 @@ end
 
 local MUTATOR_FUNCTIONS = {
 	['Multiply'] = function( baseValue, multiplier, info ) 
-		return baseValue * ( multiplier * info.Modifier ) 
+		return math.Clamp( baseValue * ( multiplier * info.Modifier ), info.Min or 0, info.Max or math.huge )
 	end,
 	['ModifierComparison'] = function( baseValue, multiplier, info ) 
 		return baseValue * ( multiplier > info.Modifier and info.Max or info.Min )
