@@ -724,7 +724,7 @@ With the [string:tool.uvracemanager.name] tool equipped:
 With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
  |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
  |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
-]] --]]
+]]--,
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -758,7 +758,7 @@ Most crucial settings are found inside of [string:uv.hm]:
  |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
 
 Other pursuit/AI settings can be found in [string:uv.settings].
-]] --]]
+]]--,
 ["Pursuit.Respawn"] = [[
 # -- ¡Estoy atascado o muy lejos de el/los sospechoso(s)! ¿Cómo reaparezco?
 
@@ -1188,7 +1188,7 @@ There are two ways of doing that:
 
 **Notes**
  |-- Ensure the [string:uv.tool.base.title] variable matches your desired base.
-]]--]]
+]]--,
 ["Racing.Resetting"] = [[
 # -- Samochód utknął! Co robić?
 
@@ -1272,7 +1272,7 @@ With the [string:tool.uvracemanager.name] tool equipped:
 With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
  |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
  |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
-]]--]]
+]]--,
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1306,7 +1306,7 @@ Most crucial settings are found inside of [string:uv.hm]:
  |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
 
 Other pursuit/AI settings can be found in [string:uv.settings].
-]] --]]
+]]--,
 ["Pursuit.Respawn"] = [[
 # -- Auto utknęło lub jestem zbyt daleko od akcji! Jak je zresetować?
 
@@ -1547,7 +1547,7 @@ With the [string:tool.uvracemanager.name] tool equipped:
 With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
  |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
  |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
-]]--]]
+]]--,
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1581,7 +1581,7 @@ Most crucial settings are found inside of [string:uv.hm]:
  |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
 
 Other pursuit/AI settings can be found in [string:uv.settings].
-]] --]]
+]]--,
 ["Pursuit.Respawn"] = [[
 # -- 我卡住了，或者离嫌疑人太远了！该如何重置？
 
