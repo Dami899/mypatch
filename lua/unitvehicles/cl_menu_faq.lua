@@ -981,7 +981,7 @@ Use the [string:tool.uvracemanager.name] tool:
 Если у тебя есть уже загруженная гонка, ты можешь нажать [+attack2] по Контрольной Точке, чтобы изменить её и принять обновлённое ограничение скорости.
 Или же ты можешь изменить последний номер в файле данных гонки.
 ]],
---[[["Racing.Create.PathNode"] = [[
+["Racing.Create.PathNode"] = [[
 # -- Что такое "Путевые Точки" и как мне использовать их?
 
 Путевые Точки - это альтернативный метод навигации, используемые ИИ Гонщиками во время гонок. Они создаются, используя инструмент [string:tool.uvracemanager.name].
@@ -998,7 +998,7 @@ Use the [string:tool.uvracemanager.name] tool:
 С помощью [string:tool.uvracemanager.name] установи [string:tool.uvracemanager.node], нажми [+attack2] по существующей точке, чтобы открыть [string:tool.uvracemanager.node.settings]:
  |-- [string:tool.uvracemanager.node.speedlimit] устанавливает скорость, на которой ИИ может передвигаться после прохождения этой точки
  |-- [string:tool.uvracemanager.node.curve] присваивает изгиб точке, которая присоединяется, что полезно для точек, размещённых на повортах
-]]--]]
+]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1018,7 +1018,7 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- Выбери машину, на которой хочешь ехать
  |-- Поезжай!
 ]],
---[[["Pursuit.PursuitSettings"] = [[
+["Pursuit.PursuitSettings"] = [[
 # -- Как мне переключать Юниты и другие настройки Погони?
 
 Самые важные настройки находятся в [string:uv.hm]:
@@ -1032,7 +1032,7 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- [string:uv.pursuit.heatlevels]: Устанавливает, какой Юнит будет преследовать тебя на X Уровне Жары среди других настроек, относящихся к этому Уровня Жары.
 
 Другие настройки Погони/ИИ находятся в [string:uv.settings].
-]] --]]
+]],
 ["Pursuit.Respawn"] = [[
 # -- Я застрял или слишком далеко от подозреваемого(мых)! Как мне вернуться?
 
