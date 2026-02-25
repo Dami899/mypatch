@@ -558,17 +558,17 @@ if CLIENT then
 	function TOOL.BuildCPanel(CPanel)
 		local lang = language.GetPhrase
 		
-		if not file.Exists( "unitvehicles/glide", "DATA" ) then
+		if not file.Exists( "unitvehicles/glide/units", "DATA" ) then
 			file.CreateDir( "unitvehicles/glide/units" )
 			print("Created a Glide data file for the Unit Vehicles!")
 		end
 		
-		if not file.Exists( "unitvehicles/simfphys", "DATA" ) then
+		if not file.Exists( "unitvehicles/simfphys/units", "DATA" ) then
 			file.CreateDir( "unitvehicles/simfphys/units" )
 			print("Created a simfphys data file for the Unit Vehicles!")
 		end
 		
-		if not file.Exists( "unitvehicles/prop_vehicle_jeep", "DATA" ) then
+		if not file.Exists( "unitvehicles/prop_vehicle_jeep/units", "DATA" ) then
 			file.CreateDir( "unitvehicles/prop_vehicle_jeep/units" )
 			print("Created a Default Vehicle Base data file for the Unit Vehicles!")
 		end
