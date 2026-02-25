@@ -1,6 +1,7 @@
 AddCSLuaFile()
 
---[[References (* = not used, yet)
+--[[References
+
 TEN-CODE
 10-1: Receiving poorly
 10-2: Receiving well
@@ -13,7 +14,7 @@ TEN-CODE
 10-9: Repeat message
 10-10: Negative, standing by
 10-11: Talking too rapidly
-*10-12: Visitors present
+10-12: Visitors present
 10-13: Advise weather/road conditions
 10-16: Urgent pickup at location
 10-17: Urgent business
@@ -21,7 +22,7 @@ TEN-CODE
 10-19: Nothing for you, return to base
 10-20: Current location
 10-21: Call by landline
-*10-22: Report in person to
+10-22: Report in person to
 10-23: On scene
 10-24: Completed last assignment
 10-25: Out of service
@@ -44,7 +45,7 @@ TEN-CODE
 10-45: Ramming suspect
 10-50: Hit & Run
 10-59: Herding
-*10-60: What is next message number?
+10-60: What is next message number?
 10-62: Unable to copy, use landline
 10-63: Offset
 10-65: Vehicle box
@@ -59,12 +60,14 @@ TEN-CODE
 10-83: Set up quadrant
 10-85: Backup
 10-87: Vehicle/suspect pursuit
-*10-90: Smoke screen
+10-90: Smoke screen
 10-93: Check my frequency on this channel
 10-96: Traffic stop
 10-100: 5-minute break
+
 UNIT REQUEST CODES
-Air Support: Police Helicopter
+Air Support: Police Helicopter (Air Unit)
+
 PURSUIT STAGE CODES
 Code 1: Situation under control
 Code 2: ASAP, no lights or sirens(on)
@@ -75,29 +78,35 @@ Code 6: High-risk racer
 Code 7: Change in Condition
 Code 8: Suspect found
 Code 10: Confidential information
+
 PURSUIT CONDITIONS
-*Condition 1: Heat level 1
+Condition 1: Heat level 1
 Condition 2: Heat level 2
 Condition 3: Heat level 3
 Condition 4: Heat level 4
 Condition 5: Heat level 5
 Condition 6: Heat level 6
+Condition 7: Heat level 7
+Condition 8: Heat level 8
+Condition 9: Heat level 9
+Condition 10: Heat level 10
+
 OTHER CODES
 28/29: Run suspect for wants/warrants
 51-50: Possible mental disorder
 "Positive hit": Ran suspect has a criminal record
 APB: All-points bulletin
-*ACCI: Accident investigator
+ACCI: Accident investigator
 ASAP: As soon as possible
 Assault PO: Assault on a police officer
 DUI: Driving under the influence
 EMS: Emergency medical services
 ETA: Estimated time of arrival
-*GD: General duty
-*HAZMAT: Hazardous materials unit
+GD: General duty
+HAZMAT: Hazardous materials unit
 HVT: High value target
 KS: Kill switch
-*MHA: Mental Health Act
+MHA: Mental Health Act
 MVA: Motor vehicle accident
 NCIC: National Criminal Information Center
 PC: Police car/cruiser
@@ -110,6 +119,7 @@ TAC: Tactical radio channel
 TC: Traffic collision
 VCB: Visual contact broken
 Wrecker: Tow truck
+
 ]]
 
 if SERVER then
