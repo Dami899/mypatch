@@ -1072,6 +1072,17 @@ UV_UI.racing.carbon.events = {
 			flyUp = true,
 		})
 	end,
+
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			UV_UI.racing.carbon.events.CenterNotification({
+				text = UVString("uv.race.wrongway"),
+				noIcon = true,
+				immediate = true,
+				flyUp = true
+			})
+		end
+	end,
 }
 
 UV_UI.pursuit.carbon.events = {

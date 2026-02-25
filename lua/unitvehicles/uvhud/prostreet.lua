@@ -842,7 +842,15 @@ UV_UI.racing.prostreet.events = {
 			draw.SimpleTextOutlined( text.value, "UVFont5ShadowBig", cx, cy, Color(text.color.r, text.color.g, text.color.b, text.alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0,text.alpha) )
 			cam.PopModelMatrix()
 		end)
-	end
+	end,
 
-
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			UV_UI.racing.prostreet.events.CenterNotification({
+				text = UVString("uv.race.wrongway"),
+				-- colorUpper = Color(200, 75, 75),
+				immediate = true,
+			})
+		end
+	end,
 }

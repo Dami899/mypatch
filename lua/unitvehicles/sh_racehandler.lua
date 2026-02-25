@@ -22,6 +22,7 @@ UVRacePursuitStart = CreateConVar( "unitvehicle_racepursuitstart", 0, {FCVAR_ARC
 UVRacePursuitStop = CreateConVar( "unitvehicle_racepursuitstop", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If a pursuit is active, immediately stop the pursuit when the race ends." )
 UVRacePursuitStopDespawn = CreateConVar( "unitvehicle_racepursuitstop_despawn", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If a pursuit is active, despawn all AI units when the race ends." )
 UVRaceClearAI = CreateConVar( "unitvehicle_raceclearai", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Removes all AI and their vehicles when the race ends." )
+UVRaceDifficulty = CreateConVar( "unitvehicle_racedifficulty", 1.0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Increases racing AI difficulty." )
 
 UVMenuFirstCreate = CreateConVar( "unitvehicle_uvmenu_firstsetup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, whenever you open the UV Menu via the Context Menu, you'll be prompted to go through the first-time setup." )
 
@@ -2725,6 +2726,8 @@ else -- CLIENT stuff
 
 		-- check for wrong way
 		UVLastWrongWayCheckTime = UVLastWrongWayCheckTime or CurTime()
+		UVWrongWayStart = UVWrongWayStart or nil
+		UVIsWrongWay = UVIsWrongWay or false
 
 		if _UVCurrentCheckpoint and IsValid(_UVCurrentCheckpoint) then
 			local vehicle_center = my_vehicle:WorldSpaceCenter()
@@ -2732,38 +2735,36 @@ else -- CLIENT stuff
 			local check_center_pos = (_UVCurrentCheckpoint:GetPos() + _UVCurrentCheckpoint:GetMaxPos()) / 2
 
 			local speed = vehicle_velocity:Length()
-			local min_speed = 50 -- units/sec threshold to consider movement
+			local min_speed = 100
 
 			if speed >= min_speed then
 				local to_checkpoint = (check_center_pos - vehicle_center):GetNormalized()
 				local normalized_velo = vehicle_velocity:GetNormalized()
-
 				local dot_product = normalized_velo:Dot(to_checkpoint)
 
-				-- If moving more than 90° away from checkpoint
-				if dot_product < 0 then
-					-- moving away
-					if CurTime() - UVLastWrongWayCheckTime > 3 then
-						if not UVHUDNotification and not UVRaceCountdown then
-							local theme = GetConVar("unitvehicle_sfxtheme"):GetString()
-							local soundfiles = file.Find("sound/uvracesfx/" .. theme .. "/wrongway/*", "GAME")
-							if soundfiles and #soundfiles > 0 then
-								table.Shuffle(soundfiles)
-								local audio_path = "uvracesfx/" .. theme .. "/wrongway/" .. soundfiles[1]
-								surface.PlaySound(audio_path)
-							end
-							if hudyes then 
-								UVRaceNotify(UVString("uv.race.wrongway"), 1.5)
-							end
+				if dot_product < -0.25 then
+					if not UVWrongWayStart then
+						UVWrongWayStart = CurTime()
+					end
+					if CurTime() - UVWrongWayStart > 1.5 then
+						if not UVIsWrongWay then
+							UVIsWrongWay = true
+							hook.Run("UIEventHook", "racing", "onWrongWay", CurTime(), true)
 						end
 					end
 				else
-					-- moving toward or not too far off-course
-					UVLastWrongWayCheckTime = CurTime()
+					UVWrongWayStart = nil
+					if UVIsWrongWay then
+						UVIsWrongWay = false
+						hook.Run("UIEventHook", "racing", "onWrongWay", CurTime(), false)
+					end
 				end
 			else
-				-- If stationary, don't trigger wrong way
-				UVLastWrongWayCheckTime = CurTime()
+				UVWrongWayStart = nil
+				if UVIsWrongWay then
+					UVIsWrongWay = false
+					hook.Run("UIEventHook", "racing", "onWrongWay", CurTime(), false)
+				end
 			end
 		end
 

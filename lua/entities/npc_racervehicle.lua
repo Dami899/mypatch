@@ -249,6 +249,68 @@ if SERVER then
 		return points[#points]
 	end
 
+	function ENT:RecalculateNodeFromPosition()
+		if not self.v or not UVRace_CompiledPaths then return end
+
+		local pos = self.v:WorldSpaceCenter()
+
+		local bestNode = nil
+		local bestDistSq = math.huge
+		local bestPathDist = 0
+
+		for _, seg in ipairs(UVRace_CompiledPaths) do
+			if seg.Points and #seg.Points > 1 then
+				local closestPoint, _, _, pathDist =
+					ClosestPointOnPolyline(pos, seg.Points)
+
+				local distSq = (pos - closestPoint):LengthSqr()
+
+				if distSq < bestDistSq then
+					bestDistSq = distSq
+					bestNode = seg
+					bestPathDist = pathDist
+				end
+			end
+		end
+
+		if not bestNode then return end
+
+		local totalLen = 0
+		local pts = bestNode.Points
+
+		for i = 1, #pts - 1 do
+			totalLen = totalLen + pts[i]:Distance(pts[i + 1])
+		end
+
+		local endThreshold = 1000 -- tweak if needed
+
+		if (totalLen - bestPathDist) < endThreshold then
+			if bestNode.To then
+				for _, seg in ipairs(UVRace_CompiledPaths) do
+					if seg.From == bestNode.To and seg.Points and #seg.Points > 1 then
+						bestNode = seg
+						bestPathDist = 0
+						break
+					end
+				end
+			end
+		end
+
+		self.NodePath = true
+		self.CurrentNode = bestNode
+		self.NodeReentryOffset = bestPathDist
+		self.NextNode = nil
+
+		if bestNode.To then
+			for _, seg in ipairs(UVRace_CompiledPaths) do
+				if seg.From == bestNode.To then
+					self.NextNode = seg
+					break
+				end
+			end
+		end
+	end
+	
 	function ENT:OnRemove()
 		--By undoing, driving, diving in water, or getting stuck, and the vehicle is remaining.
 		if IsValid(self.v) and self.v:IsVehicle() then
@@ -537,6 +599,38 @@ if SERVER then
 		if self.PatrolWaypoint and self.NodePath and self.CurrentNode then
 			if not self.racing then
 				self.racing = true
+				self:ApplyRaceDifficulty() -- Apply Racing difficulty
+			end
+
+			-- Reset AI if they've missed a checkpoint
+			if self.v.uvraceparticipant and self.PatrolWaypoint then
+				local waypointPos = self.PatrolWaypoint["Target"]
+				local vehicleCenter = self.v:WorldSpaceCenter()
+				local velocity = self.v:GetVelocity()
+
+				local speed = velocity:Length()
+				local minSpeed = 200
+
+				if speed > minSpeed then
+					local toCheckpoint = (waypointPos - vehicleCenter):GetNormalized()
+					local velNorm = velocity:GetNormalized()
+					local dot = velNorm:Dot(toCheckpoint)
+
+					if dot < -0.2 then
+						self.AIWrongWayStart = self.AIWrongWayStart or CurTime()
+
+						if CurTime() - self.AIWrongWayStart > 4 then
+							UVResetPosition(self.v)
+							self:RecalculateNodeFromPosition()
+							self.AIWrongWayStart = nil
+							return -- 🔥 CRITICAL: abort node logic immediately
+						end
+					else
+						self.AIWrongWayStart = nil
+					end
+				else
+					self.AIWrongWayStart = nil
+				end
 			end
 
 			if self.NodePath and (not self.CurrentNode or not self.CurrentNode.Points) then
@@ -544,7 +638,7 @@ if SERVER then
 				self.CurrentNode = nil
 				self.CurrentPointIndex = nil
 				self.NodeDebugTarget = nil
-				self:StartNodeRace()
+				self:RecalculateNodeFromPosition()
 				return
 			end
 
@@ -564,6 +658,12 @@ if SERVER then
 			local pos = self.v:WorldSpaceCenter()
 
 			local closestPoint, bestSeg, _, pathDistFromStart = ClosestPointOnPolyline(pos, points)
+
+			if self.NodeReentryOffset then
+				pathDistFromStart = self.NodeReentryOffset
+				self.NodeReentryOffset = nil
+			end
+			
 			local totalPathLen = 0
 
 			for i = 1, #points - 1 do totalPathLen = totalPathLen + points[i]:Distance( points[i + 1] ) end
@@ -609,7 +709,10 @@ if SERVER then
 						local flatLen = forwardFlat:Length()
 
 						local dot = flatLen > 0.01 and ( dir:Dot( forwardFlat / flatLen ) ) or 0
-						if dot > bestDot then bestDot = dot bestSeg = seg end
+						if dot > bestDot then
+							bestDot = dot
+							bestSeg = seg
+						end
 					end
 
 					targetPos = PointAtPathDistance( bestSeg.Points, overflow )
@@ -624,7 +727,7 @@ if SERVER then
 				self.CurrentNode = nil
 				self.CurrentPointIndex = nil
 				self.NodeDebugTarget = nil
-				self:StartNodeRace()
+				self:RecalculateNodeFromPosition()
 				return
 			end
 
@@ -671,6 +774,9 @@ if SERVER then
 			local blendedSpeedLimit = Lerp(blendFactor, currentSpeedLimit, nextSpeedLimit)
 
 			local speedLimit = blendedSpeedLimit ^ 2
+			
+			speedLimit = speedLimit * (GetConVar("unitvehicle_racedifficulty"):GetFloat() or 1) -- Apply increased speed limit on higher difficulties
+			-- speedLimit = speedLimit * 10
 
 			local throttle = 1
 			local cornerDist = 400
@@ -731,11 +837,11 @@ if SERVER then
 				throttle = throttle * -1
 			end --Getting unstuck
 
-			-- === SPEED BASED STEERING MULTIPLIER ===
+			-- Speed-based steering multiplier
 			local velocity = self.v:GetVelocity():Length() -- real speed (not squared)
-			local maxSpeedForScaling = 3600  -- speed where steering becomes fully relaxed
+			local maxSpeedForScaling = 2400  -- speed where steering becomes fully relaxed
 			local speedFactor = math.Clamp(velocity / maxSpeedForScaling, 0, 1)
-			local steerMultiplier = Lerp(speedFactor, 3, 1.5)
+			local steerMultiplier = Lerp(speedFactor, 2.5, 1.5)
 			steer = steer * steerMultiplier
 
 			-- Apply throttle/steer (same as your existing code block)
@@ -801,7 +907,7 @@ if SERVER then
 							
 							if self.v.uvraceparticipant and ((not self.v.UVBustingProgress) or self.v.UVBustingProgress <= 0) then
 								UVResetPosition( self.v )
-								self:StartNodeRace()
+								self:RecalculateNodeFromPosition()
 							end
 						end 
 					end)
@@ -813,8 +919,9 @@ if SERVER then
 		elseif self.PatrolWaypoint then
 			if not self.racing then
 				self.racing = true
+				self:ApplyRaceDifficulty() -- Apply Racing difficulty
 			end
-			
+
 			--Set handbrake
 			if self.v.IsScar then
 				self.v:HandBrakeOff()
@@ -839,6 +946,8 @@ if SERVER then
 			local steer = right.z > 0 and steer_amount or -steer_amount
 			local speedlimitmph = self.PatrolWaypoint["SpeedLimit"]
 			self.Speeding = speedlimitmph^2
+			
+			self.Speeding = self.Speeding * (GetConVar("unitvehicle_racedifficulty"):GetFloat() or 1) -- Apply increased speed limit on higher difficulties
 
 			local throttleInput = nil
 			local brakeInput = nil
@@ -1020,7 +1129,15 @@ if SERVER then
 			end
 		end	
 	end
-	
+
+	function ENT:ApplyRaceDifficulty()
+		if not IsValid(self.v) then return end
+
+		local mult = GetConVar("unitvehicle_racedifficulty"):GetFloat() or 1
+
+		UVSetVehiclePerformanceMultiplier(self.v, mult)
+	end
+
 	function ENT:Think()
 		--if UVTargeting then return end
 		self:SetPos(self.v:GetPos() + (vector_up * 50))

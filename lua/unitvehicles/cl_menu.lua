@@ -2,7 +2,7 @@ UV = UV or {}
 UVMenu = UVMenu or {}
 
 -- Current Version -- Change this whenever a new update is releasing!
-UV.CurVersion = "v1.2.0" --MAJOR.MINOR.PATCH
+UV.CurVersion = "v1.2.1" --MAJOR.MINOR.PATCH
 
 -- Credits List
 UV.Credits = {
@@ -31,7 +31,7 @@ ET7970]],
 		-- { flag = "nl", desc = "Nederlands | Dutch", name = "REPLACEME" },
 		-- { flag = "no", desc = "Norsk | Norwegian", name = "REPLACEME" },
 		{ flag = "pl", desc = "Polski | Polish", name = "TheSilent1" },
-		-- { flag = "br", desc = "Português (Brasil) | Brazilian Portuguese", name = "REPLACEME" },
+		{ flag = "br", desc = "Português (Brasil) | Brazilian Portuguese", name = "handsomemanhawks" },
 		-- { flag = "pt", desc = "Português | Portuguese", name = "REPLACEME" },
 		{ flag = "ru", desc = "Русский | Russian", name = "WladZ" },
 		-- { flag = "sk", desc = "Slovenčina | Slovak", name = "REPLACEME" },
@@ -914,14 +914,20 @@ UVMenu.RaceManagerSettings = function()
 		UnfocusClose = true,
 		Tabs = {
 			{ TabName = "uv.rm.options",
+				{ type = "combo", text = "uv.rm.options.difficulty", desc = "uv.rm.options.difficulty.desc", convar = "unitvehicle_racedifficulty", sv = true, content = {
+						{ "uv.difficulty.1", 1.0 } ,
+						{ "uv.difficulty.2", 1.5 } ,
+						{ "uv.difficulty.3", 2.0 } ,
+					},
+				},
 				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },
 				{ type = "slider", text = "uv.rm.options.dnftimer", desc = "uv.rm.options.dnftimer.desc", convar = "unitvehicle_racednftimer", min = 0, max = 90, decimals = 0, sv = true },
 				{ type = "bool", text = "uv.rm.options.visiblecheckpoints", desc = "uv.rm.options.visiblecheckpoints.desc", convar = "unitvehicle_racevisiblecheckpoints", sv = true },
-				{ type = "label", text = "uv.pursuit" },
+				-- { type = "label", text = "uv.pursuit" },
 				{ type = "slider", text = "uv.rm.options.pursuitstart", desc = "uv.rm.options.pursuitstart.desc", convar = "unitvehicle_racepursuitstart", min = 0, max = 90, decimals = 0, sv = true },
 				{ type = "bool", text = "uv.rm.options.pursuitclear", desc = "uv.rm.options.pursuitclear.desc", convar = "unitvehicle_racepursuitstop", sv = true },
 				{ type = "bool", text = "uv.rm.options.pursuitclear.ai", desc = "uv.rm.options.pursuitclear.ai.desc", convar = "unitvehicle_racepursuitstop_despawn", parentconvar = "unitvehicle_racepursuitstop", sv = true },
-				{ type = "label", text = "uv.ai.title" },
+				-- { type = "label", text = "uv.ai.title" },
 				{ type = "bool", text = "uv.rm.options.clearai", desc = "uv.rm.options.clearai.desc", convar = "unitvehicle_raceclearai", sv = true },
 				{ type = "button", text = "uv.back", sv = true, playsfx = "clickback", prompts = {"uv.prompt.return"},
 					func = function(self2) UVMenu.OpenMenu(UVMenu.RaceManager) end

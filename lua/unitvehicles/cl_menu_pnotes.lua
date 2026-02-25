@@ -8,6 +8,21 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
+["v1.2.1"] = {
+Date = { year = 2026, month = 2, day = 28 },
+Text = [[
+**New Features**
+- Racing: Added a *Race Difficulty* setting
+      |-- Set it to "Easy", "Medium" or "Hard"
+      |-- The higher difficulties grant the AI Racers increased traction and cornering speeds
+- AI Racers will now reset when driving via Path Nodes and they've missed a checkpoint
+- Added themed "Wrong Way!" notifications on almost all HUD Types
+
+**Changes**
+- When AI Racers reset when driving via Path Nodes, they will now assign themselves the closest small node rather than large node
+]],
+},
+
 ["v1.2.0"] = {
 Date = { year = 2026, month = 2, day = 24 },
 Text = [[

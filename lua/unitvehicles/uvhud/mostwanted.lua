@@ -837,6 +837,16 @@ end,
 		})
 	end,
 
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			UV_UI.racing.mostwanted.events.CenterNotification({
+				text = UVString("uv.race.wrongway"),
+				textNoFall = true,
+				noIcon = true,
+				immediate = true,
+			})
+		end
+	end,
 }
 
 UV_UI.pursuit.mostwanted.events = {

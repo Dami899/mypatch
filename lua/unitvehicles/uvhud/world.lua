@@ -751,6 +751,15 @@ UV_UI.racing.world.events = {
 		})
 	end,
 
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			UV_UI.racing.world.events.CenterNotification({
+				text = UVString("uv.race.wrongway"),
+				color = Color( 137, 242, 248 ),
+				colorbg = Color(66, 194, 222, 50),
+			})
+		end
+	end,
 }
 
 UV_UI.pursuit.world.events = {

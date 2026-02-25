@@ -628,6 +628,15 @@ UV_UI.racing.undercover.events = {
 		})
 	end,
 
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			UV_UI.racing.undercover.events.CenterNotification({
+				text = UVString("uv.race.wrongway"),
+				color = Color(200, 75, 75),
+				immediate = true,
+			})
+		end
+	end,
 }
 
 UV_UI.pursuit.undercover.events = {

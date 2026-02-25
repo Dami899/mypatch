@@ -787,18 +787,20 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		local mat = Material(st.image or "", "smooth")
 
 		if not mat or mat:IsError() then
-			p.Paint = function(self, w, h)
-				draw.SimpleText(
-					"/// Missing image ///",
-					"UVSettingsFontSmall",
-					w / 2,
-					h / 2,
-					color_white,
-					TEXT_ALIGN_CENTER,
-					TEXT_ALIGN_CENTER
-				)
-			end
-			return p
+			-- p.Paint = function(self, w, h)
+				-- draw.SimpleText(
+					-- "/// Missing image ///",
+					-- "UVSettingsFontSmall",
+					-- w / 2,
+					-- h / 2,
+					-- color_white,
+					-- TEXT_ALIGN_CENTER,
+					-- TEXT_ALIGN_CENTER
+				-- )
+			-- end
+			-- return p
+			
+			mat = Material("unitvehicles/icons_settings/pnotes/v1.0.0.png", "smooth")
 		end
 
 		-- Cache image size

@@ -2131,29 +2131,29 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 				['Max'] = math.huge
 			}
 		},
-		['MaxRPMTorque'] = {
-			['DataType'] = "NetworkVar",
-			['Info'] = {
-				['Type'] = "Multiply",
-				['Modifier'] = 1,
-				['Min'] = 0,
-				['Max'] = math.huge
-			}
-		},
-		['MinRPMTorque'] = {
-			['DataType'] = "NetworkVar",
-			['Info'] = {
-				['Type'] = "Multiply",
-				['Modifier'] = 1,
-				['Min'] = 0,
-				['Max'] = math.huge
-			}
-		},
+		-- ['MaxRPMTorque'] = {
+			-- ['DataType'] = "NetworkVar",
+			-- ['Info'] = {
+				-- ['Type'] = "Multiply",
+				-- ['Modifier'] = 1,
+				-- ['Min'] = 0,
+				-- ['Max'] = math.huge
+			-- }
+		-- },
+		-- ['MinRPMTorque'] = {
+			-- ['DataType'] = "NetworkVar",
+			-- ['Info'] = {
+				-- ['Type'] = "Multiply",
+				-- ['Modifier'] = 1,
+				-- ['Min'] = 0,
+				-- ['Max'] = math.huge
+			-- }
+		-- },
 		['ForwardTractionMax'] = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {
 				['Type'] = "Multiply",
-				['Modifier'] = 1,
+				['Modifier'] = 1.25,
 				['Min'] = 0,
 				['Max'] = math.huge
 			}

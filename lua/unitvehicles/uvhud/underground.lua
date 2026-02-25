@@ -348,6 +348,25 @@ UV_UI.racing.underground.events = {
 		end)
 	end,
 
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			
+			local startTime = CurTime()
+			local duration = 1.5
+			
+			hook.Remove("HUDPaint", "UV_WRONGWAY_UG")
+			hook.Add("HUDPaint", "UV_WRONGWAY_UG", function()
+				local elapsed = CurTime() - startTime
+				if elapsed > duration then
+					hook.Remove("HUDPaint", "UV_WRONGWAY_UG")
+					return
+				end
+
+				local x, y = ScrW() * 0.5, ScrH() * 0.3
+				draw.SimpleTextOutlined( UVString("uv.race.wrongway"), "UVFont-Shadow", x, y, Color(200, 75, 75), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5,  Color(0,0,0,200) )
+			end)
+		end
+	end,
 }
 
 local function underground_racing_main( ... )
