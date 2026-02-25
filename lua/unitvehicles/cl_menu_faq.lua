@@ -982,22 +982,22 @@ Use the [string:tool.uvracemanager.name] tool:
 Или же ты можешь изменить последний номер в файле данных гонки.
 ]],
 --[[["Racing.Create.PathNode"] = [[
-# -- What are "Path Nodes" and how do I use them?
+# -- Что такое "Путевые Точки" и как мне использовать их?
 
-Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+Путевые Точки - это альтернативный метод навигации, используемые ИИ Гонщиками во время гонок. Они создаются, используя инструмент [string:tool.uvracemanager.name].
 
 
-**-- Creating Path Nodes**
-With the [string:tool.uvracemanager.name] tool equipped:
- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
- |-- Press [+attack] anywhere on the map to create a node
- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+**-- Создание Путевых Точек**
+С помощью инструмента [string:tool.uvracemanager.name]:
+ |-- Нажимай [+reload], пока не переключишься на режим [string:tool.uvracemanager.node]
+ |-- Нажми [+attack] где-нибудь на карте, чтобы создать точку
+ |-- Нажми [+attack] где-то ещё, чтобы создать новую точку; предыдущая точка автоматически присоединиться
+ |-- Нажми [+attack] по существующей точки, чтобы выделить её; нажми по ней снова, чтобы удалить или нажми по другой точке, чтобы соединить её с выделенной
 
-**-- Editing Path Nodes**
-With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+**-- Изменение Путевых Точек**
+С помощью [string:tool.uvracemanager.name] установи [string:tool.uvracemanager.node], нажми [+attack2] по существующей точке, чтобы открыть [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] устанавливает скорость, на которой ИИ может передвигаться после прохождения этой точки
+ |-- [string:tool.uvracemanager.node.curve] присваивает изгиб точке, которая присоединяется, что полезно для точек, размещённых на повортах
 ]]--]]
 
 -- Pursuits
@@ -1019,19 +1019,19 @@ With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node
  |-- Поезжай!
 ]],
 --[[["Pursuit.PursuitSettings"] = [[
-# -- How do I switch up Units and other Pursuit settings?
+# -- Как мне переключать Юниты и другие настройки Погони?
 
-Most crucial settings are found inside of [string:uv.hm]:
- |-- Go to [string:uv.pm]
- |-- Click [string:uv.hm]
+Самые важные настройки находятся в [string:uv.hm]:
+ |-- Перейди в [string:uv.pm]
+ |-- Нажми [string:uv.hm]
 
--- Here's what you can do in [string:uv.hm]:
- |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
- |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
- |-- [string:uv.hm.vp]: Set voices of each Unit type.
- |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+-- Вот что ты можешь сделать в [string:uv.hm]:
+ |-- [string:uv.hm.presets]: Ты можешь загрузить пресеть, чтобы принять набор настроек Погони, созданные другими игроками или тобой.
+ |-- [string:uv.settings.general]: Изменить основные настройки погони, относящиеся к уровням погони, награде и т.д.
+ |-- [string:uv.hm.vp]: Устанавливает Голоса каждому типу Юнита.
+ |-- [string:uv.pursuit.heatlevels]: Устанавливает, какой Юнит будет преследовать тебя на X Уровне Жары среди других настроек, относящихся к этому Уровня Жары.
 
-Other pursuit/AI settings can be found in [string:uv.settings].
+Другие настройки Погони/ИИ находятся в [string:uv.settings].
 ]] --]]
 ["Pursuit.Respawn"] = [[
 # -- Я застрял или слишком далеко от подозреваемого(мых)! Как мне вернуться?
