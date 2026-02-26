@@ -19,6 +19,21 @@ if SERVER then
 		ply.UVRacerTOOLMemory = net.ReadTable()
 		ply:SelectWeapon( "gmod_tool" )
 	end)
+			
+	if not file.Exists( "unitvehicles/glide/racers", "DATA" ) then
+		file.CreateDir( "unitvehicles/glide/racers" )
+		print("Created a Glide data file for the Racer Vehicles!")
+	end
+	
+	if not file.Exists( "unitvehicles/simfphys/racers", "DATA" ) then
+		file.CreateDir( "unitvehicles/simfphys/racers" )
+		print("Created a simfphys data file for the Racer Vehicles!")
+	end
+	
+	if not file.Exists( "unitvehicles/prop_vehicle_jeep/racers", "DATA" ) then
+		file.CreateDir( "unitvehicles/prop_vehicle_jeep/racers" )
+		print("Created a Default Vehicle Base data file for the Racer Vehicles!")
+	end
 
 end
 
@@ -170,21 +185,6 @@ if CLIENT then
 
 	function TOOL.BuildCPanel(CPanel)
 		local lang = language.GetPhrase
-		
-		if not file.Exists( "unitvehicles/glide/racers", "DATA" ) then
-			file.CreateDir( "unitvehicles/glide/racers" )
-			print("Created a Glide data file for the Racer Vehicles!")
-		end
-		
-		if not file.Exists( "unitvehicles/simfphys/racers", "DATA" ) then
-			file.CreateDir( "unitvehicles/simfphys/racers" )
-			print("Created a simfphys data file for the Racer Vehicles!")
-		end
-		
-		if not file.Exists( "unitvehicles/prop_vehicle_jeep/racers", "DATA" ) then
-			file.CreateDir( "unitvehicles/prop_vehicle_jeep/racers" )
-			print("Created a Default Vehicle Base data file for the Racer Vehicles!")
-		end
 
 		-- Unified Racer Base UI
 		local vehicleBases = {

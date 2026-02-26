@@ -26,6 +26,22 @@ if SERVER then
 	end
 	concommand.Add("uv_cleartraffic", ClearTraffic)
 
+			
+	if not file.Exists( "unitvehicles/glide/traffic", "DATA" ) then
+		file.CreateDir( "unitvehicles/glide/traffic" )
+		print("Created a Glide data file for the Traffic Vehicles!")
+	end
+	
+	if not file.Exists( "unitvehicles/simfphys/traffic", "DATA" ) then
+		file.CreateDir( "unitvehicles/simfphys/traffic" )
+		print("Created a simfphys data file for the Traffic Vehicles!")
+	end
+	
+	if not file.Exists( "unitvehicles/prop_vehicle_jeep/traffic", "DATA" ) then
+		file.CreateDir( "unitvehicles/prop_vehicle_jeep/traffic" )
+		print("Created a Default Vehicle Base data file for the Traffic Vehicles!")
+	end
+
 end
 
 if CLIENT then
@@ -177,21 +193,6 @@ if CLIENT then
 
 	function TOOL.BuildCPanel(CPanel)
 		local lang = language.GetPhrase
-		
-		if not file.Exists( "unitvehicles/glide/traffic", "DATA" ) then
-			file.CreateDir( "unitvehicles/glide/traffic" )
-			print("Created a Glide data file for the Traffic Vehicles!")
-		end
-		
-		if not file.Exists( "unitvehicles/simfphys/traffic", "DATA" ) then
-			file.CreateDir( "unitvehicles/simfphys/traffic" )
-			print("Created a simfphys data file for the Traffic Vehicles!")
-		end
-		
-		if not file.Exists( "unitvehicles/prop_vehicle_jeep/traffic", "DATA" ) then
-			file.CreateDir( "unitvehicles/prop_vehicle_jeep/traffic" )
-			print("Created a Default Vehicle Base data file for the Traffic Vehicles!")
-		end
 
 		-- Unified Traffic Base UI
 		local vehicleBases = {
