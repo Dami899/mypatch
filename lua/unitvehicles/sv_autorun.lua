@@ -2131,24 +2131,24 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 				['Max'] = math.huge
 			}
 		},
-		-- ['MaxRPMTorque'] = {
-			-- ['DataType'] = "NetworkVar",
-			-- ['Info'] = {
-				-- ['Type'] = "Multiply",
-				-- ['Modifier'] = 1,
-				-- ['Min'] = 0,
-				-- ['Max'] = math.huge
-			-- }
-		-- },
-		-- ['MinRPMTorque'] = {
-			-- ['DataType'] = "NetworkVar",
-			-- ['Info'] = {
-				-- ['Type'] = "Multiply",
-				-- ['Modifier'] = 1,
-				-- ['Min'] = 0,
-				-- ['Max'] = math.huge
-			-- }
-		-- },
+		['MaxRPMTorque'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MinRPMTorque'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
 		['ForwardTractionMax'] = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {
@@ -2221,6 +2221,11 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult )
 		needle = VEHICLE_BASE_PERFORMANCE_SETS['Simfphys']
 	elseif vehicle.IsGlideVehicle then
 		needle = VEHICLE_BASE_PERFORMANCE_SETS['Glide']
+
+		if not vehicle.UnitVehicle then
+			needle['MaxRPMTorque'] = nil
+			needle['MinRPMTorque'] = nil
+		end
 	else
 		needle = VEHICLE_BASE_PERFORMANCE_SETS['prop_vehicle_jeep']
 	end
