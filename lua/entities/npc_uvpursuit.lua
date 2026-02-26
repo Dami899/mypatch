@@ -2046,12 +2046,10 @@ if SERVER then
 				UVLosing = CurTime()
 				if not table.HasValue(UVUnitsChasing, self) then
 					table.insert(UVUnitsChasing, self)
-					UVSetVehiclePerformanceMultiplier(self.v, 1)
 				end
 			else
 				if table.HasValue(UVUnitsChasing, self) then
 					table.RemoveByValue(UVUnitsChasing, self)
-					UVSetVehiclePerformanceMultiplier(self.v, 2)
 				end
 			end
 			
