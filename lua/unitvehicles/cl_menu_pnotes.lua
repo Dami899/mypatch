@@ -8,18 +8,23 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
-["v1.2.1"] = {
+["v1.3.0"] = {
 Date = { year = 2026, month = 2, day = 28 },
 Text = [[
 **New Features**
-- Racing: Added a *Race Difficulty* setting
+- Racing: Added a *Racer Difficulty* setting
       |-- Set it to "Easy", "Medium" or "Hard"
       |-- The higher difficulties grant the AI Racers increased traction and cornering speeds
+- Racing: Added a *Catch-up* setting
+      |-- When enabled, AI Racers will get increased speed and traction when far behind
 - AI Racers will now reset when driving via Path Nodes and they've missed a checkpoint
 - Added themed "Wrong Way!" notifications on almost all HUD Types
+- Pursuits: Added a *Unit Difficulty* and *Catch-up* setting, identical to those above, but for AI Units
 
 **Changes**
-- When AI Racers reset when driving via Path Nodes, they will now assign themselves the closest small node rather than large node
+- AI Racers: When resetting while driving via Path Nodes, the AI racers will now assign themselves the closest small node rather than large node
+- AI Racers: Improved navigation via DV waypoints when freeroaming
+- AI Racers: When freeroaming via DV waypoints, if an AI racer gets stuck for a sufficient amount of time, it will reset its navigation target
 ]],
 },
 
