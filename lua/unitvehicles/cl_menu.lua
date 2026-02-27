@@ -1806,6 +1806,6 @@ net.Receive("UV_OpenDVWarning", function()
 	if not LocalPlayer():IsSuperAdmin() then return end
 	if __DV_COOLDOWN and __DV_COOLDOWN > os.time() or __DV_WARNING_NOSHOW then return end
 
-	__DV_COOLDOWN = os.time() + 5
+	__DV_COOLDOWN = os.time() + 60
     UVMenu.OpenMenu(UVMenu.DVWarning, true)
 end)
