@@ -1057,7 +1057,7 @@ if SERVER then
 	function ENT:ApplyUnitDifficulty(multiplier, catchup)
 		if not IsValid(self.v) then return end
 
-		local mult = multiplier or GetConVar("unitvehicle_unitdifficulty"):GetFloat() or 1
+		local mult = multiplier or 1 + (GetConVar("unitvehicle_unitdifficulty"):GetFloat() or 0)
 
 		if catchup then
 			mult = mult * 2

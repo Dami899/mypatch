@@ -585,7 +585,20 @@ if SERVER then
 			end
 		end		
 	end
-	
+
+	function ENT:ApplyRaceDifficulty(multiplier, catchup)
+		if not IsValid(self.v) then return end
+
+		local mult = multiplier or 1 + (GetConVar("unitvehicle_racedifficulty"):GetFloat() or 0)
+
+		if catchup then
+			mult = mult * 2
+		end
+
+		UVSetVehiclePerformanceMultiplier(self.v, mult)
+		self.DifficultyMult = mult or 1
+	end
+
 	function ENT:Race()
 		self:FindRace()
 		
@@ -775,8 +788,9 @@ if SERVER then
 
 			local speedLimit = blendedSpeedLimit ^ 2
 			
-			speedLimit = speedLimit * (GetConVar("unitvehicle_racedifficulty"):GetFloat() or 1) -- Apply increased speed limit on higher difficulties
-			-- speedLimit = speedLimit * 10
+			speedLimit = speedLimit * self.DifficultyMult -- Apply increased speed limit on higher difficulties
+
+			-- print("\n\n\nBase Speed Limit: " .. speedLimit, "\nDifficulty modifier: ", self.DifficultyMult .. "x" .. "\nDifficulty Speed Limit: " .. speedLimit * self.DifficultyMult)
 
 			local throttle = 1
 			local cornerDist = 400
@@ -947,7 +961,7 @@ if SERVER then
 			local speedlimitmph = self.PatrolWaypoint["SpeedLimit"]
 			self.Speeding = speedlimitmph^2
 			
-			self.Speeding = self.Speeding * (GetConVar("unitvehicle_racedifficulty"):GetFloat() or 1) -- Apply increased speed limit on higher difficulties
+			self.Speeding = self.Speeding * self.DifficultyMult -- Apply increased speed limit on higher difficulties
 
 			local throttleInput = nil
 			local brakeInput = nil
@@ -1128,14 +1142,6 @@ if SERVER then
 				end
 			end
 		end	
-	end
-
-	function ENT:ApplyRaceDifficulty()
-		if not IsValid(self.v) then return end
-
-		local mult = GetConVar("unitvehicle_racedifficulty"):GetFloat() or 1
-
-		UVSetVehiclePerformanceMultiplier(self.v, mult)
 	end
 
 	function ENT:Think()

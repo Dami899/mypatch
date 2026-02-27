@@ -3087,6 +3087,22 @@ else -- CLIENT stuff
 			UVString("uv.race.pos.num." .. (UVHUDRaceCurrentPos or 1))
 		))
 		
+		-- AI Difficulty
+		local aidiffc = GetConVar("unitvehicle_racedifficulty"):GetFloat() or 0
+		local aidiff = {
+			[0]   = "uv.difficulty.1",
+			[0.5] = "uv.difficulty.2",
+			[1]   = "uv.difficulty.3"
+		}
+		local aidifficulty = aidiff[aidiffc]
+		
+		if #ents.FindByClass("npc_racervehicle") > 0 then
+			table.insert(squareTexts, string.format(
+				UVString("uv.prerace.aidifficulty"),
+				UVString(aidifficulty)
+			))
+		end
+
 		-- Participant List (NOT WORKING)
 		-- table.insert(squareTexts, string.format(
 			-- UVString("uv.prerace.participants"),

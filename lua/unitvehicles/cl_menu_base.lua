@@ -379,13 +379,22 @@ function UV.ShouldDrawSetting(st)
 	
 	if st.cond and st.cond() == false then return false end
 
-	if st.requireparentconvar then
+	if st.requireparentconvarfloat then
+		local c = GetConVar(st.requireparentconvarfloat)
+		if c then
+			local v = c:GetFloat() > 0
+			if st.parentinvert then v = not v end
+			if not v then return false end
+		end
+
+	elseif st.requireparentconvar then
 		local c = GetConVar(st.requireparentconvar)
 		if c then
 			local v = c:GetBool()
 			if st.parentinvert then v = not v end
 			if not v then return false end
 		end
+
 	elseif st.parentconvar then
 		local c = GetConVar(st.parentconvar)
 		if c then
@@ -639,12 +648,30 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 	local function GetDisplayText()
 		local prefix = ""
 
-		-- If parentconvar or requireparentconvar is active, show prefix
-		local parentName = st.parentconvar or st.requireparentconvar
+		local parentName
+		local isFloat = false
+
+		if st.requireparentconvarfloat then
+			parentName = st.requireparentconvarfloat
+			isFloat = true
+		else
+			parentName = st.parentconvar or st.requireparentconvar
+		end
+		
+		if st.showprefix then prefix = "	|-- " end
+		
 		if parentName then
 			local cv = GetConVar(parentName)
-			if cv and cv:GetBool() then
-				prefix = "	|-- "
+			if cv then
+				local active
+
+				if isFloat then active = cv:GetFloat() > 0 else active = cv:GetBool() end
+				if st.parentinvert then active = not active end
+				if st.showprefix then active = true end
+
+				if active then
+					prefix = "	|-- "
+				end
 			end
 		end
 
@@ -4702,6 +4729,7 @@ function UVMenu:Open(menu)
             if istable(entry) and entry.type then
                 if entry.parentconvar then watchedConvars[entry.parentconvar] = true end
                 if entry.requireparentconvar then watchedConvars[entry.requireparentconvar] = true end
+				if entry.requireparentconvarfloat then watchedConvars[entry.requireparentconvarfloat] = true end
             end
         end
 
@@ -4798,16 +4826,16 @@ function UVMenu:Open(menu)
 			end
 
             local shouldRefresh = false
-            for cvName in pairs(watchedConvars) do
-                local cv = GetConVar(cvName)
-                if cv then
-                    local val = cv:GetBool()
-                    if lastValues[cvName] ~= val then
-                        lastValues[cvName] = val
-                        shouldRefresh = true
-                    end
-                end
-            end
+			for cvName in pairs(watchedConvars) do
+				local cv = GetConVar(cvName)
+				if cv then
+					local val = cv:GetString()
+					if lastValues[cvName] ~= val then
+						lastValues[cvName] = val
+						shouldRefresh = true
+					end
+				end
+			end
 
             if shouldRefresh then
                 BuildTab(center.CurrentTabIndex)
