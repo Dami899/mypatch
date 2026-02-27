@@ -1794,9 +1794,31 @@ UVMenu.DVWarning = function()
 			{ TabName = "uv.hm.presets.warning", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true,
 				{ type = "infosimple", text = "uv.system.dvnowp" },
 				{ type = "info", text = "uv.system.dvnowp2" },
-				{ type = "button", text = "close", playsfx = "clickback", prompts = {"uv.prompt.confirm"}, func = function(self2) UVMenu.CloseCurrentMenu(true) end
+				{ type = "button", text = "uv.system.close", playsfx = "clickback", prompts = {"uv.prompt.confirm"}, func = function(self2) UVMenu.CloseCurrentMenu(true) end },
+				{ type = "button", text = "uv.system.dontshowagain", playsfx = "clickback", prompts = {"uv.prompt.confirm"}, func = function(self2) UVMenu.OpenMenu(UVMenu.DVWarningDontShowAgain, true) end },
+			}
+		}
+	})
+end
+
+UVMenu.DVWarningDontShowAgain = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(900),
+		Height = UV.ScaleH(800),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.hm.presets.warning", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.system.dontshowagain.finalwarn" },
+				{ type = "timer", text = "uv.results.autoclose", duration = 10, func = 
+					function(self2)
+						UVMenu.CloseCurrentMenu(true)
+						__DV_WARNING_NOSHOW = true
+					end
 				},
-				{ type = "bool", text = "uv.system.dvnowp.noshow", desc = "uv.system.dvnowp.noshow.desc", func = function(value) __DV_WARNING_NOSHOW = value end },
 			}
 		}
 	})
