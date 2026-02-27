@@ -30,7 +30,7 @@ UV.FAQ["en"] = {
 ["Intro"] = [[
 # -- What is this addon?
 
-Unit Vehicles is a Sandbox-oriented addon that allows players, in both Multiplayer with others or Singleplayer with AI, to engage in high-speed pursuits as or against police (Units) and thrilling races on any map.
+Unit Vehicles is a Sandbox-oriented addon that allows ayers, in both Multiayer with others or Singleayer with AI, to engage in high-speed pursuits as or against police (Units) and thrilling races on any map.
 
 **Here are the currently supported vehicle bases:**
  |-- prop_vehicle_jeep (default vehicle base)
@@ -128,8 +128,8 @@ Use the [string:tool.uvracemanager.name] tool:
 
 
 *-- Step 1: Create Checkpoints*
- |-- Press [+attack] in one corner to start placing a checkpoint
- |-- Press [+attack] in another to finish placing it
+ |-- Press [+attack] in one corner to start acing a checkpoint
+ |-- Press [+attack] in another to finish acing it
  |-- Tip: Hold [+use] to increase checkpoint height automatically
  
 
@@ -138,13 +138,13 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- Type in the Checkpoint ID
  |-- Make sure the ID is in sequentual order
  |-- Branching checkpoints use a matching ID
- |-- AI will always use the last placed checkpoint ID
+ |-- AI will always use the last aced checkpoint ID
  
 
 *-- Step 3: Create Grid Slots*
- |-- Press [+reload] to place Grid Slots
+ |-- Press [+reload] to ace Grid Slots
  |-- The numbers on the slots represent starting order
- |-- Want more racers? Place more slots!
+ |-- Want more racers? ace more slots!
  
 
 *-- Step 4: Export Race*
@@ -155,9 +155,9 @@ Use the [string:tool.uvracemanager.name] tool:
 ["Racing.Create.Speedlimit"] = [[
 # -- The AI Racers are going too fast around the track!
 
-When placing checkpoints, you'll have to define the speed in which the AI will take it.
+When acing checkpoints, you'll have to define the speed in which the AI will take it.
 If the AI is going too fast, you'll have to alter the speedlimit value found in the [string:tool.uvracemanager.name] settings.
-If you have a race already loaded, you can press [+attack2] on the Checkpoint to edit it and apply the updated speedlimit.
+If you have a race already loaded, you can press [+attack2] on the Checkpoint to edit it and apy the updated speedlimit.
 Alternatively, you can edit the last number in the race data file.
 ]],
 ["Racing.Create.PathNode"] = [[
@@ -170,13 +170,13 @@ Path Nodes are an alternative navigation method used by the Racing AI when racin
 With the [string:tool.uvracemanager.name] tool equipped:
  |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
  |-- Press [+attack] anywhere on the map to create a node
- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ |-- Press [+attack] anywhere else to create a new node; the previously aced node will automatically connect to it
  |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
 
 **-- Editing Path Nodes**
 With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
  |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+ |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes aced in and around corners
 ]],
 
 -- Pursuits
@@ -191,7 +191,7 @@ With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node
 ["Pursuit.JoinAsUnit"] = [[
 # -- Can I join the Pursuit as a Unit?
 
-Yes you can! And it's simple:
+Yes you can! And it's sime:
  |-- Go to [string:uv.pm] or [string:uv.menu.welcome]
  |-- Click [string:uv.pm.spawnas]
  |-- Pick the vehicle you want to drive
@@ -205,7 +205,7 @@ Most crucial settings are found inside of [string:uv.hm]:
  |-- Click [string:uv.hm]
 
 -- Here's what you can do in [string:uv.hm]:
- |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
+ |-- [string:uv.hm.presets]: You can load a preset to quickly apy a set of settings to a Pursuit, created by other ayers or yourself.
  |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
  |-- [string:uv.hm.vp]: Set voices of each Unit type.
  |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
@@ -234,7 +234,7 @@ Here's what you do:
  |-- 6. (Optional) Tweak other values as you see fit
  |-- 7. Click [string:uv.tool.create]
  
-Now apply the Unit via the [string:tool.uvunitmanager.name] tool, and you'll either face the Unit you made, or be allowed to play as the Unit against the fleeing suspects.
+Now apy the Unit via the [string:tool.uvunitmanager.name] tool, and you'll either face the Unit you made, or be allowed to ay as the Unit against the fleeing suspects.
 ]],
 ["Pursuit.Roadblocks"] = [[
 # -- I want to create Roadblocks. What do I do?
@@ -274,9 +274,9 @@ You can then tweak general settings in the [string:uv.tm] tab in the UV Menu.
 # -- What are Pursuit Tech?
 
 Pursuit Tech are a series of weapons and support devices utilized by both Racers and Units.
-You can apply up to 2 Pursuit Techs to your vehicle to either fight the opponents or defend yourself.
+You can apy up to 2 Pursuit Techs to your vehicle to either fight the opponents or defend yourself.
 
-Here's how to apply and use them:
+Here's how to apy and use them:
  |-- 1. Pull out the [string:tool.uvpursuittech.name] tool
  |-- 2. Select the Pursuit Tech you want to use as a Racer or Unit
  |-- 3. Press [+attack] on your vehicle or Unit
@@ -286,7 +286,7 @@ You can now press [key:unitvehicle_pursuittech_keybindslot_1] and [key:unitvehic
 ["Other.RenameAI"] = [[
 # -- Can I rename AI Racers and Units?
 
-Yes you can. And it's simple:
+Yes you can. And it's sime:
  |-- 1. Pull out the [string:tool.uvnamechanger.name] tool
  |-- 2. Type out the name you want the AI to have
  |-- 3. Press [+attack] on the AI Racer or Unit
@@ -391,7 +391,7 @@ Påbörja ett race genom att gå till [string:uv.rm] i UV-menyn:
 
 
 *Notera*
- |-- Det måste finnas minst 1 Startplats för att påbörja racet!
+ |-- Det måste finnas minst 1 Startats för att påbörja racet!
  |-- Du kan bjuda in vänner/AI-racers genom att trycka på [string:uv.rm.sendinvite] innan du trycker på [string:uv.rm.startrace], förutsatt att ett race är laddat.
  |-- Om det inte finns något race så behöver du skapa ditt eget
  |-- Alternativt så hittar du några på Workshop!
@@ -402,8 +402,8 @@ Använd verktyget [string:tool.uvracemanager.name]:
 
 
 *-- Steg 1: Skapa kontrollpunkter*
- |-- Tryck på [+attack] i ett hörn för att börja placera en kontrollpunkt.
- |-- Tryck på [+attack] i ett annat hörn för att slutföra placeringen.
+ |-- Tryck på [+attack] i ett hörn för att börja acera en kontrollpunkt.
+ |-- Tryck på [+attack] i ett annat hörn för att slutföra aceringen.
  |-- Tips: Håll inne [+use] för att öka höjden på kontrollpunkten automatiskt.
  
 
@@ -412,13 +412,13 @@ Använd verktyget [string:tool.uvracemanager.name]:
  |-- Skriv in Kontrollpunktens ID
  |-- Var säker på att ID:n är i sekventiell ordning
  |-- Förgrenade punkter använder matchande ID
- |-- AI:n kommer alltid använda den sist utplacerade kontrollpunkten
+ |-- AI:n kommer alltid använda den sist utacerade kontrollpunkten
  
 
 *-- Steg 3: Skapa spawnpunkter*
- |-- Tryck på [+reload] för att placera ut Spawnpunkter
+ |-- Tryck på [+reload] för att acera ut Spawnpunkter
  |-- Punkternas nummer representerar startordning
- |-- Vill du ha fler tävlande? Placera ut fler punkter!
+ |-- Vill du ha fler tävlande? acera ut fler punkter!
  
 
 *-- Steg 4: Exportera racet*
@@ -429,7 +429,7 @@ Använd verktyget [string:tool.uvracemanager.name]:
 ["Racing.Create.Speedlimit"] = [[
 # -- AI-racers kör för fort runt banan!
 
-När du placerar ut kontrollpunkter så måste du specifiera hastigheten som AI:n kommer ta den i.
+När du acerar ut kontrollpunkter så måste du specifiera hastigheten som AI:n kommer ta den i.
 Om AI:n kör för fort så behöver du redigera hastighetsbegränsningsvärdet som du hittar i inställningarna på verktyget [string:tool.uvracemanager.name].
 Om ett race redan är laddat så kan du trycka på [+attack2] på Kontrollpunkten för att redigera den och tillämpa den uppdaterade gränsen.
 Alternativt så kan du redigera det sista värdet i racets datafil.
@@ -1169,26 +1169,26 @@ Możesz obserwować naszą stronę na Trello lub dołączyć na Discorda. Oba li
 
 Jak gracz przygotuje Wyścig i Cię zaprosi, dostaniesz powiadomienie na ekranie pod warunkiem że znajdujesz się w pojeździe i nie goni Cię policja.
 ]],
---[[["Racing.SpawnAI"] = [[
-# -- How do I race with AI?
+["Racing.SpawnAI"] = [[
+# -- Jak mogę ścigać się z SI?
 
-There are two ways of doing that:
+Są dwa sposoby na to:
 
-**Option 1**
- |-- 1. Spawn any Glide, Simfphys or HL2 Jeep vehicle.
- |-- 2. Pull out the [string:tool.uvracermanager.name] tool.
- |-- 3. Press [+attack2] on the vehicle.
- |-- 4. Tweak the settings to your liking, then click [string:uv.tool.create].
- |-- 5. Repeat for every vehicle you want the AI to use.
+**Opcja 1**
+ |-- 1. Pojaw dowolny pojazd z Glide, Simfphys lub bazy Jeepa z HL2.
+ |-- 2. Wyciągnij narzędzie [string:tool.uvracermanager.name].
+ |-- 3. Naciśnij [+attack2] na pojazd.
+ |-- 4. Doprecyzuj ustawienia według uznania, następnie wciśnij [string:uv.tool.create].
+ |-- 5. Powtórz dla każdego pojazdu jakiego ma używać SI.
  
-**Option 2 (Recommended)**
- |-- 1. Open the [string:uv.airacer] tab.
- |-- 2. Enable [string:uv.airacer.override].
- |-- 3. In the list below the option, open the menus containing cars and press [+attack2] to add the vehicles to an AI vehicle list
+**Opcja 2 (Zalecana)**
+ |-- 1. Otwórz okno [string:uv.airacer].
+ |-- 2. Włącz [string:uv.airacer.override].
+ |-- 3. W liście pod ustawieniem, otwórz okno zawierające pojazdy i wciśnij [+attack2] aby dodać pojazd do listy pojazdów dla SI.
 
-**Notes**
- |-- Ensure the [string:uv.tool.base.title] variable matches your desired base.
-]]--,
+**Uwagi**
+ |-- Upewnij się że zmienna [string:uv.tool.base.title] zgadza się z wybraną przez Ciebie bazą pojazdów.
+]],
 ["Racing.Resetting"] = [[
 # -- Samochód utknął! Co robić?
 
