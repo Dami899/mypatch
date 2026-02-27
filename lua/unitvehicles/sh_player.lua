@@ -2125,8 +2125,7 @@ if SERVER then
         local strength = UVUnitPTGrapplerStrength:GetInt()
         local disableduration = UVUnitPTGrapplerDisableDuration:GetInt()
 
-        if UVIsPTUpgraded(car) then --shorter, stronger, lasting
-            length = length / 2
+        if UVIsPTUpgraded(car) then --stronger, lasting
 			strength = strength * 2
 			disableduration = disableduration * 2
 		end
