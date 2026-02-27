@@ -508,16 +508,15 @@ UV_UI.pursuit.original.events = {
             draw.SimpleText( spikestripsdodged, "UVFont2", w*0.99, h*0.75, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
             
             -- Time remaining and closing
-            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big")
+            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue") .. " (" .. math.max(0, timeremaining) .. ")", "Big")
             --draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. UVString("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
             local markuptext = "<color=255,255,255><font=UVFont2>".. contenttext .. "</font></color>"
             markup.Parse(markuptext):Draw(w*0.01, h*0.85, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
-            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2-Smaller", w*0.99, h*0.885, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
 			
 			if UVHUDWantedSuspects and #UVHUDWantedSuspects > 0 then
 				local spawnastext = UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big")
 				local markuptext2 = "<color=255,255,255><font=UVFont2>".. spawnastext .. "</font></color>"
-				markup.Parse(markuptext2):Draw(w*0.01, h*0.885, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+				markup.Parse(markuptext2):Draw(w*0.99, h*0.85, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
 			end
 
             if timeremaining < 1 then
