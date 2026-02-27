@@ -2131,24 +2131,26 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 				['Max'] = math.huge
 			}
 		},
-		-- ['MaxRPMTorque'] = {
-			-- ['DataType'] = "NetworkVar",
-			-- ['Info'] = {
-				-- ['Type'] = "Multiply",
-				-- ['Modifier'] = 1,
-				-- ['Min'] = 0,
-				-- ['Max'] = math.huge
-			-- }
-		-- },
-		-- ['MinRPMTorque'] = {
-			-- ['DataType'] = "NetworkVar",
-			-- ['Info'] = {
-				-- ['Type'] = "Multiply",
-				-- ['Modifier'] = 1,
-				-- ['Min'] = 0,
-				-- ['Max'] = math.huge
-			-- }
-		-- },
+		['MaxRPMTorque'] = {
+			['IsUnit'] = true,
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MinRPMTorque'] = {
+			['IsUnit'] = true,
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
 		['ForwardTractionMax'] = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {
@@ -2228,6 +2230,7 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult )
 	if not vehicle.__UVOriginalPerformance then vehicle.__UVOriginalPerformance = {} end
 
 	for stat, data in pairs( needle ) do
+		if data.IsUnit and not vehicle.UnitVehicle then continue end
 		if data.DataType == "NetworkVar" then
 			local getFunc = vehicle['Get'..stat]
 			local setFunc = vehicle['Set'..stat]
@@ -2242,8 +2245,36 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult )
 			end
 		end
 	end
+
+	if isGlideVehicle then
+		vehicle:UpdateWheelParameters()
+		vehicle:UpdatePowerDistribution()
+	end
 end
 
+--[[
+	/// INFRACTIONS LIST ///
+	- Speeding (reach 10+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
+	- Excessive Speeding (reach 50+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
+	- Reckless Driving (reach 100+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
+	- Street Racing (be in a race event)
+	- Property Damage (hit a non-vehicle entity)
+	- Ramming a Police Vehicle (hit a Unit)
+	- Driving Off-road (drive on a non-road surface)
+	- Resisting Arrest (enter cooldown)
+	- Hit and Run (hit a Traffic)
+	- Overuse of Resources (trigger the backup timer)
+	- Public Endangerment (use a Pursuit Tech/cause a Traffic vehicle to swerve out of your way)
+	- Vehicular Homicide (cause a vehicle to explode/run over a pedestrian)
+
+	*you must be seen by the Unit or be reported by a witness for an infraction to be counted, except for Resisting Arrest
+]]
+
+function UVAddInfraction(vehicle, infraction)
+	if not IsValid(vehicle) or not vehicle:IsVehicle() then return end
+	if not vehicle.Infractions then vehicle.Infractions = {} end
+	table.insert(vehicle.Infractions, infraction)
+end
 
 function UVAddToPlayerUnitListVehicle(vehicle, ply)
 	net.Start("UVHUDAddUV")

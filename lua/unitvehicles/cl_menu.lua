@@ -651,6 +651,11 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.pursuit.heatlevels.enable", desc = "uv.pursuit.heatlevels.enable.desc", convar = "unitvehicle_heatlevels", sv = true },
 				{ type = "bool", text = "uv.pursuit.heatlevels.aiunits", desc = "uv.pursuit.heatlevels.aiunits.desc", convar = "unitvehicle_spawnmainunits", sv = true },
 				
+				{ type = "label", text = "uv.response", sv = true },
+				{ type = "bool", text = "uv.response.enable", desc = "uv.response.enable.desc", convar = "unitvehicle_callresponse", sv = true },
+				{ type = "slider", text = "uv.response.speedlimit", desc = "uv.response.speedlimit.desc", convar = "unitvehicle_speedlimit", min = 0, max = 100, decimals = 0, sv = true },
+				{ type = "bool", text = "uv.chatter.enable", desc = "uv.chatter.enable.desc", convar = "unitvehicle_chatter", sv = true },
+				
 				{ type = "label", text = "uv.settings.general", sv = true },
 				{ type = "bool", text = "uv.pursuit.canexitvehicle", desc = "uv.pursuit.canexitvehicle.desc", convar = "unitvehicle_canexitvehicle", sv = true },
 				{ type = "bool", text = "uv.pursuit.spottedfreezecam", desc = "uv.pursuit.spottedfreezecam.desc", convar = "unitvehicle_spottedfreezecam", sv = true, sp = true },
@@ -691,6 +696,23 @@ UVMenu.Settings = function()
 				{ type = "slider", text = "uv.pb.cooldown", desc = "uv.pb.cooldown.desc", convar = "unitvehicle_pursuitbreaker_pbcooldown", min = 10, max = 600, sv = true },
 			},
 			{ TabName = "uv.ai.title", Icon = "unitvehicles/icons/cops_icon.png", sv = true,
+				{ type = "label", text = "uv.aidifficulty", sv = true },
+				{ type = "combo", text = "uv.aidifficulty.racer", desc = "uv.aidifficulty.racer.desc", convar = "unitvehicle_racedifficulty", sv = true, content = {
+						{ "uv.difficulty.1", 0 } ,
+						{ "uv.difficulty.2", 0.5 } ,
+						{ "uv.difficulty.3", 1 } ,
+					},
+				},
+				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_unitcatchup", showprefix = true, sv = true },
+				
+				{ type = "combo", text = "uv.aidifficulty.unit", desc = "uv.aidifficulty.unit.desc", convar = "unitvehicle_unitdifficulty", sv = true, content = {
+						{ "uv.difficulty.1", 0 } ,
+						{ "uv.difficulty.2", 0.5 } ,
+						{ "uv.difficulty.3", 1 } ,
+					},
+				},
+				{ type = "bool", text = "uv.aidifficulty.unit.rubberband", desc = "uv.aidifficulty.unit.rubberband.desc", convar = "unitvehicle_unitcatchup", showprefix = true, sv = true },
+
 				{ type = "label", text = "uv.ailogic", sv = true },
 				{ type = "bool", text = "uv.ailogic.optimizerespawn", desc = "uv.ailogic.optimizerespawn.desc", convar = "unitvehicle_optimizerespawn", sv = true },
 				{ type = "bool", text = "uv.ailogic.wrecking", desc = "uv.ailogic.wrecking.desc", convar = "unitvehicle_canwreck", sv = true },
@@ -709,13 +731,6 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.ainav.pathfind", desc = "uv.ainav.pathfind.desc", convar = "unitvehicle_pathfinding", sv = true },
 				{ type = "bool", text = "uv.ainav.dvpriority", desc = "uv.ainav.dvpriority.desc", convar = "unitvehicle_dvwaypointspriority", sv = true },
 				{ type = "bool", text = "uv.ainav.dvdistancebased", desc = "uv.ainav.dvdistancebased.desc", convar = "unitvehicle_dvwaypointsdistancebased", sv = true },
-				
-				{ type = "label", text = "uv.chatter", sv = true },
-				{ type = "bool", text = "uv.chatter.enable", desc = "uv.chatter.enable.desc", convar = "unitvehicle_chatter", sv = true },
-				
-				{ type = "label", text = "uv.response", sv = true },
-				{ type = "bool", text = "uv.response.enable", desc = "uv.response.enable.desc", convar = "unitvehicle_callresponse", sv = true },
-				{ type = "slider", text = "uv.response.speedlimit", desc = "uv.response.speedlimit.desc", convar = "unitvehicle_speedlimit", min = 0, max = 100, decimals = 0, sv = true },
 			},
 			{ TabName = "uv.addons", Icon = "unitvehicles/icons/generic_cart.png", sv = true,
 				unpack(addonTabRows)
@@ -907,27 +922,28 @@ end
 UVMenu.RaceManagerSettings = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = " ",
-		Width  = UV.ScaleW(900),
+		Width  = UV.ScaleW(1300),
 		Height = UV.ScaleH(600),
 		DynamicHeight = true,
 		Description = true,
 		UnfocusClose = true,
 		Tabs = {
 			{ TabName = "uv.rm.options",
-				{ type = "combo", text = "uv.rm.options.difficulty", desc = "uv.rm.options.difficulty.desc", convar = "unitvehicle_racedifficulty", sv = true, content = {
-						{ "uv.difficulty.1", 1.0 } ,
-						{ "uv.difficulty.2", 1.5 } ,
-						{ "uv.difficulty.3", 2.0 } ,
+				{ type = "label", text = "uv.aidifficulty" },
+				{ type = "combo", text = "uv.aidifficulty.racer", desc = "uv.aidifficulty.racer.desc", convar = "unitvehicle_racedifficulty", sv = true, content = {
+						{ "uv.difficulty.1", 0 } ,
+						{ "uv.difficulty.2", 0.5 } ,
+						{ "uv.difficulty.3", 1 } ,
 					},
 				},
+				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_unitcatchup", showprefix = true, sv = true },
+				{ type = "label", text = "uv.settings.general" },
 				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },
 				{ type = "slider", text = "uv.rm.options.dnftimer", desc = "uv.rm.options.dnftimer.desc", convar = "unitvehicle_racednftimer", min = 0, max = 90, decimals = 0, sv = true },
 				{ type = "bool", text = "uv.rm.options.visiblecheckpoints", desc = "uv.rm.options.visiblecheckpoints.desc", convar = "unitvehicle_racevisiblecheckpoints", sv = true },
-				-- { type = "label", text = "uv.pursuit" },
 				{ type = "slider", text = "uv.rm.options.pursuitstart", desc = "uv.rm.options.pursuitstart.desc", convar = "unitvehicle_racepursuitstart", min = 0, max = 90, decimals = 0, sv = true },
 				{ type = "bool", text = "uv.rm.options.pursuitclear", desc = "uv.rm.options.pursuitclear.desc", convar = "unitvehicle_racepursuitstop", sv = true },
 				{ type = "bool", text = "uv.rm.options.pursuitclear.ai", desc = "uv.rm.options.pursuitclear.ai.desc", convar = "unitvehicle_racepursuitstop_despawn", parentconvar = "unitvehicle_racepursuitstop", sv = true },
-				-- { type = "label", text = "uv.ai.title" },
 				{ type = "bool", text = "uv.rm.options.clearai", desc = "uv.rm.options.clearai.desc", convar = "unitvehicle_raceclearai", sv = true },
 				{ type = "button", text = "uv.back", sv = true, playsfx = "clickback", prompts = {"uv.prompt.return"},
 					func = function(self2) UVMenu.OpenMenu(UVMenu.RaceManager) end

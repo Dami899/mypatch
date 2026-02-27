@@ -34,7 +34,8 @@ if SERVER then
 	local HeatLevels = GetConVar("unitvehicle_heatlevels")
 	local PursuitTech = GetConVar("unitvehicle_unit_pursuittech")
 	local DVWaypointsPriority = GetConVar("unitvehicle_dvwaypointspriority")
-	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn") 
+	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn")
+	local Catchup = GetConVar("unitvehicle_unitcatchup")
 	
 	function ENT:OnRemove()
 		if table.HasValue(UVUnitsChasing, self) then
@@ -1052,6 +1053,21 @@ if SERVER then
 			self.v:TriggerInput("Handbrake", 1)
 		end
 	end
+
+	function ENT:ApplyUnitDifficulty(multiplier, catchup)
+		if not IsValid(self.v) then return end
+
+		local mult = multiplier or 1 + (GetConVar("unitvehicle_unitdifficulty"):GetFloat() or 0)
+
+		if catchup then
+			mult = mult * 2
+		end
+
+		if mult == self.perfmult then return end
+
+		UVSetVehiclePerformanceMultiplier(self.v, mult)
+		self.perfmult = mult
+	end
 	
 	function ENT:Think()
 		-- if UVTargeting then return end
@@ -1161,6 +1177,9 @@ if SERVER then
 		end
 		
 		if not self:Validate(self.e) then --If it doesn't have an enemy.
+
+			self:ApplyUnitDifficulty(1)
+
 			if UVEnemyBusted and #UVWantedTableVehicle == 0 then --Stop moving
 				self:Stop()
 			else --Patrol
@@ -2044,10 +2063,12 @@ if SERVER then
 			end
 			if self:VisualOnTarget(self.e) and eedist:LengthSqr() < visualrange then
 				UVLosing = CurTime()
+				self:ApplyUnitDifficulty()
 				if not table.HasValue(UVUnitsChasing, self) then
 					table.insert(UVUnitsChasing, self)
 				end
 			else
+				self:ApplyUnitDifficulty(nil, Catchup:GetBool())
 				if table.HasValue(UVUnitsChasing, self) then
 					table.RemoveByValue(UVUnitsChasing, self)
 				end
@@ -2095,6 +2116,7 @@ if SERVER then
 		self.stuck = nil
 		self.spawned = true
 		self.toofar = true
+		self.perfmult = 1
 
 		local selectedVoice = GetConVar("unitvehicle_unit_pursuit_voice"):GetString()
 		local splittedText = string.Explode( ",", selectedVoice )

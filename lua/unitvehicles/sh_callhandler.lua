@@ -111,13 +111,16 @@ if SERVER then
         local fastestSpeeder = table.GetWinningKey(SpeedTable)
         local suspect = UVPotentialSuspects[fastestSpeeder]
         local speed = SpeedTable[fastestSpeeder]
+        local SpeedLimit
+
+        local SpeedLimitDV = next(dvd.Waypoints) ~= nil and dvd.GetNearestWaypoint(suspect:WorldSpaceCenter())["SpeedLimit"]^2 or nil
+        local SpeedLimitConVar = (GetConVar("unitvehicle_speedlimit"):GetFloat()*17.6)^2
         
-        if next(dvd.Waypoints) == nil then
-            local Waypoint = dvd.GetNearestWaypoint(suspect:WorldSpaceCenter())
-            local speedLimitMph = Waypoint["SpeedLimit"]
-            SpeedLimit = speedLimitMph^2
+        --Determine which speed limit to use based on which is lower, if any
+        if SpeedLimitDV and SpeedLimitDV < SpeedLimitConVar then
+            SpeedLimit = SpeedLimitDV
         else
-            SpeedLimit = (GetConVar("unitvehicle_speedlimit"):GetFloat()*17.6)^2
+            SpeedLimit = SpeedLimitConVar
         end
         
         if speed > (SpeedLimit+30976) then
