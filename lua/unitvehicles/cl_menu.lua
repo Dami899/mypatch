@@ -1780,6 +1780,7 @@ UVMenu.DVWarning = function()
 				{ type = "info", text = "uv.system.dvnowp2" },
 				{ type = "button", text = "close", playsfx = "clickback", prompts = {"uv.prompt.confirm"}, func = function(self2) UVMenu.CloseCurrentMenu(true) end
 				},
+				{ type = "bool", text = "uv.system.dvnowp.noshow", desc = "uv.system.dvnowp.noshow.desc", func = function(value) __DV_WARNING_NOSHOW = value end },
 			}
 		}
 	})
@@ -1787,8 +1788,8 @@ end
 
 net.Receive("UV_OpenDVWarning", function()
 	if not LocalPlayer():IsSuperAdmin() then return end
-	if __DV_COOLDOWN and __DV_COOLDOWN > os.time() then return end
+	if __DV_COOLDOWN and __DV_COOLDOWN > os.time() or __DV_WARNING_NOSHOW then return end
 
-	__DV_COOLDOWN = os.time() + 60
+	__DV_COOLDOWN = os.time() + 5
     UVMenu.OpenMenu(UVMenu.DVWarning, true)
 end)

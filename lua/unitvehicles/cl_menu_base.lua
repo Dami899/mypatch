@@ -911,14 +911,23 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		wrap:SetText("")
 		wrap:SetCursor("hand")
 
-		local cv = GetConVar(st.convar)
+		local localvar = false
+		local cv = GetConVar(st.convar or "")
 		local function getBool()
 			if cv then return cv:GetBool() end
-			return false
+			return localvar
 		end
 
 		wrap.DoClick = function()
-			if not cv then return end
+			if not cv then  
+				localvar = not localvar
+				UVMenu.PlaySFX("confirm")
+				if descPanel and st.convar then
+					descPanel.SelectedCurrent = localvar and "1" or "0"
+				end
+				if st.func then pcall(st.func, localvar) end
+				return
+			end
 			local new = getBool() and "0" or "1"
 			if st.sv and string.match(st.convar, 'unitvehicle_') then
 				net.Start("UVUpdateSettings")
@@ -931,6 +940,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			if descPanel and st.convar then
 				descPanel.SelectedCurrent = new
 			end
+			if st.func then pcall(st.func, new) end
 		end
 
 		wrap.OnCursorEntered = function()
