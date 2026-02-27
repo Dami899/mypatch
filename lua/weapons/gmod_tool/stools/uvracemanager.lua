@@ -282,11 +282,7 @@ if SERVER then
 	local dvd = DecentVehicleDestination
 
 	local function ImportExportText(name, export, ply)
-		local nick = ply:Nick():lower():Replace(" ", "_")
-				
-		local racename = name
-		
-		local filename = "unitvehicles/races/" .. game.GetMap() .. "/" .. nick .. "." .. name .. ".txt"
+		local filename = "unitvehicles/races/" .. game.GetMap() .. "/" .. name .. ".txt"
 
 		local str = export and "Exported UV Race to " .. filename or "Imported UV Race from " .. filename
 		-- ply:ChatPrint(str)
@@ -467,7 +463,7 @@ if SERVER then
 		local nick = plynick:lower():Replace(" ", "_")
 		local name = args[1]:lower():Replace(" ", "_")
 		
-		local filename = "unitvehicles/races/" .. game.GetMap() .. "/" .. nick .. "." .. name .. ".txt"
+		local filename = "unitvehicles/races/" .. game.GetMap() .. "/" .. name .. ".txt"
 		
 		for _, ent in ipairs(ents.FindByClass("uvrace_checkpoint")) do
 			ent.DoNotDuplicate = true
@@ -484,7 +480,7 @@ if SERVER then
 		file.Write(filename, str)
 
 		--if args[2] then --Save props option
-		local jsonfilename = "unitvehicles/races/" .. game.GetMap() .. "/" .. nick .. "." .. name .. ".json"
+		local jsonfilename = "unitvehicles/races/" .. game.GetMap() .. "/" .. name .. ".json"
 		local jsonstr = UVSaveRace( args[2] == "true", args[3] == "true" )
 
 		file.Write(jsonfilename, jsonstr)
