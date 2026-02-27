@@ -577,13 +577,18 @@ if SERVER then
 				return
 			end
 			
-			local Waypoint = dvd.GetNearestWaypoint(self.v:WorldSpaceCenter())
-			if Waypoint.Neighbors then --Keep going straight
-				self.PatrolWaypoint = dvd.Waypoints[Waypoint.Neighbors[math.random(#Waypoint.Neighbors)]]
-			else
-				self.PatrolWaypoint = Waypoint
+			-- Only pick a starting waypoint if we don't already have one
+			if not self.DVCurrentWaypoint then
+				self.DVCurrentWaypoint = dvd.GetNearestWaypoint(self.v:WorldSpaceCenter())
 			end
-		end		
+
+			if self.DVCurrentWaypoint then
+				self.PatrolWaypoint = {
+					Target = self.DVCurrentWaypoint.Target,
+					SpeedLimit = self.DVCurrentWaypoint.SpeedLimit or math.huge
+				}
+			end
+		end
 	end
 
 	function ENT:ApplyRaceDifficulty(multiplier, catchup)
@@ -605,7 +610,7 @@ if SERVER then
 		local selfvelocity = self.v:GetVelocity():LengthSqr()
 		
 		-- Node-based navigation override
-		if not self.NodePath and self.v.uvraceparticipant then
+		if (self.v.uvraceparticipant and UVRaceInEffect) and not self.NodePath then
 			self:StartNodeRace()
 		end
 		
@@ -917,7 +922,8 @@ if SERVER then
 					timer.Simple(2, function() 
 						if IsValid(self.v) then 
 							self.stuck = nil 
-							self.PatrolWaypoint = nil 
+							self.PatrolWaypoint = nil
+							self.DVCurrentWaypoint = nil
 							
 							if self.v.uvraceparticipant and ((not self.v.UVBustingProgress) or self.v.UVBustingProgress <= 0) then
 								UVResetPosition( self.v )
@@ -1063,6 +1069,39 @@ if SERVER then
 				self.v:SetSteering(steer, 0)
 			end
 			
+			-- DV Waypoint advancement (like node transition)
+			if self.DVCurrentWaypoint then
+				local pos = self.v:WorldSpaceCenter()
+				local target = self.DVCurrentWaypoint.Target
+
+				-- DV Node timeout check
+				if self.DVWaypointStartTime then
+					local elapsed = CurTime() - self.DVWaypointStartTime
+					local distSqr = pos:DistToSqr(target)
+
+					if elapsed > 5 and distSqr > (600*600) then
+						self.DVCurrentWaypoint = nil
+						self.PatrolWaypoint = nil
+						self.DVWaypointStartTime = nil
+						self.DVWaypointStartPos = nil
+						self:FindRace()
+						return
+					end
+				end
+
+				-- Node advancement
+				if pos:DistToSqr(target) < (600*600) then
+					if self.DVCurrentWaypoint.Neighbors and #self.DVCurrentWaypoint.Neighbors > 0 then
+						local nextID = self.DVCurrentWaypoint.Neighbors[math.random(#self.DVCurrentWaypoint.Neighbors)]
+						self.DVCurrentWaypoint = dvd.Waypoints[nextID]
+
+						-- Track waypoint start for timeout
+						self.DVWaypointStartTime = CurTime()
+						self.DVWaypointStartPos = pos
+					end
+				end
+			end
+			
 			--Resetting
 			if not (selfvelocity < 10000 and (throttle > 0 or throttle < 0)) then 
 				self.moving = CurTime()
@@ -1079,7 +1118,8 @@ if SERVER then
 					timer.Simple(2, function() 
 						if IsValid(self.v) then 
 							self.stuck = nil 
-							self.PatrolWaypoint = nil 
+							self.PatrolWaypoint = nil
+							self.DVCurrentWaypoint = nil
 							
 							if self.v.uvraceparticipant and ((not self.v.UVBustingProgress) or self.v.UVBustingProgress <= 0) then
 								UVResetPosition( self.v )
@@ -1173,18 +1213,27 @@ if SERVER then
 		-- end
 		
 		
-    -- ====== DEBUG: Draw line to target node ======
+		-- DEBUG: Draw line to navigation target
 		local targetPos = nil
-		
+		local colorLine = Color(255,0,0)
+		local colorSphere = Color(0,255,0)
+
+		-- RACE NODE DEBUG
 		if self.NodePath and self.CurrentNode and self.NodeDebugTarget then
 			targetPos = self.NodeDebugTarget
-		-- elseif self.PatrolWaypoint then
-			-- targetPos = self.PatrolWaypoint["Target"]
+			colorLine = Color(255,0,0)      -- red line for race
+			colorSphere = Color(0,255,0)    -- green sphere
+
+		-- DV WAYPOINT DEBUG
+		elseif self.DVCurrentWaypoint then
+			targetPos = self.DVCurrentWaypoint.Target
+			colorLine = Color(0,150,255)    -- blue line for DV
+			colorSphere = Color(0,255,255)  -- cyan sphere
 		end
 
 		if targetPos then
-			debugoverlay.Line(self.v:WorldSpaceCenter(), targetPos, 1, Color(255,0,0), true)
-			debugoverlay.Sphere(targetPos, 20, 1, Color(0,255,0), true)
+			debugoverlay.Line(self.v:WorldSpaceCenter(), targetPos, 1, colorLine, true)
+			debugoverlay.Sphere(targetPos, 20, 1, colorSphere, true)
 		end
 	end
 
