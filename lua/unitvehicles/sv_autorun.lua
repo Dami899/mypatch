@@ -52,6 +52,12 @@ NETWORK_STRINGS = {
 	"UVHUDRefilledPT",
 	"UVHUDRepairCommander",
 	"uvrepairsimfphys",
+	"UVRepairShopAdjust",
+	"UVRepairShopRetrieve",
+	"UVRepairShopCreate",
+	"UVRepairShopRefresh",
+	"UVRepairShopLoad",
+	"UVRepairShopLoadAll",
 	
 	-- Pursuit Table
 	"UVGet_PursuitTable",
@@ -2247,6 +2253,15 @@ function UVAddInfraction(vehicle, infraction)
 	if not IsValid(vehicle) or not vehicle:IsVehicle() then return end
 	if not vehicle.Infractions then vehicle.Infractions = {} end
 	table.insert(vehicle.Infractions, infraction)
+end
+
+function UVGetIfSomeoneDriving()
+	for k, v in pairs(player.GetAll()) do
+		if IsValid(v) and v:InVehicle() then
+			return true
+		end
+	end
+	return false
 end
 
 function UVAddToPlayerUnitListVehicle(vehicle, ply)

@@ -56,7 +56,7 @@ if SERVER then
             if #ents.FindByClass("npc_racervehicle") < UVRMaxRacer:GetInt() then
                 if UVRSpawnCondition:GetInt() == 3 then
                     SpawnRacerAI = true
-                elseif UVRSpawnCondition:GetInt() == 2 and next(UVPotentialSuspects) ~= nil then
+                elseif UVRSpawnCondition:GetInt() == 2 and UVGetIfSomeoneDriving() then
                     SpawnRacerAI = true
                 end
             end
@@ -64,7 +64,7 @@ if SERVER then
             if #ents.FindByClass("npc_trafficvehicle") < UVTMaxTraffic:GetInt() then
                 if UVTSpawnCondition:GetInt() == 3 then
                     SpawnTrafficAI = true
-                elseif UVTSpawnCondition:GetInt() == 2 and next(UVPotentialSuspects) ~= nil then
+                elseif UVTSpawnCondition:GetInt() == 2 and UVGetIfSomeoneDriving() then
                     SpawnTrafficAI = true
                 end
             end
@@ -74,8 +74,16 @@ if SERVER then
             if #UVLoadedPursuitBreakers < UVPBMax:GetInt() then
 				if UVPBSpawnCondition:GetInt() == 3 then
                     UVAutoLoadPursuitBreaker()
-                elseif UVPBSpawnCondition:GetInt() == 2 and next(UVPotentialSuspects) ~= nil then
+                elseif UVPBSpawnCondition:GetInt() == 2 and UVGetIfSomeoneDriving() then
                     UVAutoLoadPursuitBreaker()
+                end
+			end
+
+            if #UVLoadedRepairShops < UVRSMax:GetInt() then
+				if UVRSSpawnCondition:GetInt() == 3 then
+                    UVAutoLoadRepairShop()
+                elseif UVRSSpawnCondition:GetInt() == 2 and UVGetIfSomeoneDriving() then
+                    UVAutoLoadRepairShop()
                 end
 			end
 

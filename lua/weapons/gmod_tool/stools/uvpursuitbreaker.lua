@@ -178,7 +178,7 @@ if CLIENT then
 
 			if #files == 0 then
 				local empty = vgui.Create("DLabel", UVPursuitBreakerScrollPanel)
-				empty:SetText("#uv.tool.novehicle")
+				empty:SetText("#uv.tool.nopb")
 				empty:SetTextColor(Color(200,200,200))
 				empty:SetContentAlignment(5)
 				empty:Dock(TOP)

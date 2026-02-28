@@ -1082,6 +1082,9 @@ UVPBMax = CreateConVar("unitvehicle_pursuitbreaker_maxpb", 2, {FCVAR_ARCHIVE, FC
 UVPBSpawnCondition = CreateConVar("unitvehicle_pursuitbreaker_spawncondition", 2, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "\n1) Never \n2) When driving \n3) Always")
 UVPBCooldown = CreateConVar("unitvehicle_pursuitbreaker_pbcooldown", 60, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 
+UVRSMax = CreateConVar("unitvehicle_repairshop_maxrs", 2, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVRSSpawnCondition = CreateConVar("unitvehicle_repairshop_spawncondition", 2, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "\n1) Never \n2) When driving \n3) Always")
+
 UVRBMax = CreateConVar("unitvehicle_roadblock_maxrb", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVRBOverride = CreateConVar("unitvehicle_roadblock_override", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 
@@ -1163,6 +1166,8 @@ if SERVER then
 		end
 		UVLoadedPursuitBreakers = {}
 		UVLoadedPursuitBreakersLoc = {}
+		UVLoadedRepairShops = {}
+		UVLoadedRepairShopsLoc = {}
 		UVLoadedRoadblocks = {}
 		UVLoadedRoadblocksLoc = {}
 		UVWreckedVehicles = {}
@@ -1228,6 +1233,8 @@ if SERVER then
 	UVRVWithPursuitTech = {}
 	UVLoadedPursuitBreakers = {}
 	UVLoadedPursuitBreakersLoc = {}
+	UVLoadedRepairShops = {}
+	UVLoadedRepairShopsLoc = {}
 	UVLoadedRoadblocks = {}
 	UVLoadedRoadblocksLoc = {}
 	UVWreckedVehicles = {}
@@ -4120,6 +4127,16 @@ else -- CLIENT Settings | HUD/Options
 			end
 		end
 
+		if UVHUDMarkedRepairShops then
+			if next(UVHUDMarkedRepairShops) ~= nil then
+				for _, rs in pairs(UVHUDMarkedRepairShops) do
+					if rs.location and rs.name then
+						UVRenderMarkedRepairShop(rs.location, rs.name)
+					end
+				end
+			end
+		end
+
 		local areUnitsPresent = (#UnitTable > 0)
 
 		--Police Scanner
@@ -4245,6 +4262,40 @@ else -- CLIENT Settings | HUD/Options
 			timer.Simple(10, function()
 				if not UVHUDMarkedPursuitBreakers then return end
 				UVHUDMarkedPursuitBreakers = {}
+			end)
+
+		end
+	end
+
+	function UVMarkAllLocationsRS()
+		if not UVHUDMarkedRepairShops then
+			UVHUDMarkedRepairShops = {}
+		else
+			if next(UVHUDMarkedRepairShops) ~= nil then
+				return
+			end
+		end
+
+		local saved_rss = file.Find("unitvehicles/pursuitbreakers/"..game.GetMap().."/*.json", "DATA")
+		for k,jsonfile in pairs(saved_rss) do
+			local JSONData = file.Read( "unitvehicles/pursuitbreakers/"..game.GetMap().."/"..jsonfile, "DATA" )
+			if not JSONData then return end
+
+			local rbdata = util.JSONToTable(JSONData, true) --Load RS
+
+			local name = jsonfile
+			local location = rbdata.Location or rbdata.Maxs
+			if not location then return end
+
+			local tabletoinsert = {}
+			tabletoinsert.location = location
+			tabletoinsert.name = name
+
+			table.insert(UVHUDMarkedRepairShops, tabletoinsert)
+
+			timer.Simple(10, function()
+				if not UVHUDMarkedRepairShops then return end
+				UVHUDMarkedRepairShops = {}
 			end)
 
 		end
@@ -4392,6 +4443,36 @@ else -- CLIENT Settings | HUD/Options
 	function UVRenderMarkedPursuitBreaker(pos, name)
 		local localPlayer = LocalPlayer()
 		local box_color = Color(255, 0, 0)
+
+		if IsValid(localPlayer) then
+			local pos = pos
+
+			local MaxX, MinX, MaxY, MinY
+			local isVisible = false
+
+			local p = pos
+			local screenPos = p:ToScreen()
+			isVisible = screenPos.visible
+
+			if MaxX ~= nil then
+				MaxX, MaxY = math.max(MaxX, screenPos.x), math.max(MaxY, screenPos.y)
+				MinX, MinY = math.min(MinX, screenPos.x), math.min(MinY, screenPos.y)
+			else
+				MaxX, MaxY = screenPos.x, screenPos.y
+				MinX, MinY = screenPos.x, screenPos.y
+			end
+
+			local textX = (MinX + MaxX) / 2
+			local textY = MinY - 20
+			cam.Start2D()
+			draw.DrawText(name.."\nv", "UVFont4", textX, textY - 30, box_color, TEXT_ALIGN_CENTER)
+			cam.End2D()
+		end
+	end
+
+	function UVRenderMarkedRepairShop(pos, name)
+		local localPlayer = LocalPlayer()
+		local box_color = Color(0, 255, 0)
 
 		if IsValid(localPlayer) then
 			local pos = pos
