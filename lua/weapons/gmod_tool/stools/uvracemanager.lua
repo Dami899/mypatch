@@ -170,11 +170,19 @@ if SERVER then
 			net.Broadcast()
 		end
 
+		local l_chunk0 = vector_origin
+		local l_pos0 = pos
+
+		if InfMap then l_pos0, l_chunk0 = InfMap.localize_vector(pos) end
+
 		self.LastPlacedNode = id
 
 		net.Start("UVRace_NodeAdd")
 			net.WriteUInt(id, 16)
-			net.WriteVector(pos)
+
+			net.WriteVector(l_pos0)
+			net.WriteVector(l_chunk0)
+
 			net.WriteUInt(UVRace_Nodes[id].SpeedLimit, 16)
 		net.Broadcast()
 
@@ -274,6 +282,7 @@ if SERVER then
 		net.Start("UVRace_NodeAdd")
 			net.WriteUInt(id, 16)
 			net.WriteVector(node.Pos)
+			net.WriteVector(node.Chunk or vector_origin)
 			net.WriteUInt(node.SpeedLimit, 16)
 			net.WriteFloat(node.Curve)
 		net.Broadcast()
@@ -390,6 +399,7 @@ if SERVER then
 			net.Start("UVRace_NodeAdd")
 				net.WriteUInt(id, 16)
 				net.WriteVector(node.Pos)
+				net.WriteVector(node.Chunk or vector_origin)
 				net.WriteUInt(node.SpeedLimit, 16)
 				net.WriteFloat(node.Curve)
 			net.Broadcast()
@@ -512,12 +522,24 @@ elseif CLIENT then
 	local HoverNode
 	local SelectedNode = nil
 
-	local function GenerateNodePath(fromNode, toNode, step)
+	local function GenerateNodePath(fromNode, toNode, step, lpChunk)
 		if not fromNode or not toNode then return {} end
 		step = step or 200
 
 		local a = fromNode.Pos
+		if lpChunk and fromNode.Chunk then
+			a = InfMap.unlocalize_vector(fromNode.Pos, fromNode.Chunk - lpChunk)
+		elseif InfMap and fromNode.Chunk then
+			a = InfMap.unlocalize_vector(fromNode.Pos, fromNode.Chunk)
+		end
+
 		local b = toNode.Pos
+		if lpChunk and toNode.Chunk then
+			b = InfMap.unlocalize_vector(toNode.Pos, toNode.Chunk - lpChunk)
+		elseif InfMap and toNode.Chunk then
+			b = InfMap.unlocalize_vector(toNode.Pos, toNode.Chunk)
+		end
+
 		local curve = fromNode.Curve or 0
 		local dist = a:Distance(b)
 		if dist <= 0 then return {a} end
@@ -548,11 +570,13 @@ elseif CLIENT then
 	net.Receive("UVRace_NodeAdd", function()
 		local id = net.ReadUInt(16)
 		local pos = net.ReadVector()
+		local chunk = net.ReadVector()
 		local speed = net.ReadUInt(16)
 		local curve = net.ReadFloat()
 
 		UVRace_ClientCompiledPaths[id] = UVRace_ClientCompiledPaths[id] or {}
 		UVRace_ClientCompiledPaths[id].Pos = pos
+		UVRace_ClientCompiledPaths[id].Chunk = chunk
 		UVRace_ClientCompiledPaths[id].SpeedLimit = speed
 		UVRace_ClientCompiledPaths[id].Curve = curve
 		UVRace_ClientCompiledPaths[id].Links = UVRace_ClientCompiledPaths[id].Links or {}
@@ -631,7 +655,7 @@ elseif CLIENT then
 	local ang0 = Angle(0, 0, 0)
 	local vec0 = Vector(0, 0, 0)
 	
-	local function PickNodeFromView(maxdist)
+	local function PickNodeFromView(maxdist, lpChunk)
 		local ply = LocalPlayer()
 		if not IsValid(ply) then return end
 
@@ -640,12 +664,20 @@ elseif CLIENT then
 		local bestID, bestDist
 
 		for id, node in pairs(UVRace_ClientCompiledPaths) do
-			local to = node.Pos - eye
+			local nodePos = node.Pos
+
+			if lpChunk and node.Chunk then
+				nodePos = InfMap.unlocalize_vector(node.Pos, node.Chunk - lpChunk)
+			elseif InfMap and node.Chunk then
+				nodePos = InfMap.unlocalize_vector(node.Pos, node.Chunk)
+			end
+
+			local to = nodePos - eye
 			local proj = to:Dot(aim)
 
 			if proj > 0 and proj < maxdist then
 				local closest = eye + aim * proj
-				local dist = closest:DistToSqr(node.Pos)
+				local dist = closest:DistToSqr(nodePos)
 
 				if dist < (12 * 12) and (not bestDist or dist < bestDist) then
 					bestDist = dist
@@ -665,8 +697,9 @@ elseif CLIENT then
 	function TOOL:DrawHUD()
 		local ply = self:GetOwner()
 		if not IsValid(ply) then return end
-		
-		HoverNode = PickNodeFromView(4096*2)
+
+		local lpChunk = InfMap and LocalPlayer().CHUNK_OFFSET
+		HoverNode = PickNodeFromView(4096 * 2, lpChunk)
 
 		local startpos = ply:EyePos()
 		local tr = util.TraceLine({
@@ -686,7 +719,7 @@ elseif CLIENT then
 				local other = UVRace_ClientCompiledPaths[toID]
 				if not other then continue end
 
-				local pathPoints = GenerateNodePath(node, other, 200)
+				local pathPoints = GenerateNodePath(node, other, 200, lpChunk)
 				if #pathPoints < 2 then continue end
 
 				local col = col_white
@@ -699,7 +732,6 @@ elseif CLIENT then
 				-- Draw beams along the path segments
 				for i = 1, #pathPoints - 1 do
 					render.DrawBeam(pathPoints[i], pathPoints[i+1], 30, 0, 1, col)
-					-- PrintTable(UVRace_ClientCompiledPaths)
 				end
 			end
 		end
@@ -707,17 +739,23 @@ elseif CLIENT then
 		render.SetColorMaterial()
 
 		for id, node in pairs(UVRace_ClientCompiledPaths) do
-			local col = col_white
+			local renderPos = node.Pos
+			
+			if lpChunk and node.Chunk then
+				renderPos = InfMap.unlocalize_vector(node.Pos, node.Chunk - lpChunk)
+			elseif InfMap and node.Chunk then
+				renderPos = InfMap.unlocalize_vector(node.Pos, node.Chunk)
+			end
 
+			local col = col_white
 			if id == HoverNode then
 				col = col_blue
 			end
-
 			if id == SelectedNode then
 				col = col_red
 			end
 
-			render.DrawSphere(node.Pos, 8, 12, 12, col)
+			render.DrawSphere(renderPos, 8, 12, 12, col)
 		end
 
 		-- Draw checkpoint preview if pos1 exists
