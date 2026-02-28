@@ -1084,16 +1084,7 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 
 				if object.UnitVehicle or (object.UVWanted and not AutoHealth:GetBool()) or not (object.UnitVehicle and object.UVWanted) then
 					damage = (table.HasValue(UVCommanders, object) and UVPTESFCommanderDamage:GetFloat()) or damage
-					if object.IsSimfphyscar then
-						local MaxHealth = object:GetMaxHealth()
-						local damage = MaxHealth * damage--0.4
-						object:ApplyDamage( damage, DMG_GENERIC )
-					elseif object.IsGlideVehicle then
-						object:SetEngineHealth( object:GetEngineHealth() - damage )--0.4
-						object:UpdateHealthOutputs()
-					elseif object:GetClass() == "prop_vehicle_jeep" then
-						
-					end
+					UVDamage(object, damage)
 				end
 
 				-- if IsValid(UVGetDriver(enemyVehicle))
@@ -1411,16 +1402,7 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 
 		if object.UnitVehicle or (object.UVWanted and not AutoHealth:GetBool()) or not (object.UnitVehicle and object.UVWanted) then
 			damage = (table.HasValue(UVCommanders, object) and UVPTESFCommanderDamage:GetFloat()) or damage
-			if object.IsSimfphyscar then
-				local MaxHealth = object:GetMaxHealth()
-				local damage = MaxHealth*damage
-				object:ApplyDamage( damage, DMG_GENERIC )
-			elseif object.IsGlideVehicle then
-				object:SetEngineHealth( object:GetEngineHealth() - damage )
-				object:UpdateHealthOutputs()
-			elseif object:GetClass() == "prop_vehicle_jeep" then
-				
-			end
+			UVDamage(object, damage)
 		end
 
 		-- if isfunction(enemyVehicle.GetDriver) and IsValid(UVGetDriver(enemyVehicle)) and UVGetDriver(enemyVehicle):IsPlayer() then 
@@ -1779,16 +1761,7 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			end
 			if object.UnitVehicle or (object.UVWanted and not AutoHealth:GetBool()) or not (object.UnitVehicle and object.UVWanted) then
 				damage = (table.HasValue(UVCommanders, object) and UVPTESFCommanderDamage:GetFloat()) or damage
-				if object.IsSimfphyscar then
-					local MaxHealth = object:GetMaxHealth()
-					local damage = MaxHealth*damage
-					object:ApplyDamage( damage, DMG_GENERIC )
-				elseif object.IsGlideVehicle then
-					object:SetEngineHealth( object:GetEngineHealth() - damage )
-					object:UpdateHealthOutputs()
-				elseif object:GetClass() == "prop_vehicle_jeep" then
-					
-				end
+				UVDamage(object, damage)
 			end
 
 			-- local attacker = UVGetDriver(car)

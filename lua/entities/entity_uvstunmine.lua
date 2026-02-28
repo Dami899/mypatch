@@ -115,16 +115,7 @@ if SERVER then
 					UVRamVehicle(object)
 					if object.UnitVehicle or (object.UVWanted and not AutoHealth:GetBool()) or not (object.UnitVehicle and object.UVWanted) then
 						damage = (table.HasValue(UVCommanders, object) and UVPTStunMineCommanderDamage:GetFloat()) or damage
-						if object.IsSimfphyscar then
-							local MaxHealth = object:GetMaxHealth()
-							local damage = MaxHealth*damage
-							object:ApplyDamage( damage, DMG_GENERIC )
-						elseif object.IsGlideVehicle then
-							object:SetEngineHealth( object:GetEngineHealth() - damage )
-							object:UpdateHealthOutputs()
-						elseif object:GetClass() == "prop_vehicle_jeep" then
-							
-						end
+						UVDamage(vehicle, damage)
 					
 						-- if self.racerdeployed then
 						-- 	if not UVGetDriver(self.racerdeployed) then continue end

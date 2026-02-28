@@ -73,6 +73,8 @@ if SERVER then
     end
 
     function UVDamage(vehicle, damage) --damage in fraction of max health (0.1 = 10% of max health)
+        if vehicle.UVWanted and GetConVar("unitvehicle_autohealth"):GetBool() then return end
+
         if vehicle.IsSimfphyscar then
 
             local MaxHealth = vehicle:GetMaxHealth()
@@ -1653,24 +1655,8 @@ if SERVER then
                     damage = (table.HasValue(UVCommanders, object) and UVPTShockwaveCommanderDamage:GetFloat()) or damage
                     local phmass = math.Round(objectphys:GetMass())
                     UVBounty = UVBounty+phmass
-                    if object.IsSimfphyscar then
-                        if object.UnitVehicle or object.UVWanted and not GetConVar("unitvehicle_autohealth"):GetBool() then
-                            local MaxHealth = object:GetMaxHealth()
-                            local damage = MaxHealth*damage
-                            object:ApplyDamage( damage, DMG_GENERIC )
-                        end
-                        --local victim = UVGetDriver(object)
-                        attachVictim = true
-                    elseif object.IsGlideVehicle then
-                        if object.UnitVehicle or (object.UVWanted and not GetConVar("unitvehicle_autohealth"):GetBool()) or not (object.UnitVehicle and object.UVWanted) then
-                            object:SetEngineHealth( object:GetEngineHealth() - damage )
-                            object:UpdateHealthOutputs()
-                        end
-                        
-                        attachVictim = true
-                    elseif object:GetClass() == "prop_vehicle_jeep" then
-                        attachVictim = true
-                    end
+                    UVDamage(object, damage)
+                    attachVictim = true
 
                 if attachVictim then
                     table.insert( affectedTargets, object )
@@ -1886,24 +1872,8 @@ if SERVER then
                 --if object.UnitVehicle then
                     local phmass = math.Round(objectphys:GetMass())
                     UVBounty = UVBounty+phmass
-                    if object.IsSimfphyscar then
-                        if object.UnitVehicle or object.UVWanted and not GetConVar("unitvehicle_autohealth"):GetBool() then
-                            local MaxHealth = object:GetMaxHealth()
-                            local damage = MaxHealth*damage
-                            object:ApplyDamage( damage, DMG_GENERIC )
-                        end
-                        --local victim = UVGetDriver(object)
-                        attachVictim = true
-                    elseif object.IsGlideVehicle then
-                        if object.UnitVehicle or (object.UVWanted and not GetConVar("unitvehicle_autohealth"):GetBool()) or not (object.UnitVehicle and object.UVWanted) then
-                            object:SetEngineHealth( object:GetEngineHealth() - damage )
-                            object:UpdateHealthOutputs()
-                        end
-                        
-                        attachVictim = true
-                    elseif object:GetClass() == "prop_vehicle_jeep" then
-                        attachVictim = true
-                    end
+                    UVDamage(object, damage)
+                    attachVictim = true
                 --end
 
                 if attachVictim then
