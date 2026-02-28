@@ -142,7 +142,8 @@ Use the [string:tool.uvracemanager.name] tool:
  
 
 *-- Step 3: Create Grid Slots*
- |-- Press [+reload] to place Grid Slots
+ |-- Press [+reload] to change modes to Grid Slots
+ |-- Press [+attack] to place out Grid Slots
  |-- The numbers on the slots represent starting order
  |-- Want more racers? Place more slots!
  
@@ -415,8 +416,9 @@ Använd verktyget [string:tool.uvracemanager.name]:
  |-- AI:n kommer alltid använda den sist utplacerade kontrollpunkten
  
 
-*-- Steg 3: Skapa spawnpunkter*
- |-- Tryck på [+reload] för att placera ut Spawnpunkter
+*-- Steg 3: Skapa rutnätsplatser*
+ |-- Tryck på [+reload] för att växla läge till rutnätsplatser
+ |-- Tryck på [+attack] för att placera ut rutnätsplatser
  |-- Punkternas nummer representerar startordning
  |-- Vill du ha fler tävlande? Placera ut fler punkter!
  
@@ -689,7 +691,8 @@ Usa la herramienta [string:tool.uvracemanager.name]:
  
 
 *-- Paso 3: Crea espacios en la grilla*
- |-- Presiona [+reload] para poner espacios en la grilla
+ |-- Presiona [+reload] para cambiar el modo a Espacios en la grilla 
+ |-- Presiona [+attack] para poner Espacios en la grilla
  |-- Los números en los espacios representan el orden de las posiciones
  |-- ¿Quieres más corredores? ¡Pon más espacios!
  
@@ -963,7 +966,8 @@ Use the [string:tool.uvracemanager.name] tool:
  
 
 *-- Шаг 3: Создай Места Старта*
- |-- Нажми [+reload] чтобы разместить Места Старта
+ |-- Нажимай [+reload], чтобы сменить режим на Места Старта
+ |-- Нажми [+attack], чтобы разместить Место Старта
  |-- Номера на местах отображают порядок старта
  |-- Хочешь больше гонщиков? Размести больше мест!
  
@@ -1118,7 +1122,7 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
 ]],
 }
 
--- Polska (Polish) pl
+-- Polski (Polish) pl
 UV.FAQ["pl"] = {
 -- Introduction
 ["Intro"] = [[
@@ -1169,26 +1173,26 @@ Możesz obserwować naszą stronę na Trello lub dołączyć na Discorda. Oba li
 
 Jak gracz przygotuje Wyścig i Cię zaprosi, dostaniesz powiadomienie na ekranie pod warunkiem że znajdujesz się w pojeździe i nie goni Cię policja.
 ]],
---[[["Racing.SpawnAI"] = [[
-# -- How do I race with AI?
+["Racing.SpawnAI"] = [[
+# -- Jak mogę ścigać się z SI?
 
-There are two ways of doing that:
+Są dwa sposoby na to:
 
-**Option 1**
- |-- 1. Spawn any Glide, Simfphys or HL2 Jeep vehicle.
- |-- 2. Pull out the [string:tool.uvracermanager.name] tool.
- |-- 3. Press [+attack2] on the vehicle.
- |-- 4. Tweak the settings to your liking, then click [string:uv.tool.create].
- |-- 5. Repeat for every vehicle you want the AI to use.
+**Opcja 1**
+ |-- 1. Pojaw dowolny pojazd z Glide, Simfphys lub bazy Jeepa z HL2.
+ |-- 2. Wyciągnij narzędzie [string:tool.uvracermanager.name].
+ |-- 3. Naciśnij [+attack2] na pojazd.
+ |-- 4. Doprecyzuj ustawienia według uznania, następnie wciśnij [string:uv.tool.create].
+ |-- 5. Powtórz dla każdego pojazdu jakiego ma używać SI.
  
-**Option 2 (Recommended)**
- |-- 1. Open the [string:uv.airacer] tab.
- |-- 2. Enable [string:uv.airacer.override].
- |-- 3. In the list below the option, open the menus containing cars and press [+attack2] to add the vehicles to an AI vehicle list
+**Opcja 2 (Zalecana)**
+ |-- 1. Otwórz okno [string:uv.airacer].
+ |-- 2. Włącz [string:uv.airacer.override].
+ |-- 3. W liście pod ustawieniem, otwórz okno zawierające pojazdy i wciśnij [+attack2] aby dodać pojazd do listy pojazdów dla SI.
 
-**Notes**
- |-- Ensure the [string:uv.tool.base.title] variable matches your desired base.
-]]--,
+**Uwagi**
+ |-- Upewnij się że zmienna [string:uv.tool.base.title] zgadza się z wybraną przez Ciebie bazą pojazdów.
+]],
 ["Racing.Resetting"] = [[
 # -- Samochód utknął! Co robić?
 
@@ -1236,7 +1240,8 @@ Przy użyciu narzędzia [string:tool.uvracemanager.name]:
 
 
 *-- Krok 3: Utwórz miejsca startowe*
- |-- Wciśnij [+reload] aby położyć miejsce startowe
+ |-- Wciśnij [+reload] aby zmienić tryb na Miejsca Startowe
+ |-- Wciśnij [+attack] aby pojawiać Miejsca Startowe
  |-- Numery na slotach pokazują kolej startowania
  |-- Chcesz więcej zawodników? Połóż więcej miejsc startowych!
 
@@ -1255,24 +1260,24 @@ Jeśli SI jedzie zbyt szybko, będzie trzeba zmienić wartość limitu prędkoś
 Jeśli wyścig jest już wczytany, możesz wcisnąć [+attack2] na pkt kontrolny żeby go edytować i ustawić wybraną wartość limitu prędkości.
 Zamiast tego możesz też zmienić ostatnią liczbę w pliku danych wyścigu.
 ]],
---[[["Racing.Create.PathNode"] = [[
-# -- What are "Path Nodes" and how do I use them?
+["Racing.Create.PathNode"] = [[
+# -- Czym są "punkty ścieżki" i jak ich użyć?
 
-Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+Punkty ścieżki to alternatywny sposób na nawigację dla SI. Tworzone są narzędziem [string:tool.uvracemanager.name].
 
 
-**-- Creating Path Nodes**
-With the [string:tool.uvracemanager.name] tool equipped:
- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
- |-- Press [+attack] anywhere on the map to create a node
- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+**-- Tworzenie pkt ścieżki**
+Przy użyciu [string:tool.uvracemanager.name]:
+ |-- Wciśnij [+reload] dopóki nie przełączysz się na tryb [string:tool.uvracemanager.node] 
+ |-- Wciśnij [+attack] gdziekolwiek na mapie aby utworzyć pkt
+ |-- Wciśnij [+attack] znowu aby postawić kolejny pkt; poprzedni się automatycznie do niego połączy
+ |-- Wciśnij [+attack] na istniejący pkt aby go zaznaczyć; wciśnij go ponownie aby usunąć, albo wciśnij inny pkt aby połączyć do niego zaznaczony
 
-**-- Editing Path Nodes**
-With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
-]]--,
+**-- Edytowanie pkt ścieżki**
+Przy użyciu [string:tool.uvracemanager.name] w trybie [string:tool.uvracemanager.node], wciśnij [+attack2] na istniejący pkt aby otworzyć [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] ustawia prędkość z jaką pojazdy będą się poruszać po przejechaniu przez ten pkt
+ |-- [string:tool.uvracemanager.node.curve] nadaje skręt w połączeniu między pktami, co przydaje się w przypadku połączeń na lub za skrętami
+]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1292,21 +1297,21 @@ Tak! To dość proste:
  |-- Wybierz pojazd do którego chcesz wsiąść
  |-- Powodzenia!
 ]],
---[[["Pursuit.PursuitSettings"] = [[
-# -- How do I switch up Units and other Pursuit settings?
+["Pursuit.PursuitSettings"] = [[
+# -- Jak zmienić Jednostki i inne ustawienia Pościgów?
 
-Most crucial settings are found inside of [string:uv.hm]:
- |-- Go to [string:uv.pm]
- |-- Click [string:uv.hm]
+Najważniejsze ustawienia znajdziesz w [string:uv.hm]:
+ |-- Przejdź do [string:uv.pm]
+ |-- Wciśnij [string:uv.hm]
 
--- Here's what you can do in [string:uv.hm]:
- |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
- |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
- |-- [string:uv.hm.vp]: Set voices of each Unit type.
- |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+-- W [string:uv.hm] możesz:
+ |-- [string:uv.hm.presets]: Wczytać ustawienie wstępne lub szybko zastosować zmiany dla Pościgów, stworzone przez Ciebie lub innych graczy.
+ |-- [string:uv.settings.general]: Dostosować ustawienia Pościgu dotyczące Poziomów Obławy, Notowań itd.
+ |-- [string:uv.hm.vp]: Ustawić głos dla każdej z Jednostek.
+ |-- [string:uv.pursuit.heatlevels]: Ustawić Jednostki które będą Cię gonić na poszczególnych Poziomach Obławy, oraz zmienić inne ustawienia tych Poziomów.
 
-Other pursuit/AI settings can be found in [string:uv.settings].
-]]--,
+Inne ustawienia SI lub Pościgów znajdziesz w [string:uv.settings].
+]],
 ["Pursuit.Respawn"] = [[
 # -- Auto utknęło lub jestem zbyt daleko od akcji! Jak je zresetować?
 
@@ -1512,7 +1517,8 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  
 
 *-- 第三步：创建发车位*
- |-- 按下 [+reload] 放置发车位
+ |-- Press [+reload] to change modes to Grid Slots
+ |-- Press [+attack] to place out Grid Slots
  |-- 发车位上的数字代表起跑顺序
  |-- 想要更多赛车手？放置更多发车位即可！
  
