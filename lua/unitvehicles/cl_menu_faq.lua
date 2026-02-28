@@ -142,7 +142,8 @@ Use the [string:tool.uvracemanager.name] tool:
  
 
 *-- Step 3: Create Grid Slots*
- |-- Press [+reload] to place Grid Slots
+ |-- Press [+reload] to change modes to Grid Slots
+ |-- Press [+attack] to place out Grid Slots
  |-- The numbers on the slots represent starting order
  |-- Want more racers? Place more slots!
  
@@ -415,8 +416,9 @@ Använd verktyget [string:tool.uvracemanager.name]:
  |-- AI:n kommer alltid använda den sist utplacerade kontrollpunkten
  
 
-*-- Steg 3: Skapa spawnpunkter*
- |-- Tryck på [+reload] för att placera ut Spawnpunkter
+*-- Steg 3: Skapa rutnätsplatser*
+ |-- Tryck på [+reload] för att växla läge till rutnätsplatser
+ |-- Tryck på [+attack] för att placera ut rutnätsplatser
  |-- Punkternas nummer representerar startordning
  |-- Vill du ha fler tävlande? Placera ut fler punkter!
  
@@ -689,7 +691,8 @@ Usa la herramienta [string:tool.uvracemanager.name]:
  
 
 *-- Paso 3: Crea espacios en la grilla*
- |-- Presiona [+reload] para poner espacios en la grilla
+ |-- Presiona [+reload] para cambiar el modo a Espacios en la grilla 
+ |-- Presiona [+attack] para poner Espacios en la grilla
  |-- Los números en los espacios representan el orden de las posiciones
  |-- ¿Quieres más corredores? ¡Pon más espacios!
  
@@ -963,7 +966,8 @@ Use the [string:tool.uvracemanager.name] tool:
  
 
 *-- Шаг 3: Создай Места Старта*
- |-- Нажми [+reload] чтобы разместить Места Старта
+ |-- Press [+reload] to change modes to Grid Slots
+ |-- Press [+attack] to place out Grid Slots
  |-- Номера на местах отображают порядок старта
  |-- Хочешь больше гонщиков? Размести больше мест!
  
@@ -1236,7 +1240,8 @@ Przy użyciu narzędzia [string:tool.uvracemanager.name]:
 
 
 *-- Krok 3: Utwórz miejsca startowe*
- |-- Wciśnij [+reload] aby położyć miejsce startowe
+ |-- Wciśnij [+reload] aby zmienić tryb na Miejsca Startowe
+ |-- Wciśnij [+attack] aby pojawiać Miejsca Startowe
  |-- Numery na slotach pokazują kolej startowania
  |-- Chcesz więcej zawodników? Połóż więcej miejsc startowych!
 
@@ -1512,7 +1517,8 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  
 
 *-- 第三步：创建发车位*
- |-- 按下 [+reload] 放置发车位
+ |-- Press [+reload] to change modes to Grid Slots
+ |-- Press [+attack] to place out Grid Slots
  |-- 发车位上的数字代表起跑顺序
  |-- 想要更多赛车手？放置更多发车位即可！
  
