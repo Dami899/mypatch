@@ -551,11 +551,12 @@ if CLIENT then
 		["SPACE"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["DEL"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["BACKSPACE"] = "<color=51,51,51><color=255,255,255></color></color>",
-		["TAB"] = "<color=51,51,51><color=255,255,255></color></color>",
+		["TAB"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["ENTER"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["SHIFT"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["RSHIFT"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["CTRL"] = "<color=51,51,51><color=255,255,255></color></color>",
+		["RCTRL"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["ALT"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["RALT"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["UPARROW"] = "<color=51,51,51><color=255,255,255></color></color>",
@@ -582,6 +583,10 @@ if CLIENT then
 		["/"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["SEMICOLON"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["="] = "<color=51,51,51><color=255,255,255></color></color>",
+		["\\"] = "<color=51,51,51><color=255,255,255></color></color>",
+		["."] = "<color=51,51,51><color=255,255,255></color></color>",
+		-- ["."] = "<color=51,51,51><color=255,255,255></color></color>",
+		["CAPSLOCK"] = "<color=51,51,51><color=255,255,255></color></color>",
 	}
 
 	-- Unified Xbox controller glyphs
