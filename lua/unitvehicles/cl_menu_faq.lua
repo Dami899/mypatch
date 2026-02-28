@@ -1118,7 +1118,7 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
 ]],
 }
 
--- Polska (Polish) pl
+-- Polski (Polish) pl
 UV.FAQ["pl"] = {
 -- Introduction
 ["Intro"] = [[
@@ -1255,23 +1255,23 @@ Jeśli SI jedzie zbyt szybko, będzie trzeba zmienić wartość limitu prędkoś
 Jeśli wyścig jest już wczytany, możesz wcisnąć [+attack2] na pkt kontrolny żeby go edytować i ustawić wybraną wartość limitu prędkości.
 Zamiast tego możesz też zmienić ostatnią liczbę w pliku danych wyścigu.
 ]],
---[[["Racing.Create.PathNode"] = [[
-# -- What are "Path Nodes" and how do I use them?
+[[["Racing.Create.PathNode"] = [[
+# -- Czym są "punkty ścieżki" i jak ich użyć?
 
-Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+Punkty ścieżki to alternatywny sposób na nawigację dla SI. Tworzone są narzędziem [string:tool.uvracemanager.name].
 
 
-**-- Creating Path Nodes**
-With the [string:tool.uvracemanager.name] tool equipped:
- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
- |-- Press [+attack] anywhere on the map to create a node
- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+**-- Tworzenie pkt ścieżki**
+Przy użyciu [string:tool.uvracemanager.name]:
+ |-- Wciśnij [+reload] dopóki nie przełączysz się na tryb [string:tool.uvracemanager.node] 
+ |-- Wciśnij [+attack] gdziekolwiek na mapie aby utworzyć pkt
+ |-- Wciśnij [+attack] znowu aby postawić kolejny pkt; poprzedni się automatycznie do niego połączy
+ |-- Wciśnij [+attack] na istniejący pkt aby go zaznaczyć; wciśnij go ponownie aby usunąć, albo wciśnij inny pkt aby połączyć do niego zaznaczony
 
-**-- Editing Path Nodes**
-With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
- |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
- |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+**-- Edytowanie pkt ścieżki**
+Przy użyciu [string:tool.uvracemanager.name] w trybie [string:tool.uvracemanager.node], wciśnij [+attack2] na istniejący pkt aby otworzyć [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] ustawia prędkość z jaką pojazdy będą się poruszać po przejechaniu przez ten pkt
+ |-- [string:tool.uvracemanager.node.curve] nadaje skręt w połączeniu między pktami, co przydaje się w przypadku połączeń na lub za skrętami
 ]]--,
 
 -- Pursuits
@@ -1292,20 +1292,20 @@ Tak! To dość proste:
  |-- Wybierz pojazd do którego chcesz wsiąść
  |-- Powodzenia!
 ]],
---[[["Pursuit.PursuitSettings"] = [[
-# -- How do I switch up Units and other Pursuit settings?
+[[["Pursuit.PursuitSettings"] = [[
+# -- Jak zmienić Jednostki i inne ustawienia Pościgów?
 
-Most crucial settings are found inside of [string:uv.hm]:
- |-- Go to [string:uv.pm]
- |-- Click [string:uv.hm]
+Najważniejsze ustawienia znajdziesz w [string:uv.hm]:
+ |-- Przejdź do [string:uv.pm]
+ |-- Wciśnij [string:uv.hm]
 
--- Here's what you can do in [string:uv.hm]:
- |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
- |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
- |-- [string:uv.hm.vp]: Set voices of each Unit type.
- |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+-- W [string:uv.hm] możesz:
+ |-- [string:uv.hm.presets]: Wczytać ustawienie wstępne lub szybko zastosować zmiany dla Pościgów, stworzone przez Ciebie lub innych graczy.
+ |-- [string:uv.settings.general]: Dostosować ustawienia Pościgu dotyczące Poziomów Obławy, Notowań itd.
+ |-- [string:uv.hm.vp]: Ustawić głos dla każdej z Jednostek.
+ |-- [string:uv.pursuit.heatlevels]: Ustawić Jednostki które będą Cię gonić na poszczególnych Poziomach Obławy, oraz zmienić inne ustawienia tych Poziomów.
 
-Other pursuit/AI settings can be found in [string:uv.settings].
+Inne ustawienia SI lub Pościgów znajdziesz w [string:uv.settings].
 ]]--,
 ["Pursuit.Respawn"] = [[
 # -- Auto utknęło lub jestem zbyt daleko od akcji! Jak je zresetować?
