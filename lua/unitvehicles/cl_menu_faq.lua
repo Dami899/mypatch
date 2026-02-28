@@ -966,8 +966,8 @@ Use the [string:tool.uvracemanager.name] tool:
  
 
 *-- Шаг 3: Создай Места Старта*
- |-- Press [+reload] to change modes to Grid Slots
- |-- Press [+attack] to place out Grid Slots
+ |-- Нажимай [+reload], чтобы сменить режим на Места Старта
+ |-- Нажми [+attack], чтобы разместить Место Старта
  |-- Номера на местах отображают порядок старта
  |-- Хочешь больше гонщиков? Размести больше мест!
  
