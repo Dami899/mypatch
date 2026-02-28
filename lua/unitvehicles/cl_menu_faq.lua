@@ -1118,7 +1118,7 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
 ]],
 }
 
-Polski (Polish) pl
+-- Polski (Polish) pl
 UV.FAQ["pl"] = {
 -- Introduction
 ["Intro"] = [[
@@ -1255,7 +1255,7 @@ Jeśli SI jedzie zbyt szybko, będzie trzeba zmienić wartość limitu prędkoś
 Jeśli wyścig jest już wczytany, możesz wcisnąć [+attack2] na pkt kontrolny żeby go edytować i ustawić wybraną wartość limitu prędkości.
 Zamiast tego możesz też zmienić ostatnią liczbę w pliku danych wyścigu.
 ]],
-[[["Racing.Create.PathNode"] = [[
+["Racing.Create.PathNode"] = [[
 # -- Czym są "punkty ścieżki" i jak ich użyć?
 
 Punkty ścieżki to alternatywny sposób na nawigację dla SI. Tworzone są narzędziem [string:tool.uvracemanager.name].
@@ -1272,7 +1272,7 @@ Przy użyciu [string:tool.uvracemanager.name]:
 Przy użyciu [string:tool.uvracemanager.name] w trybie [string:tool.uvracemanager.node], wciśnij [+attack2] na istniejący pkt aby otworzyć [string:tool.uvracemanager.node.settings]:
  |-- [string:tool.uvracemanager.node.speedlimit] ustawia prędkość z jaką pojazdy będą się poruszać po przejechaniu przez ten pkt
  |-- [string:tool.uvracemanager.node.curve] nadaje skręt w połączeniu między pktami, co przydaje się w przypadku połączeń na lub za skrętami
-]]--,
+]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1292,7 +1292,7 @@ Tak! To dość proste:
  |-- Wybierz pojazd do którego chcesz wsiąść
  |-- Powodzenia!
 ]],
-[[["Pursuit.PursuitSettings"] = [[
+["Pursuit.PursuitSettings"] = [[
 # -- Jak zmienić Jednostki i inne ustawienia Pościgów?
 
 Najważniejsze ustawienia znajdziesz w [string:uv.hm]:
@@ -1306,7 +1306,7 @@ Najważniejsze ustawienia znajdziesz w [string:uv.hm]:
  |-- [string:uv.pursuit.heatlevels]: Ustawić Jednostki które będą Cię gonić na poszczególnych Poziomach Obławy, oraz zmienić inne ustawienia tych Poziomów.
 
 Inne ustawienia SI lub Pościgów znajdziesz w [string:uv.settings].
-]]--,
+]],
 ["Pursuit.Respawn"] = [[
 # -- Auto utknęło lub jestem zbyt daleko od akcji! Jak je zresetować?
 
