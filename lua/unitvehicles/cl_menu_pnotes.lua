@@ -25,6 +25,10 @@ Text = [[
 - AI Racers: When resetting while driving via Path Nodes, the AI racers will now assign themselves the closest small node rather than large node
 - AI Racers: Improved navigation via DV waypoints when freeroaming
 - AI Racers: When freeroaming via DV waypoints, if an AI racer gets stuck for a sufficient amount of time, it will reset its navigation target
+
+**Fixes**
+- Fixed some keybinds not having glyphs
+- Fixed that Pursuit Tech sometimes did not apply damage correctly
 ]],
 },
 
