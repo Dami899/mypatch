@@ -2101,6 +2101,15 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 			}
 		},
 		-- Note: The cornering accuracy of the AI on Glide heavily depends on SteerConeMaxAngle, this also applies for units
+		-- ['SteerConeChangeRate'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['Info'] = {
+		-- 		['Type'] = "Multiply",
+		-- 		['Modifier'] = 1,
+		-- 		['Min'] = 0,
+		-- 		['Max'] = math.huge
+		-- 	}
+		-- },
 		['SteerConeMaxAngle'] = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {
