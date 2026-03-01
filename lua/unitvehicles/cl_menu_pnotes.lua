@@ -20,11 +20,19 @@ Text = [[
 - AI Racers will now reset when driving via Path Nodes and they've missed a checkpoint
 - Added themed "Wrong Way!" notifications on almost all HUD Types
 - Pursuits: Added a *Unit Difficulty* and *Catch-up* setting, identical to those above, but for AI Units
+- Added a new tool: [string:tool.uvrepairshop.name]
+      |-- Spawn Repair Shops with the tool
+      |-- Save them as .json presets for each map
+      |-- Allow Repair Shops to spawn on their own automatically
 
 **Changes**
 - AI Racers: When resetting while driving via Path Nodes, the AI racers will now assign themselves the closest small node rather than large node
 - AI Racers: Improved navigation via DV waypoints when freeroaming
 - AI Racers: When freeroaming via DV waypoints, if an AI racer gets stuck for a sufficient amount of time, it will reset its navigation target
+- "Unlimited Durability" now gets applied whenever you enter a vehicle, not when a pursuit begins
+- When "Racer Pursuit Tech" is enabled, all players will receive random Pursuit Tech whenever they enter a vehicle
+      |-- Only happens if the vehicle does not have Pursuit Tech already
+- Resetting mid-pursuit also resets a Unit nearby to wherever you reset to
 
 **Fixes**
 - Fixed some keybinds not having glyphs
