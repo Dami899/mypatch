@@ -270,18 +270,22 @@ if SERVER then
 		if not ply:IsSuperAdmin() then return end
 
 		local id = net.ReadUInt(16)
+		local chunk = net.ReadVector()
 		local speed = net.ReadUInt(16)
 		local curve = net.ReadFloat()
 
 		local node = UVRace_Nodes[id]
 		if not node then return end
 
+		node.Chunk = chunk
 		node.SpeedLimit = speed
 		node.Curve = curve
 
+		local pos, chunk = InfMap.localize_vector(node.Pos)
+
 		net.Start("UVRace_NodeAdd")
 			net.WriteUInt(id, 16)
-			net.WriteVector(node.Pos)
+			net.WriteVector(pos)
 			net.WriteVector(node.Chunk or vector_origin)
 			net.WriteUInt(node.SpeedLimit, 16)
 			net.WriteFloat(node.Curve)
@@ -396,10 +400,15 @@ if SERVER then
 
 		-- Broadcast nodes to clients
 		for id, node in pairs(UVRace_Nodes) do
+			local pos = node.Pos
+			local chunk = vector_origin
+			if InfMap then
+				pos, chunk = InfMap.localize_vector(node.Pos)
+			end
 			net.Start("UVRace_NodeAdd")
 				net.WriteUInt(id, 16)
-				net.WriteVector(node.Pos)
-				net.WriteVector(node.Chunk or vector_origin)
+				net.WriteVector(pos)
+				net.WriteVector(chunk)
 				net.WriteUInt(node.SpeedLimit, 16)
 				net.WriteFloat(node.Curve)
 			net.Broadcast()
@@ -908,6 +917,7 @@ elseif CLIENT then
 		apply.DoClick = function()
 			net.Start("UVRace_UpdateNodeSettings")
 				net.WriteUInt(id, 16)
+				net.WriteVector(node.Chunk)
 				net.WriteUInt(speed:GetValue(), 16)
 				net.WriteFloat(curveSlider:GetValue())
 			net.SendToServer()
