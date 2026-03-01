@@ -307,8 +307,8 @@ if SERVER then
         return IsValid(Leader) and Leader
     end
 
-    function UVOptimizeRespawn( vehicle, rhino, commander )
-        if UVOptimizeRespawnDelayed then return end
+    function UVOptimizeRespawn( vehicle, rhino, commander, suspectwaypoint )
+        if UVOptimizeRespawnDelayed and not suspectwaypoint then return end
 
         UVOptimizeRespawnDelayed = true
         timer.Simple(1, function()
@@ -403,6 +403,11 @@ if SERVER then
 	    	uvspawnpointwaypoint = dvd.Waypoints[math.random(#dvd.Waypoints)]
 	    	uvspawnpoint = uvspawnpointwaypoint["Target"]
 	    end
+
+        if suspectwaypoint then
+            uvspawnpointwaypoint = suspectwaypoint
+            uvspawnpoint = uvspawnpointwaypoint["Target"]
+        end
 
 	    local neighbor = dvd.Waypoints[uvspawnpointwaypoint.Neighbors[math.random(#uvspawnpointwaypoint.Neighbors)]]
 
@@ -527,9 +532,11 @@ if SERVER then
         
         local next_pos = nil
         local next_dir = nil
+        local delay = 0.1
                 
         if vehicle_class == "gmod_sent_vehicle_fphysics_base" then
             vehicle = UVTeleportSimfphysVehicle( vehicle, (ground_trace.Hit and ground_trace.HitPos) or pos, ang )
+            delay = 0.9
         elseif vehicle.IsGlideVehicle then
             vehicle:SetPos( (ground_trace.Hit and (ground_trace.HitPos + (Vector(0,0,1) * 25))) or pos )
             vehicle:SetAngles( ang )
@@ -553,6 +560,25 @@ if SERVER then
         vehicle.hasreset = CurTime()
         timer.Simple(10, function()
             vehicle.hasreset = nil
+        end)
+
+        --Prevent abuse during pursuits by teleporting a Unit ahead
+        timer.Simple(delay, function()
+            if UVTargeting then
+                local units = ents.FindByClass("npc_uv*")
+                if #units == 0 then return end
+                local unit = units[math.random(1, #units)]
+
+                if IsValid(unit) then
+                    local enemywaypoint = dvd.GetNearestWaypoint( vehicle:GetPos() )
+                    if not enemywaypoint.Neighbors or next(enemywaypoint.Neighbors) == nil then return end
+                    local neighbor = dvd.Waypoints[enemywaypoint.Neighbors[math.random(#enemywaypoint.Neighbors)]]
+
+                    if neighbor and unit.v then
+                        UVOptimizeRespawn( unit.v, unit.v.rhino, unit.v.uvclasstospawnon == "npc_uvcommander", neighbor )
+                    end
+                end
+            end
         end)
     end
     
