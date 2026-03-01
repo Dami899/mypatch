@@ -22,6 +22,7 @@ if SERVER then
             if UVPassConVarFilter(ent) and not table.HasValue(UVPotentialSuspects, ent) then
                 table.insert(UVPotentialSuspects, ent)
                 UVApplyAutoHealth(ent)
+                UVGiveRacerPursuitTech(ent)
                 ent:CallOnRemove( "UVWantedPotentialSuspectRemoved", function(vehicle)
                     if table.HasValue(UVPotentialSuspects, vehicle) then
                         table.RemoveByValue(UVPotentialSuspects, vehicle)

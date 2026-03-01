@@ -21,6 +21,7 @@ local SpawnMainUnits = GetConVar("unitvehicle_spawnmainunits")
 local RepairCooldown = GetConVar("unitvehicle_repaircooldown")
 local RepairRange = GetConVar("unitvehicle_repairrange")
 local RacerTags = GetConVar("unitvehicle_racertags")
+local RacerPursuitTech = GetConVar("unitvehicle_racerpursuittech")
 
 --unit convars
 local UVUHelicopterBusting = GetConVar("unitvehicle_unit_helicopterbusting")
@@ -2049,6 +2050,67 @@ function UVApplyAutoHealth(vehicle)
 				v.params.isBulletProof = true
 			end
 		end
+	end
+end
+
+function UVGiveRacerPursuitTech(vehicle)
+	if not RacerPursuitTech:GetBool() then return end
+
+	local pttable = {
+		"EMP",
+		"ESF",
+		"Power Play",
+		"Repair Kit",
+		"Spikestrip",
+		"Juggernaut",
+		"Ghost",
+		"Jammer",
+		"Shockwave",
+		"Stunmine",
+	}
+
+	if not vehicle.PursuitTech then
+		vehicle.PursuitTech = {}
+		
+		for i=1, 2, 1 do
+			local selected_pt = pttable[math.random(#pttable)]
+			table.remove(pttable, table.KeyFromValue(pttable, selected_pt))
+			
+			local sanitized_pt = string.lower(string.gsub(selected_pt, " ", ""))
+			local sel_k, sel_v
+			
+			for k,v in pairs(vehicle.PursuitTech) do
+				if v.Tech == selected_pt then
+					sel_k, sel_v = k, v
+					vehicle.PursuitTech[k] = nil
+					break
+				end
+			end
+			
+			local ammo_count = GetConVar("uvpursuittech_" .. sanitized_pt .. "_maxammo"):GetInt()
+			ammo_count = ammo_count > 0 and ammo_count or math.huge
+			
+			vehicle.PursuitTech[i] = {
+				Tech = selected_pt,
+				Ammo = ammo_count,
+				Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown"):GetInt(),
+				LastUsed = -math.huge,
+			}
+		end
+		
+		table.insert(UVRVWithPursuitTech, vehicle)
+		
+		vehicle:CallOnRemove( "UVRVWithPursuitTechRemoved", function(car)
+			if table.HasValue(UVRVWithPursuitTech, car) then
+				table.RemoveByValue(UVRVWithPursuitTech, car)
+			end
+		end)
+
+		timer.Simple(1, function()
+			for i=1,2 do
+				UVReplicatePT( vehicle, i )
+			end
+		end)
 	end
 end
 

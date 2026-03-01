@@ -22,7 +22,6 @@ local dvd = DecentVehicleDestination
 if SERVER then
 	--Setting ConVars.
 	local DetectionRange = GetConVar("unitvehicle_detectionrange")
-	local RacerPursuitTech = GetConVar("unitvehicle_racerpursuittech")
 
 	function ENT:FindBestStartNode()
 		if not self.v or not UVRace_CompiledPaths then return nil end
@@ -1134,11 +1133,8 @@ if SERVER then
 		end
 		
 		--Pursuit Tech
-		if self.v.PursuitTech and UVTargeting then
+		if self.v.PursuitTech then
 			for k, v in pairs(self.v.PursuitTech) do
-				if v.Tech ~= 'Shockwave' and v.Tech ~= 'Jammer' and v.Tech ~= 'Repair Kit' then
-					UVDeployWeapon(self.v, k)
-				end
 				if v.Tech == "Repair Kit" then
 					if self.v.IsGlideVehicle then
 						if self.v:GetChassisHealth() <= (self.v.MaxChassisHealth / 3) then
@@ -1148,7 +1144,7 @@ if SERVER then
 								if IsValid(v) and v.bursted and not self.repairtimer then
 									local id = "tire_repair"..self.v:EntIndex()
 									self.repairtimer = true
-									
+
 									timer.Create(id, 1, 1, function()
 										UVDeployWeapon(self.v, k)
 										timer.Simple(5, function() self.repairtimer = false; end)
@@ -1165,7 +1161,7 @@ if SERVER then
 								if IsValid(wheel) and wheel:GetDamaged() and not self.repairtimer then
 									local id = "tire_repair"..self.v:EntIndex()
 									self.repairtimer = true
-									
+
 									timer.Create(id, 1, 1, function()
 										UVDeployWeapon(self.v, k)
 										timer.Simple(5, function() self.repairtimer = false; end)
@@ -1181,7 +1177,24 @@ if SERVER then
 					end
 				end
 			end
+
+			if UVTargeting then
+				for k, v in pairs(self.v.PursuitTech) do
+					if v.Tech ~= 'Shockwave' and v.Tech ~= 'Jammer' and v.Tech ~= 'Repair Kit' and self:IsUnitCloseBy() then
+						UVDeployWeapon(self.v, k)
+					end
+				end
+			end
 		end	
+	end
+
+	function ENT:IsUnitCloseBy()
+		for _, ent in pairs(ents.FindInSphere(self.v:GetPos(), 300)) do
+			if ent.UnitVehicle then
+				return true
+			end
+		end
+		return false
 	end
 
 	function ENT:Think()
@@ -1409,54 +1422,6 @@ if SERVER then
 			net.Start( "UVRacerJoin" )
 			net.WriteString(joinmessage)
 			net.Broadcast()
-		end
-		
-		local pttable = {
-			--"EMP",
-			"ESF",
-			"Jammer",
-			"Shockwave",
-			"Spikestrip",
-			"Stunmine",
-			"Repair Kit",
-		}
-		
-		if RacerPursuitTech:GetBool() then
-			if not self.v.PursuitTech then
-				self.v.PursuitTech = {}
-				
-				for i=1, 2, 1 do
-					local selected_pt = pttable[math.random(#pttable)]
-					local sanitized_pt = string.lower(string.gsub(selected_pt, " ", ""))
-					local sel_k, sel_v
-					
-					for k,v in pairs(self.v.PursuitTech) do
-						if v.Tech == selected_pt then
-							sel_k, sel_v = k, v
-							self.v.PursuitTech[k] = nil
-							break
-						end
-					end
-					
-					local ammo_count = GetConVar("uvpursuittech_" .. sanitized_pt .. "_maxammo"):GetInt()
-					ammo_count = ammo_count > 0 and ammo_count or math.huge
-					
-					self.v.PursuitTech[i] = {
-						Tech = selected_pt,
-						Ammo = ammo_count,
-						Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown"):GetInt(),
-						LastUsed = -math.huge,
-					}
-				end
-				
-				table.insert(UVRVWithPursuitTech, self.v)
-				
-				self.v:CallOnRemove( "UVRVWithPursuitTechRemoved", function(car)
-					if table.HasValue(UVRVWithPursuitTech, car) then
-						table.RemoveByValue(UVRVWithPursuitTech, car)
-					end
-				end)
-			end
 		end
 
 		if isfunction(self.v.UVVehicleInitialize) then --For vehicles that has a driver bodygroup

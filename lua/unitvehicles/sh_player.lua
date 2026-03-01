@@ -73,6 +73,8 @@ if SERVER then
     end
 
     function UVDamage(vehicle, damage) --damage in fraction of max health (0.1 = 10% of max health)
+        if not IsValid(vehicle) then return end
+
         if vehicle.UVWanted and GetConVar("unitvehicle_autohealth"):GetBool() then return end
 
         if vehicle.IsSimfphyscar then
