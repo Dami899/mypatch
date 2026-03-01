@@ -1660,7 +1660,7 @@ if SERVER then
                     UVDamage(object, damage)
                     attachVictim = true
 
-                if attachVictim then
+                if attachVictim and object:IsVehicle() then
                     table.insert( affectedTargets, object )
                 end
             end
@@ -1878,7 +1878,7 @@ if SERVER then
                     attachVictim = true
                 --end
 
-                if attachVictim then
+                if attachVictim and object:IsVehicle() then
                     -- local victimName = UVGetDriverName(object)
                     -- table.insert( args.Hit, victimName )
                     table.insert( affectedTargets, object )
