@@ -1984,41 +1984,6 @@ function UVAddToWantedListVehicle(vehicle)
 			end
 		end
 
-		if AutoHealth:GetBool() then
-			if vcmod_main and vehicle:GetClass() == "prop_vehicle_jeep" then
-				vehicle:VC_repairFull_Admin()
-				if not vehicle:VC_hasGodMode() then
-					vehicle:VC_setGodMode(true)
-				end
-			end
-			if vehicle.IsSimfphyscar then
-				vehicle.simfphysoldhealth = vehicle:GetMaxHealth()
-				vehicle:SetBulletProofTires(true)
-				vehicle:SetMaxHealth(math.huge)
-				vehicle:SetCurHealth(math.huge)
-				vehicle:SetOnFire( false )
-				vehicle:SetOnSmoke( false )
-				net.Start( "simfphys_lightsfixall" )
-				net.WriteEntity( vehicle )
-				net.Broadcast()
-				
-				net.Start( "uvrepairsimfphys" )
-				net.WriteEntity( vehicle )
-				net.Broadcast()
-			end
-			if vehicle.IsGlideVehicle then
-				vehicle:SetChassisHealth(math.huge)
-				vehicle:SetEngineHealth(math.huge)
-				vehicle:UpdateHealthOutputs()
-				vehicle.FallOnCollision = nil
-				for k, v in pairs(vehicle.wheels) do
-					if v.params then
-						v.params.isBulletProof = true
-					end
-				end
-			end
-		end
-
 		vehicle:CallOnRemove( "UVWantedVehicleRemoved", function(ent)
 			if table.HasValue(UVWantedTableVehicle, ent) then
 				table.RemoveByValue(UVWantedTableVehicle, ent)
@@ -2048,6 +2013,42 @@ function UVAddToWantedListDriver(driver)
 		end)
 		net.Start( "UVHUDWanted" )
 		net.Send(driver)
+	end
+end
+
+function UVApplyAutoHealth(vehicle)
+	if not AutoHealth:GetBool() then return end
+	if vcmod_main and vehicle:GetClass() == "prop_vehicle_jeep" then
+		vehicle:VC_repairFull_Admin()
+		if not vehicle:VC_hasGodMode() then
+			vehicle:VC_setGodMode(true)
+		end
+	end
+	if vehicle.IsSimfphyscar then
+		vehicle.simfphysoldhealth = vehicle:GetMaxHealth()
+		vehicle:SetBulletProofTires(true)
+		vehicle:SetMaxHealth(math.huge)
+		vehicle:SetCurHealth(math.huge)
+		vehicle:SetOnFire( false )
+		vehicle:SetOnSmoke( false )
+		net.Start( "simfphys_lightsfixall" )
+		net.WriteEntity( vehicle )
+		net.Broadcast()
+		
+		net.Start( "uvrepairsimfphys" )
+		net.WriteEntity( vehicle )
+		net.Broadcast()
+	end
+	if vehicle.IsGlideVehicle then
+		vehicle:SetChassisHealth(math.huge)
+		vehicle:SetEngineHealth(math.huge)
+		vehicle:UpdateHealthOutputs()
+		vehicle.FallOnCollision = nil
+		for k, v in pairs(vehicle.wheels) do
+			if v.params then
+				v.params.isBulletProof = true
+			end
+		end
 	end
 end
 
