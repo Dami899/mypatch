@@ -998,7 +998,7 @@ UV_UI.pursuit.mostwanted.events = {
 		OK.Paint = function() end
         
         local timestart = CurTime()
-        
+
         local revealStartTime = CurTime()
         local displaySequence = {}
         
@@ -1042,6 +1042,9 @@ UV_UI.pursuit.mostwanted.events = {
 
         local totalRevealTime = (revealInterval * 13) + flashDuration
         
+		local randomTip = math.random(1, 20)
+		local randomTipText = UVString("uv.tip." .. randomTip)
+		
         ResultPanel.Paint = function(self, w, h)
             local curTime = CurTime()
             
@@ -1187,9 +1190,13 @@ UV_UI.pursuit.mostwanted.events = {
 					conttext = conttext .. "     <color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big") .. "</font></color>"
 				end
 
+				local tiptext = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. string.format(UVString("uv.tip"), randomTipText ) .. "</font></color>"
+
 				surface.SetAlphaMultiplier(textAlpha / 255)
 				markup.Parse(conttext):Draw(w * 0.205, h * 0.77, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+				markup.Parse(tiptext, w * 0.6):Draw(w * 0.205, h * 0.69, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 				surface.SetAlphaMultiplier(1)
+
             end
             
             -- Show/Hide OK button with fade
