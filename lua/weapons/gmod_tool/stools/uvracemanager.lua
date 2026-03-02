@@ -281,7 +281,8 @@ if SERVER then
 		node.SpeedLimit = speed
 		node.Curve = curve
 
-		local pos, chunk = InfMap.localize_vector(node.Pos)
+		local pos, chunk = node.Pos, vector_origin
+		if InfMap then pos, chunk = InfMap.localize_vector(node.Pos) end
 
 		net.Start("UVRace_NodeAdd")
 			net.WriteUInt(id, 16)

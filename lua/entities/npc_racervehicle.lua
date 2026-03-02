@@ -859,8 +859,8 @@ if SERVER then
 			local velocity = self.v:GetVelocity():Length() -- real speed (not squared)
 			local maxSpeedForScaling = 2400  -- speed where steering becomes fully relaxed
 			local speedFactor = math.Clamp(velocity / maxSpeedForScaling, 0, 1)
-			local steerMultiplier = Lerp(speedFactor, 2.5, 1.5)
-			steer = steer * steerMultiplier
+			local steerMultiplier = Lerp(speedFactor, 4, 2)
+			steer = steer * (steerMultiplier / self.DifficultyMult)
 
 			-- Apply throttle/steer (same as your existing code block)
 			if self.v.IsScar then
