@@ -144,7 +144,7 @@ function ENT:Initialize()
 	end
 		
 	timer.Simple((math.random(60,180)), function() 
-		if IsValid(self) then --Fuel is randomized 
+		if IsValid(self) and not self.Downed then --Fuel is randomized 
 			if Chatter:GetBool() and not (self.crashing or self.disengaging) then
 				if IsValid(self:GetTarget()) then
 					UVChatterLowOnFuel(self)
@@ -385,7 +385,14 @@ function ENT:PhysicsUpdate()
 		self:ApplyHeight("up")
 		self:SelfRotate()
 		
-		timer.Simple(30, function() if IsValid(self) then self:Remove() end end)
+		if not self.disengagingtimer then
+			self.disengagingtimer = CurTime()
+			timer.Simple(30, function() 
+				if IsValid(self) and not self.Downed then 
+					self:Remove() 
+				end 
+			end)
+		end
 		
 		self.LastUpdate = CurTime()
 		self.CloseToTarget = false
@@ -777,6 +784,7 @@ function ENT:OnTakeDamage(dmg)
 end
 
 function ENT:StartCrush()
+	self.disengaging = nil
 	self.Downed = true
 	
 	local r = self:GetAngles().r
@@ -914,7 +922,7 @@ function ENT:Explode()
 end
 
 function ENT:StartTouch(prop)
-	if self.damagecooldown or self.engaging or self.crashing or self.disengaging then return end
+	if self.damagecooldown or self.engaging or self.crashing then return end
 
 	self.damagecooldown = true
 
