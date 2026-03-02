@@ -1043,7 +1043,8 @@ UV_UI.pursuit.mostwanted.events = {
         local totalRevealTime = (revealInterval * 13) + flashDuration
         
 		local randomTip = math.random(1, 20)
-		local randomTipText = UVString("uv.tip." .. randomTip)
+        local tipstring = params.faction == "Racer" and "uv.tip.racer." or "uv.tip.unit."
+		local randomTipText = UVString(tipstring .. randomTip)
 		
         ResultPanel.Paint = function(self, w, h)
             local curTime = CurTime()
@@ -1303,6 +1304,7 @@ end,
 
 onRacerEscapedDebrief = function(escapedtable)
     local params = {
+        faction = "Racer",
         dataTable = escapedtable,
         color = Color(255, 183, 61),
         iconMaterial = UVMaterials['RESULTCOP'],
@@ -1313,6 +1315,7 @@ end,
 
 onRacerBustedDebrief = function(bustedtable)
     local params = {
+        faction = "Racer",
         dataTable = bustedtable,
         color = Color(255, 183, 61),
         iconMaterial = UVMaterials['RESULTCOP'],
@@ -1324,6 +1327,7 @@ end,
 
 onCopBustedDebrief = function(bustedtable)
     local params = {
+        faction = "Unit",
         dataTable = bustedtable,
         color = Color(61, 183, 255),
         textcolor = Color(142, 221, 255, 107),
@@ -1335,6 +1339,7 @@ end,
 
 onCopEscapedDebrief = function(escapedtable)
     local params = {
+        faction = "Unit",
         dataTable = escapedtable,
         color = Color(61, 183, 255),
         textcolor = Color(142, 221, 255, 107),
