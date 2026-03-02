@@ -15,6 +15,7 @@ local PursuitTechDefs = {
         racer = true, unit = true,
         convars = {
             damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
+            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             force    = { default = 100, min = 0, max = 1000, decimals = 0 },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5, min = 0, max = 120, decimals = 0 },
@@ -31,7 +32,7 @@ local PursuitTechDefs = {
         convars = {
             duration = { default = 10, min = 1, max = 30, decimals = 0 },
             power    = { default = 1000000, min = 100000, max = 10000000, decimals = 0 },
-            damage   = { default = 0.2, min = 0, max = 1, decimals = 1 },
+            damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
             damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5, min = 0, max = 120, decimals = 0 }
@@ -97,6 +98,8 @@ local PursuitTechDefs = {
         shortname = "spikestrip",
         racer = true, unit = true,
         convars = {
+            damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
+            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             duration = { default = 60, min = 5, max = 120, decimals = 0 },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
@@ -180,7 +183,7 @@ local PursuitTechDefs = {
         convars = {
             power    = { default = 1000000, min = 100000, max = 10000000, decimals = 0 },
             damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
-            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1 },
+            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5, min = 0, max = 120, decimals = 0 }
         }
@@ -195,7 +198,7 @@ local PursuitTechDefs = {
         convars = {
             power    = { default = 1000000, min = 100000, max = 10000000, decimals = 0 },
             damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
-            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1 },
+            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5, min = 0, max = 120, decimals = 0 }
         }
@@ -599,7 +602,9 @@ if CLIENT then
 				lab2:SetTextColor(Color(125,125,255))
 				table.insert(sliders, lab2)
 				for param, dat in pairs(info.convars) do
-					AddSlider(param, dat, true)
+                    if not dat.nounit then
+					    AddSlider(param, dat, true)
+                    end
 				end
 			end
 

@@ -828,7 +828,7 @@ UVPTPTDuration = CreateConVar("uvpursuittech_ptduration", 60, {FCVAR_ARCHIVE, FC
 -- ESF
 UVPTESFDuration = CreateConVar("uvpursuittech_esf_duration", 10, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVPTESFPower = CreateConVar("uvpursuittech_esf_power", 1000000, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
-UVPTESFDamage = CreateConVar("uvpursuittech_esf_damage", 0.2, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVPTESFDamage = CreateConVar("uvpursuittech_esf_damage", 0.1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVPTESFCommanderDamage = CreateConVar("uvpursuittech_esf_damagecommander", 0.1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVPTESFMaxAmmo = CreateConVar("uvpursuittech_esf_maxammo", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Max Ammo")
 UVPTESFCooldown = CreateConVar("uvpursuittech_esf_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")
@@ -846,6 +846,8 @@ UVPTShockwaveMaxAmmo = CreateConVar("uvpursuittech_shockwave_maxammo", 5, {FCVAR
 UVPTShockwaveCooldown = CreateConVar("uvpursuittech_shockwave_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")
 
 -- Spike Strip
+UVPTSpikestripDamage = CreateConVar("uvpursuittech_spikestrip_damage", 0.1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVPTSpikestripCommanderDamage = CreateConVar("uvpursuittech_spikestrip_damagecommander", 0.1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVPTSpikeStripDuration = CreateConVar("uvpursuittech_spikestrip_duration", 60, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVPTSpikeStripMaxAmmo = CreateConVar("uvpursuittech_spikestrip_maxammo", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Max Ammo")
 UVPTSpikeStripCooldown = CreateConVar("uvpursuittech_spikestrip_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")
@@ -859,6 +861,7 @@ UVPTStunMineCooldown = CreateConVar("uvpursuittech_stunmine_cooldown", 30, {FCVA
 
 -- EMP
 UVPTEMPDamage = CreateConVar("uvpursuittech_emp_damage", 0.1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVPTEMPCommanderDamage = CreateConVar("uvpursuittech_emp_damagecommander", 0.1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVPTEMPForce = CreateConVar("uvpursuittech_emp_force", 100, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVPTEMPMaxAmmo = CreateConVar("uvpursuittech_emp_maxammo", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Max Ammo")
 UVPTEMPCooldown = CreateConVar("uvpursuittech_emp_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Pursuit Tech Cooldown")
@@ -891,11 +894,12 @@ UVUnitPTDuration = CreateConVar("uvpursuittech_ptduration_unit", 20, {FCVAR_ARCH
 -- ESF
 UVUnitPTESFDuration = CreateConVar("uvpursuittech_esf_duration_unit", 10, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUnitPTESFPower = CreateConVar("uvpursuittech_esf_power_unit", 1000000, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
-UVUnitPTESFDamage = CreateConVar("uvpursuittech_esf_damage_unit", 0.2, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+UVUnitPTESFDamage = CreateConVar("uvpursuittech_esf_damage_unit", 0.1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUnitPTESFMaxAmmo = CreateConVar("uvpursuittech_esf_maxammo_unit", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Pursuit Tech Max Ammo")
 UVUnitPTESFCooldown = CreateConVar("uvpursuittech_esf_cooldown_unit", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Pursuit Tech Cooldown")
 
 -- Spike Strip
+UVUnitPTSpikeStripDamage = CreateConVar("uvpursuittech_spikestrip_damage_unit", 0.1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUnitPTSpikeStripDuration = CreateConVar("uvpursuittech_spikestrip_duration_unit", 60, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUnitPTSpikeStripMaxAmmo = CreateConVar("uvpursuittech_spikestrip_maxammo_unit", 5, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Pursuit Tech Max Ammo")
 UVUnitPTSpikeStripCooldown = CreateConVar("uvpursuittech_spikestrip_cooldown_unit", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Pursuit Tech Cooldown")

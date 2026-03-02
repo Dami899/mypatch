@@ -1262,6 +1262,8 @@ if SERVER then
                 util.Effect( "entity_remove", effData )
 
                 local damage = ( isUnit and UVUnitPTEMPDamage:GetFloat() ) or UVPTEMPDamage:GetFloat()
+                damage = (table.HasValue(UVCommanders, target) and UVPTEMPCommanderDamage:GetFloat()) or damage
+                
                 local force = ( isUnit and UVUnitPTEMPForce:GetInt() ) or UVPTEMPForce:GetInt()
                 local lastHeadlightState = UVGetHeadlight( target )
 

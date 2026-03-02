@@ -77,16 +77,33 @@ if SERVER then
 			if self.racerdeployed and (not RacerFriendlyFire:GetBool() or car == self.racerdeployed) then return end
 		end
 
+		local damage = 0 -- Divide by the number of wheels the vehicle has, so that the total damage is consistent across all vehicles regardless of wheel count
+
 		if ent:GetClass() == "glide_wheel" then
 			if ent.bursted then return end
 			ent.bursted = true
 			ent:Blow()
 			UVRamVehicle(car)
+
+			if car.UnitVehicle then
+				damage = UVPTSpikestripDamage:GetFloat()
+				if table.HasValue(UVCommanders, car) then
+					damage = UVPTSpikestripCommanderDamage:GetFloat()
+				end
+			else
+				damage = UVUnitPTSpikeStripDamage:GetFloat()
+			end
+
+			if istable(car.wheels) then
+				damage = damage / table.Count(car.wheels)
+			end
+
 			timer.Simple(1, function()
 				if IsValid(self) then
 					self:UVSpikeStripHit(car)
 				end
 			end)
+
 			timer.Create("uvspiked"..ent:EntIndex(), GetConVar("unitvehicle_spikestripduration"):GetFloat(), 1, function() 
 				if ent.bursted and IsValid(ent) and IsValid(car) and GetConVar("unitvehicle_spikestripduration"):GetFloat() > 0 then
 					if car.wrecked then return end
@@ -99,17 +116,34 @@ if SERVER then
 		elseif ent:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
 			if ent:GetDamaged() then return end
 			UVRamVehicle(car)
+
+			if car.UnitVehicle then
+				damage = UVPTSpikestripDamage:GetFloat()
+				if table.HasValue(UVCommanders, car) then
+					damage = UVPTSpikestripCommanderDamage:GetFloat()
+				end
+			else
+				damage = UVUnitPTSpikeStripDamage:GetFloat()
+			end
+
+			if istable(car.Wheels) then
+				damage = damage / table.Count(car.Wheels)
+			end
+
 			local ogwheelpos
 			if ent.GhostEnt then
 				ogwheelpos = ent.GhostEnt:GetLocalPos()
 			end
+
 			ent:SetDamaged(true)
 			constraint.NoCollide(ent,self,0,0)
+
 			timer.Simple(1, function()
 				if IsValid(self) then
 					self:UVSpikeStripHit(car)
 				end
 			end)
+
 			timer.Simple(GetConVar("unitvehicle_spikestripduration"):GetFloat(), function() 
 				if IsValid(car) and IsValid(ent) and GetConVar("unitvehicle_spikestripduration"):GetFloat() > 0 then
 					if car.wrecked then return end
@@ -124,10 +158,20 @@ if SERVER then
 				end
 			end)
 		elseif ent:GetClass() == "prop_vehicle_jeep" then
+			if car.UnitVehicle then
+				damage = UVPTSpikestripDamage:GetFloat()
+				if table.HasValue(UVCommanders, car) then
+					damage = UVPTSpikestripCommanderDamage:GetFloat()
+				end
+			else
+				damage = UVUnitPTSpikeStripDamage:GetFloat()
+			end
+
 			local ogmaterial0 = ent:GetWheel(0):GetMaterial()
 			local ogmaterial1 = ent:GetWheel(1):GetMaterial()
 			local ogmaterial2 = ent:GetWheel(2):GetMaterial()
 			local ogmaterial3 = ent:GetWheel(3):GetMaterial()
+
 			if GetConVar("unitvehicle_spikestripduration"):GetFloat() > 0 then
 				timer.Create( "uvspiked"..ent:EntIndex(), 0.1, (GetConVar("unitvehicle_spikestripduration"):GetFloat()*10-1), function() 
 					if IsValid(ent) then
@@ -147,6 +191,7 @@ if SERVER then
 					end
 				end)
 			end
+
 			timer.Simple(GetConVar("unitvehicle_spikestripduration"):GetFloat(), function() 
 				if IsValid(ent) and GetConVar("unitvehicle_spikestripduration"):GetFloat() > 0 then 
 					ent:EmitSound("gadgets/spikestrip/tirereinflatesound.wav")
@@ -159,11 +204,14 @@ if SERVER then
 					return
 				end 
 			end)
+
 			ent.cnWheelHealth = true
 			ent:EmitSound("spikestrip/tiredeflatesound.wav")
 			ent:EmitSound("weapons/357_fire2.wav")
 			self:UVSpikeStripHit(ent)
 		end
+
+		UVDamage(car, damage)
 	end
 
 	function ENT:UVSpikeStripHit(victim)
