@@ -1210,6 +1210,28 @@ if SERVER then
 
         hook.Add( "Think", hookIdentifier, function()
             if not IsValid( car ) or not IsValid( target ) then return cleanup() end
+            if UVJammerDeployed and not car.jammerexempt then 
+                cleanup()
+
+                UVPTEvent( 
+                    {
+                        carDriver,
+                        targetDriver
+                    }, 
+                    'EMP', 
+                    'Missed'
+                )
+
+                if car.UnitVehicle then
+                    UVChatterEMPMissed(car)
+                end
+
+                car:StopSound("gadgets/emp/lockfromloop.wav")
+                target:StopSound("gadgets/emp/lockonloop.wav")
+                target:EmitSound("gadgets/emp/miss.wav")
+                
+                return false
+            end
 
             if CurTime() - car.startLock >= 5 then
                 cleanup()
