@@ -865,6 +865,9 @@ UV_UI.pursuit.undercover.events = {
         
         local bustedTabHeight = 0
         
+		local tipstring = params.faction == "Racer" and UV.Tips.Racer or UV.Tips.Units
+		local randomTipText = tipstring[math.random(1, #tipstring)]
+		
         ResultPanel.Paint = function(self, w, h)
             local now = CurTime()
             
@@ -995,8 +998,12 @@ UV_UI.pursuit.undercover.events = {
 			mk:Draw( cy, cx, cc, TEXT_ALIGN_TOP)
 			surface.SetAlphaMultiplier(1)
 			
-            draw.DrawText( string.format( lang("uv.results.autoclose"), math.max(0, timeremaining) ), "UVUndercoverLeaderboardFont", w*0.5, h*0.71, Color( 255, 255, 255, textAlpha ), TEXT_ALIGN_CENTER )
-            				
+            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVUndercoverLeaderboardFont", w*0.5, h*0.61, Color( 255, 255, 255, textAlpha ), TEXT_ALIGN_CENTER )
+
+			-- Tip
+			local tiptext = "<color=255,255,255><font=UVUndercoverLeaderboardFont>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+			markup.Parse(tiptext, w * 0.45):Draw(w * 0.5, h*0.705, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+
             if timeremaining < 1 then
                 startCloseAnimation()
             end
@@ -1047,6 +1054,7 @@ UV_UI.pursuit.undercover.events = {
         local params = {
             dataTable = escapedtable,
             titleText = UVString("uv.results.evaded"),
+			faction = "Racer",
         }
         UV_UI.pursuit.undercover.events.ShowDebrief(params)
     end,
@@ -1065,6 +1073,7 @@ UV_UI.pursuit.undercover.events = {
             isCop = true,
             dataTable = bustedtable,
             titleText = UVString("uv.results.busted"),
+			faction = "Racer",
             lineData = {
                 { text = UVString("uv.results.bustedby.carbon"), value = unit },
                 { text = UVString("uv.results.chase.bounty"), value = "$" .. bounty },

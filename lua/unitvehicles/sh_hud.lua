@@ -1,5 +1,61 @@
 UV = UV or {}
 
+UV.Tips = UV.Tips or {}
+
+UV.Tips.Racer = {
+	-- General Pursuit Tech
+	"uv.tip.pt.emp1",
+	"uv.tip.pt.esf1",
+	"uv.tip.pt.repairkit1",
+	
+	-- Racer-specific Pursuit Tech
+	"uv.tip.racer.pt.jammer1",
+	"uv.tip.racer.pt.jammer2",
+	"uv.tip.racer.pt.shockwave1",
+	"uv.tip.racer.pt.stunmine1",
+	"uv.tip.racer.pt.powerplay1",
+	"uv.tip.racer.pt.juggernaut1",
+	"uv.tip.racer.pt.ghost1",
+
+	-- General Racer-specific
+	"uv.tip.racer.cooldown",
+	"uv.tip.racer.aitactics1",
+	"uv.tip.racer.aitactics2",
+	"uv.tip.racer.pb",
+	"uv.tip.racer.comunits1",
+	"uv.tip.racer.comunits2",
+	"uv.tip.racer.airunits1",
+	"uv.tip.racer.leastagro",
+	"uv.tip.racer.spikes",
+	"uv.tip.racer.roadblocks",
+	"uv.tip.racer.boxedin",
+	"uv.tip.racer.upgradedunits",
+	"uv.tip.racer.stuck",
+}
+
+UV.Tips.Units = {
+	-- General Pursuit Tech
+	"uv.tip.pt.emp1",
+	"uv.tip.pt.esf1",
+	"uv.tip.pt.repairkit1",
+	
+	-- Unit-specific Pursuit Tech
+	"uv.tip.unit.pt.killswitch1",
+    "uv.tip.unit.pt.spikes1",
+    "uv.tip.unit.pt.shockram1",
+    "uv.tip.unit.pt.gpsdart1",
+    "uv.tip.unit.pt.grappler1",
+	
+	-- General Unit-specific
+	"uv.tip.unit.pit",
+	"uv.tip.unit.teamwork",
+	"uv.tip.unit.roadblocks",
+	"uv.tip.unit.loneunit",
+	"uv.tip.unit.comunit",
+	"uv.tip.unit.nocooldown",
+	"uv.tip.unit.respawn",
+}
+
 UVColors = {
     -- Original HUD
     ["Original_LocalPlayer"] = Color(255, 217, 0),

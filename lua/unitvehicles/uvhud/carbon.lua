@@ -1335,6 +1335,9 @@ UV_UI.pursuit.carbon.events = {
             end
         end)
 
+		local tipstring = params.faction == "Racer" and UV.Tips.Racer or UV.Tips.Units
+		local randomTipText = tipstring[math.random(1, #tipstring)]
+		
         ResultPanel.Paint = function(self, w, h)
             local timeremaining = math.ceil(timetotal - (CurTime() - timestart))
             local lang = UVString
@@ -1428,6 +1431,10 @@ UV_UI.pursuit.carbon.events = {
             draw.SimpleTextOutlined( roadblocksdodged, "UVCarbonLeaderboardFont", w*0.74, h2 + h*0.16, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
             draw.SimpleTextOutlined( spikestripsdodged, "UVCarbonLeaderboardFont", w*0.74, h1 + h*0.24, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
 
+			-- Tip
+			local tiptext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+			markup.Parse(tiptext, w * 0.4835):Draw(w * 0.2565, h2 + h*0.24, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+
             -- Time remaining and closing
 			local conttext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue")) .. "</font></color>"
 			local mk = markup.Parse(conttext)
@@ -1514,6 +1521,7 @@ UV_UI.pursuit.carbon.events = {
         local params = {
             dataTable = escapedtable,
             titleText = UVString("uv.results.escapedfrom"),
+			faction = "Racer",
         }
         UV_UI.pursuit.carbon.events.ShowDebrief(params)
     end,
@@ -1524,6 +1532,7 @@ UV_UI.pursuit.carbon.events = {
             titleText = UVString("uv.results.bustedby.carbon"),
             titleVar = UVString( bustedtable["Unit"] ),
 			spawnAsUnit = true,
+			faction = "Racer",
         }
         UV_UI.pursuit.carbon.events.ShowDebrief(params)
     end,

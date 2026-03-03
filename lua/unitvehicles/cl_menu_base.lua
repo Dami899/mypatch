@@ -700,7 +700,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			local text = rawText
 
 			mk = markup.Parse(
-				"<font=UVSettingsFontSmall>" .. text .. "</font>",
+				"<font=" .. (st.font or "UVSettingsFontSmall") .. ">" .. text .. "</font>",
 				w - 20
 			)
 

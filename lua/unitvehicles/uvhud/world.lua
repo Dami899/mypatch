@@ -929,6 +929,9 @@ UV_UI.pursuit.world.events = {
 
 		local contMarkup = markup.Parse( "<font=UVWorldFont3"..GetFontSuffixForLanguage()..">" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue")) .. "</font>" )
 
+		local tipstring = params.faction == "Racer" and UV.Tips.Racer or UV.Tips.Units
+		local randomTipText = tipstring[math.random(1, #tipstring)]
+		
         ResultPanel.Paint = function(self, w, h)
 			local curTime = CurTime()
 			local elapsedAnim = curTime - bgAnimStart
@@ -1037,21 +1040,30 @@ UV_UI.pursuit.world.events = {
 			draw.SimpleTextOutlined( debrieftitlevar, "UVWorldFont3" .. GetFontSuffixForLanguage(), w * 0.5, h * 0.375, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
 
             -- Text
-			draw.SimpleTextOutlined( UVString("uv.results.chase.bounty"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.46, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( UVString("uv.results.chase.time"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.485, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( UVString("uv.results.chase.units.deployed"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.51, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( UVString("uv.results.chase.units.damaged"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.535, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( UVString("uv.results.chase.units.destroyed"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.56, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( UVString("uv.results.chase.dodged.blocks"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.585, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( UVString("uv.results.chase.dodged.spikes"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, h * 0.61, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-            		
-			draw.SimpleTextOutlined( "$" .. bounty, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, h * 0.46, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( time, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, h * 0.485, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( deploys, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, h * 0.51, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( tags, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, h * 0.535, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( wrecks, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, h * 0.56, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( roadblocksdodged, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, h * 0.585, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
-			draw.SimpleTextOutlined( spikestripsdodged, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, h * 0.61, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			local hpos = h * 0.40
+			local hposm = h * 0.025
+			
+			draw.SimpleTextOutlined( UVString("uv.results.chase.bounty"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, hpos, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.time"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, hpos + (hposm * 1), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.units.deployed"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, hpos + (hposm * 2), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.units.damaged"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, hpos + (hposm * 3), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.units.destroyed"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, hpos + (hposm * 4), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.dodged.blocks"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, hpos + (hposm * 5), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( UVString("uv.results.chase.dodged.spikes"), "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.34, hpos + (hposm * 6), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+
+			draw.SimpleTextOutlined( "$" .. bounty, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, hpos, Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( time, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, hpos + (hposm * 1), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( deploys, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, hpos + (hposm * 2), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( tags, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, hpos + (hposm * 3), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( wrecks, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, hpos + (hposm * 4), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( roadblocksdodged, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, hpos + (hposm * 5), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+			draw.SimpleTextOutlined( spikestripsdodged, "UVWorldFont3" .. GetFontSuffixForLanguage(),w * 0.66, hpos + (hposm * 6), Color( 225, 255, 255, effectiveAlpha ), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, effectiveAlpha ) )
+
+			local tiptext = "<color=255,255,255><font=UVWorldFont6" .. GetFontSuffixForLanguage() .. ">" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+
+			surface.SetAlphaMultiplier(effectiveAlpha / 255)
+			markup.Parse(tiptext, w * 0.32):Draw(w * 0.34, hpos + (hposm * 7.5), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+			surface.SetAlphaMultiplier(1)
 
 			-- Next button and auto-close
 			local elapsed = math.max(0, curTime - timestart)
@@ -1133,6 +1145,7 @@ onRacerEscapedDebrief = function(escapedtable)
         color = Color(255, 183, 61),
         iconMaterial = UVMaterials['RESULTCOP'],
         titleText = UVString("uv.results.escapedfrom"),
+		faction = "Racer",
     }
     UV_UI.pursuit.world.events.ShowDebrief(params)
 end,
@@ -1146,6 +1159,7 @@ onRacerBustedDebrief = function(bustedtable)
         titleVar = string.format( UVString("uv.results.bustedby"), UVString( bustedtable["Unit"] ) ),
 		spawnAsUnit = true,
 		bustedBG = true,
+		faction = "Racer",
     }
     UV_UI.pursuit.world.events.ShowDebrief(params)
 end,

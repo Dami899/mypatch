@@ -1041,10 +1041,9 @@ UV_UI.pursuit.mostwanted.events = {
         local closeStartTime = 0
 
         local totalRevealTime = (revealInterval * 13) + flashDuration
-        
-		local randomTip = math.random(1, 20)
-        local tipstring = params.faction == "Racer" and "uv.tip.racer." or "uv.tip.unit."
-		local randomTipText = UVString(tipstring .. randomTip)
+
+		local tipstring = params.faction == "Racer" and UV.Tips.Racer or UV.Tips.Units
+		local randomTipText = tipstring[math.random(1, #tipstring)]
 		
         ResultPanel.Paint = function(self, w, h)
             local curTime = CurTime()
@@ -1191,11 +1190,11 @@ UV_UI.pursuit.mostwanted.events = {
 					conttext = conttext .. "     <color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big") .. "</font></color>"
 				end
 
-				local tiptext = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. string.format(UVString("uv.tip"), randomTipText ) .. "</font></color>"
+				local tiptext = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVMostWantedLeaderboardFont>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
 
 				surface.SetAlphaMultiplier(textAlpha / 255)
 				markup.Parse(conttext):Draw(w * 0.205, h * 0.77, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
-				markup.Parse(tiptext, w * 0.6):Draw(w * 0.205, h * 0.69, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+				markup.Parse(tiptext, w * 0.59):Draw(w * 0.205, h * 0.815, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 				surface.SetAlphaMultiplier(1)
 
             end
@@ -1327,7 +1326,6 @@ end,
 
 onCopBustedDebrief = function(bustedtable)
     local params = {
-        faction = "Unit",
         dataTable = bustedtable,
         color = Color(61, 183, 255),
         textcolor = Color(142, 221, 255, 107),
@@ -1339,7 +1337,6 @@ end,
 
 onCopEscapedDebrief = function(escapedtable)
     local params = {
-        faction = "Unit",
         dataTable = escapedtable,
         color = Color(61, 183, 255),
         textcolor = Color(142, 221, 255, 107),
