@@ -22,7 +22,7 @@ UVRacePursuitStart = CreateConVar( "unitvehicle_racepursuitstart", 0, {FCVAR_ARC
 UVRacePursuitStop = CreateConVar( "unitvehicle_racepursuitstop", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If a pursuit is active, immediately stop the pursuit when the race ends." )
 UVRacePursuitStopDespawn = CreateConVar( "unitvehicle_racepursuitstop_despawn", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If a pursuit is active, despawn all AI units when the race ends." )
 UVRaceClearAI = CreateConVar( "unitvehicle_raceclearai", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Removes all AI and their vehicles when the race ends." )
-UVRaceDifficulty = CreateConVar( "unitvehicle_racedifficulty", 1.0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Increases racing AI difficulty." )
+UVRaceDifficulty = CreateConVar( "unitvehicle_racedifficulty", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Increases racing AI difficulty." )
 
 UVMenuFirstCreate = CreateConVar( "unitvehicle_uvmenu_firstsetup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, whenever you open the UV Menu via the Context Menu, you'll be prompted to go through the first-time setup." )
 

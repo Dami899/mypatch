@@ -17,13 +17,14 @@ Text = [[
       |-- The higher difficulties grant the AI Racers increased traction and cornering speeds
 - Racing: Added a *Catch-up* setting
       |-- When enabled, AI Racers will get increased speed and traction when far behind
+- Pursuits: Added a *Unit Difficulty* and *Catch-up* setting, identical to those above, but for AI Units
 - AI Racers will now reset when driving via Path Nodes and they've missed a checkpoint
 - Added themed "Wrong Way!" notifications on almost all HUD Types
-- Pursuits: Added a *Unit Difficulty* and *Catch-up* setting, identical to those above, but for AI Units
 - Added a new tool: [string:tool.uvrepairshop.name]
       |-- Spawn Repair Shops with the tool
       |-- Save them as .json presets for each map
       |-- Allow Repair Shops to spawn on their own automatically
+- Added tips that are displayed on the end-of-pursuit results screens on the *Most Wanted*, *Carbon*, *Undercover* and *World* HUD Types
 
 **Changes**
 - AI Racers: When resetting while driving via Path Nodes, the AI racers will now assign themselves the closest small node rather than large node
@@ -33,6 +34,11 @@ Text = [[
 - When "Racer Pursuit Tech" is enabled, all players will receive random Pursuit Tech whenever they enter a vehicle
       |-- Only happens if the vehicle does not have Pursuit Tech already
 - Resetting mid-pursuit also resets a Unit nearby to wherever you reset to
+- Moved some settings to new locations
+      |-- Call Response (AI Settings → Pursuit Settings
+      |-- Speed Limit (AI Settings → Pursuit Settings
+      |-- Radio Chatter (AI Settings → Pursuit Settings
+- The Air Unit can now be taken out when it is in the process of disengaging from the pursuit
 
 **Fixes**
 - Fixed some keybinds not having glyphs
