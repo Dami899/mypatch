@@ -7,6 +7,7 @@ UV.Tips.Racer = {
 	"uv.tip.pt.emp1",
 	"uv.tip.pt.esf1",
 	"uv.tip.pt.repairkit1",
+	"uv.tip.pt.spikes1",
 	
 	-- Racer-specific Pursuit Tech
 	"uv.tip.racer.pt.jammer1",
@@ -38,10 +39,10 @@ UV.Tips.Units = {
 	"uv.tip.pt.emp1",
 	"uv.tip.pt.esf1",
 	"uv.tip.pt.repairkit1",
+	"uv.tip.pt.spikes1",
 	
 	-- Unit-specific Pursuit Tech
 	"uv.tip.unit.pt.killswitch1",
-    "uv.tip.unit.pt.spikes1",
     "uv.tip.unit.pt.shockram1",
     "uv.tip.unit.pt.gpsdart1",
     "uv.tip.unit.pt.grappler1",
