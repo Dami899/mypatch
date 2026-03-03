@@ -39,6 +39,181 @@ function UVIsVehicleInCone( source, target, radius, distance )
     return dot >= checkAngle and posSource:DistToSqr( posTarget ) <= distance
 end
 
+function UVGetELS(vehicle)
+	if not (IsValid(vehicle) and vehicle:IsVehicle()) then return end
+	if vehicle.IsScar then
+		return vehicle.SirenIsOn
+	elseif vehicle.IsSimfphyscar then
+		return vehicle:GetEMSEnabled()
+	elseif Photon2
+    and isfunction(vehicle.GetPhotonControllerFromAncestor) then
+        local pc = vehicle:GetPhotonControllerFromAncestor()
+        if IsValid(pc) then
+            return pc:GetChannelMode("Emergency.Warning") ~= "OFF"
+        end
+	elseif Photon and not GetConVar("unitvehicle_vcmodelspriority"):GetBool()
+	and isfunction(vehicle.ELS_Siren)
+	and isfunction(vehicle.ELS_Lights) then
+		return vehicle:ELS_Siren() and vehicle:ELS_Lights()
+	elseif vcmod_main and vcmod_els
+	and isfunction(vehicle.VC_getELSLightsOn) then
+		return vehicle:VC_getELSLightsOn()
+	end
+end
+
+function UVGetELSSound(vehicle)
+	if not (IsValid(vehicle) and vehicle:IsVehicle()) then return end
+	if vehicle.IsScar then
+		return vehicle.SirenIsOn
+	elseif vehicle.IsSimfphyscar then
+		return vehicle.ems and vehicle.ems:IsPlaying()
+	elseif Photon2
+    and isfunction(vehicle.GetPhotonControllerFromAncestor) then
+        local pc = vehicle:GetPhotonControllerFromAncestor()
+        if IsValid(pc) then
+            return pc:GetChannelMode("Emergency.Siren") ~= "OFF"
+        end
+	elseif Photon and not GetConVar("unitvehicle_vcmodelspriority"):GetBool()
+	and isfunction(vehicle.ELS_Siren) then
+		return vehicle:ELS_Siren()
+	elseif vcmod_main and vcmod_els
+	and isfunction(vehicle.VC_getELSSoundOn)
+	and isfunction(vehicle.VC_getStates) then
+		local states = vehicle:VC_getStates()
+		return vehicle:VC_getELSSoundOn() or istable(states) and states.ELS_ManualOn
+	end
+end
+
+function UVSetELS(on, vehicle)
+    if not IsValid(vehicle) then return end
+	if on == UVGetELS(vehicle) or vehicle.DontHaveEMS then return end
+	if vehicle.IsGlideVehicle then
+		if not vehicle.CanSwitchSiren then return end
+		if on then
+			vehicle:SetSirenState(2)
+		else
+			vehicle:SetSirenState(0)
+		end
+	elseif vehicle.IsScar then
+		if vehicle.SirenIsOn == nil then return end
+		if not vehicle.SirenSound then return end
+		vehicle.SirenIsOn = on
+		vehicle:SetNWBool("SirenIsOn", on)
+		if on then
+			vehicle.SirenSound:Play()
+		else
+			vehicle.SirenSound:Stop()	
+		end
+	elseif vehicle.IsSimfphyscar then
+		local v_list = list.Get( "simfphys_lights" )[vehicle.LightsTable]
+		if not v_list then vehicle.DontHaveEMS = true return end
+		local sounds = v_list.ems_sounds or false
+		if sounds == false then vehicle.DontHaveEMS = true return end
+
+		table.remove(sounds)
+		
+		local numsounds = table.Count( sounds )
+		local sirenNum
+		
+		if on then
+			vehicle.emson = true
+			vehicle:SetEMSEnabled( vehicle.emson )
+		else
+			vehicle.emson = false
+			vehicle:SetEMSEnabled( false )
+			if vehicle.ems then
+				if on and not vehicle.ems:IsPlaying() and not vehicle.honking then
+					vehicle.ems:Play()
+				elseif not on and vehicle.ems:IsPlaying() or vehicle.honking then
+					vehicle.ems:Stop()
+				end
+			end
+		end
+		sirenNum = math.random( 1, numsounds )
+		
+		if sirenNum ~= 0 and not vehicle.honking then
+			vehicle.ems = CreateSound(vehicle, sounds[sirenNum])
+			vehicle.ems:Play()
+		end
+	elseif Photon2
+    and isfunction(vehicle.GetPhotonControllerFromAncestor) then
+        local pc = vehicle:GetPhotonControllerFromAncestor()
+        if IsValid(pc) then
+			local sirendata = GetPhoton2Siren(vehicle)
+			local randomsiren = "T"..math.random(1, #sirendata.OrderedTones)
+            pc:SetChannelMode("Emergency.Warning", on and "MODE3" or "OFF")
+            pc:SetChannelMode("Emergency.Siren", on and randomsiren or "OFF")
+        end
+	elseif Photon and not GetConVar("unitvehicle_vcmodelspriority"):GetBool()
+	and isfunction(vehicle.ELS_SirenOn)
+	and isfunction(vehicle.ELS_SirenOff)
+	and isfunction(vehicle.ELS_LightsOff) then
+		if on then
+			vehicle:ELS_SirenOn()
+		else
+			vehicle:ELS_SirenOff()
+			vehicle:ELS_LightsOff()
+		end
+	elseif vcmod_main and vcmod_els
+	and isfunction(vehicle.VC_setELSLights)
+	and isfunction(vehicle.VC_setELSSound) then
+		vehicle:VC_setELSLights(on)
+		vehicle:VC_setELSSound(on)
+	end
+end
+
+function UVSetELSSound(on, vehicle)
+    if not IsValid(vehicle) then return end
+	if on == UVGetELSSound(vehicle) or vehicle.DontHaveEMS then return end
+	if vehicle.IsGlideVehicle then
+		if not vehicle.CanSwitchSiren then return end
+		if on then
+			vehicle:SetSirenState(2)
+		else
+			vehicle:SetSirenState(0)
+		end
+	elseif vehicle.IsScar then
+		if not vehicle.SirenSound then return end
+		if on then
+			vehicle.SirenSound:Play()
+		else
+			vehicle.SirenSound:Stop()
+		end
+	elseif vehicle.IsSimfphyscar then
+		if vehicle.ems then
+			if on and not vehicle.ems:IsPlaying() and not vehicle.honking then
+				vehicle.ems:Play()
+			elseif not on and vehicle.ems:IsPlaying() or vehicle.honking then
+				vehicle.ems:Stop()
+			end
+		end
+	elseif Photon2
+    and isfunction(vehicle.GetPhotonControllerFromAncestor) then
+        local pc = vehicle:GetPhotonControllerFromAncestor()
+        if IsValid(pc) then
+			local sirendata = GetPhoton2Siren(vehicle)
+			local randomsiren = "T"..math.random(1, #sirendata.OrderedTones)
+            pc:SetChannelMode("Emergency.Siren", on and randomsiren or "OFF")
+        end
+	elseif Photon and not GetConVar("unitvehicle_vcmodelspriority"):GetBool()
+	and isfunction(vehicle.ELS_SirenOn)
+	and isfunction(vehicle.ELS_SirenOff)
+	and isfunction(vehicle.ELS_LightsOff) 
+	and isfunction(vehicle.ELS_SirenToggle) then --test
+		if on then
+			vehicle:ELS_SirenOn()
+			vehicle:ELS_SirenToggle()
+		else
+			vehicle:ELS_SirenOff()
+		end
+
+		vehicle:ELS_LightsOff()
+	elseif vcmod_main and vcmod_els
+	and isfunction(vehicle.VC_setELSSound) then
+		vehicle:VC_setELSSound(on)
+	end
+end
+
 if SERVER then
     function UVNotifyCenter( ply_array, frmt, icon_name, ... )
         for _, v in pairs( ply_array ) do

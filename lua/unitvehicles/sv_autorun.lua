@@ -2722,6 +2722,14 @@ function UVBustEnemy(self, enemy, finearrest)
 			enemy.uvbusted = nil
 		end)
 	end
+
+	if #UVWantedTableVehicle == 0 then
+		for k, car in pairs(UVPlayerUnitTableVehicle) do
+			UVSetELS(false, car)
+			UVSetELSSound(false, car)
+		end
+	end
+
 end
 
 function UVDelayRoadblock()
@@ -3394,6 +3402,7 @@ function UVPlayerWreck(vehicle)
 			timer.Remove("uvcombotime")
 		end)
 	end
+
 	vehicle.wrecked = true
 	local despawntime = 60
 	table.insert(UVWreckedVehicles, vehicle)
@@ -3409,7 +3418,10 @@ function UVPlayerWreck(vehicle)
 	
 	if not UVResourcePointsRefreshing and UVResourcePoints > 1 and not UVOneCommanderActive then
 		UVResourcePoints = (UVResourcePoints - 1)
-	end	
+	end
+
+	UVSetELS(false, vehicle)
+	UVSetELSSound(false, vehicle)
 	
 	net.Start("UVHUDRemoveUV")
 	net.WriteInt(vehicle:EntIndex(), 32)

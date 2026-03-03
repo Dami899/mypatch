@@ -1496,6 +1496,10 @@ if SERVER then
 						uv:Spawn()
 						uv:Activate()
 					else
+						if UVTargeting then
+							UVSetELS(true, car)
+							UVSetELSSound(true, car)
+						end
 						car.UnitVehicle.uvplayerlastvehicle = car
 						if car.IsSimfphyscar then
 							car.UnitVehicle:EnterVehicle( car.DriverSeat )
