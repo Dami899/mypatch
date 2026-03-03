@@ -1,16 +1,10 @@
 #!/usr/bin/env python3
 """
 sync_localizations.py
-
-Usage:
-  - Run from the root of your project (so `resource/localization/` is reachable).
-  - A small popup will ask for the base filename (default: unitvehicles).
-  - Backups are written to resource_bak/localization/<lang>/<name>.properties
 """
 
 import os
 import shutil
-import sys
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 
@@ -18,9 +12,15 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ROOT = os.path.join(SCRIPT_DIR, "resource", "localization")
 BACKUP_ROOT = os.path.join(SCRIPT_DIR, "resource_bak", "localization")
+DEV_BACKUP_ROOT = os.path.join(SCRIPT_DIR, "_for developers", "Localization Backup")
+
 EXCLUDE_DIR = "en"
 ENCODING = "utf-8"
 
+
+# ---------------------------------------------------------------------
+# Utility
+# ---------------------------------------------------------------------
 
 def read_lines(path):
     with open(path, "r", encoding=ENCODING, errors="replace") as f:
@@ -39,15 +39,23 @@ def is_comment_or_blank(line):
     return s == "" or s.startswith("#")
 
 
+def parse_key_values(lines):
+    result = {}
+    for ln in lines:
+        stripped = ln.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if "=" in ln:
+            k, v = ln.split("=", 1)
+            result[k.strip()] = v.strip()
+    return result
+
+
+# ---------------------------------------------------------------------
+# English structure parsing
+# ---------------------------------------------------------------------
+
 def parse_english_sequence(lines):
-    """
-    Given english file lines (full file), ignore the first two lines for structure purposes,
-    and parse the rest into a sequence of items that preserves order:
-      - ('comment', [lines...])
-      - ('key', key, english_line)
-    Note: commented-out keys (lines starting with '#' and then 'key=...') are treated as comments,
-    and therefore won't be treated as active keys to insert.
-    """
     seq = []
     effective = lines[2:] if len(lines) >= 2 else lines[:]
     buf_comments = []
@@ -57,17 +65,13 @@ def parse_english_sequence(lines):
             buf_comments.append(line)
             continue
 
-        # treat as key-line if contains '='
         if "=" in line:
-            # flush comments first
             if buf_comments:
                 seq.append(("comment", list(buf_comments)))
                 buf_comments = []
-            # extract key left of the first '='
-            left = line.split("=", 1)[0].strip()
-            seq.append(("key", left, line))
+            key = line.split("=", 1)[0].strip()
+            seq.append(("key", key, line))
         else:
-            # a non-comment, non key-looking line: treat as comment to be safe
             buf_comments.append(line)
 
     if buf_comments:
@@ -76,176 +80,261 @@ def parse_english_sequence(lines):
     return seq
 
 
+def build_english_context_map(base_sequence):
+    context_map = {}
+    last_comments = []
+
+    for item in base_sequence:
+        if item[0] == "comment":
+            last_comments = item[1]
+        elif item[0] == "key":
+            key = item[1]
+            context_map[key] = list(last_comments)
+
+    return context_map
+
+
+# ---------------------------------------------------------------------
+# Target parsing
+# ---------------------------------------------------------------------
+
 def parse_target_file(lines):
-    """
-    Parse the target (localized) file to find:
-      - first_two_lines: list length 0..2
-      - active_values: dict key -> full value string (right of '=')
-      - commented_key_lines: dict key -> the original commented line (e.g. '# key=VALUE' or '# key = VALUE')
-      - other_lines: list of lines for possible analysis (not used in final write except for first two)
-    """
-    first_two = []
-    if len(lines) >= 1:
-        first_two.append(lines[0])
-    if len(lines) >= 2:
-        first_two.append(lines[1])
+    first_two = lines[:2] if len(lines) >= 2 else lines[:]
 
     active = {}
     commented = {}
 
-    # scan every line (including first two) to capture existing keys and commented keys
     for ln in lines:
         stripped = ln.strip()
         if not stripped:
             continue
+
         if stripped.startswith("#"):
-            # attempt to detect commented-out key pattern after the '#'
             after = stripped.lstrip("#").lstrip()
             if "=" in after:
-                possible_key = after.split("=", 1)[0].strip()
-                if possible_key:  # treat as commented-out key
-                    # store the exact original commented line to preserve formatting
-                    commented[possible_key] = ln
+                k = after.split("=", 1)[0].strip()
+                commented[k] = ln
             continue
-        # active key line
+
         if "=" in ln:
-            k = ln.split("=", 1)[0].strip()
-            v = ln.split("=", 1)[1]
-            active[k] = v
+            k, v = ln.split("=", 1)
+            active[k.strip()] = v.strip()
+
     return first_two, active, commented
 
 
-def ensure_backup(target_path, rel_lang_folder, filename):
-    # copy to BACKUP_ROOT/<lang>/<filename>
-    backup_dir = os.path.join(BACKUP_ROOT, rel_lang_folder)
-    os.makedirs(backup_dir, exist_ok=True)
-    backup_path = os.path.join(backup_dir, filename)
-    shutil.copy2(target_path, backup_path)
+# ---------------------------------------------------------------------
+# English backup comparison
+# ---------------------------------------------------------------------
+
+def detect_changed_english_keys(filename, base_lines):
+    dev_en_dir = os.path.join(DEV_BACKUP_ROOT, "en")
+    os.makedirs(dev_en_dir, exist_ok=True)
+    backup_path = os.path.join(dev_en_dir, filename)
+
+    if not os.path.isfile(backup_path):
+        write_lines(backup_path, base_lines)
+        return set(), False
+
+    old_lines = read_lines(backup_path)
+    old_map = parse_key_values(old_lines)
+    new_map = parse_key_values(base_lines)
+
+    changed = set()
+
+    for k, v in new_map.items():
+        if k in old_map and old_map[k] != v and v.strip():
+            changed.add(k)
+
+    write_lines(backup_path, base_lines)
+    return changed, True
 
 
-def sync_file(base_sequence, base_lines, target_path, rel_lang_folder, filename):
+# ---------------------------------------------------------------------
+# OLD file management
+# ---------------------------------------------------------------------
+
+def append_to_old_file(lang_dir, filename, key, localized_value,
+                       context_map, base_sequence):
+
+    old_filename = filename.replace(".properties", "_old.properties")
+    old_path = os.path.join(lang_dir, old_filename)
+
+    if os.path.isfile(old_path):
+        old_lines = read_lines(old_path)
+    else:
+        old_lines = []
+
+    existing_keys = set()
+    for ln in old_lines:
+        stripped = ln.strip()
+        if stripped.startswith("#") and "=" in stripped:
+            k = stripped.lstrip("#").lstrip().split("=", 1)[0].strip()
+            existing_keys.add(k)
+
+    if key in existing_keys:
+        return  # do not duplicate
+
+    insertion_index = len(old_lines)
+
+    english_key_order = [
+        item[1] for item in base_sequence if item[0] == "key"
+    ]
+
+    if key in english_key_order:
+        key_pos = english_key_order.index(key)
+        for i, ln in enumerate(old_lines):
+            stripped = ln.strip()
+            if stripped.startswith("#") and "=" in stripped:
+                existing_key = stripped.lstrip("#").lstrip().split("=", 1)[0].strip()
+                if existing_key in english_key_order:
+                    if english_key_order.index(existing_key) > key_pos:
+                        insertion_index = i
+                        break
+
+    block = []
+
+    comments = context_map.get(key, [])
+    for c in comments:
+        if c not in old_lines:
+            block.append(c)
+
+    block.append(f"# {key}={localized_value}")
+
+    if insertion_index < len(old_lines):
+        new_lines = (
+            old_lines[:insertion_index]
+            + block
+            + [""]
+            + old_lines[insertion_index:]
+        )
+    else:
+        if old_lines and old_lines[-1].strip():
+            old_lines.append("")
+        new_lines = old_lines + block + [""]
+
+    write_lines(old_path, new_lines)
+
+
+# ---------------------------------------------------------------------
+# Sync logic
+# ---------------------------------------------------------------------
+
+def sync_file(base_sequence, base_lines, target_path,
+              rel_lang_folder, filename,
+              changed_keys, context_map):
+
     print(f"Processing {rel_lang_folder}/{filename} ...")
+
     target_lines = read_lines(target_path)
     first_two, active_values, commented_key_lines = parse_target_file(target_lines)
 
-    # prepare output lines:
     out_lines = []
+    removed_keys = []
 
-    # Keep first two lines from the localized file (if they exist).
-    # If localized file has fewer than 2 lines, pad with english first two if available.
-    # But the requirement said: keep those from the secondary files => we prefer target's lines.
     if first_two:
         out_lines.extend(first_two)
     else:
-        # Try to take from target (empty); fallback to english base first two lines if present
-        if len(base_lines) >= 1:
-            out_lines.append(base_lines[0])
-        if len(base_lines) >= 2:
-            out_lines.append(base_lines[1])
-
-    # For clarity, ensure there's at least one blank line after header if english had one originally:
-    # But we will simply follow english ordering below.
-
-    # Now iterate base_sequence and recreate the structure in English order,
-    # substituting localized values when available, using existing commented lines when appropriate,
-    # and adding commented english key lines (# <english_line>) when missing in target.
-    seen_keys = set()
+        out_lines.extend(base_lines[:2])
 
     for item in base_sequence:
         if item[0] == "comment":
-            # append each comment line from English (preserve as-is)
             out_lines.extend(item[1])
             continue
-        if item[0] == "key":
-            _, key, english_line = item
-            seen_keys.add(key)
+
+        _, key, english_line = item
+
+        if key in changed_keys:
             if key in active_values:
-                # produce key=localized_value (note localized_value already contains everything after '=')
-                out_lines.append(f"{key}={active_values[key].lstrip()}")
-            elif key in commented_key_lines:
-                # Use the exact commented line that exists in the target (preserve format)
-                out_lines.append(commented_key_lines[key])
-            else:
-                # insert the English line but commented out with '# '
-                # If the english line already has a leading '#', treat it as comment (shouldn't, as keys are active in english)
-                out_lines.append("# " + english_line)
+                removed_keys.append((key, active_values[key]))
+            out_lines.append("# " + english_line)
             continue
 
-    # Done with english-sequence. We do NOT carry over keys from target that are not in english (they are removed).
-    # But we might append any trailing comments that were present in English after the last item (base_sequence handles that).
+        if key in active_values:
+            out_lines.append(f"{key}={active_values[key]}")
+        elif key in commented_key_lines:
+            out_lines.append("# " + english_line)
+        else:
+            out_lines.append("# " + english_line)
 
-    # Write backup then write file
     ensure_backup(target_path, rel_lang_folder, filename)
     write_lines(target_path, out_lines)
-    print(f" → Wrote {len(out_lines)} lines to {rel_lang_folder}/{filename} (backup created).")
 
+    if removed_keys:
+        lang_dir = os.path.dirname(target_path)
+        for key, value in removed_keys:
+            append_to_old_file(
+                lang_dir,
+                filename,
+                key,
+                value,
+                context_map,
+                base_sequence
+            )
+
+    print(f" → Updated {rel_lang_folder}/{filename}")
+
+
+def ensure_backup(target_path, rel_lang_folder, filename):
+    backup_dir = os.path.join(BACKUP_ROOT, rel_lang_folder)
+    os.makedirs(backup_dir, exist_ok=True)
+    shutil.copy2(target_path, os.path.join(backup_dir, filename))
+
+
+# ---------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------
 
 def main():
-    # GUI prompt for filename
     root = tk.Tk()
     root.withdraw()
+
     fname = simpledialog.askstring(
         "Localization sync",
         "Enter base filename (without .properties):",
         initialvalue="unitvehicles",
         parent=root,
     )
+
     if not fname:
-        messagebox.showinfo("Cancelled", "Operation cancelled by user.")
         return
 
     filename = fname.strip() + ".properties"
     base_path = os.path.join(ROOT, "en", filename)
 
     if not os.path.isfile(base_path):
-        messagebox.showerror("File not found", f"Base file not found:\n{base_path}")
+        messagebox.showerror("File not found", base_path)
         return
 
-    # read english file
     base_lines = read_lines(base_path)
-    if len(base_lines) == 0:
-        messagebox.showerror("Empty file", f"Base file appears empty: {base_path}")
-        return
-
     base_sequence = parse_english_sequence(base_lines)
+    context_map = build_english_context_map(base_sequence)
 
-    # gather target language folders
-    if not os.path.isdir(ROOT):
-        messagebox.showerror("Missing root", f"Localization root not found: {ROOT}")
-        return
+    changed_keys, has_backup = detect_changed_english_keys(filename, base_lines)
 
-    langs = []
-    for name in os.listdir(ROOT):
-        p = os.path.join(ROOT, name)
-        if not os.path.isdir(p):
-            continue
-        if name == EXCLUDE_DIR:
-            continue
-        langs.append(name)
+    langs = [
+        name for name in os.listdir(ROOT)
+        if os.path.isdir(os.path.join(ROOT, name)) and name != EXCLUDE_DIR
+    ]
 
-    if not langs:
-        messagebox.showinfo("No languages", "No language folders found to process.")
-        return
-
-    # create backup root dir
     os.makedirs(BACKUP_ROOT, exist_ok=True)
 
-    # Process each language folder
-    processed = []
     for lang in sorted(langs):
-        target_dir = os.path.join(ROOT, lang)
-        target_file = os.path.join(target_dir, filename)
+        target_file = os.path.join(ROOT, lang, filename)
         if not os.path.isfile(target_file):
-            print(f"Skipping {lang}: {filename} not present.")
             continue
-        try:
-            sync_file(base_sequence, base_lines, target_file, lang, filename)
-            processed.append(lang)
-        except Exception as exc:
-            print(f"Error processing {lang}: {exc}")
 
-    message = f"Done. Processed languages: {', '.join(processed)}" if processed else "Done. No files were updated."
-    messagebox.showinfo("Completed", message)
+        sync_file(
+            base_sequence,
+            base_lines,
+            target_file,
+            lang,
+            filename,
+            changed_keys if has_backup else set(),
+            context_map
+        )
+
+    messagebox.showinfo("Completed", "Localization sync complete.")
 
 
 if __name__ == "__main__":

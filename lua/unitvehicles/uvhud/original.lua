@@ -31,7 +31,7 @@ UV_UI.racing.original.events = {
             laptimecolor = Color(0, 255, 255)
 		end
 
-        chat.AddText(laptimeprefixcolor, laptimeprefix, laptimecolor, laptime)
+        chat.AddText(laptimeprefixcolor, laptimeprefix, laptimecolor, " " .. laptime)
 
         if participant:GetDriver() ~= LocalPlayer() then return end
         
@@ -59,7 +59,7 @@ UV_UI.racing.original.events = {
             disqtext = string.format(UVString("uv.chase.wrecked"))
             chat.AddText(Color(255, 0, 0), disqtext)
         else
-            chat.AddText(Color(255, 0, 0), name, Color(255, 255, 255), disqtext)
+            chat.AddText(Color(255, 0, 0), name, Color(255, 255, 255), " " .. disqtext)
         end
 
 	end,
