@@ -2723,7 +2723,7 @@ function UVBustEnemy(self, enemy, finearrest)
 		end)
 	end
 
-	if #UVWantedTableVehicle == 0 then
+	if #UVWantedTableVehicle == 0 and next(UVPlayerUnitTableVehicle) ~= nil then
 		for k, car in pairs(UVPlayerUnitTableVehicle) do
 			UVSetELS(false, car)
 			UVSetELSSound(false, car)

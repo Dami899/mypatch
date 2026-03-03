@@ -2044,6 +2044,13 @@ if SERVER then
 				else
 					StartPursuitSound()
 				end
+
+				if next(UVPlayerUnitTableVehicle) ~= nil then
+					for k, car in pairs(UVPlayerUnitTableVehicle) do
+						UVSetELS(true, car)
+						UVSetELSSound(true, car)
+					end
+				end
 			end
 
 			if not UVHUDPursuit then
