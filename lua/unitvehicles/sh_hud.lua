@@ -3,11 +3,19 @@ UV = UV or {}
 UV.Tips = UV.Tips or {}
 
 UV.Tips.Racer = {
+	-- General
+	"uv.tip.repairshop",
+	
 	-- General Pursuit Tech
 	"uv.tip.pt.emp1",
+	"uv.tip.pt.emp2",
 	"uv.tip.pt.esf1",
+	"uv.tip.pt.esf2",
 	"uv.tip.pt.repairkit1",
 	"uv.tip.pt.spikes1",
+	"uv.tip.pt.spikes2",
+	"uv.tip.pt.jammer",
+	"uv.tip.drafting",
 	
 	-- Racer-specific Pursuit Tech
 	"uv.tip.racer.pt.jammer1",
@@ -18,10 +26,10 @@ UV.Tips.Racer = {
 	"uv.tip.racer.pt.juggernaut1",
 	"uv.tip.racer.pt.ghost1",
 
-	"uv.tip.racer.pt.killswitchnote",
-	"uv.tip.racer.pt.shockramnote",
-	"uv.tip.racer.pt.gpsdartnote",
-	"uv.tip.racer.pt.grapplernote",
+	"uv.tip.racer.pt.killswitch1",
+	"uv.tip.racer.pt.shockram1",
+	"uv.tip.racer.pt.gpsdart1",
+	"uv.tip.racer.pt.grappler1",
 
 	-- General Racer-specific
 	"uv.tip.racer.cooldown",
@@ -33,8 +41,8 @@ UV.Tips.Racer = {
 	"uv.tip.racer.comunits3",
 	"uv.tip.racer.airunits1",
 	"uv.tip.racer.leastagro",
-	"uv.tip.racer.spikes",
-	"uv.tip.racer.roadblocks",
+	"uv.tip.racer.roadblocks1",
+	"uv.tip.racer.roadblocks2",
 	"uv.tip.racer.boxedin",
 	"uv.tip.racer.upgradedunits",
 	"uv.tip.racer.stuck",
@@ -44,18 +52,15 @@ UV.Tips.Racer = {
 
 UV.Tips.Units = {
 	-- General Pursuit Tech
-	"uv.tip.repairshop",
-
 	"uv.tip.pt.emp1",
+	"uv.tip.pt.emp2",
 	"uv.tip.pt.esf1",
 	"uv.tip.pt.esf2",
 	"uv.tip.pt.repairkit1",
 	"uv.tip.pt.spikes1",
-
-	"uv.tip.pt.empnote",
-	"uv.tip.pt.spikesnote",
-	"uv.tip.pt.jammernote",
-	"uv.tip.pt.draftnote",
+	"uv.tip.pt.spikes2",
+	"uv.tip.pt.jammer",
+	"uv.tip.drafting",
 	
 	-- Unit-specific Pursuit Tech
 	"uv.tip.unit.pt.killswitch1",
