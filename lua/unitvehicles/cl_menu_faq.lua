@@ -297,6 +297,11 @@ Yes you can. And it's simple:
 
 You can find your UV-related data stored in your game's *data/unitvehicles* directory.
 ]],
+["Other.AddonCreation"] = [[
+# -- How do I create my own content/addon for Unit Vehicles?
+
+Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+]]
 }
 
 -- Svenska (Swedish) sv-se
