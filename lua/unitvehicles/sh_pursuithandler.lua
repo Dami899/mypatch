@@ -3406,10 +3406,8 @@ else -- CLIENT Settings | HUD/Options
 		UVBustedColor = Color(255, 0, 0)
 		local bustedtext = UVString("uv.chase.busted")
 		if not UVHUDDisplayNotification then
-			if UVHUDRaceInProgress then
-				if #UVHUDWantedSuspects <= 1 then
-					bustedtext = UVString("uv.race.shutdown")
-				end
+			if UVHUDRaceInProgress and #UVHUDWantedSuspects < 1 then
+				bustedtext = UVString("uv.race.shutdown")
 			end
 			UVBustedState = true
 			UVNotification = "/// " .. bustedtext .. " ///"
@@ -3728,6 +3726,10 @@ else -- CLIENT Settings | HUD/Options
 		end
 
 		UVHUDWantedSuspectsNumber = #UVHUDWantedSuspects
+
+		if not UVHUDRaceInProgress and UVHUDWantedSuspectsNumber > 1 then
+			UVHUDRaceInProgress = true
+		end
 
 		UVHUDDisplayPursuit = PursuitTable.InPursuit
 		--UVHUDDisplayCooldown = PursuitTable.InCooldown
