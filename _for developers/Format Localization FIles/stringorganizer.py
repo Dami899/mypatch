@@ -134,21 +134,46 @@ def detect_changed_english_keys(filename, base_lines):
 
     if not os.path.isfile(backup_path):
         write_lines(backup_path, base_lines)
-        return set(), False
+        return set(), {}, False
 
     old_lines = read_lines(backup_path)
     old_map = parse_key_values(old_lines)
     new_map = parse_key_values(base_lines)
 
     changed = set()
+    renamed = {}
 
+    # Build reverse maps
+    old_values_to_keys = {}
+    for k, v in old_map.items():
+        old_values_to_keys.setdefault(v.strip(), []).append(k)
+
+    new_values_to_keys = {}
     for k, v in new_map.items():
-        if k in old_map and old_map[k] != v and v.strip():
-            changed.add(k)
+        new_values_to_keys.setdefault(v.strip(), []).append(k)
+
+    for new_key, new_value in new_map.items():
+        new_value = new_value.strip()
+
+        # Case 1: Same key but value changed
+        if new_key in old_map:
+            if old_map[new_key] != new_value and new_value:
+                changed.add(new_key)
+
+        # Case 2: Possible rename
+        else:
+            if (
+                new_value in old_values_to_keys
+                and len(old_values_to_keys[new_value]) == 1
+                and len(new_values_to_keys[new_value]) == 1
+            ):
+                old_key = old_values_to_keys[new_value][0]
+
+                if old_key not in new_map:
+                    renamed[old_key] = new_key
 
     write_lines(backup_path, base_lines)
-    return changed, True
-
+    return changed, renamed, True
 
 # ---------------------------------------------------------------------
 # OLD file management
@@ -222,12 +247,21 @@ def append_to_old_file(lang_dir, filename, key, localized_value,
 
 def sync_file(base_sequence, base_lines, target_path,
               rel_lang_folder, filename,
-              changed_keys, context_map):
+              changed_keys, renamed_keys, context_map):
 
     print(f"Processing {rel_lang_folder}/{filename} ...")
 
     target_lines = read_lines(target_path)
     first_two, active_values, commented_key_lines = parse_target_file(target_lines)
+    
+    # -------------------------------------------------
+    # Apply key renames (same value, different key name)
+    # -------------------------------------------------
+    for old_key, new_key in renamed_keys.items():
+        if old_key in active_values:
+            active_values[new_key] = active_values.pop(old_key)
+        if old_key in commented_key_lines:
+            commented_key_lines[new_key] = commented_key_lines.pop(old_key)
 
     out_lines = []
     removed_keys = []
@@ -310,7 +344,7 @@ def main():
     base_sequence = parse_english_sequence(base_lines)
     context_map = build_english_context_map(base_sequence)
 
-    changed_keys, has_backup = detect_changed_english_keys(filename, base_lines)
+    changed_keys, renamed_keys, has_backup = detect_changed_english_keys(filename, base_lines)
 
     langs = [
         name for name in os.listdir(ROOT)
@@ -331,6 +365,7 @@ def main():
             lang,
             filename,
             changed_keys if has_backup else set(),
+            renamed_keys if has_backup else {},
             context_map
         )
 
