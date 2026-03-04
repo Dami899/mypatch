@@ -2377,7 +2377,7 @@ else -- client settings
     
     net.Receive("UVUnitTakedown", function()
 		if UVHUDCopMode then return end
-		if UVHUDDisplayRacing then return end
+		if UVHUDDisplayRacing and not UVIsUsingOGHUD() then return end
 		
 		local unitType = net.ReadString()
         local name = net.ReadString()

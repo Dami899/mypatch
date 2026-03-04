@@ -18,6 +18,8 @@ UV_UI.racing.original.states = {
     FrozenTimeValue = 0
 }
 
+UV_UI.racing.original.noready = true
+
 UV_UI.racing.original.events = {
     onLapComplete = function( participant, new_lap, old_lap, lap_time, lap_time_cur, is_local_player, is_global_best, lap_final, local_finished, user_finished, suppress_lap_ui )
 		local name = UVHUDRaceInfo.Participants[participant] and UVHUDRaceInfo.Participants[participant].Name or "Unknown"
@@ -63,7 +65,7 @@ UV_UI.racing.original.events = {
         local hookID = "UV_RaceCountdown_Original_" .. tostring(now)
 
         hook.Add("HUDPaint", hookID, function()
-            if starttime > 4 then
+            if starttime > 4 and GetConVar("unitvehicle_preraceinfo"):GetInt() == 0 then
 			    draw.DrawText( "GET READY", "UVFont7", ScrW()/2, ScrH()/3, Color( 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
 		    elseif textToShow then
 		    	draw.DrawText( textToShow, "UVFont7", ScrW()/2, ScrH()/3, Color( 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )

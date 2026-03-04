@@ -3636,6 +3636,19 @@ else -- CLIENT Settings | HUD/Options
 		UVGetRandomHeat()
 	end
 
+	function UVIsUsingOGHUD()
+		local main = UVHUDTypeMain:GetString()
+		local backup = UVHUDTypeBackup:GetString()
+
+		local hudHandler = UV_UI.pursuit[main] and UV_UI.pursuit[main].main
+
+		if not hudHandler then
+			hudHandler = UV_UI.pursuit[backup] and UV_UI.pursuit[backup].main
+		end
+
+		return UV_UI.pursuit.original and UV_UI.pursuit.original.main and hudHandler == UV_UI.pursuit.original.main
+	end
+
 	hook.Add("Think", "UVThink", function()
 
 		local localPlayer = LocalPlayer()
@@ -3817,14 +3830,13 @@ else -- CLIENT Settings | HUD/Options
 			hudHandler = UV_UI.pursuit[backup] and UV_UI.pursuit[backup].main
 		end
 
-		local displayingracingandpursuit
-
 		if hudHandler then
 			hudHandler()
+		end
 
-			if UV_UI.pursuit.original and UV_UI.pursuit.original.main and hudHandler == UV_UI.pursuit.original.main and UVHUDDisplayPursuit then -- Displays both racing and pursuit
-				displayingracingandpursuit = true
-			end
+		local displayingracingandpursuit
+		if UVIsUsingOGHUD() then
+			displayingracingandpursuit = true -- Displays both racing and pursuit
 		end
 
 		if UV_UI.general then
