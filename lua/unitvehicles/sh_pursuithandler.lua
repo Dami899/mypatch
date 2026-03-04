@@ -1435,8 +1435,8 @@ if SERVER then
 
 				UVCheckIfBeingBusted(v)
 			end
-			if #UVWantedTableVehicle == 1 and UVEnemyEscaping then
-				UVHiding = UVCheckIfHiding(UVWantedTableVehicle[1])
+			if UVEnemyEscaping then
+				UVHiding = UVCheckIfHiding()
 			end
 		end
 

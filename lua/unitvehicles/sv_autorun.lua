@@ -3264,17 +3264,27 @@ function UVCheckIfWrecked(enemy)
 	end
 end
 
-function UVCheckIfHiding(enemy)
-	if enemy:GetVelocity():LengthSqr() < 10000 then
-		if enemy.IsGlideVehicle then
-			return enemy:GetEngineState() == 0
-		elseif enemy.IsSimfphyscar then
-			return enemy:EngineActive() == false
+function UVCheckIfHiding()
+	if next(UVWantedTableVehicle) == nil then return false end
+
+	local hiding = false
+
+	for k, enemy in pairs(UVWantedTableVehicle) do
+		if enemy:GetVelocity():LengthSqr() < 10000 then
+			if enemy.IsGlideVehicle then
+				hiding = enemy:GetEngineState() == 0
+			elseif enemy.IsSimfphyscar then
+				hiding = enemy:EngineActive() == false
+			else
+				hiding = true
+			end
 		else
-			return true
+			hiding = false
 		end
+		if not hiding then break end
 	end
-	return
+	
+	return hiding
 end
 
 function UVVisualOnTarget(unit, target)

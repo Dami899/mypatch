@@ -18,6 +18,11 @@ UV.Tips.Racer = {
 	"uv.tip.racer.pt.juggernaut1",
 	"uv.tip.racer.pt.ghost1",
 
+	"uv.tip.racer.pt.killswitchnote",
+	"uv.tip.racer.pt.shockramnote",
+	"uv.tip.racer.pt.gpsdartnote",
+	"uv.tip.racer.pt.grapplernote",
+
 	-- General Racer-specific
 	"uv.tip.racer.cooldown",
 	"uv.tip.racer.aitactics1",
@@ -25,6 +30,7 @@ UV.Tips.Racer = {
 	"uv.tip.racer.pb",
 	"uv.tip.racer.comunits1",
 	"uv.tip.racer.comunits2",
+	"uv.tip.racer.comunits3",
 	"uv.tip.racer.airunits1",
 	"uv.tip.racer.leastagro",
 	"uv.tip.racer.spikes",
@@ -32,20 +38,34 @@ UV.Tips.Racer = {
 	"uv.tip.racer.boxedin",
 	"uv.tip.racer.upgradedunits",
 	"uv.tip.racer.stuck",
+	"uv.tip.racer.disorient",
+	"uv.tip.racer.rhinounits",
 }
 
 UV.Tips.Units = {
 	-- General Pursuit Tech
+	"uv.tip.repairshop",
+
 	"uv.tip.pt.emp1",
 	"uv.tip.pt.esf1",
+	"uv.tip.pt.esf2",
 	"uv.tip.pt.repairkit1",
 	"uv.tip.pt.spikes1",
+
+	"uv.tip.pt.empnote",
+	"uv.tip.pt.spikesnote",
+	"uv.tip.pt.jammernote",
+	"uv.tip.pt.draftnote",
 	
 	-- Unit-specific Pursuit Tech
 	"uv.tip.unit.pt.killswitch1",
     "uv.tip.unit.pt.shockram1",
     "uv.tip.unit.pt.gpsdart1",
     "uv.tip.unit.pt.grappler1",
+	
+	"uv.tip.unit.pt.shockwavenote",
+	"uv.tip.unit.pt.juggernautnote",
+	"uv.tip.unit.pt.ghostnote",
 	
 	-- General Unit-specific
 	"uv.tip.unit.pit",
@@ -55,6 +75,7 @@ UV.Tips.Units = {
 	"uv.tip.unit.comunit",
 	"uv.tip.unit.nocooldown",
 	"uv.tip.unit.respawn",
+	"uv.tip.unit.pbnote",
 }
 
 UVColors = {

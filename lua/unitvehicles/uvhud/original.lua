@@ -176,6 +176,9 @@ UV_UI.pursuit.original.events = {
         local h = ScrH()
         
         local bustedtable = select( 1, ... )
+
+        local tipstring = UV.Tips.Units
+	    local randomTipText = tipstring[math.random(1, #tipstring)]
         
         --------------------------------------
         
@@ -188,11 +191,31 @@ UV_UI.pursuit.original.events = {
         local wrecks = UVWrecks
         local suspects = UVHUDWantedSuspectsNumber
         
+        -- Tip
+        local TipsPanel = vgui.Create("DFrame")
+        
+        TipsPanel:SetSize(math.Round(w), math.Round(h))
+        TipsPanel:SetBackgroundBlur(true)
+        TipsPanel:ShowCloseButton(false)
+        TipsPanel:Center()
+        TipsPanel:SetTitle("")
+        TipsPanel:SetDraggable(false)
+        TipsPanel:MakePopup()
+        TipsPanel:SetKeyboardInputEnabled(false)
+        TipsPanel:SetMouseInputEnabled( false )
+        
+        TipsPanel.Paint = function(self, w, h)
+            draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+		    local tiptext = "<color=255,255,255><font=UVFont3>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+        end
+        
         local ResultPanel = vgui.Create("DFrame")
         local OK = vgui.Create("DButton")
         
         ResultPanel:Add(OK)
-        ResultPanel:SetSize(math.Round(w*0.5208333333), math.Round(h*0.5555555556))
+        ResultPanel:SetSize(math.Round(w*0.52), math.Round(h*0.56))
         ResultPanel:SetBackgroundBlur(true)
         ResultPanel:ShowCloseButton(false)
         ResultPanel:Center()
@@ -241,6 +264,7 @@ UV_UI.pursuit.original.events = {
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
+                TipsPanel:Close()
             end
             
         end
@@ -248,6 +272,7 @@ UV_UI.pursuit.original.events = {
         function OK:DoClick() 
             hook.Remove("CreateMove", "JumpKeyCloseDebrief")
             ResultPanel:Close()
+            TipsPanel:Close()
         end
 
 		hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
@@ -258,6 +283,7 @@ UV_UI.pursuit.original.events = {
 				if IsValid(ResultPanel) then
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					ResultPanel:Close()
+                    TipsPanel:Close()
 				end
 			end
 		end)
@@ -268,6 +294,9 @@ UV_UI.pursuit.original.events = {
         local h = ScrH()
         
         local escapedtable = select( 1, ... )
+
+        local tipstring = UV.Tips.Units
+	    local randomTipText = tipstring[math.random(1, #tipstring)]
         
         --------------------------------------
         
@@ -279,12 +308,32 @@ UV_UI.pursuit.original.events = {
         local tags = UVTags
         local wrecks = UVWrecks
         local suspects = UVHUDWantedSuspectsNumber
+
+        -- Tip
+        local TipsPanel = vgui.Create("DFrame")
+        
+        TipsPanel:SetSize(math.Round(w), math.Round(h))
+        TipsPanel:SetBackgroundBlur(true)
+        TipsPanel:ShowCloseButton(false)
+        TipsPanel:Center()
+        TipsPanel:SetTitle("")
+        TipsPanel:SetDraggable(false)
+        TipsPanel:MakePopup()
+        TipsPanel:SetKeyboardInputEnabled(false)
+        TipsPanel:SetMouseInputEnabled( false )
+        
+        TipsPanel.Paint = function(self, w, h)
+            draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+		    local tiptext = "<color=255,255,255><font=UVFont3>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+        end
         
         local ResultPanel = vgui.Create("DFrame")
         local OK = vgui.Create("DButton")
         
         ResultPanel:Add(OK)
-        ResultPanel:SetSize(math.Round(w*0.5208333333), math.Round(h*0.5555555556))
+        ResultPanel:SetSize(math.Round(w*0.52), math.Round(h*0.56))
         ResultPanel:SetBackgroundBlur(true)
         ResultPanel:ShowCloseButton(false)
         ResultPanel:Center()
@@ -333,6 +382,7 @@ UV_UI.pursuit.original.events = {
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
+                TipsPanel:Close()
             end
             
         end
@@ -340,6 +390,7 @@ UV_UI.pursuit.original.events = {
         function OK:DoClick() 
             hook.Remove("CreateMove", "JumpKeyCloseDebrief")
             ResultPanel:Close()
+            TipsPanel:Close()
         end
         
 		hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
@@ -350,6 +401,7 @@ UV_UI.pursuit.original.events = {
 				if IsValid(ResultPanel) then
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					ResultPanel:Close()
+                    TipsPanel:Close()
 				end
 			end
 		end)
@@ -361,6 +413,9 @@ UV_UI.pursuit.original.events = {
         local h = ScrH()
         
         local escapedtable = select( 1, ... )
+
+        local tipstring = UV.Tips.Racer
+	    local randomTipText = tipstring[math.random(1, #tipstring)]
         
         --------------------------------------
         
@@ -371,12 +426,32 @@ UV_UI.pursuit.original.events = {
         local bounty = UVBounty
         local tags = UVTags
         local wrecks = UVWrecks
+
+        -- Tip
+        local TipsPanel = vgui.Create("DFrame")
+        
+        TipsPanel:SetSize(math.Round(w), math.Round(h))
+        TipsPanel:SetBackgroundBlur(true)
+        TipsPanel:ShowCloseButton(false)
+        TipsPanel:Center()
+        TipsPanel:SetTitle("")
+        TipsPanel:SetDraggable(false)
+        TipsPanel:MakePopup()
+        TipsPanel:SetKeyboardInputEnabled(false)
+        TipsPanel:SetMouseInputEnabled( false )
+        
+        TipsPanel.Paint = function(self, w, h)
+            draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+		    local tiptext = "<color=255,255,255><font=UVFont3>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+        end
         
         local ResultPanel = vgui.Create("DFrame")
         local OK = vgui.Create("DButton")
         
         ResultPanel:Add(OK)
-        ResultPanel:SetSize(math.Round(w*0.5208333333), math.Round(h*0.5555555556))
+        ResultPanel:SetSize(math.Round(w*0.52), math.Round(h*0.56))
         ResultPanel:SetBackgroundBlur(true)
         ResultPanel:ShowCloseButton(false)
         ResultPanel:Center()
@@ -426,6 +501,7 @@ UV_UI.pursuit.original.events = {
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
+                TipsPanel:Close()
             end
             
         end
@@ -433,6 +509,7 @@ UV_UI.pursuit.original.events = {
         function OK:DoClick() 
             hook.Remove("CreateMove", "JumpKeyCloseDebrief")
             ResultPanel:Close()
+            TipsPanel:Close()
         end
         
 		hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
@@ -443,6 +520,7 @@ UV_UI.pursuit.original.events = {
 				if IsValid(ResultPanel) then
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					ResultPanel:Close()
+                    TipsPanel:Close()
 				end
 			end
 		end)
@@ -452,6 +530,9 @@ UV_UI.pursuit.original.events = {
         local h = ScrH()
         
         local bustedtable = select( 1, ... )
+
+        local tipstring = UV.Tips.Racer
+	    local randomTipText = tipstring[math.random(1, #tipstring)]
         
         --------------------------------------
         
@@ -463,12 +544,32 @@ UV_UI.pursuit.original.events = {
         local bounty = UVBounty
         local tags = UVTags
         local wrecks = UVWrecks
+
+        -- Tip
+        local TipsPanel = vgui.Create("DFrame")
+        
+        TipsPanel:SetSize(math.Round(w), math.Round(h))
+        TipsPanel:SetBackgroundBlur(true)
+        TipsPanel:ShowCloseButton(false)
+        TipsPanel:Center()
+        TipsPanel:SetTitle("")
+        TipsPanel:SetDraggable(false)
+        TipsPanel:MakePopup()
+        TipsPanel:SetKeyboardInputEnabled(false)
+        TipsPanel:SetMouseInputEnabled( false )
+        
+        TipsPanel.Paint = function(self, w, h)
+            draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+		    local tiptext = "<color=255,255,255><font=UVFont3>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+        end
         
         local ResultPanel = vgui.Create("DFrame")
         local OK = vgui.Create("DButton")
         
         ResultPanel:Add(OK)
-        ResultPanel:SetSize(math.Round(w*0.5208333333), math.Round(h*0.5555555556))
+        ResultPanel:SetSize(math.Round(w*0.52), math.Round(h*0.56))
         ResultPanel:SetBackgroundBlur(true)
         ResultPanel:ShowCloseButton(false)
         ResultPanel:Center()
@@ -522,6 +623,7 @@ UV_UI.pursuit.original.events = {
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
+                TipsPanel:Close()
             end
             
         end
@@ -529,6 +631,7 @@ UV_UI.pursuit.original.events = {
         function OK:DoClick() 
             hook.Remove("CreateMove", "JumpKeyCloseDebrief")
             ResultPanel:Close()
+            TipsPanel:Close()
         end
 
 		hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
@@ -540,6 +643,7 @@ UV_UI.pursuit.original.events = {
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
 					ResultPanel:Close()
+                    TipsPanel:Close()
 				end
 			end
 		end)
@@ -554,6 +658,7 @@ UV_UI.pursuit.original.events = {
 						hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 						hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
 						ResultPanel:Close()
+                        TipsPanel:Close()
 
 						net.Start("UVHUDRespawnInUVGetInfo")
 						net.SendToServer()
@@ -947,7 +1052,7 @@ local function original_pursuit_main( ... )
         
         local iconhigh = 0
 
-        if UVHUDDisplayBusting or UVHUDDisplayCooldown then
+        if UVHUDDisplayBusting or (UVHUDDisplayCooldown and not UVHUDCopMode) then
             iconhigh = h*0.035
         end
         
@@ -1021,7 +1126,7 @@ local function original_pursuit_main( ... )
                 
                 local text = (UVHUDCopMode and "/// "..lang("uv.chase.cooldown").." ///") or lang("uv.chase.cooldown")
                 draw.DrawText( text, "UVFont-Smaller",w/2,bottomy + (h * 0.05), color, TEXT_ALIGN_CENTER )
-                iconhigh = h*0.035
+                iconhigh = not UVHUDCopMode and h*0.035 or iconhigh
             end
         else
             EvadingProgress = 0
