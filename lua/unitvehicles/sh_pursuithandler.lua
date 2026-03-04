@@ -3367,9 +3367,6 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive("UVHUDBusting", function()
 		local lang = UVString
-		local blink = 255 * math.abs(math.sin(RealTime() * 4))
-		local blink2 = 255 * math.abs(math.sin(RealTime() * 6))
-		local blink3 = 255 * math.abs(math.sin(RealTime() * 8))
 		UVBustingProgress = net.ReadString()
 		UVHUDDisplayBusting = true
 		UVBustedColor = Color( 255, 255, 255, 50 )
@@ -3405,8 +3402,7 @@ else -- CLIENT Settings | HUD/Options
 	end)
 
 	net.Receive("UVHUDEnemyBusted", function()
-		local blink = 255 * math.abs(math.sin(RealTime() * 8))
-		UVNotificationColor = Color(255, blink, blink)
+		UVNotificationColor = Color(255, 0, 0)
 		UVBustedColor = Color(255, 0, 0)
 		local bustedtext = UVString("uv.chase.busted")
 		if not UVHUDDisplayNotification then
@@ -3447,7 +3443,7 @@ else -- CLIENT Settings | HUD/Options
 	end)
 
 	net.Receive("UVHUDHiding", function()
-		local blink = 255 * math.abs(math.sin(RealTime() * 6))
+		local blink = math.floor(RealTime()*2)==math.Round(RealTime()*2) and 255 or 0
 		if UVHUDCopMode then return end
 		UVNotificationColor = Color( blink, blink, 255)
 		UVNotification = "--- " .. UVString("uv.chase.hiding") .. " ---"
