@@ -843,6 +843,7 @@ UVMenu.FAQ = function()
 				{ type = "info", text = UVGetFAQText("Other.CreateTraffic"), sv = true },
 				{ type = "info", text = UVGetFAQText("Other.RenameAI"), sv = true },
 				{ type = "info", text = UVGetFAQText("Other.DataFolder"), sv = true },
+				{ type = "info", text = UVGetFAQText("Other.AddonCreation"), sv = true },
 			},
 
 			{ TabName = "uv.back", playsfx = "clickback", Prompts = { "uv.prompt.return" }, func = function()

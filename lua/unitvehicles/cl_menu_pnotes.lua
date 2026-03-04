@@ -24,9 +24,10 @@ Text = [[
       |-- Spawn Repair Shops with the tool
       |-- Save them as .json presets for each map
       |-- Allow Repair Shops to spawn on their own automatically
-- Added tips that are displayed on the end-of-pursuit results screens on the *Most Wanted*, *Carbon*, *Undercover* and *World* HUD Types
+- Added tips that are displayed on the end-of-pursuit results screens on all HUD types
 
 **Changes**
+- Pursuits: Multiple suspects can now initiate the "Hiding" phase during cooldown if all suspects have their engine turned off
 - AI Racers: When resetting while driving via Path Nodes, the AI racers will now assign themselves the closest small node rather than large node
 - AI Racers: Improved navigation via DV waypoints when freeroaming
 - AI Racers: When freeroaming via DV waypoints, if an AI racer gets stuck for a sufficient amount of time, it will reset its navigation target
@@ -35,10 +36,12 @@ Text = [[
       |-- Only happens if the vehicle does not have Pursuit Tech already
 - Resetting mid-pursuit also resets a Unit nearby to wherever you reset to
 - Moved some settings to new locations
-      |-- Call Response (AI Settings → Pursuit Settings
-      |-- Speed Limit (AI Settings → Pursuit Settings
-      |-- Radio Chatter (AI Settings → Pursuit Settings
+      |-- Call Response (AI Settings → Pursuit Settings)
+      |-- Speed Limit (AI Settings → Pursuit Settings)
+      |-- Radio Chatter (AI Settings → Pursuit Settings)
 - The Air Unit can now be taken out when it is in the process of disengaging from the pursuit
+- Updated the *Original* HUD Type to be more old-school and replicate how it was during UV's alpha stages
+- <color=0,255,255>Updated localizations</color>
 
 **Fixes**
 - Fixed some keybinds not having glyphs

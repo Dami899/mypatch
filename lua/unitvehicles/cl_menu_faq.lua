@@ -301,7 +301,7 @@ You can find your UV-related data stored in your game's *data/unitvehicles* dire
 # -- How do I create my own content/addon for Unit Vehicles?
 
 Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
-]]
+]],
 }
 
 -- Svenska (Swedish) sv-se
@@ -575,6 +575,11 @@ Ja, det kan du. Och simpelt är det:
 # -- Vart finns min UV-data?
 
 Du kan hitta all din UV-data i spelets *data/unitvehicles*-mapp.
+]],
+["Other.AddonCreation"] = [[
+# -- Hur skapar jag eget innehåll/tillägg till Unit Vehicles?
+
+Kolla på ett av dem fästa meddelandena på tilläggets workshop-sida, inne i Diskussioner-fliken.
 ]],
 }
 
@@ -851,6 +856,11 @@ Si puedes. Y es simple:
 
 Puedes encontrar tus datos relacionados con UV guardados en el directorio *data/unitvehicles* de tu juego.
 ]],
+--[[["Other.AddonCreation"] = [[
+# -- How do I create my own content/addon for Unit Vehicles?
+
+Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+]]--,
 }
 
 -- Русский (Russian) ru
@@ -1125,6 +1135,11 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
 
 Ты можешь найти данные, связанные с UV, хранящиеся в директории *data/unitvehicles* игры.
 ]],
+--[[["Other.AddonCreation"] = [[
+# -- How do I create my own content/addon for Unit Vehicles?
+
+Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+]]--,
 }
 
 -- Polski (Polish) pl
@@ -1402,6 +1417,11 @@ Tak, i całkiem to proste:
 
 Dane związane z UV znajdziesz w folderze *data/unitvehicles*.
 ]],
+--[[["Other.AddonCreation"] = [[
+# -- How do I create my own content/addon for Unit Vehicles?
+
+Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+]]--,
 }
 
 -- 简体中文 (Chinese Simplified) zh-CN
@@ -1677,4 +1697,9 @@ Other pursuit/AI settings can be found in [string:uv.settings].
 
 所有与 UV 相关的数据都存储在游戏目录下的 *data/unitvehicles* 文件夹中。
 ]],
+--[[["Other.AddonCreation"] = [[
+# -- How do I create my own content/addon for Unit Vehicles?
+
+Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+]]--,
 }
