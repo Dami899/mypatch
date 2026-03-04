@@ -51,6 +51,9 @@ UV.Tips.Racer = {
 }
 
 UV.Tips.Units = {
+	-- General
+	"uv.tip.repairshop",
+	
 	-- General Pursuit Tech
 	"uv.tip.pt.emp1",
 	"uv.tip.pt.emp2",
@@ -64,14 +67,15 @@ UV.Tips.Units = {
 	
 	-- Unit-specific Pursuit Tech
 	"uv.tip.unit.pt.killswitch1",
-    "uv.tip.unit.pt.shockram1",
-    "uv.tip.unit.pt.gpsdart1",
-    "uv.tip.unit.pt.grappler1",
-	
-	"uv.tip.unit.pt.shockwavenote",
-	"uv.tip.unit.pt.juggernautnote",
-	"uv.tip.unit.pt.ghostnote",
-	
+	"uv.tip.unit.pt.killswitch2",
+	"uv.tip.unit.pt.shockram1",
+	"uv.tip.unit.pt.gpsdart1",
+	"uv.tip.unit.pt.grappler1",
+
+	"uv.tip.unit.pt.shockwave1",
+	"uv.tip.unit.pt.juggernaut1",
+	"uv.tip.unit.pt.ghost1",
+
 	-- General Unit-specific
 	"uv.tip.unit.pit",
 	"uv.tip.unit.teamwork",

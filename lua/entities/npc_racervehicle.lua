@@ -612,7 +612,7 @@ if SERVER then
 		local mult = multiplier or 1 + (GetConVar("unitvehicle_racedifficulty"):GetFloat() or 0)
 
 		if catchup then
-			mult = mult * 2
+			mult = mult * 1.5
 		end
 
 		UVSetVehiclePerformanceMultiplier(self.v, mult, catchup)
@@ -630,7 +630,7 @@ if SERVER then
 		end
 		
 		if self.PatrolWaypoint and self.NodePath and self.CurrentNode then
-			if not self.racing or UVRaceCatchup:GetBool() then
+			if not self.racing or UVRaceCatchup:GetBool() and (self.v.uvraceparticipant and UVRaceInEffect) then
 				self.racing = true
 				self:ApplyRaceDifficulty( nil, ( self.v.uvraceparticipant and UVRaceInEffect ) and self.__catchup_active ) -- Apply Racing difficulty
 			end
@@ -656,7 +656,7 @@ if SERVER then
 							UVResetPosition(self.v)
 							self:RecalculateNodeFromPosition()
 							self.AIWrongWayStart = nil
-							return -- 🔥 CRITICAL: abort node logic immediately
+							return
 						end
 					else
 						self.AIWrongWayStart = nil
@@ -952,7 +952,7 @@ if SERVER then
 			-- Skip old PatrolWaypoint code
 			return
 		elseif self.PatrolWaypoint then
-			if not self.racing or UVRaceCatchup:GetBool() then
+			if not self.racing or UVRaceCatchup:GetBool() and (self.v.uvraceparticipant and UVRaceInEffect) then
 				self.racing = true
 				self:ApplyRaceDifficulty( nil, ( self.v.uvraceparticipant and UVRaceInEffect ) and self.__catchup_active ) -- Apply Racing difficulty
 			end
@@ -1089,6 +1089,8 @@ if SERVER then
 				local pos = self.v:WorldSpaceCenter()
 				local target = self.DVCurrentWaypoint.Target
 
+				self:ApplyRaceDifficulty( 1 ) -- Apply Racing difficulty
+				
 				-- DV Node timeout check
 				if self.DVWaypointStartTime then
 					local elapsed = CurTime() - self.DVWaypointStartTime
