@@ -3052,25 +3052,6 @@ function UVCheckIfBeingBusted(enemy)
 		enemy.UVBustingProgress = enemy.UVBustingLastProgress2 + (CurTime() - enemy.UVBustingLastProgress)
 		if enemy.UVBustingProgress >= (btimeout-1) and not enemy.nearbust then
 			enemy.nearbust = true
-			-- if enemy.PursuitTech == "Shockwave" then --SHOCKWAVE
-			-- 	if not enemy.shockwavecooldown then
-			-- 		UVAIRacerDeployWeapon(enemy)
-			-- 	end
-			-- end
-			
-			-- if Chatter:GetBool() and IsValid(closestunit) and UVTargeting then
-			-- 	local randomno = math.random(1,2)
-			-- 	local airUnits = ents.FindByClass("uvair")
-			-- 	if next(airUnits) ~= nil and randomno == 1 then
-			-- 		local random_entry = math.random(#airUnits)	
-			-- 		local unit = airUnits[random_entry]
-			-- 		UVResetChatterQueue()
-			-- 		UVSoundChatter(unit, unit.voice, "arrest", 2)
-			-- 	else
-			-- 		UVResetChatterQueue()
-			-- 		UVSoundChatter(closestunit, closestunit.voice, "arrest", 2)
-			-- 	end
-			-- end
 		end
 		
 		if enemy.PursuitTech and not (enemy:GetDriver() and enemy:GetDriver():IsPlayer()) and enemy.randomptuse < enemy.UVBustingProgress then
@@ -3086,6 +3067,14 @@ function UVCheckIfBeingBusted(enemy)
 				enemy.uvbustingincrease = false
 				enemy.UVBustingLastProgress = CurTime()
 				enemy.UVBustingLastProgress2 = enemy.UVBustingProgress
+				if enemy.nearbust then
+					if not enemy.UVHighestBustingProgress then
+						enemy.UVHighestBustingProgress = enemy.UVBustingProgress
+					elseif enemy.UVBustingProgress > enemy.UVHighestBustingProgress then
+						enemy.UVHighestBustingProgress = enemy.UVBustingProgress
+					end
+					print(enemy.UVHighestBustingProgress)
+				end
 			end
 			if (enemy.UVBustingProgress <= 0 or enemy.uvbusted) and not enemy.UVHUDBustingDelayed then
 				enemy.UVHUDBusting = nil
@@ -3121,8 +3110,14 @@ function UVCheckIfBeingBusted(enemy)
 					end
 				end
 				if IsValid(enemyDriver) then
+					if enemy.UVHighestBustingProgress then
+						net.Start( "UVHUDStopBustingTimeLeft" )
+							net.WriteFloat(enemy.UVHighestBustingProgress)
+						net.Send(enemyDriver)
+					end
 					enemyDriver:EmitSound("ui/pursuit/busting_whoosh_high.wav", 0, 100, 0.5)
 				end
+				enemy.UVHighestBustingProgress = nil
 				if enemy.nearbust then
 					enemy.nearbust = nil
 				end

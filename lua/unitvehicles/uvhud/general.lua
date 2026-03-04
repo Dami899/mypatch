@@ -165,6 +165,21 @@ UV_UI.general.events = {
 		local iscritical = params.critical or nil
 		local notitimer = params.timer or 1
 
+		local main = UVHUDTypeMain:GetString()
+		local backup = UVHUDTypeBackup:GetString()
+
+		local hudHandler = UV_UI.pursuit[main] and UV_UI.pursuit[main].main
+
+		if not hudHandler then
+			hudHandler = UV_UI.pursuit[backup] and UV_UI.pursuit[backup].main
+		end
+
+		-- Legacy notification (Original UI Exclusive)
+		if UV_UI.pursuit.original and UV_UI.pursuit.original.main and hudHandler == UV_UI.pursuit.original.main then
+			LocalPlayer():PrintMessage(HUD_PRINTCENTER, ptext)
+			return
+		end
+
 		local StartClosing
 		local closing = false
 		local closeStartTime = nil

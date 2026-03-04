@@ -352,6 +352,7 @@ if CLIENT then
 	surface.CreateFont("UVFont3Big", { font = "Arial", size = UV.ScaleH(92), weight = 500, extended = true })
 	surface.CreateFont("UVFont3Bigger", { font = "Arial", size = UV.ScaleH(130), weight = 500, extended = true })
 	surface.CreateFont("UVFont4", { font = "Arial", size = UV.ScaleH(25), weight = 1100, shadow = true, extended = true })
+	surface.CreateFont("UVFont7", { font = "VCR OSD Mono", size = UV.ScaleH(110), weight = 500, shadow = true, })
 
 	-- CTU
 	surface.CreateFont("UVFont4BiggerItalic", { font = "Arial", size = UV.ScaleH(27), weight = 1100, shadow = true, extended = true, italic = true })

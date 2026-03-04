@@ -45,6 +45,57 @@ UV_UI.racing.original.events = {
 
     end,
 
+    onRaceStartTimer = function(data)
+		local starttime = data.starttime
+        local noready = data.noReadyText
+
+        --The font used does not support special characters and is therefore not localized.
+		local countdownTexts = {
+			[4] = 3,
+			[3] = 2,
+			[2] = 1,
+			[1] = "GO!"
+		}
+
+        local textToShow = countdownTexts[starttime]
+        
+        local now = CurTime()
+        local hookID = "UV_RaceCountdown_Original_" .. tostring(now)
+
+        hook.Add("HUDPaint", hookID, function()
+            if starttime > 4 then
+			    draw.DrawText( "GET READY", "UVFont7", ScrW()/2, ScrH()/3, Color( 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+		    elseif textToShow then
+		    	draw.DrawText( textToShow, "UVFont7", ScrW()/2, ScrH()/3, Color( 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+		    end
+        end)
+
+        timer.Simple(1, function()
+            hook.Remove("HUDPaint", hookID)
+        end)
+	end,
+
+    onWrongWay = function(timestamp, isWrongWay)
+        local theme = GetConVar("unitvehicle_sfxtheme"):GetString()
+		local soundfiles = file.Find("sound/uvracesfx/" .. theme .. "/wrongway/*", "GAME")
+		if soundfiles and #soundfiles > 0 then
+			table.Shuffle(soundfiles)
+			local audio_path = "uvracesfx/" .. theme .. "/wrongway/" .. soundfiles[1]
+			surface.PlaySound(audio_path)
+		end
+
+        local now = CurTime()
+        local hookID = "UV_RaceCountdown_Original_" .. tostring(now)
+
+        hook.Add("HUDPaint", hookID, function()
+            draw.DrawText( "WRONG WAY", "UVFont7", ScrW()/2, ScrH()/3, Color( 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+        end)
+
+        timer.Simple(1.5, function()
+            hook.Remove("HUDPaint", hookID)
+        end)
+	end,
+
     onParticipantDisqualified = function(data)
 		local participant = data.Participant
 		local is_local_player = data.is_local_player

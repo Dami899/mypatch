@@ -3388,9 +3388,11 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive("UVHUDStopBustingTimeLeft", function()
 
-		if not UVHUDDisplayNotification and not UVEnemyBusted and UVBustingTimeLeft < 1 and UVBustingTimeLeft >= 0 then
+		local timeleft = math.Round((BustedTimer:GetFloat() - net.ReadFloat()), 3)
+
+		if not UVHUDDisplayNotification and not UVBustedState then
 			UVNotificationColor = Color( 0, 255, 0)
-			UVNotification = string.format(UVString("uv.chase.evadedtime"), UVBustingTimeLeft)
+			UVNotification = string.format(UVString("uv.chase.evadedtime"), timeleft)
 			UVHUDDisplayNotification = true
 			timer.Simple(2, function()
 				if not UVHUDDisplayBusting then
