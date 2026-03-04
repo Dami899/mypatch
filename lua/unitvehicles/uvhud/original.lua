@@ -260,7 +260,7 @@ UV_UI.pursuit.original.events = {
         TipsPanel.Paint = function(self, w, h)
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
 
-		    local tiptext = "<color=255,255,255><font=UVFont3>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
 		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
         end
         
@@ -378,7 +378,7 @@ UV_UI.pursuit.original.events = {
         TipsPanel.Paint = function(self, w, h)
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
 
-		    local tiptext = "<color=255,255,255><font=UVFont3>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
 		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
         end
         
@@ -496,7 +496,7 @@ UV_UI.pursuit.original.events = {
         TipsPanel.Paint = function(self, w, h)
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
 
-		    local tiptext = "<color=255,255,255><font=UVFont3>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
 		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
         end
         
@@ -614,7 +614,7 @@ UV_UI.pursuit.original.events = {
         TipsPanel.Paint = function(self, w, h)
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
 
-		    local tiptext = "<color=255,255,255><font=UVFont3>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
 		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
         end
         
