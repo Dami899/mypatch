@@ -491,12 +491,26 @@ if SERVER then
 			local current_checkp = #array.Checkpoints + 1
 			local next_checkp = #array.Checkpoints + 2
 			local selected_point = nil
-			local next_point
+			local next_points
 
 			if next_checkp >= GetGlobalInt("uvrace_checkpoints") then --Finish line
 				next_checkp = 1
 			end
-			
+
+			if UVRaceCatchup:GetBool() then
+				local sorted_table, string_array = UVFormLeaderboard( UVRaceTable['Participants'], self.v )
+				local first_racer = string_array[1]
+	
+				if not first_racer[2] then -- not AI's vehicle
+					local diff_mode = first_racer[3]
+					local diff = first_racer[4]
+
+					local comparison_value = diff_mode == 'Time' and 3 or 0
+	
+					if diff > comparison_value then self.__catchup_active = true else self.__catchup_active = false end
+				end
+			end
+
 			for _, v in ipairs(ents.FindByClass('uvrace_brush*')) do
 				if v:GetID() == current_checkp then
 					selected_point = v
@@ -571,6 +585,8 @@ if SERVER then
 			
 			
 		else
+			self.__catchup_active = false
+
 			if next(dvd.Waypoints) == nil then
 				self.PatrolWaypoint = nil
 				return
@@ -599,7 +615,7 @@ if SERVER then
 			mult = mult * 2
 		end
 
-		UVSetVehiclePerformanceMultiplier(self.v, mult)
+		UVSetVehiclePerformanceMultiplier(self.v, mult, catchup)
 		self.DifficultyMult = mult or 1
 	end
 
@@ -614,9 +630,9 @@ if SERVER then
 		end
 		
 		if self.PatrolWaypoint and self.NodePath and self.CurrentNode then
-			if not self.racing then
+			if not self.racing or UVRaceCatchup:GetBool() then
 				self.racing = true
-				self:ApplyRaceDifficulty() -- Apply Racing difficulty
+				self:ApplyRaceDifficulty( nil, ( self.v.uvraceparticipant and UVRaceInEffect ) and self.__catchup_active ) -- Apply Racing difficulty
 			end
 
 			-- Reset AI if they've missed a checkpoint
@@ -936,9 +952,9 @@ if SERVER then
 			-- Skip old PatrolWaypoint code
 			return
 		elseif self.PatrolWaypoint then
-			if not self.racing then
+			if not self.racing or UVRaceCatchup:GetBool() then
 				self.racing = true
-				self:ApplyRaceDifficulty() -- Apply Racing difficulty
+				self:ApplyRaceDifficulty( nil, ( self.v.uvraceparticipant and UVRaceInEffect ) and self.__catchup_active ) -- Apply Racing difficulty
 			end
 
 			--Set handbrake

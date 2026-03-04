@@ -713,7 +713,7 @@ UVMenu.Settings = function()
 						{ "uv.difficulty.3", 1 } ,
 					},
 				},
-				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_unitcatchup", showprefix = true, sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_racercatchup", showprefix = true, sv = true },
 				
 				{ type = "combo", text = "uv.aidifficulty.unit", desc = "uv.aidifficulty.unit.desc", convar = "unitvehicle_unitdifficulty", sv = true, content = {
 						{ "uv.difficulty.1", 0 } ,
@@ -946,7 +946,7 @@ UVMenu.RaceManagerSettings = function()
 						{ "uv.difficulty.3", 1 } ,
 					},
 				},
-				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_unitcatchup", showprefix = true, sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_racercatchup", showprefix = true, sv = true },
 				{ type = "label", text = "uv.settings.general" },
 				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },
 				{ type = "slider", text = "uv.rm.options.dnftimer", desc = "uv.rm.options.dnftimer.desc", convar = "unitvehicle_racednftimer", min = 0, max = 90, decimals = 0, sv = true },

@@ -2116,7 +2116,7 @@ end
 
 local MUTATOR_FUNCTIONS = {
 	['Multiply'] = function( baseValue, multiplier, info ) 
-		return math.Clamp( baseValue * ( multiplier * info.Modifier ), info.Min or 0, info.Max or math.huge )
+		return math.Clamp( baseValue * ( multiplier * ( multiplier == 1 and 1 or info.Modifier ) ), info.Min or 0, info.Max or math.huge )
 	end,
 	['ModifierComparison'] = function( baseValue, multiplier, info ) 
 		return baseValue * ( multiplier > info.Modifier and info.Max or info.Min )
@@ -2164,15 +2164,17 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 			}
 		},
 		-- Note: The cornering accuracy of the AI on Glide heavily depends on SteerConeMaxAngle, this also applies for units
-		-- ['SteerConeChangeRate'] = {
-		-- 	['DataType'] = "NetworkVar",
-		-- 	['Info'] = {
-		-- 		['Type'] = "Multiply",
-		-- 		['Modifier'] = 1,
-		-- 		['Min'] = 0,
-		-- 		['Max'] = math.huge
-		-- 	}
-		-- },
+		-- originally i only kept SteerConeChangeRate for Infmap use, comment out again if not plausible -aux
+		['SteerConeChangeRate'] = {
+			['DataType'] = "NetworkVar",
+			['IsCatchup'] = catchup,
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
 		['SteerConeMaxAngle'] = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {
@@ -2183,7 +2185,8 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 			}
 		},
 		['MaxRPMTorque'] = {
-			['IsUnit'] = true,
+			--['IsUnit'] = true,
+			['IsCatchup'] = catchup,
 			['DataType'] = "NetworkVar",
 			['Info'] = {
 				['Type'] = "Multiply",
@@ -2193,7 +2196,8 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 			}
 		},
 		['MinRPMTorque'] = {
-			['IsUnit'] = true,
+			--['IsUnit'] = true,
+			['IsCatchup'] = catchup,
 			['DataType'] = "NetworkVar",
 			['Info'] = {
 				['Type'] = "Multiply",
@@ -2206,12 +2210,21 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {
 				['Type'] = "Multiply",
-				['Modifier'] = 1.25,
+				['Modifier'] = 2,
 				['Min'] = 0,
 				['Max'] = math.huge
 			}
 		},
 		['SideTractionMax'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMaxAng'] = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {
 				['Type'] = "Multiply",
@@ -2262,7 +2275,7 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 	}
 }
 
-function UVSetVehiclePerformanceMultiplier( vehicle, mult )
+function UVSetVehiclePerformanceMultiplier( vehicle, mult, catchup )
 	mult = tonumber(mult) or 1
 
 	local isSimfphysVehicle = vehicle.IsSimfphyscar
@@ -2281,7 +2294,10 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult )
 	if not vehicle.__UVOriginalPerformance then vehicle.__UVOriginalPerformance = {} end
 
 	for stat, data in pairs( needle ) do
-		if data.IsUnit and not vehicle.UnitVehicle then continue end
+		if mult > 1 then
+			if data.IsUnit and not vehicle.UnitVehicle then continue end
+			if data.IsCatchup and not catchup then continue end	
+		end
 		if data.DataType == "NetworkVar" then
 			local getFunc = vehicle['Get'..stat]
 			local setFunc = vehicle['Set'..stat]

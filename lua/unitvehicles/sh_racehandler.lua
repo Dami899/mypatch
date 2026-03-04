@@ -23,8 +23,219 @@ UVRacePursuitStop = CreateConVar( "unitvehicle_racepursuitstop", 0, {FCVAR_ARCHI
 UVRacePursuitStopDespawn = CreateConVar( "unitvehicle_racepursuitstop_despawn", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If a pursuit is active, despawn all AI units when the race ends." )
 UVRaceClearAI = CreateConVar( "unitvehicle_raceclearai", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Removes all AI and their vehicles when the race ends." )
 UVRaceDifficulty = CreateConVar( "unitvehicle_racedifficulty", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Increases racing AI difficulty." )
+UVRaceCatchup = CreateConVar( "unitvehicle_racercatchup", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enables catch-up mode for AI racers." )
 
 UVMenuFirstCreate = CreateConVar( "unitvehicle_uvmenu_firstsetup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, whenever you open the UV Menu via the Context Menu, you'll be prompted to go through the first-time setup." )
+
+function UVFormLeaderboard(racers, overrideVehicle)
+	local lPr = CLIENT and LocalPlayer()
+	local sorted_table = {}
+	local lVehicle, lArray = nil, nil
+
+	for vehicle, array in pairs(racers) do
+		if IsValid(vehicle) and vehicle:GetDriver() == lPr then
+			lVehicle = vehicle
+			lArray = array
+		end
+
+		if overrideVehicle and vehicle == overrideVehicle then
+			lVehicle = vehicle
+			lArray = array
+		end
+
+		table.insert(sorted_table, {
+			vehicle = vehicle,
+			array = array
+		})
+	end
+
+	if not lArray then 
+		return sorted_table
+	end
+
+	local lCheckpointCount = #lArray.Checkpoints
+	local leaderboardLines = {}
+
+	-- Sort by: lap > checkpoints > checkpoint time
+	-- table.sort(sorted_table, function(a, b)
+	--     local aData, bData = a.array, b.array
+	--     if aData.Lap ~= bData.Lap then
+	--         return aData.Lap > bData.Lap
+	--     end
+
+	--     local aCP, bCP = #aData.Checkpoints, #bData.Checkpoints
+	--     if aCP ~= bCP then
+	--         return aCP > bCP
+	--     end
+
+	--     local aTime = aData.Checkpoints[aCP] or 0
+	--     local bTime = bData.Checkpoints[bCP] or 0
+	--     return aTime < bTime
+	-- end)
+	table.sort(sorted_table, function(a, b)
+		local aData, bData = a.array, b.array
+		-- if aData.Finished and not bData.Finished then
+		--     return true
+		-- elseif not aData.Finished and bData.Finished then
+		--     return false
+		-- end
+		local function getStatusPriority(data)
+			if data.Disqualified or data.Busted then return 3 end
+			if data.Finished then return 1 end
+			return 2
+		end
+
+		local aPriority = getStatusPriority(aData)
+		local bPriority = getStatusPriority(bData)
+
+		if aPriority ~= bPriority then
+			return aPriority < bPriority
+		end
+
+		if aData.Finished and bData.Finished then
+			local aLTime = aData.LastLapTime or math.huge
+			local bLTime = bData.LastLapTime or math.huge
+			if aLTime ~= bLTime then
+				return aLTime < bLTime
+			end
+		end
+
+		if aData.Lap ~= bData.Lap then
+			return aData.Lap > bData.Lap
+		end
+
+		local aCP, bCP = #aData.Checkpoints, #bData.Checkpoints
+		if aCP ~= bCP then
+			return aCP > bCP
+		end
+
+		local aTime = aData.Checkpoints[aCP] or 0
+		local bTime = bData.Checkpoints[bCP] or 0
+
+		if aTime ~= bTime then
+			return aTime < bTime
+		end
+
+		-- local aLTime = (aData.LastLapTime or math.huge) - UVHUDRaceInfo.Info.Time
+		-- local bLTime = (bData.LastLapTime or math.huge) - UVHUDRaceInfo.Info.Time
+		-- return aLTime < bLTime
+	end)
+
+	for i, v in ipairs(sorted_table) do
+		local vehicle = v.vehicle
+		local lang = UVString
+
+		if not IsValid(vehicle) then
+			--local line = string.format("%d. %s", i, v.array.Name)
+			--local str = ''
+			local mode = nil
+
+			if v.array.Finished then
+				--str = lang("uv.race.suffix.finished")
+				mode = 'Finished'
+			elseif v.array.Busted then
+				--str = lang("uv.race.suffix.busted")
+				mode = 'Busted'
+			else
+				--str = lang("uv.race.suffix.dnf")
+				mode = 'Disqualified'
+			end
+
+			--line = line .. str
+
+			--local selected_color = LBColors.Disqualified
+
+			table.insert(leaderboardLines, {v.array.Name or "Racer", nil, mode})
+		else
+			local array = v.array
+			local driver = vehicle:GetDriver()
+			local is_local_player = (IsValid(driver) and driver == lPr) or (overrideVehicle and vehicle == overrideVehicle)
+			local name = array.Name or "Racer"
+
+			local diff = nil -- Display mode (Lap, Time, Finished, DNF/Busted)
+			local mode = nil
+
+			-- local line = string.format("%d. %s", i, name)
+			-- local line = name
+
+			if not is_local_player then
+				local racerCPs = array.Checkpoints or {}
+				local racerCount = #racerCPs
+				local checkpointDiff = lCheckpointCount - racerCount
+				local totalTimeDiff = 0
+
+				if checkpointDiff ~= 0 then
+					local aheadCPs = (checkpointDiff > 0) and lArray.Checkpoints or racerCPs
+					local behindCPs = (aheadCPs == lArray.Checkpoints) and racerCPs or lArray.Checkpoints
+					local behindCount = #behindCPs
+
+					for j = 1, math.abs(checkpointDiff) do
+						local idx = behindCount + j
+						local timeNow = aheadCPs[idx]
+						local timePrev = aheadCPs[idx - 1] or timeNow
+						if timeNow then
+							totalTimeDiff = totalTimeDiff + (timeNow - timePrev)
+						end
+					end
+
+					if checkpointDiff > 0 then
+						totalTimeDiff = -totalTimeDiff
+					end
+				else
+					local localTime = lArray.Checkpoints[lCheckpointCount] or 0
+					local otherTime = racerCPs[racerCount] or 0
+					totalTimeDiff = localTime - otherTime
+				end
+
+				local sign = (totalTimeDiff >= 0) and "+" or "-"
+
+				local str = "???"
+
+				if v.array.Finished then
+					mode = 'Finished'
+					--str = lang("uv.race.suffix.finished")
+				elseif v.array.Busted then
+					mode = 'Busted'
+					--str = lang("uv.race.suffix.busted")
+				elseif v.array.Disqualified then
+					mode = 'Disqualified'
+					--str = lang("uv.race.suffix.dnf")
+				elseif v.array.Lap ~= lArray.Lap then
+					mode = 'Lap'
+					local difference = v.array.Lap - lArray.Lap
+					local ltext = "uv.race.suffix.lap"
+					if math.abs( difference ) ~= 1 then ltext = "uv.race.suffix.laps" end
+					--diff = ((difference > 0 and '+') or '-') ..math.abs( difference )
+					diff = difference
+					--str = string.format( lang(ltext), ((difference > 0 and '+') or '-') ..math.abs( difference ) )
+				else
+					mode = 'Time'
+					--str = string.format("  (%s%.3f)", sign, math.abs(totalTimeDiff))
+					diff = totalTimeDiff
+				end
+
+				--line = line .. str
+			end
+
+			local selected_color = nil
+
+			-- if is_local_player then
+			--     selected_color = LBColors.LocalPlayer
+			-- elseif array.Disqualified or array.Busted then
+			--     selected_color = LBColors.Disqualified
+			-- else
+			--     selected_color = LBColors.Others
+			-- end
+
+			table.insert(leaderboardLines, {name, is_local_player, mode, diff}) 
+		end
+	end
+
+	--UVSortedRacers = sorted_table
+
+	return sorted_table, leaderboardLines
+end
+
 
 if SERVER then	
 	UVRaceTable = {}
@@ -1699,210 +1910,6 @@ else -- CLIENT stuff
 		timestring = timestring .. string.format( ".%03d", milliseconds )
 
 		return timestring
-	end
-
-	function UVFormLeaderboard(racers)
-		local lPr = LocalPlayer()
-		local sorted_table = {}
-		local lVehicle, lArray = nil, nil
-
-		for vehicle, array in pairs(racers) do
-			if IsValid(vehicle) and vehicle:GetDriver() == lPr then
-				lVehicle = vehicle
-				lArray = array
-			end
-
-			table.insert(sorted_table, {
-				vehicle = vehicle,
-				array = array
-			})
-		end
-
-		if not lArray then 
-			return sorted_table
-		end
-
-		local lCheckpointCount = #lArray.Checkpoints
-		local leaderboardLines = {}
-
-		-- Sort by: lap > checkpoints > checkpoint time
-		-- table.sort(sorted_table, function(a, b)
-		--     local aData, bData = a.array, b.array
-		--     if aData.Lap ~= bData.Lap then
-		--         return aData.Lap > bData.Lap
-		--     end
-
-		--     local aCP, bCP = #aData.Checkpoints, #bData.Checkpoints
-		--     if aCP ~= bCP then
-		--         return aCP > bCP
-		--     end
-
-		--     local aTime = aData.Checkpoints[aCP] or 0
-		--     local bTime = bData.Checkpoints[bCP] or 0
-		--     return aTime < bTime
-		-- end)
-		table.sort(sorted_table, function(a, b)
-			local aData, bData = a.array, b.array
-			-- if aData.Finished and not bData.Finished then
-			--     return true
-			-- elseif not aData.Finished and bData.Finished then
-			--     return false
-			-- end
-			local function getStatusPriority(data)
-				if data.Disqualified or data.Busted then return 3 end
-				if data.Finished then return 1 end
-				return 2
-			end
-
-			local aPriority = getStatusPriority(aData)
-			local bPriority = getStatusPriority(bData)
-
-			if aPriority ~= bPriority then
-				return aPriority < bPriority
-			end
-
-			if aData.Finished and bData.Finished then
-				local aLTime = aData.LastLapTime or math.huge
-				local bLTime = bData.LastLapTime or math.huge
-				if aLTime ~= bLTime then
-					return aLTime < bLTime
-				end
-			end
-
-			if aData.Lap ~= bData.Lap then
-				return aData.Lap > bData.Lap
-			end
-
-			local aCP, bCP = #aData.Checkpoints, #bData.Checkpoints
-			if aCP ~= bCP then
-				return aCP > bCP
-			end
-
-			local aTime = aData.Checkpoints[aCP] or 0
-			local bTime = bData.Checkpoints[bCP] or 0
-
-			if aTime ~= bTime then
-				return aTime < bTime
-			end
-
-			-- local aLTime = (aData.LastLapTime or math.huge) - UVHUDRaceInfo.Info.Time
-			-- local bLTime = (bData.LastLapTime or math.huge) - UVHUDRaceInfo.Info.Time
-			-- return aLTime < bLTime
-		end)
-
-		for i, v in ipairs(sorted_table) do
-			local vehicle = v.vehicle
-			local lang = UVString
-
-			if not IsValid(vehicle) then
-				--local line = string.format("%d. %s", i, v.array.Name)
-				--local str = ''
-				local mode = nil
-
-				if v.array.Finished then
-					--str = lang("uv.race.suffix.finished")
-					mode = 'Finished'
-				elseif v.array.Busted then
-					--str = lang("uv.race.suffix.busted")
-					mode = 'Busted'
-				else
-					--str = lang("uv.race.suffix.dnf")
-					mode = 'Disqualified'
-				end
-
-				--line = line .. str
-
-				--local selected_color = LBColors.Disqualified
-
-				table.insert(leaderboardLines, {v.array.Name or "Racer", nil, mode})
-			else
-				local array = v.array
-				local driver = vehicle:GetDriver()
-				local is_local_player = IsValid(driver) and driver == lPr
-				local name = array.Name or "Racer"
-
-				local diff = nil -- Display mode (Lap, Time, Finished, DNF/Busted)
-				local mode = nil
-
-				-- local line = string.format("%d. %s", i, name)
-				-- local line = name
-
-				if not is_local_player then
-					local racerCPs = array.Checkpoints or {}
-					local racerCount = #racerCPs
-					local checkpointDiff = lCheckpointCount - racerCount
-					local totalTimeDiff = 0
-
-					if checkpointDiff ~= 0 then
-						local aheadCPs = (checkpointDiff > 0) and lArray.Checkpoints or racerCPs
-						local behindCPs = (aheadCPs == lArray.Checkpoints) and racerCPs or lArray.Checkpoints
-						local behindCount = #behindCPs
-
-						for j = 1, math.abs(checkpointDiff) do
-							local idx = behindCount + j
-							local timeNow = aheadCPs[idx]
-							local timePrev = aheadCPs[idx - 1] or timeNow
-							if timeNow then
-								totalTimeDiff = totalTimeDiff + (timeNow - timePrev)
-							end
-						end
-
-						if checkpointDiff > 0 then
-							totalTimeDiff = -totalTimeDiff
-						end
-					else
-						local localTime = lArray.Checkpoints[lCheckpointCount] or 0
-						local otherTime = racerCPs[racerCount] or 0
-						totalTimeDiff = localTime - otherTime
-					end
-
-					local sign = (totalTimeDiff >= 0) and "+" or "-"
-
-					local str = "???"
-
-					if v.array.Finished then
-						mode = 'Finished'
-						--str = lang("uv.race.suffix.finished")
-					elseif v.array.Busted then
-						mode = 'Busted'
-						--str = lang("uv.race.suffix.busted")
-					elseif v.array.Disqualified then
-						mode = 'Disqualified'
-						--str = lang("uv.race.suffix.dnf")
-					elseif v.array.Lap ~= lArray.Lap then
-						mode = 'Lap'
-						local difference = v.array.Lap - lArray.Lap
-						local ltext = "uv.race.suffix.lap"
-						if math.abs( difference ) ~= 1 then ltext = "uv.race.suffix.laps" end
-						--diff = ((difference > 0 and '+') or '-') ..math.abs( difference )
-						diff = difference
-						--str = string.format( lang(ltext), ((difference > 0 and '+') or '-') ..math.abs( difference ) )
-					else
-						mode = 'Time'
-						--str = string.format("  (%s%.3f)", sign, math.abs(totalTimeDiff))
-						diff = totalTimeDiff
-					end
-
-					--line = line .. str
-				end
-
-				local selected_color = nil
-
-				-- if is_local_player then
-				--     selected_color = LBColors.LocalPlayer
-				-- elseif array.Disqualified or array.Busted then
-				--     selected_color = LBColors.Disqualified
-				-- else
-				--     selected_color = LBColors.Others
-				-- end
-
-				table.insert(leaderboardLines, {name, is_local_player, mode, diff}) 
-			end
-		end
-
-		--UVSortedRacers = sorted_table
-
-		return sorted_table, leaderboardLines
 	end
 
 	function UVStopRacing()
