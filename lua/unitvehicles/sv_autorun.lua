@@ -2167,7 +2167,7 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 		-- originally i only kept SteerConeChangeRate for Infmap use, comment out again if not plausible -aux
 		['SteerConeChangeRate'] = {
 			['DataType'] = "NetworkVar",
-			['IsCatchup'] = catchup,
+			['IsCatchup'] = true,
 			['Info'] = {
 				['Type'] = "Multiply",
 				['Modifier'] = 1,
@@ -2186,7 +2186,7 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 		},
 		['MaxRPMTorque'] = {
 			--['IsUnit'] = true,
-			['IsCatchup'] = catchup,
+			['IsCatchup'] = true,
 			['DataType'] = "NetworkVar",
 			['Info'] = {
 				['Type'] = "Multiply",
@@ -2197,7 +2197,7 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 		},
 		['MinRPMTorque'] = {
 			--['IsUnit'] = true,
-			['IsCatchup'] = catchup,
+			['IsCatchup'] = true,
 			['DataType'] = "NetworkVar",
 			['Info'] = {
 				['Type'] = "Multiply",
