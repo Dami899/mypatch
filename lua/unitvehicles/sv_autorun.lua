@@ -2184,6 +2184,16 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 				['Max'] = math.huge
 			}
 		},
+		-- ['MaxRPM'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['IsCatchup'] = true,
+		-- 	['Info'] = {
+		-- 		['Type'] = "Multiply",
+		-- 		['Modifier'] = 1,
+		-- 		['Min'] = 0,
+		-- 		['Max'] = math.huge
+		-- 	}
+		-- },
 		['MaxRPMTorque'] = {
 			--['IsUnit'] = true,
 			['IsCatchup'] = true,
@@ -2294,9 +2304,10 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult, catchup )
 	if not vehicle.__UVOriginalPerformance then vehicle.__UVOriginalPerformance = {} end
 
 	for stat, data in pairs( needle ) do
+		local multiplier = mult
 		if mult > 1 then
 			if data.IsUnit and not vehicle.UnitVehicle then continue end
-			if data.IsCatchup and not catchup then continue end	
+			if data.IsCatchup and not catchup then multiplier = 1 end
 		end
 		if data.DataType == "NetworkVar" then
 			local getFunc = vehicle['Get'..stat]
@@ -2306,7 +2317,7 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult, catchup )
 				if not vehicle.__UVOriginalPerformance[stat] then vehicle.__UVOriginalPerformance[stat] = getFunc() end
 				setFunc( vehicle, MUTATOR_FUNCTIONS[data.Info.Type](
 					vehicle.__UVOriginalPerformance[stat], 
-					mult, 
+					multiplier, 
 					data.Info
 				) )
 			end

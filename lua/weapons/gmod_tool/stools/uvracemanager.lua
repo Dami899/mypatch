@@ -331,11 +331,13 @@ if SERVER then
 		if saveArray.Waypoints then
 			UVRace_LoadedWaypoints = true
 			dvd.Waypoints = table.Copy(saveArray.Waypoints)
-			net.Start("Decent Vehicle: Clear waypoints")
-			net.Broadcast()
-			net.Start("Decent Vehicle: Retrive waypoints")
-			dvd.WriteWaypoint(1)
-			net.Broadcast()
+			if not table.IsEmpty(dvd.Waypoints) then
+				net.Start("Decent Vehicle: Clear waypoints")
+				net.Broadcast()
+				net.Start("Decent Vehicle: Retrive waypoints")
+				dvd.WriteWaypoint(1)
+				net.Broadcast()
+			end
 		end
 
 		-- Clear previous entities

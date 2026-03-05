@@ -36,6 +36,11 @@ if SERVER then
 	local DVWaypointsPriority = GetConVar("unitvehicle_dvwaypointspriority")
 	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn")
 	local Catchup = GetConVar("unitvehicle_unitcatchup")
+
+	local UVPathClasses = {
+		["npc_uvpatrol"] = true, ["npc_uvpursuit"] = true, ["npc_uvsupport"] = true,
+		["npc_uvinterceptor"] = true, ["npc_uvcommander"] = true, ["npc_uvspecial"] = true,
+	}
 	
 	function ENT:OnRemove()
 		if table.HasValue(UVUnitsChasing, self) then
@@ -738,7 +743,38 @@ if SERVER then
 				bestWaypoint = waypoint
 			end
 		end
-		
+
+		local needOffset = false
+		local searchRadius = 800
+		local aheadMaxDistSq = 360000
+		local onWaypointRadiusSq = 40000
+		local forwardDotMin = 0.2
+		for _, veh in ipairs( UVUnitVehicles ) do
+			if veh ~= self.v and IsValid(veh) then 
+				local otherPos = veh:WorldSpaceCenter()
+				local toOther = otherPos - unitpos
+				local distSq = toOther:LengthSqr()
+				local fwdDot = toOther:GetNormalized():Dot(forward)
+				local distToWpSq = (otherPos - bestWaypoint):LengthSqr()
+				if (fwdDot > forwardDotMin and distSq < aheadMaxDistSq) or distToWpSq < onWaypointRadiusSq then
+					needOffset = true
+					break
+				end
+			end
+		end
+		if needOffset then
+			local right = forward:Cross(vector_up)
+			if right:LengthSqr() > 0.01 then
+				right:Normalize()
+				local offsetAmount = 90
+				if self.__entIndex % 2 == 0 then
+					bestWaypoint = bestWaypoint + right * offsetAmount
+				else
+					bestWaypoint = bestWaypoint - right * offsetAmount
+				end
+			end
+		end
+
 		return bestWaypoint + (vector_up * 50)
 	end
 	
@@ -1070,7 +1106,7 @@ if SERVER then
 
 		if mult == self.perfmult then return end
 
-		UVSetVehiclePerformanceMultiplier(self.v, mult)
+		UVSetVehiclePerformanceMultiplier(self.v, mult, catchup)
 		self.perfmult = mult
 	end
 	
@@ -2139,7 +2175,7 @@ if SERVER then
 					table.insert(UVUnitsChasing, self)
 				end
 			else
-				self:ApplyUnitDifficulty(nil, Catchup:GetBool())
+				self:ApplyUnitDifficulty(nil, Catchup:GetBool() and (CurTime() - (self.__spawn_time or 0) > 3))
 				if table.HasValue(UVUnitsChasing, self) then
 					table.RemoveByValue(UVUnitsChasing, self)
 				end
@@ -2426,6 +2462,9 @@ if SERVER then
 		self.CollisionHeight = tr.HitPos.z - self.v:GetPos().z
 		if self.CollisionHeight < 10 then self.CollisionHeight = max.z end
 		self.v:DeleteOnRemove(self)
+
+		self.__spawn_time = CurTime()
+		self.__entIndex = self:EntIndex()
 		
 		net.Start("UVHUDAddUV")
 		net.WriteInt(self.v:EntIndex(), 32)
