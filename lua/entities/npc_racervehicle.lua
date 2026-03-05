@@ -507,7 +507,7 @@ if SERVER then
 
 					local comparison_value = diff_mode == 'Time' and 3 or 0
 	
-					if diff > comparison_value then self.__catchup_active = true else self.__catchup_active = false end
+					if (diff and diff > comparison_value) then self.__catchup_active = true else self.__catchup_active = false end
 				end
 			end
 
