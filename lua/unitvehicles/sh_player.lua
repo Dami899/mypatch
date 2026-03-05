@@ -742,15 +742,17 @@ if SERVER then
             if UVTargeting then
                 local units = ents.FindByClass("npc_uv*")
                 if #units == 0 then return end
-                local unit = units[math.random(1, #units)]
 
-                if IsValid(unit) then
-                    local enemywaypoint = dvd.GetNearestWaypoint( vehicle:GetPos() )
-                    if not enemywaypoint.Neighbors or next(enemywaypoint.Neighbors) == nil then return end
-                    local neighbor = dvd.Waypoints[enemywaypoint.Neighbors[math.random(#enemywaypoint.Neighbors)]]
+                for k, unit in pairs(units) do
+                    if IsValid(unit) and unit.e and unit.e == vehicle then
+                        local enemywaypoint = dvd.GetNearestWaypoint( vehicle:GetPos() )
+                        if not enemywaypoint.Neighbors or next(enemywaypoint.Neighbors) == nil then return end
+                        local neighbor = dvd.Waypoints[enemywaypoint.Neighbors[math.random(#enemywaypoint.Neighbors)]]
 
-                    if neighbor and unit.v then
-                        UVOptimizeRespawn( unit.v, unit.v.rhino, unit.v.uvclasstospawnon == "npc_uvcommander", neighbor )
+                        if neighbor and unit.v then
+                            UVOptimizeRespawn( unit.v, unit.v.rhino, unit.v.uvclasstospawnon == "npc_uvcommander", neighbor )
+                            break
+                        end
                     end
                 end
             end
