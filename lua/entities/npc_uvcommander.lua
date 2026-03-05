@@ -759,7 +759,7 @@ if SERVER then
 
 		local needOffset = false
 		local searchRadius = 800
-		local aheadMaxDistSq = 360000
+		local aheadMaxDistSq = 500000
 		local onWaypointRadiusSq = 40000
 		local forwardDotMin = 0.2
 		for _, veh in ipairs( UVUnitVehicles ) do

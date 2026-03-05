@@ -1319,7 +1319,12 @@ if SERVER then
 		if randomno == 1 then
 			return UVSoundChatter(self, self.voice, "closetoenemy")
 		elseif target.UVHUDBusting then
-			return UVSoundChatter(self, self.voice, "closetoenemy", 2)
+			local randomnu = math.random(1,2)
+			if randomnu == 1 then
+				return UVSoundChatter(self, self.voice, "closetoenemy", 2)
+			else
+				return UVSoundChatter(self, self.voice, "arrest", 2)
+			end
 		end
 		return 0
 	end

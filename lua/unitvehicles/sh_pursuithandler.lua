@@ -216,7 +216,7 @@ end
 function UVSoundHeat(heatlevel)
 	if not PlayMusic:GetBool() then return end
 	if (not RacingMusicPriority:GetBool()) and RacingMusic:GetBool() and UVHUDDisplayRacing then return end
-	if RacingThemeOutsideRace:GetBool() then UVSoundRacing() return end
+	if RacingThemeOutsideRace:GetBool() and RacingMusic:GetBool() then UVSoundRacing() return end
 	if UVPlayingHeat or UVSoundDelayed then return end
 
 	if timer.Exists("UVPursuitThemeReplay") then
@@ -368,7 +368,7 @@ end
 function UVSoundBusting(heatlevel)
 	if not PlayMusic:GetBool() then return end
 	if (not RacingMusicPriority:GetBool()) and RacingMusic:GetBool() and UVHUDDisplayRacing then return end
-	if RacingThemeOutsideRace:GetBool() then UVSoundRacing() return end	
+	if RacingThemeOutsideRace:GetBool() and RacingMusic:GetBool() then UVSoundRacing() return end
 	if UVPlayingBusting or UVSoundDelayed then return end
 
 	if timer.Exists("UVPursuitThemeReplay") then
@@ -439,7 +439,7 @@ end
 function UVSoundCooldown(heatlevel)
 	if not PlayMusic:GetBool() then return end
 	if (not RacingMusicPriority:GetBool()) and RacingMusic:GetBool() and UVHUDDisplayRacing then return end
-	if RacingThemeOutsideRace:GetBool() then UVSoundRacing() return end	
+	if RacingThemeOutsideRace:GetBool() and RacingMusic:GetBool() then UVSoundRacing() return end
 	if UVPlayingCooldown or UVSoundDelayed then return end
 
 	if timer.Exists("UVPursuitThemeReplay") then
@@ -561,7 +561,7 @@ end
 function UVSoundEscaped(heatlevel)
 	if not PlayMusic:GetBool() then return end
 	if (not RacingMusicPriority:GetBool()) and RacingMusic:GetBool() and UVHUDDisplayRacing then return end
-	if RacingThemeOutsideRace:GetBool() then UVSoundRacing() return end	
+	if RacingThemeOutsideRace:GetBool() and RacingMusic:GetBool() then UVSoundRacing() return end
 	if UVPlayingEscaped or UVSoundDelayed then return end
 
 	if timer.Exists("UVPursuitThemeReplay") then

@@ -2118,6 +2118,9 @@ local MUTATOR_FUNCTIONS = {
 	['Multiply'] = function( baseValue, multiplier, info ) 
 		return math.Clamp( baseValue * ( multiplier * ( multiplier == 1 and 1 or info.Modifier ) ), info.Min or 0, info.Max or math.huge )
 	end,
+	['Static'] = function( baseValue, multiplier, info ) 
+		return multiplier <= info.Max and 1 or info.Modifier
+	end,
 	['ModifierComparison'] = function( baseValue, multiplier, info ) 
 		return baseValue * ( multiplier > info.Modifier and info.Max or info.Min )
 	end
@@ -2184,16 +2187,17 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 				['Max'] = math.huge
 			}
 		},
-		-- ['MaxRPM'] = {
-		-- 	['DataType'] = "NetworkVar",
-		-- 	['IsCatchup'] = true,
-		-- 	['Info'] = {
-		-- 		['Type'] = "Multiply",
-		-- 		['Modifier'] = 1,
-		-- 		['Min'] = 0,
-		-- 		['Max'] = math.huge
-		-- 	}
-		-- },
+		['MaxRPM'] = {
+			['DataType'] = "NetworkVar",
+			['IsUnit'] = true,
+			['IsCatchup'] = true,
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
 		['MaxRPMTorque'] = {
 			--['IsUnit'] = true,
 			['IsCatchup'] = true,
@@ -2278,7 +2282,18 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 				['Min'] = 1,
 				['Max'] = 1.5
 			}
-		}
+		},
+		['PowerDistribution'] = {
+			['DataType'] = "NetworkVar",
+			['IsUnit'] = true,
+			['IsCatchup'] = true,
+			['Info'] = {
+				['Type'] = "Static",
+				['Modifier'] = 0.1,
+				['Min'] = 1,
+				['Max'] = 1.2,
+			}
+		},
 	},
 	['prop_vehicle_jeep'] = {
 
