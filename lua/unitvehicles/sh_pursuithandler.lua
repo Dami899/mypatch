@@ -1372,11 +1372,12 @@ if SERVER then
 						UVRelaySoundToClients("ui/pursuit/backup/countdown_start.wav", false)
 						UVRelaySoundToClients("ui/pursuit/backup/countdown_tick.wav", false)
 						timer.Create( "UVBackupTenSecondsTick", 1, 9, function() 
-							--Entity(1):EmitSound("ui/pursuit/backup/countdown_tick.wav", 0, 100, 0.5, CHAN_STATIC)
+							if not UVTargeting then return end
 							UVRelaySoundToClients("ui/pursuit/backup/countdown_tick.wav", false)
 						end)
 						for i=6,9 do
 							timer.Simple( i + 1, function()
+								if not UVTargeting then return end
 								if i == 9 then
 									UVRelaySoundToClients("ui/pursuit/backup/countdown_end.wav", false)
 								else
@@ -3002,13 +3003,40 @@ else -- CLIENT Settings | HUD/Options
 	end
 
 	net.Receive("UVHUDStartPursuitNotification", function()
+		local text = UVString( net.ReadString() )
+
+		if UVIsUsingOGHUD() then
+			LocalPlayer():PrintMessage( HUD_PRINTTALK, UVString("uv.hud.chase.starting.original") )
+			return
+		end
+
 		UV_UI.general.events.CenterNotification({
-            text = UVString( net.ReadString() ),
+            text = text,
 		})
 	end)
 
 	net.Receive("UVHUDStartPursuitCountdown", function()
 		local starttime = net.ReadInt(11)
+
+		if UVIsUsingOGHUD() then
+			local countdownTexts = {
+				[4] = 3,
+				[3] = 2,
+				[2] = 1,
+				[1] = UVString("uv.race.go")
+			}
+
+			local textToShow = countdownTexts[starttime]
+			if not textToShow then return end
+
+			if starttime > 1 then
+				LocalPlayer():PrintMessage( HUD_PRINTTALK, string.format(UVString("uv.hud.chase.starting.original.count"), textToShow) )
+			else
+				LocalPlayer():PrintMessage( HUD_PRINTTALK, textToShow )
+			end
+
+			return
+		end
 
 		local main = UVHUDTypeMain:GetString()
 		local backup = UVHUDTypeBackup:GetString()
