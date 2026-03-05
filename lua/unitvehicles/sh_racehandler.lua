@@ -1398,6 +1398,8 @@ else -- CLIENT stuff
 	UVRacingTheme = CreateClientConVar("unitvehicle_racetheme", "default", true, false, "Unit Vehicles: The theme of the current race.")
 	UVRacingThemeShuffle = CreateClientConVar("unitvehicle_racetheme_shuffle", 1, true, false, "Unit Vehicles: If set to 1, the race theme will be shuffled.")
 	UVRacingSFXTheme = CreateClientConVar("unitvehicle_sfxtheme", "unbound", true, false, "Unit Vehicles: The SFX theme of the current race.")
+	
+	UVGlideSpeedometer = CreateClientConVar("unitvehicle_glide_speedometer", 0, true, false, "Unit Vehicles: If enabled, allow Glide vehicles to utilize a custom speedometer from the chosen HUD Type, if it has one.")
 
 	-- local files, folders = file.Find( "sound/uvracemusic/*", "GAME" )
 	-- if folders ~= nil then
@@ -2557,11 +2559,60 @@ else -- CLIENT stuff
 		end
 	end
 
+	hook.Add("Glide_CanDrawHUD", "UV_DisableGlideHUD", function(vehicle)
+		local hudtype = GetConVar("unitvehicle_hudtype_main"):GetString()
+		if UVGlideSpeedometer:GetBool() and (UV_UI.racing[hudtype] and UV_UI.racing[hudtype].speedometer) then
+			return false
+		end
+	end)
+
 	hook.Add("HUDPaint", "UVHUDRace", function()
 		local w, h = ScrW(), ScrH()
 		local hudyes = GetConVar("cl_drawhud"):GetBool()
 		local hudtype = GetConVar("unitvehicle_hudtype_main"):GetString()
-		
+
+		-- Custom speedometer code
+		if UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.racing[hudtype] and UV_UI.racing[hudtype].speedometer) then
+			local speed = Glide.currentVehicle:GetVelocity():Length()
+
+			local kmh = math.floor(speed * 3600 * 0.0000254 * 0.75)
+			local mph = math.floor(speed * 3600 / 63360 * 0.75)
+
+			local gear = Glide.currentVehicle:GetGear()
+			local rpm = math.floor(Glide.currentVehicle:GetEngineRPM())
+			local maxrpm = math.floor(Glide.currentVehicle:GetMaxRPM())
+			
+			local throttle = math.Round(Glide.currentVehicle:GetEngineThrottle(), 3)
+
+			local gearText = gear
+			if gear == -1 then gearText = "R"
+			elseif gear == 0 then gearText = "N" end
+
+			local speedval = Glide.Config.useKMH and kmh or mph
+			local speedname = Glide.Config.useKMH and "KMH" or "MPH"
+
+			local redlining = false
+			local redlinestrength = (Glide.currentVehicle.stream and Glide.currentVehicle.stream.redlineFrequency) or 0
+			
+			if Glide.currentVehicle.stream and Glide.currentVehicle.stream.isRedlining then
+				redlining = true
+			end
+
+			local text = "<font=UVFont5UI>" ..
+			"RPM: " .. rpm .. " / " .. maxrpm .. "\n" .. 
+			"Speed: " .. speedval .. " " .. speedname .. "\n" ..
+			"Gear: " .. gearText .. "\n" .. 
+			"Throttle: " .. throttle .. "\n" .. 
+			"Redlining: " .. (redlining and "+ " .. redlinestrength or "-") .. "\n" .. 
+			"</font>"
+
+			-- markup.Parse(text, w):Draw(w - (w * 0.25), h - 200, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM) -- DEBUGGING
+			
+			if hudyes then
+				UV_UI.racing[hudtype].speedometer( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength )
+			end
+		end
+
 		-- Timed bars
 		if UVHUDRaceFinishCountdownStarted and not UVHUDCopMode then
 			DrawTimedBar(UVHUDRaceFinishStartTime, UVHUDRaceFinishEndTime, "uv.race.endsin")

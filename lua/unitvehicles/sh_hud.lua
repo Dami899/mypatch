@@ -362,6 +362,8 @@ if CLIENT then
 	surface.CreateFont("UVFont3Bigger", { font = "Arial", size = UV.ScaleH(130), weight = 500, extended = true })
 	surface.CreateFont("UVFont4", { font = "Arial", size = UV.ScaleH(25), weight = 1100, shadow = true, extended = true })
 	surface.CreateFont("UVFont7", { font = "VCR OSD Mono", size = UV.ScaleH(110), weight = 500, shadow = true, })
+	surface.CreateFont("UVFont7Smaller", { font = "VCR OSD Mono", size = UV.ScaleH(64), weight = 500, shadow = true, })
+	surface.CreateFont("UVFont7Tiny", { font = "VCR OSD Mono", size = UV.ScaleH(48), weight = 500, shadow = true, })
 
 	-- CTU
 	surface.CreateFont("UVFont4BiggerItalic", { font = "Arial", size = UV.ScaleH(27), weight = 1100, shadow = true, extended = true, italic = true })
@@ -384,6 +386,7 @@ if CLIENT then
 	surface.CreateFont("UVFont5UI-BottomBar", { font = "EurostileBold", size = UV.ScaleH(44), weight = 500, extended = true })
 	surface.CreateFont("UVFont5WeightShadow", { font = "EurostileBold", size = UV.ScaleH(46), weight = 500, shadow = true, extended = true })
 	surface.CreateFont("UVFont5Shadow", { font = "EurostileBold", size = UV.ScaleH(32), weight = 350, shadow = true, extended = true })
+	surface.CreateFont("UVFont5ShadowLarge", { font = "EurostileBold", size = UV.ScaleH(64), weight = 500, shadow = true, extended = true })
 	surface.CreateFont("UVFont5ShadowBig", { font = "EurostileBold", size = UV.ScaleH(108), weight = 500, shadow = true, extended = true })
 	surface.CreateFont("UVMostWantedLeaderboardFont", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true })
 	surface.CreateFont("UVMostWantedLeaderboardFont2", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true })

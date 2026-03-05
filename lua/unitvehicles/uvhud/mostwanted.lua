@@ -2084,3 +2084,81 @@ end
 
 UV_UI.pursuit.mostwanted.main = mw_pursuit_main
 UV_UI.racing.mostwanted.main = mw_racing_main
+
+local function mw_racing_speedo( ... )
+	local w = ScrW()
+	local h = ScrH()
+
+    local speed = select(1, ...)
+    local speedname = select(2, ...)
+    local gear = select(3, ...)
+    local rpm = select(4, ...)
+    local maxrpm = select(5, ...)
+    local throttle = select(6, ...)
+	local redlining = select(7, ...)
+	local redlinestrength = select(8, ...)
+
+	local gearText = gear
+	if gear == -1 then gearText = "R"
+	elseif gear == 0 then gearText = "N" end
+
+	local speedomat = {
+		["lines00"] = Material("unitvehicles/speedometers/mw00/lines_00.png"),
+		["tach_fill00"] = Material("unitvehicles/speedometers/mw00/tach_fill_00.png"),
+		["tach_needle00"] = Material("unitvehicles/speedometers/mw00/tach_needle_00.png"),
+		["turbo_lines00"] = Material("unitvehicles/speedometers/mw00/turbo_lines_00.png"),
+		["turbo_needle00"] = Material("unitvehicles/speedometers/mw00/turbo_needle_00.png"),
+	}
+	
+	local speedopos = {
+		x = w - (w * 0.125),
+		y = h - (h * 0.175),
+	}
+	
+	local speedocol = {
+		bg = Color(255,255,255),
+		bgf = Color(223,184,127),
+		needle = Color(223,184,127),
+		gearw = Color(0,0,0,100),
+	}
+	
+	if rpm >= maxrpm * 0.95 then
+		speedocol.gearw = Color(255,255,255)
+	end
+	
+	surface.SetMaterial(speedomat["tach_fill00"]) -- Background
+	surface.SetDrawColor(speedocol.bgf)
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(w * 0.175), 0 )
+
+	surface.SetMaterial(speedomat["lines00"]) -- BG Filler
+	surface.SetDrawColor(speedocol.bg)
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(w * 0.175), 0 )
+
+    draw.SimpleText("▲", "UVFont5UI", speedopos.x - 15, speedopos.y - (h * 0.0625), speedocol.gearw, TEXT_ALIGN_CENTER)
+	draw.SimpleText( "0", "UVFont7Tiny", speedopos.x + 10, speedopos.y - (h * 0.0725), Color(0,0,0,100), TEXT_ALIGN_CENTER )
+	draw.SimpleText( gearText, "UVFont7Tiny", speedopos.x + 10, speedopos.y - (h * 0.0725), Color(0,0,0), TEXT_ALIGN_CENTER )
+
+	draw.SimpleText( "000", "UVFont7Smaller", speedopos.x, speedopos.y + (h * 0.0275), Color(0,0,0,100), TEXT_ALIGN_CENTER )
+	draw.SimpleText( speed, "UVFont7Smaller", speedopos.x, speedopos.y + (h * 0.0275), Color(0,0,0), TEXT_ALIGN_CENTER )
+	draw.SimpleText( speedname, "UVFont5Shadow", speedopos.x, speedopos.y + (h * 0.085), Color(255,255,255), TEXT_ALIGN_CENTER )
+
+	local tachometer = {
+		idle = -66.5,
+		max = 161,
+		direction = -1
+	}
+
+	mw_rpm_lerp = Lerp(FrameTime() * 8, mw_rpm_lerp or rpm, rpm)
+	local rpmFrac = math.Clamp(mw_rpm_lerp / maxrpm, 0, 1)
+	local angle = tachometer.idle + tachometer.direction * (rpmFrac * (tachometer.max - tachometer.idle))
+
+	if redlining then
+		angle = angle + math.abs( math.Clamp( math.cos( RealTime() * redlinestrength ), 0, 1 ) * 5 )
+	end
+
+	surface.SetMaterial(speedomat["tach_needle00"]) -- Needle
+	surface.SetDrawColor(speedocol.needle)
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y + 5, w * 0.05, UV_UI.W(w * 0.175), angle )
+end
+
+UV_UI.racing.mostwanted.speedometer = mw_racing_speedo
