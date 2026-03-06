@@ -2178,6 +2178,16 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 				['Max'] = math.huge
 			}
 		},
+		-- ['SteerConeMaxSpeed'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['IsUnit'] = true,
+		-- 	['Info'] = {
+		-- 		['Type'] = "Multiply",
+		-- 		['Modifier'] = 1,
+		-- 		['Min'] = 0,
+		-- 		['Max'] = math.huge
+		-- 	}
+		-- },
 		['SteerConeMaxAngle'] = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {

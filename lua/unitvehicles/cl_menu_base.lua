@@ -3163,7 +3163,6 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			end
 		end
 
-		-- Adjusted setUnitTable
 		local function setUnitTable(tbl)
 			local list = {}
 			for k, v in pairs(tbl) do
@@ -3172,7 +3171,6 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 			local str = table.concat(list, " ")
 
-			-- Update the warning panel dynamically
 			local overLimit = updateWarning(tbl)
 
 			if st.sv then
@@ -3224,20 +3222,63 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			left:Clear()
 			right:Clear()
 
-			for _, entry in ipairs(getAvailableUnits()) do
+			local availableUnits = {}
+			local availableUnitsList = getAvailableUnits()
+			for _, entry in ipairs(availableUnitsList) do
+				availableUnits[entry.filename] = entry
+			end
+
+			local selectedEntries = {}
+			for filename, value in pairs(selected) do
+				if not value then continue end
+				local match = availableUnits[filename]
+				if match then
+					table.insert(selectedEntries, {
+						filename = filename,
+						base = match.base,
+						display = match.display,
+						baseId = match.baseId,
+						exists = true
+					})
+				else
+					local baseId = 0
+					local displayBase = "Unknown"
+					for _, base in ipairs(vehicleBases) do
+						if filename:EndsWith("." .. base.type) then
+							baseId = base.id
+							displayBase = base.name
+							break
+						end
+					end
+					table.insert(selectedEntries, {
+						filename = filename,
+						base = displayBase,
+						display = "[ " .. displayBase .. " ] " .. filename .. " (missing)",
+						baseId = baseId,
+						exists = false
+					})
+				end
+			end
+
+			local unselEntries = {}
+			for _, entry in ipairs(availableUnitsList) do
+				if not selected[entry.filename] then
+					table.insert(unselEntries, entry)
+				end
+			end
+
+			for _, entry in ipairs(selectedEntries) do
 				if activeFilterBaseId ~= 0 and entry.baseId ~= activeFilterBaseId then
 					continue
 				end
 
-				local isSelected = selected[entry.filename]
-				local parentList = isSelected and right or left
-
-				local btn = parentList:Add("DButton")
+				local btn = right:Add("DButton")
 				btn:Dock(TOP)
 				btn:DockMargin(0, 0, 0, 4)
 				btn:SetTall(UV.ScaleH(24))
 				btn:SetText("")
-				btn.Selected = isSelected
+				btn.Selected = true
+				btn.Missing = not entry.exists
 
 				btn.Paint = function(self, w, h)
 					local hovered = self:IsHovered()
@@ -3263,8 +3304,74 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 						GetConVar("uvmenu_col_button_hover_a"):GetInt()
 							* math.abs(math.sin(RealTime() * 4))
 					)
+					
+					local col
+					if self.Missing then
+						col = Color(200, 30, 30, 235)
+					else
+						col = active
+					end
+					draw.RoundedBox(12, w * 0.0125, 0, w * 0.9875, h, col)
+					if hovered then
+						draw.RoundedBox(12, w * 0.0125, 0, w * 0.9875, h, hover)
+					end
 
-					local col = self.Selected and active or default
+					local textCol = self.Missing and Color(255,60,60) or nil
+					DrawWrappedText(self, entry.display, w * 0.95, w * 0.05, 0, nil, "UVSettingsFontSmall", nil, textCol)
+				end
+
+				btn.DoClick = function()
+					local tmpSelected = table.Copy(selected)
+					tmpSelected[entry.filename] = not tmpSelected[entry.filename]
+
+					local overLimit = setUnitTable(tmpSelected)
+					if overLimit then return end
+
+					selected[entry.filename] = tmpSelected[entry.filename]
+					btn.Selected = selected[entry.filename]
+					refreshLists()
+				end
+
+				btn.OnCursorEntered = function()
+					if promptBar then promptBar.Prompts = { "uv.prompt.unitselect" } end
+				end
+
+				btn.OnCursorExited = function()
+					if promptBar then promptBar.Prompts = nil end
+				end
+			end
+
+			for _, entry in ipairs(unselEntries) do
+				if activeFilterBaseId ~= 0 and entry.baseId ~= activeFilterBaseId then
+					continue
+				end
+
+				local btn = left:Add("DButton")
+				btn:Dock(TOP)
+				btn:DockMargin(0, 0, 0, 4)
+				btn:SetTall(UV.ScaleH(24))
+				btn:SetText("")
+				btn.Selected = false
+
+				btn.Paint = function(self, w, h)
+					local hovered = self:IsHovered()
+
+					local default = Color(
+						GetConVar("uvmenu_col_button_r"):GetInt(),
+						GetConVar("uvmenu_col_button_g"):GetInt(),
+						GetConVar("uvmenu_col_button_b"):GetInt(),
+						GetConVar("uvmenu_col_button_a"):GetInt()
+					)
+
+					local hover = Color(
+						GetConVar("uvmenu_col_button_hover_r"):GetInt(),
+						GetConVar("uvmenu_col_button_hover_g"):GetInt(),
+						GetConVar("uvmenu_col_button_hover_b"):GetInt(),
+						GetConVar("uvmenu_col_button_hover_a"):GetInt()
+							* math.abs(math.sin(RealTime() * 4))
+					)
+
+					local col = default
 					draw.RoundedBox(12, w * 0.0125, 0, w * 0.9875, h, col)
 					if hovered then
 						draw.RoundedBox(12, w * 0.0125, 0, w * 0.9875, h, hover)
@@ -3284,11 +3391,11 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 					btn.Selected = selected[entry.filename]
 					refreshLists()
 				end
-				
+
 				btn.OnCursorEntered = function()
 					if promptBar then promptBar.Prompts = { "uv.prompt.unitselect" } end
 				end
-				
+
 				btn.OnCursorExited = function()
 					if promptBar then promptBar.Prompts = nil end
 				end
