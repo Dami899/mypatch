@@ -2097,6 +2097,9 @@ local function mw_racing_speedo( ... )
     local throttle = select(6, ...)
 	local redlining = select(7, ...)
 	local redlinestrength = select(8, ...)
+	local health = select(9, ...)
+	local nitrous = select(10, ...)
+	local speedbreaker = select(11, ...)
 
 	local gearText = gear
 	if gear == -1 then gearText = "R"
@@ -2108,11 +2111,15 @@ local function mw_racing_speedo( ... )
 		["tach_needle00"] = Material("unitvehicles/speedometers/mw00/tach_needle_00.png"),
 		["turbo_lines00"] = Material("unitvehicles/speedometers/mw00/turbo_lines_00.png"),
 		["turbo_needle00"] = Material("unitvehicles/speedometers/mw00/turbo_needle_00.png"),
+		["meter"] = Material("unitvehicles/speedometers/mw/meter_backing2.png"),
+		["nitrous"] = Material("unitvehicles/speedometers/mw/n20_icon.png"),
+		["speedbreaker"] = Material("unitvehicles/speedometers/mw/persuit_icon.png"),
+		["arrow"] = Material("unitvehicles/speedometers/mw/shift_up_icon.png"),
 	}
 	
 	local speedopos = {
 		x = w - (w * 0.125),
-		y = h - (h * 0.175),
+		y = h - (h * 0.2),
 	}
 	
 	local speedocol = {
@@ -2120,19 +2127,50 @@ local function mw_racing_speedo( ... )
 		bgf = Color(223,184,127),
 		needle = Color(223,184,127),
 		gearw = Color(0,0,0,100),
+		extraoff = Color(0,0,0,150),
+		nitrous = Color(25,255,25),
+		speedbr = Color(223,184,127),
 	}
 	
 	if rpm >= maxrpm * 0.95 then
 		speedocol.gearw = Color(255,255,255)
 	end
 	
+	local spn = "KM/H"
+	if speedname == "MPH" then spn = "MPH" end
+
+	if cffunctions then
+		-- [[ Nitrous ]] --
+		surface.SetMaterial(speedomat["meter"])
+		surface.SetDrawColor(speedocol.extraoff)
+		surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.1925), UV_UI.W(w * 0.1925), -135 )
+
+		surface.SetMaterial(speedomat["nitrous"])
+		surface.DrawTexturedRectRotated( speedopos.x - (w * 0.08), speedopos.y + (w * 0.08), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0 )
+		
+		surface.SetMaterial(speedomat["arrow"])
+		surface.DrawTexturedRectRotated( speedopos.x - (w * 0.065), speedopos.y + (w * 0.075), UV_UI.W(w * 0.01), UV_UI.W(w * 0.01), -45 )
+
+		-- [[ Speedbreaker ]] --
+		surface.SetMaterial(speedomat["meter"]) -- Speedbreaker
+		surface.SetDrawColor(speedocol.extraoff)
+		surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.1925), UV_UI.W(w * 0.1925), 45 )
+
+		surface.SetMaterial(speedomat["speedbreaker"])
+		surface.DrawTexturedRectRotated( speedopos.x + (w * 0.08), speedopos.y - (w * 0.08), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0 )
+		
+		surface.SetMaterial(speedomat["arrow"])
+		surface.DrawTexturedRectRotated( speedopos.x + (w * 0.065), speedopos.y - (w * 0.075), UV_UI.W(w * 0.01), UV_UI.W(w * 0.01), 135 )
+	end
+
+	-- [[ Speedometer 00 ]] --
 	surface.SetMaterial(speedomat["tach_fill00"]) -- Background
 	surface.SetDrawColor(speedocol.bgf)
-	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(h * 0.305), 0 )
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(w * 0.175), 0 )
 
 	surface.SetMaterial(speedomat["lines00"]) -- BG Filler
 	surface.SetDrawColor(speedocol.bg)
-	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(h * 0.305), 0 )
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y - (w * 0.001), UV_UI.W(w * 0.17), UV_UI.W(w * 0.17), 0 )
 
     draw.SimpleText("▲", "UVFont5UI", speedopos.x - (w * 0.008), speedopos.y - (h * 0.065), speedocol.gearw, TEXT_ALIGN_CENTER)
 	draw.SimpleText( "8", "UVMWFont7Tiny", speedopos.x + (w * 0.007), speedopos.y - (h * 0.0725), Color(0,0,0,100), TEXT_ALIGN_CENTER )
@@ -2158,7 +2196,7 @@ local function mw_racing_speedo( ... )
 		draw.SimpleText(digitChar, "UVMWFont7Smaller", digitX + ( digitChar == "1" and digitW * .1 or 0 ), yPos, Color(0,0,0), TEXT_ALIGN_RIGHT)
 	end
 
-	draw.SimpleText( speedname, "UVFont5Shadow", speedopos.x, speedopos.y + (h * 0.085), Color(255,255,255), TEXT_ALIGN_CENTER )
+	draw.SimpleText( spn, "UVFont5Shadow", speedopos.x, speedopos.y + (h * 0.085), Color(255,255,255), TEXT_ALIGN_CENTER )
 
 	local tachometer = {
 		idle = -66.5,
@@ -2176,7 +2214,7 @@ local function mw_racing_speedo( ... )
 
 	surface.SetMaterial(speedomat["tach_needle00"]) -- Needle
 	surface.SetDrawColor(speedocol.needle)
-	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y + 5, w * 0.05, UV_UI.W(w * 0.175), angle )
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y + 5, UV_UI.W(w * 0.04), UV_UI.W(w * 0.16), angle )
 end
 
 UV_UI.racing.mostwanted.speedometer = mw_racing_speedo

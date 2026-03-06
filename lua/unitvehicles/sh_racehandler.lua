@@ -2594,6 +2594,11 @@ else -- CLIENT stuff
 			local redlining = false
 			local redlinestrength = (Glide.currentVehicle.stream and Glide.currentVehicle.stream.redlineFrequency) or 0
 			
+			local health = Glide.currentVehicle:GetEngineHealth()
+			
+			local cfnitrousamount = Glide.currentVehicle:GetNWFloat( 'NitrousAmount' ) or 0
+			local cfsbamount = Glide.currentVehicle:GetNWFloat( 'SpeedbreakerAmount' ) or 0
+			
 			if Glide.currentVehicle.stream and Glide.currentVehicle.stream.isRedlining then
 				redlining = true
 			end
@@ -2604,12 +2609,15 @@ else -- CLIENT stuff
 			"Gear: " .. gearText .. "\n" .. 
 			"Throttle: " .. throttle .. "\n" .. 
 			"Redlining: " .. (redlining and "+ " .. redlinestrength or "-") .. "\n" .. 
+			"Durability: " .. math.Round(health * 100, 2) .. "%" .. "\n" .. 
+			"CF Nitrous: " .. math.Round(cfnitrousamount * 100, 2) .. "%" .. "\n" .. 
+			"CF Speedbreaker: " .. math.Round(cfsbamount * 100, 2) .. "%" .. "\n" .. 
 			"</font>"
 
-			-- markup.Parse(text, w):Draw(w - (w * 0.25), h - 200, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM) -- DEBUGGING
+			-- markup.Parse(text, w):Draw(w - (w * 0.25), h - 70, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM) -- DEBUGGING
 			
 			if hudyes then
-				UV_UI.racing[hudtype].speedometer( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength )
+				UV_UI.racing[hudtype].speedometer( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength, health, cfnitrousamount, cfsbamount )
 			end
 		end
 
