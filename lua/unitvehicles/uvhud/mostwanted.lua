@@ -2135,7 +2135,7 @@ local function mw_racing_speedo( ... )
 	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(w * 0.175), 0 )
 
     draw.SimpleText("▲", "UVFont5UI", speedopos.x - (w * 0.008), speedopos.y - (h * 0.065), speedocol.gearw, TEXT_ALIGN_CENTER)
-	draw.SimpleText( "0", "UVMWFont7Tiny", speedopos.x + (w * 0.007), speedopos.y - (h * 0.0725), Color(0,0,0,100), TEXT_ALIGN_CENTER )
+	draw.SimpleText( "8", "UVMWFont7Tiny", speedopos.x + (w * 0.007), speedopos.y - (h * 0.0725), Color(0,0,0,100), TEXT_ALIGN_CENTER )
 	draw.SimpleText( gearText, "UVMWFont7Tiny", speedopos.x + (w * ( tostring(gearText) == "1" and 0.014 or 0.013)), speedopos.y - (h * 0.0725), Color(0,0,0), TEXT_ALIGN_RIGHT )
 
 	local speedStr = tostring(speed)
@@ -2149,7 +2149,7 @@ local function mw_racing_speedo( ... )
 
 	for i = 1, 3 do
 		local digitX = baseX - ( 3 - i ) * ( digitW + 10 )
-		draw.SimpleText("0", "UVMWFont7Smaller", digitX, yPos, Color(0,0,0,100), TEXT_ALIGN_RIGHT)
+		draw.SimpleText("8", "UVMWFont7Smaller", digitX, yPos, Color(0,0,0,100), TEXT_ALIGN_RIGHT)
 	end
 
 	for i = 1, #speedStr do
