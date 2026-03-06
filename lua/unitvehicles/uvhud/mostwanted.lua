@@ -2128,11 +2128,11 @@ local function mw_racing_speedo( ... )
 	
 	surface.SetMaterial(speedomat["tach_fill00"]) -- Background
 	surface.SetDrawColor(speedocol.bgf)
-	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(w * 0.175), 0 )
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(h * 0.305), 0 )
 
 	surface.SetMaterial(speedomat["lines00"]) -- BG Filler
 	surface.SetDrawColor(speedocol.bg)
-	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(w * 0.175), 0 )
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(h * 0.305), 0 )
 
     draw.SimpleText("▲", "UVFont5UI", speedopos.x - (w * 0.008), speedopos.y - (h * 0.065), speedocol.gearw, TEXT_ALIGN_CENTER)
 	draw.SimpleText( "8", "UVMWFont7Tiny", speedopos.x + (w * 0.007), speedopos.y - (h * 0.0725), Color(0,0,0,100), TEXT_ALIGN_CENTER )
@@ -2141,20 +2141,20 @@ local function mw_racing_speedo( ... )
 	local speedStr = tostring(speed)
 
 	surface.SetFont("UVMWFont7Smaller")
-	local digitW, _ = surface.GetTextSize("0")
+	local digitW, _ = UV_UI.W(w * 0.0165)
 	local spacing = digitW * 1
 
-	local baseX = speedopos.x + (w * 0.027)
-	local yPos = speedopos.y + (h * 0.0275)
+	local baseX = speedopos.x + UV_UI.W(w * 0.027)
+	local yPos = speedopos.y + UV_UI.W(h * 0.0275)
 
 	for i = 1, 3 do
-		local digitX = baseX - ( 3 - i ) * ( digitW + 10 )
+		local digitX = baseX - ( 3 - i ) * ( digitW + UV_UI.W(w * 0.0025) )
 		draw.SimpleText("8", "UVMWFont7Smaller", digitX, yPos, Color(0,0,0,100), TEXT_ALIGN_RIGHT)
 	end
 
 	for i = 1, #speedStr do
         local digitChar = string.sub( speedStr, i, i )
-		local digitX = baseX - ( #speedStr - i)  * ( digitW + 10 )
+		local digitX = baseX - ( #speedStr - i)  * ( digitW + UV_UI.W(w * 0.0025) )
 		draw.SimpleText(digitChar, "UVMWFont7Smaller", digitX + ( digitChar == "1" and digitW * .1 or 0 ), yPos, Color(0,0,0), TEXT_ALIGN_RIGHT)
 	end
 
