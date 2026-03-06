@@ -2134,12 +2134,30 @@ local function mw_racing_speedo( ... )
 	surface.SetDrawColor(speedocol.bg)
 	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(w * 0.175), 0 )
 
-    draw.SimpleText("▲", "UVFont5UI", speedopos.x - 15, speedopos.y - (h * 0.0625), speedocol.gearw, TEXT_ALIGN_CENTER)
-	draw.SimpleText( "0", "UVFont7Tiny", speedopos.x + 10, speedopos.y - (h * 0.0725), Color(0,0,0,100), TEXT_ALIGN_CENTER )
-	draw.SimpleText( gearText, "UVFont7Tiny", speedopos.x + 10, speedopos.y - (h * 0.0725), Color(0,0,0), TEXT_ALIGN_CENTER )
+    draw.SimpleText("▲", "UVFont5UI", speedopos.x - (w * 0.008), speedopos.y - (h * 0.065), speedocol.gearw, TEXT_ALIGN_CENTER)
+	draw.SimpleText( "0", "UVMWFont7Tiny", speedopos.x + (w * 0.007), speedopos.y - (h * 0.0725), Color(0,0,0,100), TEXT_ALIGN_CENTER )
+	draw.SimpleText( gearText, "UVMWFont7Tiny", speedopos.x + (w * ( tostring(gearText) == "1" and 0.014 or 0.013)), speedopos.y - (h * 0.0725), Color(0,0,0), TEXT_ALIGN_RIGHT )
 
-	draw.SimpleText( "000", "UVFont7Smaller", speedopos.x, speedopos.y + (h * 0.0275), Color(0,0,0,100), TEXT_ALIGN_CENTER )
-	draw.SimpleText( speed, "UVFont7Smaller", speedopos.x, speedopos.y + (h * 0.0275), Color(0,0,0), TEXT_ALIGN_CENTER )
+	local speedStr = tostring(speed)
+
+	surface.SetFont("UVMWFont7Smaller")
+	local digitW, _ = surface.GetTextSize("0")
+	local spacing = digitW * 1
+
+	local baseX = speedopos.x + (w * 0.027)
+	local yPos = speedopos.y + (h * 0.0275)
+
+	for i = 1, 3 do
+		local digitX = baseX - ( 3 - i ) * ( digitW + 10 )
+		draw.SimpleText("0", "UVMWFont7Smaller", digitX, yPos, Color(0,0,0,100), TEXT_ALIGN_RIGHT)
+	end
+
+	for i = 1, #speedStr do
+        local digitChar = string.sub( speedStr, i, i )
+		local digitX = baseX - ( #speedStr - i)  * ( digitW + 10 )
+		draw.SimpleText(digitChar, "UVMWFont7Smaller", digitX + ( digitChar == "1" and digitW * .1 or 0 ), yPos, Color(0,0,0), TEXT_ALIGN_RIGHT)
+	end
+
 	draw.SimpleText( speedname, "UVFont5Shadow", speedopos.x, speedopos.y + (h * 0.085), Color(255,255,255), TEXT_ALIGN_CENTER )
 
 	local tachometer = {

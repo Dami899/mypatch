@@ -390,6 +390,9 @@ if CLIENT then
 	surface.CreateFont("UVFont5ShadowBig", { font = "EurostileBold", size = UV.ScaleH(108), weight = 500, shadow = true, extended = true })
 	surface.CreateFont("UVMostWantedLeaderboardFont", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true })
 	surface.CreateFont("UVMostWantedLeaderboardFont2", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true })
+	surface.CreateFont("UVMWFont7", { font = "DS-Digital", size = UV.ScaleH(110), weight = 500, shadow = true, extended = true })
+	surface.CreateFont("UVMWFont7Smaller", { font = "DS-Digital", size = UV.ScaleH(64), weight = 500, shadow = true, extended = true })
+	surface.CreateFont("UVMWFont7Tiny", { font = "DS-Digital", size = UV.ScaleH(48), weight = 500, shadow = true, extended = true })
 
 	-- World Fonts
 	surface.CreateFont("UVWorldFont1", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(16), shadow = false, weight = 1000, extended = true })
