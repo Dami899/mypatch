@@ -720,21 +720,21 @@ Si la IA va muy rápido, tendrás que cambiar el límite de velocidad que encont
 Si tienes una carrera ya cargada, puedes presionar [+attack2] en el punto de control para editarlo y aplicar el límite de velocidad actualizado.
 Alternativamente, puedes editar el ultimo numero en el archivo "race data".
 ]],
---[[["Racing.Create.PathNode"] = [[
-# -- What are "Path Nodes" and how do I use them?
+-["Racing.Create.PathNode"] = [[
+# -- ¿Que son los "Path Nodes" y como los uso?
 
-Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+Los Path Nodes son un método de navegación alternativa usada por los corredores IA durante una carrera. Se pueden crear mediante la herramienta [string:tool.uvracemanager.name].
 
 
-**-- Creating Path Nodes**
-With the [string:tool.uvracemanager.name] tool equipped:
- |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
- |-- Press [+attack] anywhere on the map to create a node
- |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
- |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+*-- Creando Path Nodes*
+Con la herramienta [string:tool.uvracemanager.name] equipada:
+ |-- Presiona [+reload] hasta que cambies al modo [string:tool.uvracemanager.node]
+ |-- Presiona [+attack] en cualquier parte del mapa para crear un nodo
+ |-- Presiona [+attack] en cualquier otro lugar para crear uno nuevo; el nodo puesto anteriormente se conectará automaticamente al nuevo nodo 
+ |-- Presiona [+attack] en cualquier nodo existente para remarcarlo; haz click en el nuevamente para eliminarlo, o haz click en otro nodo para conectar el remarcado or a el
 
-**-- Editing Path Nodes**
-With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+**-- Editando Path Nodes**
+Con el [string:tool.uvracemanager.name] y establecido a [string:tool.uvracemanager.node], presiona [+attack2] en un nodo existente para abrir [string:tool.uvracemanager.node.settings]:
  |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
  |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
 ]]--,
