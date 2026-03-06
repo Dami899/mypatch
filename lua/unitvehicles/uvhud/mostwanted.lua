@@ -2098,84 +2098,130 @@ local function mw_racing_speedo( ... )
 	local redlining = select(7, ...)
 	local redlinestrength = select(8, ...)
 	local health = select(9, ...)
-	local nitrous = select(10, ...)
-	local speedbreaker = select(11, ...)
+	local nitrousenabled = select(10, ...)
+	local nitrous = select(11, ...)
+	local speedbreakerenabled = select(12, ...)
+	local speedbreaker = select(13, ...)
 
 	local gearText = gear
 	if gear == -1 then gearText = "R"
 	elseif gear == 0 then gearText = "N" end
 
-	local speedomat = {
-		["lines00"] = Material("unitvehicles/speedometers/mw00/lines_00.png"),
-		["tach_fill00"] = Material("unitvehicles/speedometers/mw00/tach_fill_00.png"),
-		["tach_needle00"] = Material("unitvehicles/speedometers/mw00/tach_needle_00.png"),
-		["turbo_lines00"] = Material("unitvehicles/speedometers/mw00/turbo_lines_00.png"),
-		["turbo_needle00"] = Material("unitvehicles/speedometers/mw00/turbo_needle_00.png"),
-		["meter"] = Material("unitvehicles/speedometers/mw/meter_backing2.png"),
-		["nitrous"] = Material("unitvehicles/speedometers/mw/n20_icon.png"),
-		["speedbreaker"] = Material("unitvehicles/speedometers/mw/persuit_icon.png"),
-		["arrow"] = Material("unitvehicles/speedometers/mw/shift_up_icon.png"),
-	}
-	
 	local speedopos = {
-		x = w - (w * 0.125),
-		y = h - (h * 0.2),
+		x = w * GetConVar("uvspeedo_mw_x"):GetString(),
+		y = h * GetConVar("uvspeedo_mw_y"):GetString(),
 	}
-	
+
+	local cvs = {
+		gaugetype = GetConVar("uvspeedo_mw_gauge"):GetString(),
+		needle = {
+			r = GetConVar("uvspeedo_mw_col_needle_r"):GetInt(),
+			g = GetConVar("uvspeedo_mw_col_needle_g"):GetInt(),
+			b = GetConVar("uvspeedo_mw_col_needle_b"):GetInt(),
+		},
+		lettering = {
+			r = GetConVar("uvspeedo_mw_col_lettering_r"):GetInt(),
+			g = GetConVar("uvspeedo_mw_col_lettering_g"):GetInt(),
+			b = GetConVar("uvspeedo_mw_col_lettering_b"):GetInt(),
+		},
+		gauge = {
+			r = GetConVar("uvspeedo_mw_col_gauge_r"):GetInt(),
+			g = GetConVar("uvspeedo_mw_col_gauge_g"):GetInt(),
+			b = GetConVar("uvspeedo_mw_col_gauge_b"):GetInt(),
+		},
+	}
+
 	local speedocol = {
-		bg = Color(255,255,255),
-		bgf = Color(223,184,127),
-		needle = Color(223,184,127),
+		needle = Color(cvs.needle.r or 223,cvs.needle.g or 184,cvs.needle.b or 127),
+		lettering = Color(cvs.lettering.r or 255,cvs.lettering.g or 255,cvs.lettering.b or 255),
+		gauge = Color(cvs.gauge.r or 223,cvs.gauge.g or 184,cvs.gauge.b or 127),
+
 		gearw = Color(0,0,0,100),
 		extraoff = Color(0,0,0,150),
 		nitrous = Color(25,255,25),
 		speedbr = Color(223,184,127),
+		health = Color(200,75,75),
 	}
-	
+
 	if rpm >= maxrpm * 0.95 then
 		speedocol.gearw = Color(255,255,255)
 	end
 	
-	local spn = "KM/H"
-	if speedname == "MPH" then spn = "MPH" end
+	local spn = "uv.kmh"
+	if speedname == "MPH" then spn = "uv.mph" end
+
+	local function DrawMeter(x, y, radius, thickness, nitrous, rotation, color, arc)
+		nitrous = math.Clamp(nitrous or 0, 0, 1)
+		rotation = rotation or -135
+		arc = arc or 170
+		
+		local startAng = rotation
+
+		local fillEnd = startAng + (arc * nitrous)
+
+		Glide.DrawOutlinedCircle(
+			radius,
+			x,
+			y,
+			thickness,
+			color,
+			fillEnd,
+			rotation + 360
+		)
+	end
 
 	if cffunctions then
 		-- [[ Nitrous ]] --
-		surface.SetMaterial(speedomat["meter"])
-		surface.SetDrawColor(speedocol.extraoff)
-		surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.1925), UV_UI.W(w * 0.1925), -135 )
+		if nitrousenabled then
+			DrawMeter( speedopos.x, speedopos.y, UV_UI.W(w * 0.092), UV_UI.W(w * 0.006), 1, -130, speedocol.extraoff )
+			DrawMeter( speedopos.x, speedopos.y, UV_UI.W(w * 0.092), UV_UI.W(w * 0.006), nitrous, -130, speedocol.nitrous )
 
-		surface.SetMaterial(speedomat["nitrous"])
-		surface.DrawTexturedRectRotated( speedopos.x - (w * 0.08), speedopos.y + (w * 0.08), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0 )
-		
-		surface.SetMaterial(speedomat["arrow"])
-		surface.DrawTexturedRectRotated( speedopos.x - (w * 0.065), speedopos.y + (w * 0.075), UV_UI.W(w * 0.01), UV_UI.W(w * 0.01), -45 )
+			local nitrocol = nitrous <= 0 and speedocol.extraoff or speedocol.nitrous
+			
+			surface.SetDrawColor(nitrocol)
+			surface.SetMaterial(Material("unitvehicles/speedometers/mw/n20_icon.png"))
+			surface.DrawTexturedRectRotated( speedopos.x - (w * 0.08), speedopos.y + (w * 0.08), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0 )
+			
+			surface.SetMaterial(Material("unitvehicles/speedometers/mw/shift_up_icon.png"))
+			surface.DrawTexturedRectRotated( speedopos.x - (w * 0.065), speedopos.y + (w * 0.075), UV_UI.W(w * 0.01), UV_UI.W(w * 0.01), -45 )
+		end
 
 		-- [[ Speedbreaker ]] --
-		surface.SetMaterial(speedomat["meter"]) -- Speedbreaker
-		surface.SetDrawColor(speedocol.extraoff)
-		surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.1925), UV_UI.W(w * 0.1925), 45 )
+		if game.SinglePlayer() and speedbreakerenabled then
+			DrawMeter( speedopos.x, speedopos.y, UV_UI.W(w * 0.092), UV_UI.W(w * 0.006), 1, 50, speedocol.extraoff )
+			DrawMeter( speedopos.x, speedopos.y, UV_UI.W(w * 0.092), UV_UI.W(w * 0.006), speedbreaker, 50, speedocol.speedbr )
 
-		surface.SetMaterial(speedomat["speedbreaker"])
-		surface.DrawTexturedRectRotated( speedopos.x + (w * 0.08), speedopos.y - (w * 0.08), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0 )
-		
-		surface.SetMaterial(speedomat["arrow"])
-		surface.DrawTexturedRectRotated( speedopos.x + (w * 0.065), speedopos.y - (w * 0.075), UV_UI.W(w * 0.01), UV_UI.W(w * 0.01), 135 )
+			local spbcol = speedbreaker <= 0 and speedocol.extraoff or speedocol.speedbr
+			
+			surface.SetDrawColor(spbcol)
+			surface.SetMaterial(Material("unitvehicles/speedometers/mw/persuit_icon.png"))
+			surface.DrawTexturedRectRotated( speedopos.x + (w * 0.08), speedopos.y - (w * 0.08), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0 )
+			
+			surface.SetMaterial(Material("unitvehicles/speedometers/mw/shift_up_icon.png"))
+			surface.DrawTexturedRectRotated( speedopos.x + (w * 0.065), speedopos.y - (w * 0.075), UV_UI.W(w * 0.01), UV_UI.W(w * 0.01), 135 )
+		end
 	end
 
 	-- [[ Speedometer 00 ]] --
-	surface.SetMaterial(speedomat["tach_fill00"]) -- Background
-	surface.SetDrawColor(speedocol.bgf)
+	surface.SetMaterial(Material("unitvehicles/speedometers/mw00/tach_fill_" .. cvs.gaugetype .. ".png", "mips smooth")) -- Background
+	surface.SetDrawColor(speedocol.gauge)
 	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.175), UV_UI.W(w * 0.175), 0 )
 
-	surface.SetMaterial(speedomat["lines00"]) -- BG Filler
-	surface.SetDrawColor(speedocol.bg)
+	surface.SetMaterial(Material("unitvehicles/speedometers/mw00/10000_lines_" .. cvs.gaugetype .. ".png")) -- BG Filler
+	surface.SetDrawColor(speedocol.lettering)
 	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y - (w * 0.001), UV_UI.W(w * 0.17), UV_UI.W(w * 0.17), 0 )
 
     draw.SimpleText("▲", "UVFont5UI", speedopos.x - (w * 0.008), speedopos.y - (h * 0.065), speedocol.gearw, TEXT_ALIGN_CENTER)
 	draw.SimpleText( "8", "UVMWFont7Tiny", speedopos.x + (w * 0.007), speedopos.y - (h * 0.0725), Color(0,0,0,100), TEXT_ALIGN_CENTER )
 	draw.SimpleText( gearText, "UVMWFont7Tiny", speedopos.x + (w * ( tostring(gearText) == "1" and 0.014 or 0.013)), speedopos.y - (h * 0.0725), Color(0,0,0), TEXT_ALIGN_RIGHT )
+		
+	-- [[ Health ]] --
+	DrawMeter( speedopos.x, speedopos.y, UV_UI.W(w * 0.078), UV_UI.W(w * 0.007), health, -52.5, speedocol.health, 105 )
 
+	surface.SetDrawColor(speedocol.lettering)
+	surface.SetMaterial(Material("unitvehicles/speedometers/mw00/turbo_lines_0.png"))
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y - (w * 0.001), UV_UI.W(w * 0.165), UV_UI.W(w * 0.165), 0 )
+	
 	local speedStr = tostring(speed)
 
 	surface.SetFont("UVMWFont7Smaller")
@@ -2196,7 +2242,7 @@ local function mw_racing_speedo( ... )
 		draw.SimpleText(digitChar, "UVMWFont7Smaller", digitX + ( digitChar == "1" and digitW * .1 or 0 ), yPos, Color(0,0,0), TEXT_ALIGN_RIGHT)
 	end
 
-	draw.SimpleText( spn, "UVFont5Shadow", speedopos.x, speedopos.y + (h * 0.085), Color(255,255,255), TEXT_ALIGN_CENTER )
+	draw.SimpleText( UVString(spn), "UVFont5Shadow", speedopos.x, speedopos.y + (h * 0.085), speedocol.lettering, TEXT_ALIGN_CENTER )
 
 	local tachometer = {
 		idle = -66.5,
@@ -2212,9 +2258,55 @@ local function mw_racing_speedo( ... )
 		angle = angle + math.abs( math.Clamp( math.cos( RealTime() * redlinestrength ), 0, 1 ) * 5 )
 	end
 
-	surface.SetMaterial(speedomat["tach_needle00"]) -- Needle
+	surface.SetMaterial(Material("unitvehicles/speedometers/mw00/tach_needle_" .. cvs.gaugetype .. ".png")) -- Needle
 	surface.SetDrawColor(speedocol.needle)
-	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y + 5, UV_UI.W(w * 0.04), UV_UI.W(w * 0.16), angle )
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y, UV_UI.W(w * 0.04), UV_UI.W(w * 0.16), angle )
 end
 
 UV_UI.racing.mostwanted.speedometer = mw_racing_speedo
+
+-- [[ Colour Settings ]] --
+-- Convars
+CreateClientConVar("uvspeedo_mw_gauge", 0, true, false)
+CreateClientConVar("uvspeedo_mw_x", 0.875, true, false)
+CreateClientConVar("uvspeedo_mw_y", 0.825, true, false)
+
+-- Background colour
+CreateClientConVar("uvspeedo_mw_col_needle_r", 223, true, false)
+CreateClientConVar("uvspeedo_mw_col_needle_g", 184, true, false)
+CreateClientConVar("uvspeedo_mw_col_needle_b", 127, true, false)
+
+CreateClientConVar("uvspeedo_mw_col_lettering_r", 255, true, false)
+CreateClientConVar("uvspeedo_mw_col_lettering_g", 255, true, false)
+CreateClientConVar("uvspeedo_mw_col_lettering_b", 255, true, false)
+
+CreateClientConVar("uvspeedo_mw_col_gauge_r", 223, true, false)
+CreateClientConVar("uvspeedo_mw_col_gauge_g", 184, true, false)
+CreateClientConVar("uvspeedo_mw_col_gauge_b", 127, true, false)
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+
+UVMenu.CustomizeHUD.mostwanted = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1250),
+		Height = UV.ScaleH(760),
+		Description = true,
+		-- ColorPreview = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "NFS: Most Wanted",
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "label", text = "uv.speedo" },
+				{ type = "slider", text = "uv.speedo", convar = "uvspeedo_mw_gauge", min = 0, max = 10, decimals = 0 },
+				{ type = "slider", text = "uv.ui.xaxis", desc = "uv.ui.xaxis.desc", convar = "uvspeedo_mw_x", min = 0, max = 1, decimals = 3 },
+				{ type = "slider", text = "uv.ui.yaxis", desc = "uv.ui.yaxis.desc", convar = "uvspeedo_mw_y", min = 0, max = 1, decimals = 3 },
+				{ type = "coloralpha", text = "uv.speedo.needle", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_mw_col_needle" },
+				{ type = "coloralpha", text = "uv.speedo.lettering", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_mw_col_lettering" },
+				{ type = "coloralpha", text = "uv.speedo.face", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_mw_col_gauge" },
+			},
+		}
+	})
+end

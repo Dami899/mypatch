@@ -376,15 +376,23 @@ function UV.ShouldDrawSetting(st)
 	end
 
 	if st.showfunc and st.showfunc() == false then return false end
-	
 	if st.cond and st.cond() == false then return false end
 
-	if st.requireparentconvarfloat then
-		local c = GetConVar(st.requireparentconvarfloat)
+	if st.requireparentconvarvariable then
+		local c = GetConVar(st.requireparentconvarvariable)
 		if c then
-			local v = c:GetFloat() > 0
-			if st.parentinvert then v = not v end
-			if not v then return false end
+			local value = c:GetString()
+			local allowed = st.requireparentconvarvalue or st.requireparentconvarvariable -- fallback
+
+			local active
+			if istable(allowed) then
+				active = table.HasValue(allowed, value)
+			else
+				active = (value == allowed)
+			end
+
+			if st.parentinvert then active = not active end
+			if not active then return false end
 		end
 
 	elseif st.requireparentconvar then
@@ -649,13 +657,17 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		local prefix = ""
 
 		local parentName
-		local isFloat = false
+		local checkType
 
-		if st.requireparentconvarfloat then
+		if st.requireparentconvarvariable then
+			parentName = st.requireparentconvarvariable
+			checkType = "string"
+		elseif st.requireparentconvarfloat then
 			parentName = st.requireparentconvarfloat
-			isFloat = true
+			checkType = "float"
 		else
 			parentName = st.parentconvar or st.requireparentconvar
+			checkType = "bool"
 		end
 		
 		if st.showprefix then prefix = "	|-- " end
@@ -665,7 +677,21 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			if cv then
 				local active
 
-				if isFloat then active = cv:GetFloat() > 0 else active = cv:GetBool() end
+				if checkType == "float" then
+					active = cv:GetFloat() > 0
+				elseif checkType == "string" then
+					local value = cv:GetString()
+					local allowed = st.requireparentconvarvalue or st.requireparentconvarvariable
+
+					if istable(allowed) then
+						active = table.HasValue(allowed, value)
+					else
+						active = (value == allowed)
+					end
+				else
+					active = cv:GetBool()
+				end
+
 				if st.parentinvert then active = not active end
 				if st.showprefix then active = true end
 
@@ -674,10 +700,12 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 				end
 			end
 		end
+		
+		if st.noprefix then prefix = "" end
 
 		return prefix .. UVString(st.text)
 	end
-
+	
 	-- if st is an information panel
 	if st.type == "info" then
 		local p = vgui.Create("DPanel", parent)
@@ -4844,9 +4872,10 @@ function UVMenu:Open(menu)
         watchedConvars = {} -- reset
         for k2, entry in ipairs(tab) do
             if istable(entry) and entry.type then
-                if entry.parentconvar then watchedConvars[entry.parentconvar] = true end
-                if entry.requireparentconvar then watchedConvars[entry.requireparentconvar] = true end
+				if entry.parentconvar then watchedConvars[entry.parentconvar] = true end
+				if entry.requireparentconvar then watchedConvars[entry.requireparentconvar] = true end
 				if entry.requireparentconvarfloat then watchedConvars[entry.requireparentconvarfloat] = true end
+				if entry.requireparentconvarvariable then watchedConvars[entry.requireparentconvarvariable] = true end
             end
         end
 
@@ -4946,7 +4975,25 @@ function UVMenu:Open(menu)
 			for cvName in pairs(watchedConvars) do
 				local cv = GetConVar(cvName)
 				if cv then
-					local val = cv:GetString()
+					local val
+
+					-- Determine type by which setting is using it
+					local isVariable = false
+					for _, tab in ipairs(Tabs) do
+						for _, entry in ipairs(tab) do
+							if entry.requireparentconvarvariable == cvName then
+								isVariable = true
+								break
+							end
+						end
+					end
+
+					if isVariable then
+						val = cv:GetString()
+					else
+						val = cv:GetString() -- fallback: still track as string for safety
+					end
+
 					if lastValues[cvName] ~= val then
 						lastValues[cvName] = val
 						shouldRefresh = true

@@ -2596,6 +2596,9 @@ else -- CLIENT stuff
 			
 			local health = Glide.currentVehicle:GetEngineHealth()
 			
+			local cfnitrousenabled = Glide.currentVehicle:GetNWBool( 'NitrousEnabled' ) and true or false
+			local cfsbenabled = Glide.currentVehicle:GetNWBool( 'SpeedbreakerEnabled' ) and true or false
+			
 			local cfnitrousamount = Glide.currentVehicle:GetNWFloat( 'NitrousAmount' ) or 0
 			local cfsbamount = Glide.currentVehicle:GetNWFloat( 'SpeedbreakerAmount' ) or 0
 			
@@ -2617,7 +2620,7 @@ else -- CLIENT stuff
 			-- markup.Parse(text, w):Draw(w - (w * 0.25), h - 70, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM) -- DEBUGGING
 			
 			if hudyes then
-				UV_UI.racing[hudtype].speedometer( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength, health, cfnitrousamount, cfsbamount )
+				UV_UI.racing[hudtype].speedometer( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength, health, cfnitrousenabled, cfnitrousamount, cfsbenabled, cfsbamount )
 			end
 		end
 
