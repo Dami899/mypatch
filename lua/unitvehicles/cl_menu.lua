@@ -377,6 +377,11 @@ end
 
 local mainHUDList, backupHUDList = BuildHUDComboLists()
 
+local custHUDtable = {
+	"mostwanted",
+	"carbon",
+}
+
 ------- [ Main Menu ]-------
 UVMenu.Main = function()
 	local mainHUDList, backupHUDList = BuildHUDComboLists()
@@ -399,6 +404,9 @@ UVMenu.Main = function()
 				
 				{ type = "label", text = "uv.menu.quick", desc = "uv.menu.quick.desc" },
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
+								
+				{ type = "button", text = "uv.ui.custhud", desc = "uv.ui.custhud.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvarvariable = "unitvehicle_hudtype_main", requireparentconvarvalue = custHUDtable, func = function() if  UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()] then UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()], true) end end },
+				
 				{ type = "bool", text = "uv.audio.uvtrax.enable", desc = "uv.audio.uvtrax.desc", convar = "unitvehicle_racingmusic" },
 				{ type = "combo", text = "uv.audio.uvtrax.profile", desc = "uv.audio.uvtrax.profile.desc", convar = "unitvehicle_racetheme", requireparentconvar = "unitvehicle_racingmusic" },
 				
@@ -552,11 +560,6 @@ UVMenu.Settings = function()
 
 		return t
 	end
-
-	local custHUDtable = {
-		"mostwanted",
-		"carbon",
-	}
 
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = UVString("uv.unitvehicles") .. " | " .. UVString("uv.settings"),

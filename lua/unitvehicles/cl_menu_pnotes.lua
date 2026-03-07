@@ -25,7 +25,7 @@ Text = [[
       |-- Save them as .json presets for each map
       |-- Allow Repair Shops to spawn on their own automatically
 - Added support for themed Speedometers, tied to the chosen Main UI
-      |-- Only *Most Wanted's* speedometer has been replicated
+      |-- Can be customized via a new *<color=255,255,0>Customize HUD</color>* button
       |-- Only works in <color=255,255,0>Glide</color> vehicles
 - Added tips that are displayed on the end-of-pursuit results screens on all HUD types
 
