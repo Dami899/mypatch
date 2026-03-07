@@ -301,13 +301,18 @@ if SERVER then
 			rightstart:Rotate(Angle(0, -90, 0))
 		end
 		
-		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+Vector(0,0,25)), filter = {self.v, 'glide_wheel'}, mask = MASK_ALL}).Fraction
-		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+Vector(0,0,25)), filter = {self.v, 'glide_wheel'}, mask = MASK_ALL}).Fraction
+		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC})
+		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC})
 
-		if trleft > trright then
+		local Fraction = trleft.Fraction ~= 1 or trright.Fraction ~= 1
+		local HitNormal = trleft.HitNormal.z < 0.45 or trright.HitNormal.z < 0.45 --Ignore small inclines
+
+		if not tobool(Fraction and HitNormal) then return false end
+
+		if trleft.Fraction > trright.Fraction then
 			return turnleft
 		end
-		if trleft < trright then
+		if trleft.Fraction < trright.Fraction then
 			return turnright
 		end
 
@@ -431,8 +436,6 @@ if SERVER then
 					end
 				end
 			end --K turn
-
-			
 
 			local turn = self:ObstaclesNearbySide()
 			if turn then
