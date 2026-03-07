@@ -773,7 +773,7 @@ if SERVER then
 		for _, veh in ipairs( UVUnitVehicles ) do
 			if veh ~= self.v and IsValid(veh) then 
 				local otherPos = veh:WorldSpaceCenter()
-				local toOther = otherPos - unitpos
+				local toOther = otherPos - (unitpos + (forward * 100))
 				local distSq = toOther:LengthSqr()
 				local fwdDot = toOther:GetNormalized():Dot(forward)
 				local distToWpSq = (otherPos - bestWaypoint):LengthSqr()
