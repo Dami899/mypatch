@@ -553,6 +553,11 @@ UVMenu.Settings = function()
 		return t
 	end
 
+	local custHUDtable = {
+		"mostwanted",
+		"carbon",
+	}
+
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = UVString("uv.unitvehicles") .. " | " .. UVString("uv.settings"),
 		Width  = UV.ScaleW(1540),
@@ -566,7 +571,7 @@ UVMenu.Settings = function()
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
 				{ type = "combo", text = "uv.ui.backup", desc = "uv.ui.backup.desc", convar = "unitvehicle_hudtype_backup", content = backupHUDList },		
 				
-				{ type = "button", text = "uv.ui.custhud", desc = "uv.ui.custhud.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, func = function() if  UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()] then UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()], true) end end },
+				{ type = "button", text = "uv.ui.custhud", desc = "uv.ui.custhud.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvarvariable = "unitvehicle_hudtype_main", requireparentconvarvalue = custHUDtable, func = function() if  UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()] then UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()], true) end end },
 				
 				{ type = "bool", text = "uv.ui.racertags", desc = "uv.ui.racertags.desc", convar = "unitvehicle_racertags" },
 				{ type = "bool", text = "uv.ui.preracepopup", desc = "uv.ui.preracepopup.desc", convar = "unitvehicle_preraceinfo" },
