@@ -2596,8 +2596,8 @@ else -- CLIENT stuff
 			
 			local health = Glide.currentVehicle:GetEngineHealth()
 			
-			local cfnitrousenabled = Glide.currentVehicle:GetNWBool( 'NitrousEnabled' ) and true or false
-			local cfsbenabled = Glide.currentVehicle:GetNWBool( 'SpeedbreakerEnabled' ) and true or false
+			local cfnitrousenabled = Glide.currentVehicle:GetNWBool( 'NitrousEnabled' )
+			local cfsbenabled = Glide.currentVehicle:GetNWBool( 'SpeedbreakerEnabled' )
 			
 			local cfnitrousamount = Glide.currentVehicle:GetNWFloat( 'NitrousAmount' ) or 0
 			local cfsbamount = Glide.currentVehicle:GetNWFloat( 'SpeedbreakerAmount' ) or 0

@@ -202,6 +202,18 @@ UVMaterials = {
     ["EOC_FRAME_CARBON"] = Material("unitvehicles/hud_carbon/PC_HELP_FRAME_LONG.png"),
     
     ["BG_BIG_CARBON"] = Material("unitvehicles/hud_carbon/NFSC_BG_BIG.png"),
+
+	-- [Carbon] UI
+
+	["RPM_8000"] = Material("unitvehicles/speedometers/carbon00/HUD_RPM_8000.png", "mips smooth"),
+	["RPM_10000"] = Material("unitvehicles/speedometers/carbon00/HUD_RPM_10000.png", "mips smooth"),
+	["HUD_BACKGROUND_BACKING"] = Material("unitvehicles/speedometers/carbon00/HUD_MAIN_SPEED_BACKING.png", "mips smooth"),
+	["HUD_GEAR"] = Material("unitvehicles/speedometers/carbon/HUD_GEAR.png", "mips smooth"),
+	["NOS_ICON"] = Material("unitvehicles/speedometers/carbon/NOS_ICON.png", "mips smooth"),
+	["SPEEDBREAKER_ICON"] = Material("unitvehicles/speedometers/carbon/SPEEDBREAKER_ICON.png", "mips smooth"),
+	["RPM_BACKING"] = Material("unitvehicles/speedometers/carbon00/HUD_RPM_METER_BACKING.png", "mips smooth"),
+	["RPM_COLOR"] = Material("unitvehicles/speedometers/carbon00/HUD_RPM_METER_COLOR.png", "mips smooth"),
+	["SHIFT_ICON_NORMAL"] = Material("unitvehicles/speedometers/carbon00/HUD_SHIFT_ICON_NORMAL.png", "mips smooth"),
     
     -- Undercover
     ["ARREST_BG_UC"] = Material("unitvehicles/hud_undercover/BUSTED_HEADER.png"),
@@ -373,7 +385,12 @@ if CLIENT then
 	
 		-- Carbon Fonts
 		surface.CreateFont("UVCarbonFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(46), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonFont-Larger", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(64), shadow = true, weight = 1000, extended = true, bold = true })
 		surface.CreateFont("UVCarbonFont-Smaller", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(38), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonMonoFont", { font = "Carbon Mono", size = UV.ScaleH(46), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonMonoFont-Smaller", { font = "Carbon Mono", size = UV.ScaleH(38), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonMonoFont7", { font = "Carbon Mono ", size = UV.ScaleH(110), shadow = true, weight = 0, extended = true })
+		surface.CreateFont("UVCarbonMonoFont7Smaller", { font = "Carbon Mono ", size = UV.ScaleH(64), shadow = true, weight = 0, extended = true })
 	
 		-- Undercover Fonts
 		surface.CreateFont("UVUndercoverAccentFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(36), shadow = true, weight = 1000, extended = true })
@@ -427,6 +444,9 @@ if CLIENT then
 		surface.CreateFont("UVKeybindFontBig", { font = "Destiny Keys", size = UV.ScaleH(35), weight = 500, extended = true })
 		surface.CreateFont("UVKeybindFontSmall", { font = "Destiny Keys", size = UV.ScaleH(17.5), weight = 500, extended = true })	
 	end )
+
+
+
 
 	local screenW = ScrW()
 	local screenH = ScrH()
