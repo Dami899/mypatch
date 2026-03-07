@@ -2168,17 +2168,17 @@ local function carbon_racing_speedo( ... )
 	local digitW, _ = UV_UI.W(w * 0.035)
 	local spacing = digitW * 1
 
-	local baseX = speedopos.x - UV_UI.W(w * 0.045)
+	local baseX = speedopos.x - UV_UI.W(w * 0.05)
 	local yPos = speedopos.y - UV_UI.W(h * 0.06)
 
 	for i = 1, 3 do
-		local digitX = baseX - ( 3 - i ) * ( digitW + UV_UI.W(w * 0.0025) )
+		local digitX = baseX - ( 3 - i ) * ( digitW + UV_UI.W(w * -0.001) )
 		draw.SimpleText("8", "UVCarbonMonoFont7", digitX, yPos, Color( col.lettering.r, col.lettering.g, col.lettering.b, 20  ), TEXT_ALIGN_RIGHT)
 	end
 
 	for i = 1, #speedStr do
         local digitChar = string.sub( speedStr, i, i )
-		local digitX = baseX - ( #speedStr - i)  * ( digitW + UV_UI.W(w * 0.0025) )
+		local digitX = baseX - ( #speedStr - i)  * ( digitW + UV_UI.W(w * -0.001) )
 		draw.SimpleTextOutlined(digitChar, "UVCarbonMonoFont7", digitX, yPos, col.lettering, TEXT_ALIGN_RIGHT, nil, 2, Color(0, 0, 0))
 	end
 
