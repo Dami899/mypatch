@@ -1785,14 +1785,8 @@ if SERVER then
 						end
 					elseif v.Tech == 'ESF' then
 						local pttimeout = 0.5
-						if self.e.IsSimfphyscar then
-							if not (eedist:LengthSqr() < 6250000) then
-								self.esf = CurTime()
-							end
-						elseif self.e:GetClass() == "prop_vehicle_jeep" then
-							if not (eedist:LengthSqr() < 6250000) then
-								self.esf = CurTime()
-							end
+						if not (eedist:LengthSqr() < 6250000) then
+							self.esf = CurTime()
 						end
 						if UVCalm or UVEnemyEscaping or not self.aggressive or self.v.rhino then
 							self.esf = CurTime() 
@@ -1803,14 +1797,8 @@ if SERVER then
 						end
 					elseif v.Tech == 'EMP' then
 						local pttimeout = 0.5
-						if self.e.IsSimfphyscar then
-							if not (eedist:LengthSqr() < 1000000) then
-								self.emp = CurTime()
-							end
-						elseif self.e:GetClass() == "prop_vehicle_jeep" then
-							if not (eedist:LengthSqr() < 1000000) then
-								self.emp = CurTime()
-							end
+						if not (eedist:LengthSqr() < 1000000) then
+							self.emp = CurTime()
 						end
 						if UVCalm or UVEnemyEscaping or not self.aggressive or self.v.rhino then
 							self.emp = CurTime() 
@@ -1821,14 +1809,8 @@ if SERVER then
 						end
 					elseif v.Tech == 'Killswitch' then
 						local pttimeout = 0.5
-						if self.e.IsSimfphyscar then
-							if not (eedist:LengthSqr() < 250000) then
-								self.ks = CurTime()
-							end
-						elseif self.e:GetClass() == "prop_vehicle_jeep" then
-							if not (eedist:LengthSqr() < 250000) then
-								self.ks = CurTime()
-							end
+						if not (eedist:LengthSqr() < 250000) then
+							self.ks = CurTime()
 						end
 						if UVCalm or UVEnemyEscaping or not self.aggressive or self.v.rhino then
 							self.ks = CurTime() 
@@ -1886,16 +1868,10 @@ if SERVER then
 						end
 
 						local pttimeout = 0.5
-						if self.e.IsSimfphyscar then
-							if not (UVIsVehicleInCone( self.v, self.e, 90, self.shrampreferredrange )) then
-								self.shram = CurTime()
-							end
-						elseif self.e:GetClass() == "prop_vehicle_jeep" then
-							if not (UVIsVehicleInCone( self.v, self.e, 90, self.shrampreferredrange )) then
-								self.shram = CurTime()
-							end
+						if not (UVIsVehicleInCone( self.v, self.e, 20, self.shrampreferredrange )) then
+							self.shram = CurTime()
 						end
-						if UVCalm or UVEnemyEscaping or not self.aggressive or self.v.rhino then
+						if eevectdot < 0 or UVCalm or UVEnemyEscaping or not self.aggressive or self.v.rhino then
 							self.shram = CurTime() 
 						end
 						if self.shram ~= CurTime() and pttimeout > 0 and PursuitTech:GetBool() and not self.v.roadblocking and not self.e.UVHUDBusting then
@@ -1908,14 +1884,8 @@ if SERVER then
 						end
 						
 						local pttimeout = 0.5
-						if self.e.IsSimfphyscar then
-							if not (UVIsVehicleInCone( self.v, self.e, 10, self.gpspreferredrange )) then
-								self.gps = CurTime()
-							end
-						elseif self.e:GetClass() == "prop_vehicle_jeep" then
-							if not (UVIsVehicleInCone( self.v, self.e, 10, self.gpspreferredrange )) then
-								self.gps = CurTime()
-							end
+						if not (UVIsVehicleInCone( self.v, self.e, 10, self.gpspreferredrange )) then
+							self.gps = CurTime()
 						end
 						if UVCalm or UVEnemyEscaping or not self.aggressive or self.v.rhino then
 							self.gps = CurTime() 
@@ -1926,14 +1896,8 @@ if SERVER then
 						end
 					elseif v.Tech == 'Grappler' then
 						local pttimeout = 0.5
-						if self.e.IsSimfphyscar then
-							if not (eedist:LengthSqr() < 1000000) then
-								self.grappler = CurTime()
-							end
-						elseif self.e:GetClass() == "prop_vehicle_jeep" then
-							if not (eedist:LengthSqr() < 1000000) then
-								self.grappler = CurTime()
-							end
+						if not (eedist:LengthSqr() < 1000000) then
+							self.grappler = CurTime()
 						end
 						if IsValid(self.v.grappler) or UVCalm or UVEnemyEscaping or not self.aggressive or self.v.rhino then
 							self.grappler = CurTime() 
