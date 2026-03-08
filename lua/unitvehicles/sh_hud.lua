@@ -389,7 +389,7 @@ if CLIENT then
 		surface.CreateFont("UVCarbonFont-Smaller", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(38), shadow = true, weight = 1000, extended = true })
 		surface.CreateFont("UVCarbonMonoFont", { font = "Carbon Mono", size = UV.ScaleH(46), shadow = true, weight = 1000, extended = true })
 		surface.CreateFont("UVCarbonMonoFont-Smaller", { font = "Carbon Mono", size = UV.ScaleH(38), shadow = true, weight = 1000, extended = true })
-		surface.CreateFont("UVCarbonMonoFont7", { font = "Carbon Mono ", size = UV.ScaleH(110), shadow = true, weight = 0, extended = true })
+		surface.CreateFont("UVCarbonMonoFont7", { font = "Carbon Mono ", size = UV.ScaleH(100), shadow = true, weight = 0, extended = true })
 		surface.CreateFont("UVCarbonMonoFont7Smaller", { font = "Carbon Mono ", size = UV.ScaleH(64), shadow = true, weight = 0, extended = true })
 	
 		-- Undercover Fonts
@@ -444,9 +444,6 @@ if CLIENT then
 		surface.CreateFont("UVKeybindFontBig", { font = "Destiny Keys", size = UV.ScaleH(35), weight = 500, extended = true })
 		surface.CreateFont("UVKeybindFontSmall", { font = "Destiny Keys", size = UV.ScaleH(17.5), weight = 500, extended = true })	
 	end )
-
-
-
 
 	local screenW = ScrW()
 	local screenH = ScrH()

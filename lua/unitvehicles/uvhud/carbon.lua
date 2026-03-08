@@ -2043,13 +2043,13 @@ local function carbon_bar( progress, width, height, col, icon )
     local outlineX = width - UV_UI.W(w * -0.05)
     local outlineY = height - UV_UI.W(w * 0.1)
     local outlineW = UV_UI.W(w * 0.135)
-    local outlineH = UV_UI.W(w * 0.034)
+    local outlineH = UV_UI.W(w * 0.0275)
 
     if icon then
         local iconX = outlineX + UV_UI.W(w * 0.13)
-        local iconY = outlineY + UV_UI.W(w * -0.012)
-        local iconW = UV_UI.W(w * 0.05)
-        local iconH = UV_UI.W(w * 0.05)
+        local iconY = outlineY + UV_UI.W(w * -0.006)
+        local iconW = UV_UI.W(w * 0.04)
+        local iconH = UV_UI.W(w * 0.04)
 
         surface.SetDrawColor(progress > 0 and col.accent or col.empty)
         surface.SetMaterial(icon)
@@ -2061,11 +2061,11 @@ local function carbon_bar( progress, width, height, col, icon )
     surface.DrawTexturedRect(outlineX, outlineY, outlineW, outlineH)
 
     local barMarginX = UV_UI.W(w * 0.002)
-    local barMarginY = UV_UI.W(w * 0.0046)
+    local barMarginY = UV_UI.W(w * 0.0025)
     local innerX = outlineX + barMarginX
     local innerY = outlineY + barMarginY
     local innerW = UV_UI.W(w * 0.13)
-    local innerH = UV_UI.W(w * 0.025)
+    local innerH = UV_UI.W(w * 0.0225)
 
     surface.SetDrawColor( progress > 0 and col.accentFade or col.empty )
     surface.DrawTexturedRect(innerX, innerY, innerW, innerH)
@@ -2141,10 +2141,8 @@ local function carbon_racing_speedo( ... )
 
 	local spn = (speedname == "MPH") and (UVString and UVString("uv.mph") or "MPH") or (UVString and UVString("uv.kmh") or "KMH")
 
-	local baseScale = w * 0.21
-	local leftX = speedopos.x - baseScale * 1.1
-	local centerX = speedopos.x - baseScale * 0.35
-	local rightX = speedopos.x
+	local leftX = speedopos.x - (w * 0.165)
+	local rightX = speedopos.x - (w * 0.01)
 	local baseY = speedopos.y
 
     -- Speedo Background Fade
@@ -2153,51 +2151,47 @@ local function carbon_racing_speedo( ... )
     if bgFadeMat then
         surface.SetDrawColor( color_white )
         surface.SetMaterial( bgFadeMat )
-        surface.DrawTexturedRectRotated(speedopos.x - UV_UI.W(w * 0.075), speedopos.y - (h * 0.01), UV_UI.W(w * 0.2), UV_UI.W(h * 0.2), 0)
+        surface.DrawTexturedRectRotated(speedopos.x - (w * 0.025), speedopos.y - (h * 0.005), UV_UI.W(w * 0.2), UV_UI.W(h * 0.2), 0)
     end
 
     local nitroIcon = UVMaterials["NOS_ICON"]
-    carbon_bar( cffunctions and nitrousenabled and nitrous or 0, leftX, baseY - UV_UI.W(w * 0.015), col, nitroIcon )
+    carbon_bar( cffunctions and nitrousenabled and nitrous or 0, leftX, baseY - UV_UI.W(w * -0.01), col, nitroIcon )
 
     local speedbreakerIcon = UVMaterials["SPEEDBREAKER_ICON"]
-    carbon_bar( cffunctions and speedbreakerenabled and speedbreaker or 0, leftX, baseY - UV_UI.W(w * -0.029), col, speedbreakerIcon )
+    carbon_bar( cffunctions and speedbreakerenabled and speedbreaker or 0, leftX, baseY - UV_UI.W(w * -0.05), col, speedbreakerIcon )
 
 	-- Speedometer
 	local speedStr = tostring(speed)
 
-	local digitW, _ = UV_UI.W(w * 0.035)
+	local digitW, _ = UV_UI.W(w * 0.04)
 	local spacing = digitW * 1
 
-	local baseX = speedopos.x - UV_UI.W(w * 0.05)
-	local yPos = speedopos.y - UV_UI.W(h * 0.06)
+	local baseX = speedopos.x - UV_UI.W(w * 0.01)
+	local yPos = speedopos.y - UV_UI.W(h * 0.025)
 
 	for i = 1, 3 do
-		local digitX = baseX - ( 3 - i ) * ( digitW + UV_UI.W(w * -0.001) )
+		local digitX = baseX - ( 3 - i ) * ( digitW + UV_UI.W(w * -0.01) )
 		draw.SimpleText("8", "UVCarbonMonoFont7", digitX, yPos, Color( col.lettering.r, col.lettering.g, col.lettering.b, 20  ), TEXT_ALIGN_RIGHT)
 	end
 
 	for i = 1, #speedStr do
         local digitChar = string.sub( speedStr, i, i )
-		local digitX = baseX - ( #speedStr - i)  * ( digitW + UV_UI.W(w * -0.001) )
+		local digitX = baseX - ( #speedStr - i)  * ( digitW + UV_UI.W(w * -0.01) )
 		draw.SimpleTextOutlined(digitChar, "UVCarbonMonoFont7", digitX, yPos, col.lettering, TEXT_ALIGN_RIGHT, nil, 2, Color(0, 0, 0))
 	end
 
-	draw.SimpleText( UVString(spn), "UVCarbonFont", speedopos.x - UV_UI.W(w * 0.1), speedopos.y + (h * 0.03), col.letteringFade, TEXT_ALIGN_CENTER )
+	draw.SimpleText( UVString(spn), "UVCarbonFont-Smaller", speedopos.x - UV_UI.W(w * 0.035), speedopos.y + (h * 0.055), col.letteringFade, TEXT_ALIGN_RIGHT )
 
-    draw.SimpleTextOutlined( gearText, "UVCarbonFont-Larger", leftX + UV_UI.W(w * 0.035), baseY - h * 0.0395, col.accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1, Color(0, 0, 0))
+    draw.SimpleTextOutlined( gearText, "UVCarbonFont", leftX + UV_UI.W(w * 0.0375), baseY + (h * 0.00), col.accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.5, Color(0, 0, 0))
 
     local gearIcon = UVMaterials["HUD_GEAR"]
     if gearIcon then
         surface.SetDrawColor(col.accent)
         surface.SetMaterial(gearIcon)
-        surface.DrawTexturedRectRotated(leftX + UV_UI.W(w * 0.055), baseY - UV_UI.W(w * 0.0055), UV_UI.W(w * 0.05), UV_UI.W(w * 0.05), 0)
+        surface.DrawTexturedRectRotated(leftX + UV_UI.W(w * 0.05), baseY + UV_UI.W(w * 0.0125), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0)
     end
 
 	-- RPM Tachometer
-	local tachRadius = baseScale * 0.5
-	local tachSize = UV_UI.W(tachRadius * 2)
-	local startAng = -20
-	local arcAng = 120
 	local rpmFrac = (maxrpm and maxrpm > 0) and math.Clamp(rpm / maxrpm, 0, 1) or 0
 	carbon_rpm_lerp = Lerp(FrameTime() * 8, carbon_rpm_lerp or rpmFrac, rpmFrac)
 	rpmFrac = carbon_rpm_lerp
@@ -2209,7 +2203,7 @@ local function carbon_racing_speedo( ... )
 	if not tachBgMat:IsError() then
 		surface.SetDrawColor(color_black)
 		surface.SetMaterial(tachBgMat)
-		surface.DrawTexturedRectRotated(rightX - UV_UI.W(w * 0.01), baseY - UV_UI.W(w * 0.021), tachSize * 0.4, tachSize, 0)
+		surface.DrawTexturedRectRotated(rightX + UV_UI.W(w * 0.04), baseY - UV_UI.W(w * 0.0025), UV_UI.W(w * 0.1), UV_UI.W(w * 0.165), 0)
 	end
 
     local tachBgFillMat = UVMaterials["RPM_COLOR"]
@@ -2219,7 +2213,7 @@ local function carbon_racing_speedo( ... )
     if not tachBgFillMat:IsError() then
         surface.SetDrawColor(col.accentFade)
         surface.SetMaterial(tachBgFillMat)
-        surface.DrawTexturedRectRotated(rightX - UV_UI.W(w * 0.01), baseY - UV_UI.W(w * 0.021), tachSize * 0.4, tachSize, 0)
+        surface.DrawTexturedRectRotated(rightX + UV_UI.W(w * 0.04), baseY - UV_UI.W(w * 0.0025), UV_UI.W(w * 0.1), UV_UI.W(w * 0.165), 0)
     end
 
 	local tachFillMat = UVMaterials["RPM_COLOR"]
@@ -2249,28 +2243,41 @@ local function carbon_racing_speedo( ... )
 	surface.SetMaterial(tachFillUVMat)
 
     -- i remapped the value according to the current texture, change if needed
-	local th = tachSize * math.Remap(rpmFrac, 0, 1, 0.15, 0.85)
-	local fillY = baseY + tachSize * 0.4 - th
-	surface.DrawTexturedRectUV( rightX - tachSize * 0.2463, fillY, tachSize * 0.397, th, 0, 1 - math.Remap(rpmFrac, 0, 1, 0.15, 0.85), 1, 1)
+	local rectW = UV_UI.W(w * 0.1)
+	local rectH = UV_UI.W(w * 0.165)
+
+	local rectCenterX = rightX + UV_UI.W(w * 0.04)
+	local rectCenterY = baseY - UV_UI.W(w * 0.0025)
+
+	local rectX = rectCenterX - rectW * 0.5
+	local rectTop = rectCenterY - rectH * 0.5
+
+	-- i remapped the value according to the current texture, change if needed
+	local frac = math.Remap(rpmFrac, 0, 1, 0.15, 0.85)
+
+	local th = rectH * frac
+	local fillY = rectTop + (rectH - th)
+
+	surface.DrawTexturedRectUV( rectX, fillY, rectW, th, 0, 1 - frac, 1, 1 )
 
     local tachLabelType = maxrpm >= 10000 and "RPM_10000" or "RPM_8000"
     local tachLabelMat = UVMaterials[tachLabelType]
 
     local tachOffsets = {
         ["RPM_8000"] = {
-            x = UV_UI.W(w * 0.012),
-            y = UV_UI.W(w * 0.01),
+            x = UV_UI.W(w * 0.03),
+            y = UV_UI.W(w * 0.0),
         },
         ["RPM_10000"] = {
-            x = UV_UI.W(w * 0.017),
-            y = UV_UI.W(w * 0.01),
+            x = UV_UI.W(w * 0.035),
+            y = UV_UI.W(w * 0.005),
         },
     }
 
     if tachLabelMat then
         surface.SetDrawColor(col.accent)
         surface.SetMaterial(tachLabelMat)
-        surface.DrawTexturedRectRotated(rightX + tachOffsets[tachLabelType].x, baseY - tachOffsets[tachLabelType].y, tachSize * 0.46, tachSize * 1, 4.5)
+        surface.DrawTexturedRectRotated(rectCenterX + tachOffsets[tachLabelType].x, baseY + tachOffsets[tachLabelType].y, rectW, rectH, 4.5)
     end
 
     -- Shift Up Logic
@@ -2286,7 +2293,7 @@ local function carbon_racing_speedo( ... )
         end
         surface.SetDrawColor( color )
         surface.SetMaterial( shiftUpIcon )
-        surface.DrawTexturedRect(rightX + UV_UI.W(w * 0.003), baseY - UV_UI.W(w * 0.125), UV_UI.W(w * 0.037), UV_UI.W(w * 0.037))
+        surface.DrawTexturedRect(rightX + UV_UI.W(w * 0.0595), baseY - UV_UI.W(w * 0.09), UV_UI.W(w * 0.037), UV_UI.W(w * 0.037))
     end
 end
 
