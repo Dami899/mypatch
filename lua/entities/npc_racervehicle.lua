@@ -611,12 +611,14 @@ if SERVER then
 
 		local mult = multiplier or 1 + (GetConVar("unitvehicle_racedifficulty"):GetFloat() or 0)
 
+		mult = math.Clamp(mult, 1, 2)
+
 		if catchup and not UVTargeting then
 			mult = mult * 1.5
 		else catchup = false end
 		
 		UVSetVehiclePerformanceMultiplier(self.v, mult, catchup)
-		self.DifficultyMult = math.Clamp(mult or 1, 0, 2)
+		self.DifficultyMult = mult
 	end
 
 	function ENT:Race()
