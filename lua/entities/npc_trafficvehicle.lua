@@ -265,11 +265,19 @@ if SERVER then
 	end
 	
 	function ENT:ObstaclesNearby()
-		if not self.v then
+		if not self.v or not self.v.rideheight then
 			return
 		end
-		local tr = util.TraceLine({start = self.v:WorldSpaceCenter(), endpos = (self.v:WorldSpaceCenter()+(self.v:GetVelocity()*2)), filter = {self.v, 'glide_wheel'}, mask = MASK_ALL}).Fraction ~= 1
-		return tobool(tr)
+
+		local class = self.v:GetClass()
+		local pos = class == "prop_vehicle_jeep" and self.v:WorldSpaceCenter() or self.v:GetPos()
+		pos.z = pos.z + self.v.rideheight
+
+		local tr = util.TraceLine({start = pos, endpos = (pos+(self.v:GetVelocity()*2)), mask = MASK_NPCWORLDSTATIC})
+		local Fraction = tr.Fraction ~= 1
+		local HitNormal = tr.HitNormal.z < 0.45 --Ignore small inclines
+
+		return tobool(Fraction and HitNormal)
 	end
 
 	function ENT:ObstaclesNearbySide()
@@ -854,6 +862,8 @@ if SERVER then
 				self.v.length = ((collisionmax.y)-(collisionmin.y))
 			end
 		end
+
+		self.v.rideheight = collisionmin.z
 		
 		local min, max = self.v:GetHitBoxBounds(0, 0) --NPCs aim at the top of the vehicle referred by hit box.
 		if not isvector(max) then min, max = self.v:GetModelBounds() end --If getting hit box bounds is failed, get model bounds instead.
