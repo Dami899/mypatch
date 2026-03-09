@@ -614,7 +614,7 @@ if SERVER then
 		mult = math.Clamp(mult, 1, 2)
 
 		if catchup and not UVTargeting then
-			mult = mult * 1.5
+			-- mult = mult * 1.5
 		else catchup = false end
 		
 		UVSetVehiclePerformanceMultiplier(self.v, mult, catchup)
