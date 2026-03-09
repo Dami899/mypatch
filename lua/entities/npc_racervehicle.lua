@@ -810,9 +810,9 @@ if SERVER then
 
 			local speedLimit = blendedSpeedLimit ^ 2
 			
-			speedLimit = speedLimit * self.DifficultyMult -- Apply increased speed limit on higher difficulties
-
-			-- print("\n\n\nBase Speed Limit: " .. speedLimit, "\nDifficulty modifier: ", self.DifficultyMult .. "x" .. "\nDifficulty Speed Limit: " .. speedLimit * self.DifficultyMult)
+			-- Apply increased speed limit on higher difficulties
+			-- When catching up, has x2 speed limit as absolute max. Otherwise, cap at x1.5
+			speedLimit = speedLimit * math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
 
 			local throttle = 1
 			local cornerDist = 400
@@ -877,7 +877,7 @@ if SERVER then
 			local velocity = self.v:GetVelocity():Length() -- real speed (not squared)
 			local maxSpeedForScaling = 2400  -- speed where steering becomes fully relaxed
 			local speedFactor = math.Clamp(velocity / maxSpeedForScaling, 0, 1)
-			local steerMultiplier = Lerp(speedFactor, 4, 2)
+			local steerMultiplier = Lerp(speedFactor, 5, 3)
 			steer = steer * (steerMultiplier / self.DifficultyMult)
 
 			-- Apply throttle/steer (same as your existing code block)
@@ -983,8 +983,10 @@ if SERVER then
 			local steer = right.z > 0 and steer_amount or -steer_amount
 			local speedlimitmph = self.PatrolWaypoint["SpeedLimit"]
 			self.Speeding = speedlimitmph^2
-			
-			self.Speeding = self.Speeding * self.DifficultyMult -- Apply increased speed limit on higher difficulties
+
+			-- Apply increased speed limit on higher difficulties
+			-- When catching up, has x2 speed limit as absolute max. Otherwise, cap at x1.5
+			self.Speeding = self.Speeding * math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
 
 			local throttleInput = nil
 			local brakeInput = nil
