@@ -2559,10 +2559,19 @@ else -- CLIENT stuff
 		end
 	end
 
+	local ALLOWED_SPEEDOMETER_CLASSES = {
+		'base_glide_car',
+		'base_glide_bike',
+		'base_glide_tank',
+		'base_glide_motorcycle',
+	}
+
 	hook.Add("Glide_CanDrawHUD", "UV_DisableGlideHUD", function(vehicle)
 		local hudtype = GetConVar("unitvehicle_hudtype_main"):GetString()
 		if UVGlideSpeedometer:GetBool() and (UV_UI.racing[hudtype] and UV_UI.racing[hudtype].speedometer) then
-			return false
+			if table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, vehicle.BaseClass.ClassName ) then
+				return false
+			end
 		end
 	end)
 
@@ -2572,7 +2581,7 @@ else -- CLIENT stuff
 		local hudtype = GetConVar("unitvehicle_hudtype_main"):GetString()
 
 		-- Custom speedometer code
-		if UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.racing[hudtype] and UV_UI.racing[hudtype].speedometer) then
+		if UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.racing[hudtype] and UV_UI.racing[hudtype].speedometer) and table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, Glide.currentVehicle.BaseClass.ClassName ) then
 			local speed = Glide.currentVehicle:GetVelocity():Length()
 
 			local kmh = math.floor(speed * 3600 * 0.0000254 * 0.75)

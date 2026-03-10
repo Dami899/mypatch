@@ -9,7 +9,7 @@ UV = UV or {}
 
 UV.PNotes = {
 ["v1.3.0"] = {
-Date = { year = 2026, month = 2, day = 28 },
+Date = { year = 2026, month = 3, day = 13 },
 Text = [[
 **New Features**
 - Racing: Added a *Racer Difficulty* setting
@@ -44,11 +44,12 @@ Text = [[
       |-- Radio Chatter (AI Settings → Pursuit Settings)
 - The Air Unit can now be taken out when it is in the process of disengaging from the pursuit
 - Updated the *Original* HUD Type to be more old-school and replicate how it was during UV's alpha stages
-- <color=0,255,255>Updated localizations</color>
 
 **Fixes**
 - Fixed some keybinds not having glyphs
 - Fixed that Pursuit Tech sometimes did not apply damage correctly
+
+And many more smaller undocumented fixes.
 ]],
 },
 

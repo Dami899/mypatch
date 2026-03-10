@@ -2203,7 +2203,7 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 			['IsCatchup'] = true,
 			['Info'] = {
 				['Type'] = "Multiply",
-				['Modifier'] = 0.5,
+				['Modifier'] = 0.75,
 				['Min'] = 0,
 				['Max'] = math.huge
 			}
@@ -2214,7 +2214,7 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {
 				['Type'] = "Multiply",
-				['Modifier'] = 0.5,
+				['Modifier'] = 0.75,
 				['Min'] = 0,
 				['Max'] = math.huge
 			}
@@ -2225,7 +2225,7 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 			['DataType'] = "NetworkVar",
 			['Info'] = {
 				['Type'] = "Multiply",
-				['Modifier'] = 0.5,
+				['Modifier'] = 0.75,
 				['Min'] = 0,
 				['Max'] = math.huge
 			}
