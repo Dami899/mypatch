@@ -720,7 +720,7 @@ Si la IA va muy rápido, tendrás que cambiar el límite de velocidad que encont
 Si tienes una carrera ya cargada, puedes presionar [+attack2] en el punto de control para editarlo y aplicar el límite de velocidad actualizado.
 Alternativamente, puedes editar el ultimo numero en el archivo "race data".
 ]],
- [[["Racing.Create.PathNode"] = [[
+["Racing.Create.PathNode"] = [[
 # -- ¿Que son los "Path Nodes" y como los uso?
 
 Los Path Nodes son un método de navegación alternativa usado por los corredores IA mientras se encuentran en una carrera. Se crean mediante la herramienta [string:tool.uvracemanager.name].
@@ -737,7 +737,7 @@ Con la herramienta [string:tool.uvracemanager.name] equipada:
 Con [string:tool.uvracemanager.name] y establecido a [string:tool.uvracemanager.node], presiona [+attack2] en un nodo existente para abrir [string:tool.uvracemanager.node.settings]:
  |-- El [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
  |-- El [string:tool.uvracemanager.node.curve] le asigna una curva al nodo al que se conecta, lo cual es útil para nodos puestos al rededor de curvas 
-]]--,
+]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -757,7 +757,7 @@ Con [string:tool.uvracemanager.name] y establecido a [string:tool.uvracemanager.
  |-- Elige el vehículo que quieras conducir
  |-- ¡Y allí vas!
 ]],
-[[["Pursuit.PursuitSettings"] = [[
+["Pursuit.PursuitSettings"] = [[
 # -- ¿Cómo cambio unidades y otros ajustes de persecución?
 
 Los ajustes mas cruciales se encuentran dentro del [string:uv.hm]:
@@ -771,7 +771,7 @@ Los ajustes mas cruciales se encuentran dentro del [string:uv.hm]:
  |-- [string:uv.pursuit.heatlevels]: Establece que unidades te perseguiran en determinado nivel de persecución, entre otros ajustes relacionados con ese nivel de persecución.
 
 Otros ajustes de persecución/IA pueden ser encontrados en [string:uv.settings].
-]]--,
+]],
 ["Pursuit.Respawn"] = [[
 # -- ¡Estoy atascado o muy lejos de el/los sospechoso(s)! ¿Cómo reaparezco?
 
@@ -856,11 +856,11 @@ Si puedes. Y es simple:
 
 Puedes encontrar tus datos relacionados con UV guardados en el directorio *data/unitvehicles* de tu juego.
 ]],
-[[["Other.AddonCreation"] = [[
+["Other.AddonCreation"] = [[
 # -- ¿Como creo my propio contenido/exstensión para Unit Vehicles?
 
 Revisa uno de los mensajes fijadoos en la página de la workshop para esta extensión, dentro de la tabla de discuciones.
-]]--,
+]],
 }
 
 -- Русский (Russian) ru
