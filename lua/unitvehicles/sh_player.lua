@@ -845,21 +845,8 @@ if SERVER then
     
     net.Receive( "UVPTUse", function( len, ply )
         local slot = net.ReadInt( 16 )
-        
-        if table.HasValue(UVPlayerUnitTablePlayers, ply) then --UNIT VEHICLES
-            for k, car in pairs(UVPlayerUnitTableVehicle) do
-                if UVGetDriver(car) == ply and not car.wrecked then
-                    UVDeployWeapon( car, slot ) 
-                end
-            end
-        elseif next(UVRVWithPursuitTech) ~= nil then --RACER VEHICLES
-            for k, car in pairs(UVRVWithPursuitTech) do
-                if UVGetDriver(car) == ply and not car.wrecked and not car.uvbusted then
-                    UVDeployWeapon( car, slot ) 
-                end
-            end
-        end
-        
+        local veh = UVGetVehicle( ply )
+        if IsValid(veh) then UVDeployWeapon( veh, slot ) end
     end)
 
     function UVIsPTUpgraded(car)
@@ -989,6 +976,7 @@ if SERVER then
     end
     
     function UVDeployWeapon(car, slot)
+        if car.uvbusted or car.wrecked then return end
         if UVJammerDeployed and not car.jammerexempt then return end
         if not car.PursuitTech then return end
         
@@ -1362,7 +1350,7 @@ if SERVER then
         car:EmitSound("gadgets/emp/lockfromloop.wav")
         target:EmitSound("gadgets/emp/lockonloop.wav")
 
-        local function cleanup()
+        local function empClean()
             car.empTarget = nil
             car.startLock = nil
             car.empCleanup = nil
@@ -1372,7 +1360,7 @@ if SERVER then
         end
 
         local function globalCleanup()
-            cleanup()
+            empClean()
             UVPTEvent( 
                 {
                     carDriver,
@@ -1386,18 +1374,10 @@ if SERVER then
         car.empCleanup = globalCleanup
 
         hook.Add( "Think", hookIdentifier, function()
-            if not IsValid( car ) or not IsValid( target ) then return cleanup() end
+            if not IsValid( car ) or not IsValid( target ) then return globalCleanup() end
+            if (car.uvbusted or car.wrecked) or (target.uvbusted or target.wrecked) then return globalCleanup() end
             if UVJammerDeployed and not car.jammerexempt then 
-                cleanup()
-
-                UVPTEvent( 
-                    {
-                        carDriver,
-                        targetDriver
-                    }, 
-                    'EMP', 
-                    'Missed'
-                )
+                globalCleanup()
 
                 if car.UnitVehicle then
                     UVChatterEMPMissed(car)
@@ -1411,7 +1391,7 @@ if SERVER then
             end
 
             if CurTime() - car.startLock >= 5 then
-                cleanup()
+                empClean()
 
                 if not UVIsVehicleInCone( car, target, 90, maxDistance ) then 
                     UVPTEvent( 
@@ -1504,7 +1484,7 @@ if SERVER then
             end
         end )
 
-        car:CallOnRemove("UVEMP_"..carEntityIndex, function() cleanup() end)
+        car:CallOnRemove("UVEMP_"..carEntityIndex, function() empClean() end)
 
         UVPTEvent( 
             {

@@ -398,8 +398,8 @@ if SERVER then
 			local trace = util.TraceLine({
 				start = target:WorldSpaceCenter(), 
 				endpos = targetPos, 
-				mask = MASK_NPCWORLDSTATIC, 
-				filter = {self, self.v, target}
+				mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
+				filter = {self, self.v, target, 'glide_wheel', 'npc_uv*'}
 			})
 
 			if trace.Hit then targetPos = trace.HitPos end
@@ -410,8 +410,8 @@ if SERVER then
 		local tr = util.TraceLine({
 			start = startPos, 
 			endpos = targetPos, 
-			mask = MASK_NPCWORLDSTATIC, 
-			filter = {self, self.v, target}
+			mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
+			filter = {self, self.v, target, 'glide_wheel', 'npc_uv*'}
 		})
 		
 		if tr.Fraction < 0.8 then return false end
@@ -447,6 +447,7 @@ if SERVER then
 		pos.z = pos.z + self.v.rideheight
 
 		local tr = util.TraceLine({start = pos, endpos = (pos+(self.v:GetVelocity()*2)), mask = MASK_NPCWORLDSTATIC})
+		if tr.HitTexture == "TOOLS/TOOLSSKYBOX" then return false end
 		local Fraction = tr.Fraction ~= 1
 		local HitNormal = tr.HitNormal.z < 0.45 --Ignore small inclines
 
@@ -484,7 +485,8 @@ if SERVER then
 		
 		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC})
 		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC})
-
+		if trleft.HitTexture == "TOOLS/TOOLSSKYBOX" then return false end
+		if trright.HitTexture == "TOOLS/TOOLSSKYBOX" then return false end
 		local Fraction = trleft.Fraction ~= 1 or trright.Fraction ~= 1
 		local HitNormal = trleft.HitNormal.z < 0.45 or trright.HitNormal.z < 0.45 --Ignore small inclines
 
@@ -789,7 +791,7 @@ if SERVER then
 				local distSq = toOther:LengthSqr()
 				local fwdDot = toOther:GetNormalized():Dot(forward)
 				local distToWpSq = (otherPos - bestWaypoint):LengthSqr()
-				if (fwdDot > forwardDotMin and distSq < aheadMaxDistSq) or distToWpSq < onWaypointRadiusSq then
+				if UVStraightToWaypoint(unitpos, otherPos) and ((fwdDot > forwardDotMin and distSq < aheadMaxDistSq) or distToWpSq < onWaypointRadiusSq) then
 					needOffset = true
 					break
 				end
