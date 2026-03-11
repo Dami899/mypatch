@@ -37,6 +37,12 @@ Text = [[
 - "Unlimited Durability" now gets applied whenever you enter a vehicle, not when a pursuit begins
 - When "Racer Pursuit Tech" is enabled, all players will receive random Pursuit Tech whenever they enter a vehicle
       |-- Only happens if the vehicle does not have Pursuit Tech already
+- Tweaked the [string:tool.uvracemanager.name] tool:
+      |-- Checkpoints and Grid Slots now fade out the farther away you are from them
+      |-- Their texts also shrink the farther away you are from them
+      |-- Changed the appearance of the Path Nodes:
+            |-- Nodes are larger and have an outline
+            |-- Connections are animated with an arrow showing their direction
 - Resetting mid-pursuit also resets a Unit nearby to wherever you reset to
 - Moved some settings to new locations
       |-- Call Response (AI Settings → Pursuit Settings)

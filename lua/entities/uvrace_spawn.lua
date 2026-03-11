@@ -32,13 +32,31 @@ if CLIENT then
 
 		local id = self:GetGridSlot() or 0
 		local pos = self:GetPos()
+		
+		local lp = LocalPlayer()
+		local dist = lp:GetPos():Distance(self:GetPos())
 
+		local fadeStart = 9000
+		local fadeEnd = 300
+
+		local fade = 1 - math.Clamp((dist - fadeEnd) / (fadeStart - fadeEnd), 0, 1)
+		
+		local textScale = Lerp(fade, 0.01, 1)
+		
 		cam.Start2D()
 
 			local point = pos + self:OBBCenter()
 			local data2D = point:ToScreen()
-			
-			draw.SimpleText( id, "UVFont4", data2D.x, data2D.y, Color( 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+			local cx, cy = data2D.x, data2D.y
+				
+			local m = Matrix()
+			m:Translate(Vector(cx, cy, 0))
+			m:Scale(Vector(textScale, textScale, 1))
+			m:Translate(Vector(-cx, -cy, 0))
+
+			cam.PushModelMatrix(m)
+				draw.SimpleText( id, "UVFont4", data2D.x, data2D.y, Color( 255, 255, 255, 255 * fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+			cam.PopModelMatrix()
 
 		cam.End2D()
 	end
