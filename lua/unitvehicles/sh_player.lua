@@ -2295,7 +2295,7 @@ if SERVER then
             closest_entphys = closest_ent:GetPhysicsObject()
 
             hook.Add("Think", grapplerThinkID, function()
-                if not IsValid(car) or not IsValid(object) then hook.Remove("Think", grapplerThinkID) return end
+                if not IsValid(car) or not IsValid(object) or not IsValid(closest_ent) or not closest_ent.state then hook.Remove("Think", grapplerThinkID) return end
                 closest_ent.state.angularVelocity = 0
             end)
         end
