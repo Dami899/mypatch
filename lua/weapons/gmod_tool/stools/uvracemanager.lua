@@ -701,7 +701,7 @@ elseif CLIENT then
 		return bestID
 	end
 
-	local matBeam = Material("cable/redlaser")
+	local matBeam = Material("unitvehicles/hud/pathnode")
 	local col_white = Color(255, 255, 255)
 	local col_blue = Color(0, 0, 255, 200)
 	local col_red = Color(255, 0, 0, 200)
@@ -743,7 +743,7 @@ elseif CLIENT then
 
 				-- Draw beams along the path segments
 				for i = 1, #pathPoints - 1 do
-					render.DrawBeam(pathPoints[i], pathPoints[i+1], 30, 0, 1, col)
+					render.DrawBeam(pathPoints[i], pathPoints[i+1], 120, 0, 1, col)
 				end
 			end
 		end
@@ -767,7 +767,8 @@ elseif CLIENT then
 				col = col_red
 			end
 
-			render.DrawSphere(renderPos, 8, 12, 12, col)
+			render.DrawSphere(renderPos, 20, 12, 12, Color(0,0,0))
+			render.DrawSphere(renderPos, 16, 12, 12, col)
 		end
 
 		-- Draw checkpoint preview if pos1 exists
