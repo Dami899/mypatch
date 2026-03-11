@@ -3579,7 +3579,6 @@ end
 -- end
 
 function UVNavigateDVWaypoint(self, vectors)
-	
 	if UVEnemyEscaping then
 		vectors = dvd.Waypoints[math.random(#dvd.Waypoints)].Target
 	end
@@ -3587,41 +3586,39 @@ function UVNavigateDVWaypoint(self, vectors)
 	local FromSelfToEnemy = dvd.GetRouteVector(self.v:GetPos(), vectors)
 	local FromEnemyToSelf = dvd.GetRouteVector(vectors, self.v:GetPos())
 	
-	if not FromSelfToEnemy or not FromEnemyToSelf then
+	if not FromSelfToEnemy and not FromEnemyToSelf then
 		self.NavigateBlind = true
 		return --Unable to get route
 	end
-	
-	if #FromEnemyToSelf >= #FromSelfToEnemy then --Get the shortest route
-		for k, v in pairs(FromSelfToEnemy) do
-			local targetVec = v["Target"]
-			local found = false
-			for _, existingVec in ipairs(self.tableroutetoenemy) do
-				if existingVec == targetVec then
-					found = true
-					break
-				end
-			end
-			if not found then
-				table.insert(self.tableroutetoenemy, targetVec)
-			end
-		end
-		return self.tableroutetoenemy
+
+	local options = {
+		[true] = FromSelfToEnemy,
+		[false] = FromEnemyToSelf and table.Reverse( FromEnemyToSelf ),
+	}
+
+	local operationStack = nil
+
+	if FromSelfToEnemy and FromEnemyToSelf then
+		operationStack = options[ #FromSelfToEnemy >= #FromEnemyToSelf ]
 	else
-		local FromEnemyToSelfReversed = table.Reverse(FromEnemyToSelf)
-		for k, v in pairs(FromEnemyToSelfReversed) do
+		operationStack = options[ FromSelfToEnemy and true or false ]
+	end
+
+	if operationStack then
+		for k, v in pairs( operationStack ) do
 			local targetVec = v["Target"]
 			local found = false
-			for _, existingVec in ipairs(self.tableroutetoenemy) do
-				if existingVec == targetVec then
+
+			for _, existingVec in ipairs( self.tableroutetoenemy ) do
+				if existingVec[1] == targetVec[1] and existingVec[2] == targetVec[2] and existingVec[3] == targetVec[3] then
 					found = true
 					break
 				end
 			end
-			if not found then
-				table.insert(self.tableroutetoenemy, targetVec)
-			end
+
+			if not found then table.insert( self.tableroutetoenemy, targetVec ) end
 		end
+
 		return self.tableroutetoenemy
 	end
 end
