@@ -1,5 +1,23 @@
 UV.RegisterHUD( "carbon", "NFS: Carbon", true )
 
+-- [[ Convars ]] --
+-- Speedometer
+CreateClientConVar("uvspeedo_carbon_x", 0.875, true, false)
+CreateClientConVar("uvspeedo_carbon_y", 0.825, true, false)
+
+-- Background colour
+CreateClientConVar("uvspeedo_carbon_col_needle_r", 86, true, false)
+CreateClientConVar("uvspeedo_carbon_col_needle_g", 214, true, false)
+CreateClientConVar("uvspeedo_carbon_col_needle_b", 205, true, false)
+
+CreateClientConVar("uvspeedo_carbon_col_lettering_r", 255, true, false)
+CreateClientConVar("uvspeedo_carbon_col_lettering_g", 255, true, false)
+CreateClientConVar("uvspeedo_carbon_col_lettering_b", 255, true, false)
+
+CreateClientConVar("uvspeedo_carbon_col_gauge_r", 86, true, false)
+CreateClientConVar("uvspeedo_carbon_col_gauge_g", 214, true, false)
+CreateClientConVar("uvspeedo_carbon_col_gauge_b", 205, true, false)
+
 UV_UI.racing.carbon = UV_UI.racing.carbon or {}
 UV_UI.pursuit.carbon = UV_UI.pursuit.carbon or {}
 
@@ -2299,22 +2317,7 @@ end
 
 UV_UI.racing.carbon.speedometer = carbon_racing_speedo
 
--- [[ Colour Settings ]] --
--- Convars
-CreateClientConVar("uvspeedo_carbon_x", 0.875, true, false)
-CreateClientConVar("uvspeedo_carbon_y", 0.825, true, false)
-
-CreateClientConVar("uvspeedo_carbon_col_needle_r", 86, true, false)
-CreateClientConVar("uvspeedo_carbon_col_needle_g", 214, true, false)
-CreateClientConVar("uvspeedo_carbon_col_needle_b", 205, true, false)
-
-CreateClientConVar("uvspeedo_carbon_col_lettering_r", 255, true, false)
-CreateClientConVar("uvspeedo_carbon_col_lettering_g", 255, true, false)
-CreateClientConVar("uvspeedo_carbon_col_lettering_b", 255, true, false)
-
-CreateClientConVar("uvspeedo_carbon_col_gauge_r", 86, true, false)
-CreateClientConVar("uvspeedo_carbon_col_gauge_g", 214, true, false)
-CreateClientConVar("uvspeedo_carbon_col_gauge_b", 205, true, false)
+UV_UI.racing.carbon.speedometerptoffsets = { x = 0.1025, y = 0.24 }
 
 UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
 

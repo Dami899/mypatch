@@ -380,6 +380,7 @@ local mainHUDList, backupHUDList = BuildHUDComboLists()
 local custHUDtable = {
 	"mostwanted",
 	"carbon",
+	"underground2",
 }
 
 ------- [ Main Menu ]-------

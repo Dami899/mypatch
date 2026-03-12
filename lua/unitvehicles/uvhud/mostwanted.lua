@@ -1,5 +1,24 @@
 UV.RegisterHUD( "mostwanted", "NFS: Most Wanted", true )
 
+-- [[ Convars ]] --
+-- Speedometer
+CreateClientConVar("uvspeedo_mostwanted_gauge", 0, true, false)
+CreateClientConVar("uvspeedo_mostwanted_x", 0.875, true, false)
+CreateClientConVar("uvspeedo_mostwanted_y", 0.825, true, false)
+
+-- Background colour
+CreateClientConVar("uvspeedo_mostwanted_col_needle_r", 223, true, false)
+CreateClientConVar("uvspeedo_mostwanted_col_needle_g", 184, true, false)
+CreateClientConVar("uvspeedo_mostwanted_col_needle_b", 127, true, false)
+
+CreateClientConVar("uvspeedo_mostwanted_col_lettering_r", 255, true, false)
+CreateClientConVar("uvspeedo_mostwanted_col_lettering_g", 255, true, false)
+CreateClientConVar("uvspeedo_mostwanted_col_lettering_b", 255, true, false)
+
+CreateClientConVar("uvspeedo_mostwanted_col_gauge_r", 223, true, false)
+CreateClientConVar("uvspeedo_mostwanted_col_gauge_g", 184, true, false)
+CreateClientConVar("uvspeedo_mostwanted_col_gauge_b", 127, true, false)
+
 local _last_backup_pulse_second = 0
 
 UV_UI.racing.mostwanted = UV_UI.racing.mostwanted or {}
@@ -2108,26 +2127,26 @@ local function mw_racing_speedo( ... )
 	elseif gear == 0 then gearText = "N" end
 
 	local speedopos = {
-		x = w * GetConVar("uvspeedo_mw_x"):GetString(),
-		y = h * GetConVar("uvspeedo_mw_y"):GetString(),
+		x = w * GetConVar("uvspeedo_mostwanted_x"):GetString(),
+		y = h * GetConVar("uvspeedo_mostwanted_y"):GetString(),
 	}
 
 	local cvs = {
-		gaugetype = GetConVar("uvspeedo_mw_gauge"):GetString(),
+		gaugetype = GetConVar("uvspeedo_mostwanted_gauge"):GetString(),
 		needle = {
-			r = GetConVar("uvspeedo_mw_col_needle_r"):GetInt(),
-			g = GetConVar("uvspeedo_mw_col_needle_g"):GetInt(),
-			b = GetConVar("uvspeedo_mw_col_needle_b"):GetInt(),
+			r = GetConVar("uvspeedo_mostwanted_col_needle_r"):GetInt(),
+			g = GetConVar("uvspeedo_mostwanted_col_needle_g"):GetInt(),
+			b = GetConVar("uvspeedo_mostwanted_col_needle_b"):GetInt(),
 		},
 		lettering = {
-			r = GetConVar("uvspeedo_mw_col_lettering_r"):GetInt(),
-			g = GetConVar("uvspeedo_mw_col_lettering_g"):GetInt(),
-			b = GetConVar("uvspeedo_mw_col_lettering_b"):GetInt(),
+			r = GetConVar("uvspeedo_mostwanted_col_lettering_r"):GetInt(),
+			g = GetConVar("uvspeedo_mostwanted_col_lettering_g"):GetInt(),
+			b = GetConVar("uvspeedo_mostwanted_col_lettering_b"):GetInt(),
 		},
 		gauge = {
-			r = GetConVar("uvspeedo_mw_col_gauge_r"):GetInt(),
-			g = GetConVar("uvspeedo_mw_col_gauge_g"):GetInt(),
-			b = GetConVar("uvspeedo_mw_col_gauge_b"):GetInt(),
+			r = GetConVar("uvspeedo_mostwanted_col_gauge_r"):GetInt(),
+			g = GetConVar("uvspeedo_mostwanted_col_gauge_g"):GetInt(),
+			b = GetConVar("uvspeedo_mostwanted_col_gauge_b"):GetInt(),
 		},
 	}
 
@@ -2265,24 +2284,7 @@ end
 
 UV_UI.racing.mostwanted.speedometer = mw_racing_speedo
 
--- [[ Colour Settings ]] --
--- Convars
-CreateClientConVar("uvspeedo_mw_gauge", 0, true, false)
-CreateClientConVar("uvspeedo_mw_x", 0.875, true, false)
-CreateClientConVar("uvspeedo_mw_y", 0.825, true, false)
-
--- Background colour
-CreateClientConVar("uvspeedo_mw_col_needle_r", 223, true, false)
-CreateClientConVar("uvspeedo_mw_col_needle_g", 184, true, false)
-CreateClientConVar("uvspeedo_mw_col_needle_b", 127, true, false)
-
-CreateClientConVar("uvspeedo_mw_col_lettering_r", 255, true, false)
-CreateClientConVar("uvspeedo_mw_col_lettering_g", 255, true, false)
-CreateClientConVar("uvspeedo_mw_col_lettering_b", 255, true, false)
-
-CreateClientConVar("uvspeedo_mw_col_gauge_r", 223, true, false)
-CreateClientConVar("uvspeedo_mw_col_gauge_g", 184, true, false)
-CreateClientConVar("uvspeedo_mw_col_gauge_b", 127, true, false)
+-- UV_UI.racing.mostwanted.speedometerptoffsets = { x = 0.06, y = 0.225 }
 
 UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
 
@@ -2300,12 +2302,12 @@ UVMenu.CustomizeHUD.mostwanted = function()
 						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
 				},
 				{ type = "label", text = "uv.speedo" },
-				{ type = "slider", text = "uv.speedo", convar = "uvspeedo_mw_gauge", min = 0, max = 10, decimals = 0 },
-				{ type = "slider", text = "uv.ui.xaxis", desc = "uv.ui.xaxis.desc", convar = "uvspeedo_mw_x", min = 0, max = 1, decimals = 3 },
-				{ type = "slider", text = "uv.ui.yaxis", desc = "uv.ui.yaxis.desc", convar = "uvspeedo_mw_y", min = 0, max = 1, decimals = 3 },
-				{ type = "coloralpha", text = "uv.speedo.needle", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_mw_col_needle" },
-				{ type = "coloralpha", text = "uv.speedo.lettering", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_mw_col_lettering" },
-				{ type = "coloralpha", text = "uv.speedo.face", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_mw_col_gauge" },
+				{ type = "slider", text = "uv.speedo", convar = "uvspeedo_mostwanted_gauge", min = 0, max = 10, decimals = 0 },
+				{ type = "slider", text = "uv.ui.xaxis", desc = "uv.ui.xaxis.desc", convar = "uvspeedo_mostwanted_x", min = 0, max = 1, decimals = 3 },
+				{ type = "slider", text = "uv.ui.yaxis", desc = "uv.ui.yaxis.desc", convar = "uvspeedo_mostwanted_y", min = 0, max = 1, decimals = 3 },
+				{ type = "coloralpha", text = "uv.speedo.needle", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_mostwanted_col_needle" },
+				{ type = "coloralpha", text = "uv.speedo.lettering", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_mostwanted_col_lettering" },
+				{ type = "coloralpha", text = "uv.speedo.face", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_mostwanted_col_gauge" },
 			},
 		}
 	})

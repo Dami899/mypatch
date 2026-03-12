@@ -27,6 +27,7 @@ Text = [[
 - Added support for themed Speedometers, tied to the chosen Main UI
       |-- Can be customized via a new *<color=255,255,0>Customize HUD</color>* button
       |-- Only works in <color=255,255,0>Glide</color> vehicles
+      |-- This update provides themed *Most Wanted*, *Carbon* and *Underground 2* speedometers
 - Added tips that are displayed on the end-of-pursuit results screens on all HUD types
 
 **Changes**
@@ -34,6 +35,7 @@ Text = [[
 - AI Racers: When resetting while driving via Path Nodes, the AI racers will now assign themselves the closest small node rather than large node
 - AI Racers: Improved navigation via DV waypoints when freeroaming
 - AI Racers: When freeroaming via DV waypoints, if an AI racer gets stuck for a sufficient amount of time, it will reset its navigation target
+- Racing: Checkpoints now display the distance to them
 - "Unlimited Durability" now gets applied whenever you enter a vehicle, not when a pursuit begins
 - When "Racer Pursuit Tech" is enabled, all players will receive random Pursuit Tech whenever they enter a vehicle
       |-- Only happens if the vehicle does not have Pursuit Tech already
@@ -50,6 +52,7 @@ Text = [[
       |-- Radio Chatter (AI Settings → Pursuit Settings)
 - The Air Unit can now be taken out when it is in the process of disengaging from the pursuit
 - Updated the *Original* HUD Type to be more old-school and replicate how it was during UV's alpha stages
+- The Pursuit Tech HUD element now moves with your chosen custom speedometer
 
 **Fixes**
 - Fixed some keybinds not having glyphs
