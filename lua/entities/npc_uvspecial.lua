@@ -1442,51 +1442,55 @@ if SERVER then
 				local myPos = self.v:WorldSpaceCenter()
 				local Waypoint, WaypointID = dvd.GetNearestWaypoint(myPos)
 				
-				self.targetpos = myPos + forward * 2000
+				self.targetpos = myPos + suspectDir * 2000
 
 				if Waypoint and Waypoint.Target then
 
+					-- searches for waypoints that are neighboring the nearest waypoint to unit (right way)
 					local laneStart = Waypoint.Target
 					local neighborTarget
 
-					-- if Waypoint.Neighbors then
-					-- 	local bestDot = -1
-
-					-- 	for _, n in ipairs( Waypoint.Neighbors ) do
-					-- 		local waypoint = dvd.Waypoints[n]
-
-					-- 		local dir = ( waypoint.Target - laneStart ):GetNormalized()
-					-- 		local dot = dir:Dot( forward )
-
-					-- 		if dot > bestDot then
-					-- 			bestDot = dot
-					-- 			neighborTarget = waypoint.Target
-					-- 		end
-					-- 	end
-					-- end
-
-					local possibleNeighbors = {}
 					local bestDot = -1
 
-					for _, waypoint in ipairs( dvd.Waypoints ) do
-						if not waypoint.Neighbors then continue end
-						if not table.HasValue( waypoint.Neighbors, WaypointID ) then continue end
+					if Waypoint.Neighbors then	
+						for _, n in ipairs( Waypoint.Neighbors ) do
+							local waypoint = dvd.Waypoints[n]
 
-						local direction = ( waypoint.Target - laneStart ):GetNormalized()
-						local dot = direction:Dot( forward )
-						if dot > bestDot then
-							bestDot = dot
-							neighborTarget = waypoint.Target
+							local dir = ( waypoint.Target - laneStart ):GetNormalized()
+							local dot = dir:Dot( suspectDir )
+
+							if dot > bestDot then
+								bestDot = dot
+								neighborTarget = waypoint.Target
+							end
+						end
+					end
+
+					-- if we can't find any viable neighbors then we can assume that the pursuit is going the wrong way,
+					-- for which we must look for waypoints that connect to the nearest waypoint
+					-- (tried to keep it optimized ¯\_(ツ)_/¯)
+					if 0 > bestDot then
+						local possibleNeighbors = {}
+						local bestDot = -1
+						
+						for _, waypoint in ipairs( dvd.Waypoints ) do
+							if not waypoint.Neighbors then continue end
+							if not table.HasValue( waypoint.Neighbors, WaypointID ) then continue end
+							
+							local direction = ( waypoint.Target - laneStart ):GetNormalized()
+							local dot = direction:Dot( suspectDir )
+							
+							if dot > bestDot then
+								bestDot = dot
+								neighborTarget = waypoint.Target
+							end
 						end
 					end
 
 					if neighborTarget then
-						local laneDir = ( neighborTarget - laneStart ):GetNormalized()
-						local projected = laneStart + laneDir * 2000
-						self.targetpos = projected
+						self.targetpos = neighborTarget
 					else
-						local laneDir = ( laneStart - myPos ):GetNormalized()
-						self.targetpos = myPos + forward * 2000
+						self.targetpos = myPos + suspectDir * 2000
 					end
 				end
 
