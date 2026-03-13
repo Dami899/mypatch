@@ -1380,49 +1380,17 @@ if SERVER then
 			local selfvelocity = self.v:GetVelocity():LengthSqr()
 			local enemyvelocity = self.e:GetVelocity():LengthSqr()
 			
-			-- --Determine pursuit standards
-			-- if not UVEnemyEscaping and self:StraightToTarget(self.e, true) then
-			-- 	self.tableroutetoenemy = {}
-			-- 	if self.NavigateBlind then 
-			-- 		self.NavigateBlind = nil 
-			-- 	end
-			-- 	if self.NavigateCooldown then
-			-- 		self.NavigateCooldown = nil
-			-- 		timer.Remove(self._cooldownString)
-			-- 	end
-			-- 	if (not self.formationpoint or enemyvelocity <= UVBustSpeed) 
-			-- 	or not self:StraightToTarget(self.e, true) or UVCalm or UVEnemyEscaping or 
-			-- 	self:ObstaclesNearbySide() or self.v.rhino then
-			-- 		if self.v.rhino then
-			-- 			self.targetpos = (self.e:WorldSpaceCenter()+(self.e:GetVelocity()/2)) --Drive infront of the enemy (Rhino)
-			-- 		elseif (not self.driveinfront or self:ObstaclesNearbySide()) then
-			-- 			self.targetpos = self.e:WorldSpaceCenter() --Drive towards the enemy
-			-- 		else
-			-- 			self.targetpos = (self.e:WorldSpaceCenter()+self.e:GetVelocity()) --Drive infront of the enemy
-			-- 		end
-			-- 	else
-			-- 		self.targetpos = (self.e:LocalToWorld(self.formationpoint)+self.e:GetVelocity()) --Drive in formation
-			-- 	end
-			-- else
-			-- 	self.tableroutetoenemy = self.tableroutetoenemy or {}
-			-- 	if next(self.tableroutetoenemy) ~= nil and #self.tableroutetoenemy > 1 then
-			-- 		-- if not self.NavigateCooldown and not UVEnemyEscaping then
-			-- 		-- 	self:PathFindToEnemy(self.e:WorldSpaceCenter()) --Find the enemy
-			-- 		-- end
-			-- 	else
-			-- 		self:PathFindToEnemy(self.e:WorldSpaceCenter()) --Find the enemy
-			-- 	end
-			-- 	self.targetpos = self:DriveOnPath()
-			-- end
-
 			local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
 
+			-- pursuit tactic
 			local enemyVel = self.e:GetVelocity()
 			local enemyVelLenSqr = enemyVel:LengthSqr()
 			local eedistNorm = eedist:GetNormalized()
 			local suspectPulledOver = enemyVelLenSqr <= UVBustSpeed * 10
 			local suspectHeadingTowardNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(eedistNorm) < -0.3
 			local suspectHeadingAwayFromNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(eedistNorm) > 0.3
+			local suspectBehindNPC = eedist:Dot(forward) < 0
+			local suspectSameDirectionAsNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(forward) > 0.5
 
 			local suspectOnWaypointGrid = true
 			if dvd and next(dvd.Waypoints or {}) ~= nil then
@@ -1438,9 +1406,10 @@ if SERVER then
 			end
 
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
-			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, false, not self.v.rhino and DVWaypointsDistanceBased:GetBool() and 4000000)
-			local rhinoForceDirect = self.v.rhino and suspectInView and suspectHeadingTowardNPC
-			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid or rhinoForceDirect)
+			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 4000000)
+			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
+			local followSuspectHeadingOnGrid = suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC
+			
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver or rhinoForceDirect) and next(self.tableroutetoenemy) ~= nil then
 					self.tableroutetoenemy = {}
@@ -1464,6 +1433,63 @@ if SERVER then
 				else
 					self.targetpos = (self.e:LocalToWorld(self.formationpoint) + self.e:GetVelocity())
 				end
+			elseif followSuspectHeadingOnGrid and not self.v.rhino then
+				local suspectPos = self.e:WorldSpaceCenter()
+				local suspectDir = enemyVelLenSqr > 0 and enemyVel:GetNormalized() or forward
+				local aheadDist = 2000
+				local aheadTarget = suspectPos + suspectDir * aheadDist
+
+				local myPos = self.v:WorldSpaceCenter()
+				local Waypoint, WaypointID = dvd.GetNearestWaypoint(myPos)
+				
+				self.targetpos = myPos + forward * 2000
+
+				if Waypoint and Waypoint.Target then
+
+					local laneStart = Waypoint.Target
+					local neighborTarget
+
+					-- if Waypoint.Neighbors then
+					-- 	local bestDot = -1
+
+					-- 	for _, n in ipairs( Waypoint.Neighbors ) do
+					-- 		local waypoint = dvd.Waypoints[n]
+
+					-- 		local dir = ( waypoint.Target - laneStart ):GetNormalized()
+					-- 		local dot = dir:Dot( forward )
+
+					-- 		if dot > bestDot then
+					-- 			bestDot = dot
+					-- 			neighborTarget = waypoint.Target
+					-- 		end
+					-- 	end
+					-- end
+
+					local possibleNeighbors = {}
+					local bestDot = -1
+
+					for _, waypoint in ipairs( dvd.Waypoints ) do
+						if not waypoint.Neighbors then continue end
+						if not table.HasValue( waypoint.Neighbors, WaypointID ) then continue end
+
+						local direction = ( waypoint.Target - laneStart ):GetNormalized()
+						local dot = direction:Dot( forward )
+						if dot > bestDot then
+							bestDot = dot
+							neighborTarget = waypoint.Target
+						end
+					end
+
+					if neighborTarget then
+						local laneDir = ( neighborTarget - laneStart ):GetNormalized()
+						local projected = laneStart + laneDir * 2000
+						self.targetpos = projected
+					else
+						local laneDir = ( laneStart - myPos ):GetNormalized()
+						self.targetpos = myPos + forward * 2000
+					end
+				end
+
 			elseif next(self.tableroutetoenemy) ~= nil and #self.tableroutetoenemy > 1 then
 				self.targetpos = self:DriveOnPath()
 				if next(self.tableroutetoenemy) == nil then
