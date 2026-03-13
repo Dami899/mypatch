@@ -3588,7 +3588,6 @@ function UVNavigateDVWaypoint(self, vectors)
 	
 	if not FromSelfToEnemy and not FromEnemyToSelf then
 		self.NavigateBlind = true
-		print("Unable to get route")
 		return --Unable to get route
 	end
 

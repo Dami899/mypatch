@@ -681,6 +681,12 @@ if SERVER then
 			return unitpos + (forward * 100)
 		end
 		
+		if waypoints[1] then
+			local firstWaypoint = waypoints[1]
+			local midPoint = unitpos + (firstWaypoint - unitpos) * 0.5
+			table.insert(waypoints, 1, midPoint)
+		end
+		
 		local bestWaypoint = waypoints[1]
 		local bestScore = -math.huge
 		local hasAnyClearPath = false

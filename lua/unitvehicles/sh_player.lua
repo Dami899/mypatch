@@ -2213,7 +2213,12 @@ if SERVER then
     function UVDeployGrappler(car)
         car.grappleron = true
 
-        constraint.RemoveConstraints( car, "Rope" )
+        if car.grappler and IsValid(car.grappler) then
+            car.grappler:Remove()
+            car.grappler = nil
+            car.grapplerconstraint:Remove()
+            car.grapplerconstraint = nil
+        end
         
         net.Start("UVWeaponGrapplerEnable")
         net.WriteEntity(car)
@@ -2228,7 +2233,12 @@ if SERVER then
         car.grappleron = nil
 
         if car.wrecked then
-            constraint.RemoveConstraints( car, "Rope" )
+            if car.grappler and IsValid(car.grappler) then
+                car.grapplerconstraint:Remove()
+                car.grapplerconstraint = nil
+                car.grappler:Remove()
+                car.grappler = nil
+            end
         end
 
         if IsValid(car) then
@@ -2247,6 +2257,7 @@ if SERVER then
     function UVGrapple(car, object)
         local carpos = car:WorldSpaceCenter()
         local carlocal = car:WorldToLocal(carpos)
+        local carforward = car.IsSimfphyscar and car:LocalToWorldAngles(car.VehicleData.LocalAngForward):Forward() or car:GetForward()
 
         local closest_ent = object
         local shortest_distance = math.huge
@@ -2295,6 +2306,7 @@ if SERVER then
             closest_entphys = closest_ent:GetPhysicsObject()
 
             hook.Add("Think", grapplerThinkID, function()
+                if not IsValid(car.grappler) then return end
                 if not IsValid(car) or not IsValid(object) or not IsValid(closest_ent) or not closest_ent.state then hook.Remove("Think", grapplerThinkID) return end
                 closest_ent.state.angularVelocity = 0
             end)
@@ -2311,6 +2323,8 @@ if SERVER then
 
         local cons, rope
 
+        local carlocaloffset = carlocal + ( Vector( car:BoundingRadius() * 0.9, 0, 0 ) )
+
         --Create rope constraint
         timer.Simple(0, function()
             cons, rope = constraint.Rope( 
@@ -2318,7 +2332,7 @@ if SERVER then
                 object, --Entity 2
                 0, -- bone1
                 0, -- bone2
-                carlocal, --localPos1
+                carlocaloffset, --localPos1
                 closest_entlocal, --localPos2
                 length, --length
                 0, --addlength
@@ -2329,15 +2343,18 @@ if SERVER then
                 Color(225,255,0) --color
             )
 
+            car.grapplerconstraint = cons
             car.grappler = rope
 
             local time = disableduration
 
             timer.Simple(time, function()
                 if IsValid(car) then
-                    constraint.RemoveConstraints( car, "Rope" )
+                    car.grappler:Remove()
+                    car.grappler = nil
+                    car.grapplerconstraint:Remove()
+                    car.grapplerconstraint = nil
                     hook.Remove("Think", grapplerThinkID)
-                    if IsValid(weld_entity) then weld_entity:Remove() end
                 end
             end)
         end)
