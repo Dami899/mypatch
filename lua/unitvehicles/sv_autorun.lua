@@ -3588,35 +3588,51 @@ function UVNavigateDVWaypoint(self, vectors)
 	
 	if not FromSelfToEnemy and not FromEnemyToSelf then
 		self.NavigateBlind = true
+		print("Unable to get route")
 		return --Unable to get route
 	end
 
 	local options = {
-		[true] = FromSelfToEnemy,
-		[false] = FromEnemyToSelf and table.Reverse( FromEnemyToSelf ),
+		[true] = FromSelfToEnemy and table.Reverse( FromSelfToEnemy ),
+		[false] = FromEnemyToSelf,
 	}
 
-	local operationStack = nil
+	local selfToEnemy = FromSelfToEnemy and #FromSelfToEnemy or math.huge
+	local enemyToSelf = FromEnemyToSelf and #FromEnemyToSelf or math.huge
 
-	if FromSelfToEnemy and FromEnemyToSelf then
-		operationStack = options[ #FromSelfToEnemy >= #FromEnemyToSelf ]
-	else
-		operationStack = options[ FromSelfToEnemy and true or false ]
-	end
+	operationStack = options[selfToEnemy <= enemyToSelf]
+	if #operationStack > 100 then return end
+
+	-- if FromSelfToEnemy and FromEnemyToSelf then
+	-- 	print("operationStack", #FromSelfToEnemy <= #FromEnemyToSelf)
+	-- 	operationStack = options[(#FromSelfToEnemy <= #FromEnemyToSelf)]
+	-- else
+	-- 	operationStack = options[ FromSelfToEnemy and true or false ]
+	-- end
 
 	if operationStack then
-		for k, v in pairs( operationStack ) do
+		self.tableroutetoenemy = {}
+
+		local maxNewWaypoints = 12
+		local added = 0
+
+		for _, v in ipairs( operationStack ) do
+			if added >= maxNewWaypoints then break end
+
 			local targetVec = v["Target"]
 			local found = false
 
-			for _, existingVec in ipairs( self.tableroutetoenemy ) do
+			for _, existingVec in pairs( self.tableroutetoenemy ) do
 				if existingVec[1] == targetVec[1] and existingVec[2] == targetVec[2] and existingVec[3] == targetVec[3] then
 					found = true
 					break
 				end
 			end
 
-			if not found then table.insert( self.tableroutetoenemy, targetVec ) end
+			if not found then
+				table.insert( self.tableroutetoenemy, targetVec )
+				added = added + 1
+			end
 		end
 
 		return self.tableroutetoenemy

@@ -199,10 +199,10 @@ if SERVER then
 	--Validate the given enemy.
 	function ENT:Validate(v)
 		local valid = 
-			IsValid(v) and --Has existence
-			IsValid(v:GetPhysicsObject()) and --Has physics
-			v:GetClass() ~= "npc_uvpatrol" and v:GetClass() ~= "npc_uvsupport" and v:GetClass() ~= "npc_uvpursuit" and v:GetClass() ~= "npc_uvinterceptor" and v:GetClass() ~= "npc_uvcommander" and v:GetClass() ~= "npc_uvspecial" and --Friendly
-			(v:IsVehicle() and not GetConVar("ai_ignoreplayers"):GetBool()) 
+		IsValid(v) and --Has existence
+		IsValid(v:GetPhysicsObject()) and --Has physics
+		not v.UnitVehicle and
+		(v:IsVehicle() and not GetConVar("ai_ignoreplayers"):GetBool()) 
 		if not valid then return false end
 		
 		return UVPassConVarFilter(v)
@@ -624,7 +624,7 @@ if SERVER then
 	function ENT:DriveOnPath()
 		local waypoints = table.Copy( self.tableroutetoenemy )
 		if not waypoints or next(waypoints) == nil then 
-			return self.v:WorldSpaceCenter()
+			return self.v:WorldSpaceCenter() + (forward * 100)
 		end
 		
 		local unitpos = self.v:WorldSpaceCenter()
@@ -635,12 +635,6 @@ if SERVER then
 		local velocity = self.v:GetVelocity()
 		local velocityNormalized = velocity:GetNormalized()
 		local hasVelocity = velocity:LengthSqr() > 10000
-
-		if waypoints[1] then
-			local firstWaypoint = waypoints[1]
-			local midPoint = unitpos + (firstWaypoint - unitpos) * 0.5
-			table.insert(waypoints, 1, midPoint)
-		end
 		
 		for i = #waypoints, 1, -1 do
 			local waypoint = waypoints[i]
@@ -663,7 +657,7 @@ if SERVER then
 		
 		if next(waypoints) == nil then
 			self.tableroutetoenemy = {}
-			return unitpos
+			return unitpos + (forward * 100)
 		end
 		
 		local bestWaypoint = waypoints[1]
@@ -1098,6 +1092,7 @@ if SERVER then
 	end
 	
 	function ENT:Think()
+		if not IsValid(self.v) then return end
 		--UVChatterArrest(self)
 		-- if UVTargeting then return end
 		self:SetPos(self.v:GetPos() + (vector_up * 50))
@@ -1408,9 +1403,13 @@ if SERVER then
 			local enemyVel = self.e:GetVelocity()
 			local enemyVelLenSqr = enemyVel:LengthSqr()
 			local eedistNorm = eedist:GetNormalized()
-			local suspectPulledOver = enemyVelLenSqr <= UVBustSpeed
+			local suspectPulledOver = enemyVelLenSqr <= UVBustSpeed * 10
 			local suspectHeadingTowardNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(eedistNorm) < -0.3
 			local suspectHeadingAwayFromNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(eedistNorm) > 0.3
+
+			-- suspect is behind us and moving roughly the same way we are facing
+			local suspectBehindNPC = eedist:Dot(forward) < 0
+			local suspectSameDirectionAsNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(forward) > 0.5
 
 			local suspectOnWaypointGrid = true
 			if dvd and next(dvd.Waypoints or {}) ~= nil then
@@ -1428,6 +1427,8 @@ if SERVER then
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
 			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 4000000)
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
+			local followSuspectHeadingOnGrid = suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC
+
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver) and next(self.tableroutetoenemy) ~= nil then
 					self.tableroutetoenemy = {}
@@ -1439,7 +1440,7 @@ if SERVER then
 					self.NavigateCooldown = nil
 					timer.Remove(self._cooldownString)
 				end
-				if (not self.formationpoint or enemyvelocity <= UVBustSpeed)
+				if (not self.formationpoint or enemyvelocity <= UVBustSpeed * 10)
 					or UVCalm or UVEnemyEscaping or self:ObstaclesNearbySide() then
 					if not self.driveinfront or self:ObstaclesNearbySide() then
 						self.targetpos = self.e:WorldSpaceCenter()
@@ -1448,6 +1449,20 @@ if SERVER then
 					end
 				else
 					self.targetpos = (self.e:LocalToWorld(self.formationpoint) + self.e:GetVelocity())
+				end
+			elseif followSuspectHeadingOnGrid then
+				-- Suspect is behind us but heading the same way; follow the waypoint route
+				-- in the direction the suspect is moving, instead of driving directly.
+				local suspectPos = self.e:WorldSpaceCenter()
+				local suspectDir = enemyVelLenSqr > 0 and enemyVel:GetNormalized() or forward
+				local aheadDist = 2000
+				local aheadTarget = suspectPos + suspectDir * aheadDist
+
+				self:PathFindToEnemy(aheadTarget)
+				if next(self.tableroutetoenemy) ~= nil and #self.tableroutetoenemy > 1 then
+					self.targetpos = self:DriveOnPath()
+				else
+					self.targetpos = self.e:WorldSpaceCenter()
 				end
 			elseif next(self.tableroutetoenemy) ~= nil and #self.tableroutetoenemy > 1 then
 				self.targetpos = self:DriveOnPath()
@@ -1481,7 +1496,7 @@ if SERVER then
 						self.NavigateCooldown = nil
 						timer.Remove(self._cooldownString)
 					end
-					if (not self.formationpoint or enemyvelocity <= UVBustSpeed)
+					if (not self.formationpoint or enemyvelocity <= UVBustSpeed * 10)
 						or UVCalm or UVEnemyEscaping or self:ObstaclesNearbySide() then
 						if not self.driveinfront or self:ObstaclesNearbySide() then
 							self.targetpos = self.e:WorldSpaceCenter()
@@ -1683,15 +1698,15 @@ if SERVER then
 			end
 
 			-- Awareness to friendly vehicles
-			local t = ents.FindInSphere(self.v:WorldSpaceCenter(), 5000)
+			local t = UVUnitVehicles
 			local distance, nearest = math.huge, nil --The nearest friendly.
 			for k, f in pairs(t) do
-				if f ~= self and (f:GetClass() == "npc_uvpatrol" or f:GetClass() == "npc_uvsupport" or f:GetClass() == "npc_uvpursuit" or f:GetClass() == "npc_uvinterceptor" or f:GetClass() == "npc_uvcommander" or f:GetClass() == "npc_uvspecial") then --Friendly conditions
+				if f ~= self.v and IsValid(f) then --Friendly conditions
 					local d = f:WorldSpaceCenter():DistToSqr(self.v:WorldSpaceCenter())
 					if distance > d then
 						distance = d
 						nearest = f --Friendly
-						local fforward = f.v.IsSimfphyscar and f.v:LocalToWorldAngles(f.v.VehicleData.LocalAngForward):Forward() or f.v:GetForward() --Forward vector.
+						local fforward = f.IsSimfphyscar and f:LocalToWorldAngles(f.VehicleData.LocalAngForward):Forward() or f:GetForward() --Forward vector.
 						local fdist = f:WorldSpaceCenter() - self.v:WorldSpaceCenter() --Distance between the vehicle and the friendly.
 						local fedist = self.e:WorldSpaceCenter() - f:WorldSpaceCenter() --Distance between the enemy and the friendly.
 						local fvect = fdist:GetNormalized() --Friendly direction vector.
@@ -1706,7 +1721,7 @@ if SERVER then
 								end
 							end
 						end -- Follow behind
-						if fvectdot > 0 and f.v:GetVelocity():LengthSqr() < (UVBustSpeed*2) and dist:LengthSqr() < 2500000 and selfvelocity > fdist:LengthSqr() and enemyvelocity < (UVBustSpeed*2) then
+						if fvectdot > 0 and f:GetVelocity():LengthSqr() < (UVBustSpeed*2) and dist:LengthSqr() < 2500000 and selfvelocity > fdist:LengthSqr() and enemyvelocity < (UVBustSpeed*2) then
 							if fright.z < 0.1 and fright.z > -0.9 then
 								steer = 1
 							end
