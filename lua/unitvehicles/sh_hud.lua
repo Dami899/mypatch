@@ -1578,6 +1578,18 @@ for _, f in ipairs(files) do
     end
 end
 
+local path2 = "unitvehicles/uvspeedometers/"
+local files2 = file.Find(path2 .. "*.lua", "LUA")
+
+table.sort(files2)
+
+for _, f in ipairs(files2) do
+    AddCSLuaFile(path2 .. f)
+    if CLIENT then
+        include(path2 .. f)
+    end
+end
+
 -- timer.Simple(1, function()
     -- for k,v in pairs(UV_UI) do
         -- if type(v) == "table" then

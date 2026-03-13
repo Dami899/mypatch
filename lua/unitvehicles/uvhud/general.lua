@@ -39,12 +39,42 @@ local function uv_general()
             local keyCode = GetConVar("unitvehicle_pursuittech_keybindslot_" .. i):GetInt()
             local tech = UVHUDPursuitTech[i]
 
-            local xOffset = 0.815 + ((i - 1) * 0.0595)
-            local y = h * 0.6
+			local hudconvar = GetConVar("unitvehicle_speedometer"):GetString()
+
+			local xConVar = GetConVar("uvspeedo_" .. hudconvar .. "_x")
+			local yConVar = GetConVar("uvspeedo_" .. hudconvar .. "_y")
+
+			local hudpos = {
+				x = xConVar and xConVar:GetFloat() or 0.815,
+				y = yConVar and yConVar:GetFloat() or 0.6
+			}
+
+			local racing = UV_UI.speedometer[hudconvar]
+			local offsets = racing and racing.offsets
+
+			local hudoffset = {
+				x = offsets and offsets.x or 0,
+				y = offsets and offsets.y or 0
+			}
+			
+			if not GetConVar("unitvehicle_speedometer_enable"):GetBool() then -- This is FUBAR but fuck you; Improve if you wish
+				hudpos = {
+					x = 0.824,
+					y = 0.6
+				}
+				hudoffset = {
+					x = 0,
+					y = 0
+				}
+			end
+
+            local xOffset = w * (hudpos.x - hudoffset.x)
+            local y = h * (hudpos.y - hudoffset.y)
+            local xOffsetI = w * (hudpos.x - hudoffset.x) + ((i - 1) * 115)
             local bw, bh = w * 0.06, h * 0.06
-            local x = w * xOffset
+            local x = xOffsetI
             local keyX = w * (0.8425 + ((i - 1) * 0.0625))
-            local textX = w * (0.8425 + ((i - 1) * 0.0625))
+            local textX = xOffset + (bw * 0.5) + ((i - 1) * 115)
             local keyY = h * 0.57
 
             local bgColor = Color(0, 0, 0, 225)
@@ -54,23 +84,14 @@ local function uv_general()
             local textColor = Color(255, 255, 255, 125)
             local keyColor = Color(255, 255, 255, 125)
             local ammoText, techText = " - ", " - "
-            local keyText = UVBindButtonName(keyCode)
-			
-			
-            -- local bw, bh = UV_UI.W(w * 0.06), h * 0.06
-            -- local x = UV_UI.X(w * xOffset)
-            -- local keyX = UV_UI.X(w * (0.8425 + ((i - 1) * 0.0625)))
-            -- local textX = UV_UI.X(w * (0.8425 + ((i - 1) * 0.0625)))
 
             if tech then
-                -- Handle key press as before
                 if input.IsKeyDown(keyCode) and not gui.IsGameUIVisible() and vgui.GetKeyboardFocus() == nil then
                     net.Start("UVPTUse")
                     net.WriteInt(i, 16)
                     net.SendToServer()
                 end
 
-                -- Duration-aware cooldown
                 local timeSinceUsed = CurTime() - tech.LastUsed
                 local duration = tech.Duration or 0
                 local inDuration = duration > 0 and timeSinceUsed <= duration
@@ -84,7 +105,6 @@ local function uv_general()
                     showFillOverlay = true
                 end
 
-                -- Choose overlay color
                 if showFillOverlay then
                     local blink = 255 * math.abs(math.sin(RealTime() * 3))
                     fillOverlayColor = Color(blink, blink, 0, 175)
@@ -121,7 +141,6 @@ local function uv_general()
 					if i == 1 then
 						surface.SetMaterial(UVMaterials["PT_LEFT"])
 						local T = math.Clamp(fillFrac * bw, 0, bw)
-						-- surface.DrawTexturedRectUV( x + (bw - T), y, T, bh, 1 - (T / bw), 0, 1, 1 )
 						surface.DrawTexturedRectUV( x, y, T, bh, 0, 0, T / bw, 1 )
 					else
 						surface.SetMaterial(UVMaterials["PT_RIGHT"])
@@ -134,7 +153,7 @@ local function uv_general()
 				draw.SimpleTextOutlined( ammoText, "UVMostWantedLeaderboardFont", textX, y + (h * 0.0275), textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0))
 
 				local mk = markup.Parse( UVReplaceKeybinds( "[key:unitvehicle_pursuittech_keybindslot_" .. i .. "]", "Big" ), w )
-				mk:Draw(keyX, keyY, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				mk:Draw(x + (bw * 0.475), y - (bh * 0.45), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
             end
         end
 	else

@@ -1399,7 +1399,8 @@ else -- CLIENT stuff
 	UVRacingThemeShuffle = CreateClientConVar("unitvehicle_racetheme_shuffle", 1, true, false, "Unit Vehicles: If set to 1, the race theme will be shuffled.")
 	UVRacingSFXTheme = CreateClientConVar("unitvehicle_sfxtheme", "unbound", true, false, "Unit Vehicles: The SFX theme of the current race.")
 	
-	UVGlideSpeedometer = CreateClientConVar("unitvehicle_glide_speedometer", 0, true, false, "Unit Vehicles: If enabled, allow Glide vehicles to utilize a custom speedometer from the chosen HUD Type, if it has one.")
+	UVGlideSpeedometer = CreateClientConVar("unitvehicle_speedometer_enable", 0, true, false, "Unit Vehicles: If enabled, allow Glide vehicles to utilize a custom speedometer from the chosen HUD Type, if it has one.")
+	UVSpeedometer = CreateClientConVar("unitvehicle_speedometer", "mostwanted", true, false, "Unit Vehicles: Which custom speedometer to utilize.")
 
 	-- local files, folders = file.Find( "sound/uvracemusic/*", "GAME" )
 	-- if folders ~= nil then
@@ -2566,9 +2567,10 @@ else -- CLIENT stuff
 		'base_glide_motorcycle',
 	}
 
+	local speedotype = GetConVar("unitvehicle_speedometer"):GetString()
+	
 	hook.Add("Glide_CanDrawHUD", "UV_DisableGlideHUD", function(vehicle)
-		local hudtype = GetConVar("unitvehicle_hudtype_main"):GetString()
-		if UVGlideSpeedometer:GetBool() and (UV_UI.racing[hudtype] and UV_UI.racing[hudtype].speedometer) then
+		if UVGlideSpeedometer:GetBool() and (UV_UI.speedometer[speedotype] and UV_UI.speedometer[speedotype].main) then
 			if table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, vehicle.BaseClass.ClassName ) then
 				return false
 			end
@@ -2579,9 +2581,10 @@ else -- CLIENT stuff
 		local w, h = ScrW(), ScrH()
 		local hudyes = GetConVar("cl_drawhud"):GetBool()
 		local hudtype = GetConVar("unitvehicle_hudtype_main"):GetString()
+		local speedotype = GetConVar("unitvehicle_speedometer"):GetString()
 
 		-- Custom speedometer code
-		if UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.racing[hudtype] and UV_UI.racing[hudtype].speedometer) and table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, Glide.currentVehicle.BaseClass.ClassName ) then
+		if UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.speedometer[speedotype] and UV_UI.speedometer[speedotype].main) and table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, Glide.currentVehicle.BaseClass.ClassName ) then
 			local speed = Glide.currentVehicle:GetVelocity():Length()
 
 			local kmh = math.floor(speed * 3600 * 0.0000254 * 0.75)
@@ -2629,7 +2632,7 @@ else -- CLIENT stuff
 			-- markup.Parse(text, w):Draw(w - (w * 0.25), h - 70, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM) -- DEBUGGING
 			
 			if hudyes then
-				UV_UI.racing[hudtype].speedometer( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength, health, cfnitrousenabled, cfnitrousamount, cfsbenabled, cfsbamount )
+				UV_UI.speedometer[speedotype].main( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength, health, cfnitrousenabled, cfnitrousamount, cfsbenabled, cfsbamount )
 			end
 		end
 
