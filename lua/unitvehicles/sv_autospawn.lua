@@ -1588,7 +1588,7 @@ function UVAutoSpawnTraffic()
 	if neighbor then
 		local neighborpoint = neighbor["Target"]
 		local neighbordistance = neighborpoint - uvspawnpoint
-		uvspawnpointangles = neighbordistance:Angle()+Angle(0,180,0)
+		uvspawnpointangles = neighbordistance:Angle()
 	else
 		uvspawnpointangles = Angle(0,math.random(0,360),0)
 	end
@@ -1638,7 +1638,7 @@ function UVAutoSpawnTraffic()
 				local SpawnPos = uvspawnpoint + (vector_up * 50) + (vehicle.SpawnOffset or vector_origin)
 				local SpawnAng = uvspawnpointangles
 				SpawnAng.pitch = 0
-				SpawnAng.yaw = SpawnAng.yaw + 180
+				SpawnAng.yaw = SpawnAng.yaw + 0
 				SpawnAng.roll = 0
 
 				local Ent = simfphys.SpawnVehicle(Entity(1), SpawnPos, SpawnAng, vehicle.Model, vehicle.Class, class_name, vehicle)
