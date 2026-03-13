@@ -39,7 +39,7 @@ local function uv_general()
             local keyCode = GetConVar("unitvehicle_pursuittech_keybindslot_" .. i):GetInt()
             local tech = UVHUDPursuitTech[i]
 
-			local hudconvar = GetConVar("unitvehicle_hudtype_main"):GetString()
+			local hudconvar = GetConVar("unitvehicle_speedometer"):GetString()
 
 			local xConVar = GetConVar("uvspeedo_" .. hudconvar .. "_x")
 			local yConVar = GetConVar("uvspeedo_" .. hudconvar .. "_y")
@@ -49,15 +49,15 @@ local function uv_general()
 				y = yConVar and yConVar:GetFloat() or 0.6
 			}
 
-			local racing = UV_UI.racing[hudconvar]
-			local offsets = racing and racing.speedometerptoffsets
+			local racing = UV_UI.speedometer[hudconvar]
+			local offsets = racing and racing.offsets
 
 			local hudoffset = {
 				x = offsets and offsets.x or 0,
 				y = offsets and offsets.y or 0
 			}
 			
-			if not GetConVar("unitvehicle_glide_speedometer"):GetBool() then -- This is FUBAR but fuck you; Improve if you wish
+			if not GetConVar("unitvehicle_speedometer_enable"):GetBool() then -- This is FUBAR but fuck you; Improve if you wish
 				hudpos = {
 					x = 0.824,
 					y = 0.6

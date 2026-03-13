@@ -2,6 +2,7 @@ local files, _ = file.Find("unitvehicles/*.lua", "LUA")
 
 UV = UV or {}
 UV.HUDRegistry = UV.HUDRegistry or {}
+UV.SpeedometerRegistry = UV.SpeedometerRegistry or {}
 
 if CLIENT then
 	function UV.RegisterHUD(codename, displayname, isBackup)
@@ -11,6 +12,15 @@ if CLIENT then
 			codename = codename,
 			name = displayname,
 			backup = isBackup or false
+		}
+	end
+	
+	function UV.RegisterSpeedometer(codename, displayname)
+		if not codename or not displayname then return end
+
+		UV.SpeedometerRegistry[codename] = {
+			codename = codename,
+			name = displayname
 		}
 	end
 end

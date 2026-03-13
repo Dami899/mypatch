@@ -347,8 +347,10 @@ end
 local function BuildHUDComboLists()
     local mainHUDs = {}
     local backupHUDs = {}
+    local speedometers = {}
 
 	-- PrintTable(UV.HUDRegistry)
+	-- PrintTable(UV.SpeedometerRegistry)
 
     for _, hud in pairs(UV.HUDRegistry or {}) do
 		table.insert(mainHUDs, {
@@ -364,6 +366,13 @@ local function BuildHUDComboLists()
         end
     end
 
+    for _, speedo in pairs(UV.SpeedometerRegistry or {}) do
+		table.insert(speedometers, {
+			speedo.name,       -- display text
+			speedo.codename    -- convar value
+		})
+    end
+
     table.sort(mainHUDs, function(a, b)
         return a[1] < b[1]
     end)
@@ -372,20 +381,18 @@ local function BuildHUDComboLists()
         return a[1] < b[1]
     end)
 
-    return mainHUDs, backupHUDs
+    table.sort(speedometers, function(a, b)
+        return a[1] < b[1]
+    end)
+
+    return mainHUDs, backupHUDs, speedometers
 end
 
-local mainHUDList, backupHUDList = BuildHUDComboLists()
-
-local custHUDtable = {
-	"mostwanted",
-	"carbon",
-	"underground2",
-}
+local mainHUDList, backupHUDList, speedometerList = BuildHUDComboLists()
 
 ------- [ Main Menu ]-------
 UVMenu.Main = function()
-	local mainHUDList, backupHUDList = BuildHUDComboLists()
+	local mainHUDList, backupHUDList, speedometers = BuildHUDComboLists()
 	
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = UVString("uv.unitvehicles") .. " - " .. UV.CurVersion,
@@ -406,7 +413,7 @@ UVMenu.Main = function()
 				{ type = "label", text = "uv.menu.quick", desc = "uv.menu.quick.desc" },
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
 								
-				{ type = "button", text = "uv.ui.custhud", desc = "uv.ui.custhud.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvarvariable = "unitvehicle_hudtype_main", requireparentconvarvalue = custHUDtable, func = function() if  UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()] then UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()], true) end end },
+				-- { type = "button", text = "uv.ui.custhud", desc = "uv.ui.custhud.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvarvariable = "unitvehicle_hudtype_main", requireparentconvarvalue = custHUDtable, func = function() if  UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()] then UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()], true) end end },
 				
 				{ type = "bool", text = "uv.audio.uvtrax.enable", desc = "uv.audio.uvtrax.desc", convar = "unitvehicle_racingmusic" },
 				{ type = "combo", text = "uv.audio.uvtrax.profile", desc = "uv.audio.uvtrax.profile.desc", convar = "unitvehicle_racetheme", requireparentconvar = "unitvehicle_racingmusic" },
@@ -530,7 +537,7 @@ end
 
 -- Settings
 UVMenu.Settings = function()
-	local mainHUDList, backupHUDList = BuildHUDComboLists()
+	local mainHUDList, backupHUDList, speedometerList = BuildHUDComboLists()
 	
 	local addonTabRows = {}
 
@@ -574,8 +581,11 @@ UVMenu.Settings = function()
 				{ type = "label", text = "uv.settings.general" },
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
 				{ type = "combo", text = "uv.ui.backup", desc = "uv.ui.backup.desc", convar = "unitvehicle_hudtype_backup", content = backupHUDList },		
-				
-				{ type = "button", text = "uv.ui.custhud", desc = "uv.ui.custhud.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvarvariable = "unitvehicle_hudtype_main", requireparentconvarvalue = custHUDtable, func = function() if  UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()] then UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()], true) end end },
+
+				{ type = "bool", text = "uv.ui.speedometer.enable", desc = "uv.ui.speedometer.enable.desc", convar = "unitvehicle_speedometer_enable" },
+				{ type = "combo", text = "uv.ui.speedometer", desc = "uv.ui.speedometer.desc", convar = "unitvehicle_speedometer", requireparentconvar = "unitvehicle_speedometer_enable", content = speedometerList },
+								
+				{ type = "button", text = "uv.ui.speedometer.cust", desc = "uv.ui.speedometer.cust.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvar = "unitvehicle_speedometer_enable", func = function() if  UVMenu.CustomizeHUD[GetConVar("unitvehicle_speedometer"):GetString()] then UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_speedometer"):GetString()], true) end end },
 				
 				{ type = "bool", text = "uv.ui.racertags", desc = "uv.ui.racertags.desc", convar = "unitvehicle_racertags" },
 				{ type = "bool", text = "uv.ui.preracepopup", desc = "uv.ui.preracepopup.desc", convar = "unitvehicle_preraceinfo" },
@@ -587,7 +597,6 @@ UVMenu.Settings = function()
 				},
 				{ type = "slider", text = "uv.ui.deadzone", desc = "uv.ui.deadzone.desc", convar = "unitvehicle_hud_deadzone", min = 0, max = 500, decimals = 0 },
 				{ type = "slider", text = "uv.ui.scale", desc = "uv.ui.scale.desc", convar = "unitvehicle_hud_scale", min = 0.1, max = 1, decimals = 2 },
-				{ type = "bool", text = "uv.ui.speedometer", desc = "uv.ui.speedometer.desc", convar = "unitvehicle_glide_speedometer" },
 				
 				{ type = "label", text = "uv.pursuit" },
 				{ type = "bool", text = "uv.ui.policescanner", desc = "uv.ui.policescanner.desc", convar = "unitvehicle_policescanner" },
