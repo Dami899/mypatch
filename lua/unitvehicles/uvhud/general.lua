@@ -70,11 +70,11 @@ local function uv_general()
 
             local xOffset = w * (hudpos.x - hudoffset.x)
             local y = h * (hudpos.y - hudoffset.y)
-            local xOffsetI = w * (hudpos.x - hudoffset.x) + ((i - 1) * 115)
+            local xOffsetI = w * (hudpos.x - hudoffset.x) + ((i - 1) * (h * 0.105))
             local bw, bh = w * 0.06, h * 0.06
             local x = xOffsetI
             local keyX = w * (0.8425 + ((i - 1) * 0.0625))
-            local textX = xOffset + (bw * 0.5) + ((i - 1) * 115)
+            local textX = xOffset + (bw * 0.5) + ((i - 1) * (h * 0.105))
             local keyY = h * 0.57
 
             local bgColor = Color(0, 0, 0, 225)
@@ -149,11 +149,11 @@ local function uv_general()
 					end
 				end
 
-				draw.SimpleTextOutlined( techText, "UVMostWantedLeaderboardFont", textX, y + (h * 0.0075), textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0))
+				draw.SimpleTextOutlined( techText, "UVMostWantedLeaderboardFont2", textX, y + (h * 0.0075), textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0))
 				draw.SimpleTextOutlined( ammoText, "UVMostWantedLeaderboardFont", textX, y + (h * 0.0275), textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0))
 
 				local mk = markup.Parse( UVReplaceKeybinds( "[key:unitvehicle_pursuittech_keybindslot_" .. i .. "]", "Big" ), w )
-				mk:Draw(x + (bw * 0.475), y - (bh * 0.45), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				mk:Draw(x + (bw * 0.475), y - (bh * 0.5), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
             end
         end
 	else

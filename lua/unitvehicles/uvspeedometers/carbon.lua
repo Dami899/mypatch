@@ -21,21 +21,46 @@ CreateClientConVar("uvspeedo_carbon_col_gauge_b", 205, true, false)
 
 UV_UI.speedometer = UV_UI.speedometer or {}
 UV_UI.speedometer.carbon = UV_UI.speedometer.carbon or {}
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+
+UVMenu.CustomizeHUD.carbon = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1250),
+		Height = UV.ScaleH(760),
+		Description = true,
+		-- ColorPreview = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.speedometer.cust",
+				{ type = "label", text = "NFS: Carbon" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "slider", text = "uv.ui.xaxis", desc = "uv.ui.xaxis.desc", convar = "uvspeedo_carbon_x", min = 0, max = 1, decimals = 3 },
+				{ type = "slider", text = "uv.ui.yaxis", desc = "uv.ui.yaxis.desc", convar = "uvspeedo_carbon_y", min = 0, max = 1, decimals = 3 },
+				{ type = "coloralpha", text = "uv.speedo.needle", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_carbon_col_needle" },
+				{ type = "coloralpha", text = "uv.speedo.lettering", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_carbon_col_lettering" },
+				{ type = "coloralpha", text = "uv.speedo.face", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_carbon_col_gauge" },
+			},
+		}
+	})
+end
 
 local function carbon_bar( progress, width, height, col, icon )
     local w = ScrW()
     local h = ScrH()
 
-    local outlineX = width - UV_UI.W(w * -0.05)
-    local outlineY = height - UV_UI.W(w * 0.1)
-    local outlineW = UV_UI.W(w * 0.135)
-    local outlineH = UV_UI.W(w * 0.0275)
+    local outlineX = width - (w * -0.05)
+    local outlineY = height - (w * 0.1)
+    local outlineW = (w * 0.135)
+    local outlineH = (w * 0.0275)
 
     if icon then
-        local iconX = outlineX + UV_UI.W(w * 0.13)
-        local iconY = outlineY + UV_UI.W(w * -0.006)
-        local iconW = UV_UI.W(w * 0.04)
-        local iconH = UV_UI.W(w * 0.04)
+        local iconX = outlineX + (w * 0.13)
+        local iconY = outlineY + (w * -0.006)
+        local iconW = (w * 0.04)
+        local iconH = (w * 0.04)
 
         surface.SetDrawColor(progress > 0 and col.accent or col.empty)
         surface.SetMaterial(icon)
@@ -46,12 +71,12 @@ local function carbon_bar( progress, width, height, col, icon )
     surface.SetDrawColor(color_black)
     surface.DrawTexturedRect(outlineX, outlineY, outlineW, outlineH)
 
-    local barMarginX = UV_UI.W(w * 0.002)
-    local barMarginY = UV_UI.W(w * 0.0025)
+    local barMarginX = (w * 0.002)
+    local barMarginY = (w * 0.0025)
     local innerX = outlineX + barMarginX
     local innerY = outlineY + barMarginY
-    local innerW = UV_UI.W(w * 0.13)
-    local innerH = UV_UI.W(w * 0.0225)
+    local innerW = (w * 0.13)
+    local innerH = (w * 0.0225)
 
     surface.SetDrawColor( progress > 0 and col.accentFade or col.empty )
     surface.DrawTexturedRect(innerX, innerY, innerW, innerH)
@@ -137,44 +162,44 @@ local function carbon_speedometer( ... )
     if bgFadeMat then
         surface.SetDrawColor( color_white )
         surface.SetMaterial( bgFadeMat )
-        surface.DrawTexturedRectRotated(speedopos.x - (w * 0.025), speedopos.y - (h * 0.005), UV_UI.W(w * 0.2), UV_UI.W(h * 0.2), 0)
+        surface.DrawTexturedRectRotated(speedopos.x - (w * 0.025), speedopos.y - (h * 0.005), (w * 0.2), (h * 0.2), 0)
     end
 
     local nitroIcon = UVMaterials["NOS_ICON"]
-    carbon_bar( cffunctions and nitrousenabled and nitrous or 0, leftX, baseY - UV_UI.W(w * -0.01), col, nitroIcon )
+    carbon_bar( cffunctions and nitrousenabled and nitrous or 0, leftX, baseY - (w * -0.01), col, nitroIcon )
 
     local speedbreakerIcon = UVMaterials["SPEEDBREAKER_ICON"]
-    carbon_bar( cffunctions and speedbreakerenabled and speedbreaker or 0, leftX, baseY - UV_UI.W(w * -0.05), col, speedbreakerIcon )
+    carbon_bar( cffunctions and speedbreakerenabled and speedbreaker or 0, leftX, baseY - (w * -0.05), col, speedbreakerIcon )
 
 	-- Speedometer
 	local speedStr = tostring(speed)
 
-	local digitW, _ = UV_UI.W(w * 0.04)
+	local digitW, _ = (w * 0.04)
 	local spacing = digitW * 1
 
-	local baseX = speedopos.x - UV_UI.W(w * 0.01)
-	local yPos = speedopos.y - UV_UI.W(h * 0.025)
+	local baseX = speedopos.x - (w * 0.01)
+	local yPos = speedopos.y - (h * 0.025)
 
 	for i = 1, 3 do
-		local digitX = baseX - ( 3 - i ) * ( digitW + UV_UI.W(w * -0.01) )
+		local digitX = baseX - ( 3 - i ) * ( digitW + (w * -0.01) )
 		draw.SimpleText("8", "UVCarbonMonoFont7", digitX, yPos, Color( col.lettering.r, col.lettering.g, col.lettering.b, 20  ), TEXT_ALIGN_RIGHT)
 	end
 
 	for i = 1, #speedStr do
         local digitChar = string.sub( speedStr, i, i )
-		local digitX = baseX - ( #speedStr - i)  * ( digitW + UV_UI.W(w * -0.01) )
+		local digitX = baseX - ( #speedStr - i)  * ( digitW + (w * -0.01) )
 		draw.SimpleTextOutlined(digitChar, "UVCarbonMonoFont7", digitX, yPos, col.lettering, TEXT_ALIGN_RIGHT, nil, 2, Color(0, 0, 0))
 	end
 
-	draw.SimpleText( UVString(spn), "UVCarbonFont-Smaller", speedopos.x - UV_UI.W(w * 0.035), speedopos.y + (h * 0.055), col.letteringFade, TEXT_ALIGN_RIGHT )
+	draw.SimpleText( UVString(spn), "UVCarbonFont-Smaller", speedopos.x - (w * 0.035), speedopos.y + (h * 0.055), col.letteringFade, TEXT_ALIGN_RIGHT )
 
-    draw.SimpleTextOutlined( gearText, "UVCarbonFont", leftX + UV_UI.W(w * 0.0375), baseY + (h * 0.00), col.accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.5, Color(0, 0, 0))
+    draw.SimpleTextOutlined( gearText, "UVCarbonFont", leftX + (w * 0.0375), baseY + (h * 0.00), col.accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.5, Color(0, 0, 0))
 
     local gearIcon = UVMaterials["HUD_GEAR"]
     if gearIcon then
         surface.SetDrawColor(col.accent)
         surface.SetMaterial(gearIcon)
-        surface.DrawTexturedRectRotated(leftX + UV_UI.W(w * 0.05), baseY + UV_UI.W(w * 0.0125), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0)
+        surface.DrawTexturedRectRotated(leftX + (w * 0.05), baseY + (w * 0.0125), (w * 0.03), (w * 0.03), 0)
     end
 
 	-- RPM Tachometer
@@ -189,7 +214,7 @@ local function carbon_speedometer( ... )
 	if not tachBgMat:IsError() then
 		surface.SetDrawColor(color_black)
 		surface.SetMaterial(tachBgMat)
-		surface.DrawTexturedRectRotated(rightX + UV_UI.W(w * 0.04), baseY - UV_UI.W(w * 0.0025), UV_UI.W(w * 0.1), UV_UI.W(w * 0.165), 0)
+		surface.DrawTexturedRectRotated(rightX + (w * 0.04), baseY - (w * 0.0025), (w * 0.1), (w * 0.165), 0)
 	end
 
     local tachBgFillMat = UVMaterials["RPM_COLOR"]
@@ -199,7 +224,7 @@ local function carbon_speedometer( ... )
     if not tachBgFillMat:IsError() then
         surface.SetDrawColor(col.accentFade)
         surface.SetMaterial(tachBgFillMat)
-        surface.DrawTexturedRectRotated(rightX + UV_UI.W(w * 0.04), baseY - UV_UI.W(w * 0.0025), UV_UI.W(w * 0.1), UV_UI.W(w * 0.165), 0)
+        surface.DrawTexturedRectRotated(rightX + (w * 0.04), baseY - (w * 0.0025), (w * 0.1), (w * 0.165), 0)
     end
 
 	local tachFillMat = UVMaterials["RPM_COLOR"]
@@ -229,11 +254,11 @@ local function carbon_speedometer( ... )
 	surface.SetMaterial(tachFillUVMat)
 
     -- i remapped the value according to the current texture, change if needed
-	local rectW = UV_UI.W(w * 0.1)
-	local rectH = UV_UI.W(w * 0.165)
+	local rectW = (w * 0.1)
+	local rectH = (w * 0.165)
 
-	local rectCenterX = rightX + UV_UI.W(w * 0.04)
-	local rectCenterY = baseY - UV_UI.W(w * 0.0025)
+	local rectCenterX = rightX + (w * 0.04)
+	local rectCenterY = baseY - (w * 0.0025)
 
 	local rectX = rectCenterX - rectW * 0.5
 	local rectTop = rectCenterY - rectH * 0.5
@@ -251,12 +276,12 @@ local function carbon_speedometer( ... )
 
     local tachOffsets = {
         ["RPM_8000"] = {
-            x = UV_UI.W(w * 0.03),
-            y = UV_UI.W(w * 0.0),
+            x = (w * 0.03),
+            y = (w * 0.0),
         },
         ["RPM_10000"] = {
-            x = UV_UI.W(w * 0.035),
-            y = UV_UI.W(w * 0.005),
+            x = (w * 0.035),
+            y = (w * 0.005),
         },
     }
 
@@ -279,36 +304,10 @@ local function carbon_speedometer( ... )
         end
         surface.SetDrawColor( color )
         surface.SetMaterial( shiftUpIcon )
-        surface.DrawTexturedRect(rightX + UV_UI.W(w * 0.0595), baseY - UV_UI.W(w * 0.09), UV_UI.W(w * 0.037), UV_UI.W(w * 0.037))
+        surface.DrawTexturedRect(rightX + (w * 0.0595), baseY - (w * 0.09), (w * 0.037), (w * 0.037))
     end
 end
 
 UV_UI.speedometer.carbon.main = carbon_speedometer
 
 UV_UI.speedometer.carbon.offsets = { x = 0.1025, y = 0.24 }
-
-UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
-
-UVMenu.CustomizeHUD.carbon = function()
-	UVMenu.CurrentMenu = UVMenu:Open({
-		Name = " ",
-		Width  = UV.ScaleW(1250),
-		Height = UV.ScaleH(760),
-		Description = true,
-		-- ColorPreview = true,
-		UnfocusClose = true,
-		Tabs = {
-			{ TabName = "NFS: Carbon",
-				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
-						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
-				},
-				{ type = "label", text = "uv.speedo" },
-				{ type = "slider", text = "uv.ui.xaxis", desc = "uv.ui.xaxis.desc", convar = "uvspeedo_carbon_x", min = 0, max = 1, decimals = 3 },
-				{ type = "slider", text = "uv.ui.yaxis", desc = "uv.ui.yaxis.desc", convar = "uvspeedo_carbon_y", min = 0, max = 1, decimals = 3 },
-				{ type = "coloralpha", text = "uv.speedo.needle", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_carbon_col_needle" },
-				{ type = "coloralpha", text = "uv.speedo.lettering", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_carbon_col_lettering" },
-				{ type = "coloralpha", text = "uv.speedo.face", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_carbon_col_gauge" },
-			},
-		}
-	})
-end

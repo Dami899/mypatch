@@ -21,6 +21,32 @@ CreateClientConVar("uvspeedo_underground2_col_gauge_b", 255, true, false)
 
 UV_UI.speedometer = UV_UI.speedometer or {}
 UV_UI.speedometer.underground2 = UV_UI.speedometer.underground2 or {}
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+
+UVMenu.CustomizeHUD.underground2 = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1250),
+		Height = UV.ScaleH(760),
+		Description = true,
+		-- ColorPreview = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.speedometer.cust",
+				{ type = "label", text = "NFS: Underground 2" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "slider", text = "uv.speedo", convar = "uvspeedo_underground2_gauge", min = 0, max = 10, decimals = 0 },
+				{ type = "slider", text = "uv.ui.xaxis", desc = "uv.ui.xaxis.desc", convar = "uvspeedo_underground2_x", min = 0, max = 1, decimals = 3 },
+				{ type = "slider", text = "uv.ui.yaxis", desc = "uv.ui.yaxis.desc", convar = "uvspeedo_underground2_y", min = 0, max = 1, decimals = 3 },
+				{ type = "coloralpha", text = "uv.speedo.needle", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_underground2_col_needle" },
+				{ type = "coloralpha", text = "uv.speedo.lettering", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_underground2_col_lettering" },
+				{ type = "coloralpha", text = "uv.speedo.face", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_underground2_col_gauge" },
+			},
+		}
+	})
+end
 
 local function underground2_speedometer( ... )
 	local w = ScrW()
@@ -108,41 +134,41 @@ local function underground2_speedometer( ... )
 	if cffunctions then
 		-- [[ Nitrous ]] --
 		if nitrousenabled then
-			DrawMeter( speedopos.x + UV_UI.W(w * 0.002), speedopos.y - UV_UI.W(w * 0.002), UV_UI.W(w * 0.1025), UV_UI.W(w * 0.01), 1, 90, speedocol.extraoff, 150 )
-			DrawMeter( speedopos.x + UV_UI.W(w * 0.002), speedopos.y - UV_UI.W(w * 0.002), UV_UI.W(w * 0.1015), UV_UI.W(w * 0.0075), nitrous, 90, speedocol.nitrous, 150 )
+			DrawMeter( speedopos.x + (w * 0.002), speedopos.y - (w * 0.002), (w * 0.1025), (w * 0.01), 1, 90, speedocol.extraoff, 150 )
+			DrawMeter( speedopos.x + (w * 0.002), speedopos.y - (w * 0.002), (w * 0.1015), (w * 0.0075), nitrous, 90, speedocol.nitrous, 150 )
 
 			local nitrocol = nitrous <= 0 and speedocol.extraoff or speedocol.nitrous
 			
 			-- surface.SetDrawColor(nitrocol)
 			-- surface.SetMaterial(Material("unitvehicles/speedometers/mw/n20_icon.png"))
-			-- surface.DrawTexturedRectRotated( speedopos.x - (w * 0.08), speedopos.y + (w * 0.08), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0 )
+			-- surface.DrawTexturedRectRotated( speedopos.x - (w * 0.08), speedopos.y + (w * 0.08), (w * 0.03), (w * 0.03), 0 )
 		end
 
 		-- [[ Speedbreaker ]] --
 		if game.SinglePlayer() and speedbreakerenabled then
-			DrawMeter( speedopos.x + UV_UI.W(w * 0.002), speedopos.y - UV_UI.W(w * 0.002), UV_UI.W(w * 0.1025), UV_UI.W(w * 0.01), 1, 245, speedocol.extraoff, 75 )
-			DrawMeter( speedopos.x + UV_UI.W(w * 0.002), speedopos.y - UV_UI.W(w * 0.002), UV_UI.W(w * 0.1015), UV_UI.W(w * 0.0075), speedbreaker, 245, speedocol.speedbr, 75 )
+			DrawMeter( speedopos.x + (w * 0.002), speedopos.y - (w * 0.002), (w * 0.1025), (w * 0.01), 1, 245, speedocol.extraoff, 75 )
+			DrawMeter( speedopos.x + (w * 0.002), speedopos.y - (w * 0.002), (w * 0.1015), (w * 0.0075), speedbreaker, 245, speedocol.speedbr, 75 )
 
 			local spbcol = speedbreaker <= 0 and speedocol.extraoff or speedocol.speedbr
 			
 			-- surface.SetDrawColor(spbcol)
 			-- surface.SetMaterial(Material("unitvehicles/speedometers/mw/persuit_icon.png"))
-			-- surface.DrawTexturedRectRotated( speedopos.x + (w * 0.08), speedopos.y - (w * 0.08), UV_UI.W(w * 0.03), UV_UI.W(w * 0.03), 0 )
+			-- surface.DrawTexturedRectRotated( speedopos.x + (w * 0.08), speedopos.y - (w * 0.08), (w * 0.03), (w * 0.03), 0 )
 		end
 	end
 
 	-- [[ Speedometer ]] --
 	surface.SetMaterial(Material("unitvehicles/speedometers/ug2/tach_fill_custom_" .. cvs.gaugetype .. ".png", "mips smooth")) -- Background
 	surface.SetDrawColor(speedocol.gauge)
-	surface.DrawTexturedRectRotated( speedopos.x + UV_UI.W(w * 0.08), speedopos.y + UV_UI.W(w * 0.077), UV_UI.W(w * 0.34), UV_UI.W(w * 0.34), 0 )
+	surface.DrawTexturedRectRotated( speedopos.x + (w * 0.08), speedopos.y + (w * 0.077), (w * 0.34), (w * 0.34), 0 )
 
 	surface.SetMaterial(Material("unitvehicles/speedometers/ug2/3rdperson_10500lines_custom_" .. cvs.gaugetype .. ".png")) -- BG Filler
 	surface.SetDrawColor(speedocol.lettering)
-	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y - (w * 0.001), UV_UI.W(w * 0.17), UV_UI.W(w * 0.17), 0 )
+	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y - (w * 0.001), (w * 0.17), (w * 0.17), 0 )
 
 	surface.SetMaterial(Material("unitvehicles/speedometers/ug2/drift_angle_backing2.png")) -- Lower "drift angle" filler
 	surface.SetDrawColor(0,0,0,100)
-	surface.DrawTexturedRectRotated( speedopos.x - (w * 0.064), speedopos.y + (w * 0.067), UV_UI.W(w * 0.17), UV_UI.W(w * 0.085), 0 )
+	surface.DrawTexturedRectRotated( speedopos.x - (w * 0.064), speedopos.y + (w * 0.067), (w * 0.17), (w * 0.085), 0 )
 
 	if rpm >= maxrpm * 0.95 then
 		draw.SimpleText("▲", "UVFont", speedopos.x + (w * 0.05), speedopos.y - (h * 0.0475), speedocol.gearw, TEXT_ALIGN_RIGHT)
@@ -153,11 +179,11 @@ local function underground2_speedometer( ... )
 	-- [[ Health ]] --
 	surface.SetDrawColor(speedocol.lettering)
 	surface.SetMaterial(Material("unitvehicles/speedometers/ug2/3rdperson_turbofill_custom_" .. cvs.gaugetype .. ".png"))
-	surface.DrawTexturedRectRotated( speedopos.x - (w * 0.085), speedopos.y + (w * 0.08), UV_UI.W(w * 0.165), UV_UI.W(w * 0.165), 0 )
+	surface.DrawTexturedRectRotated( speedopos.x - (w * 0.085), speedopos.y + (w * 0.08), (w * 0.165), (w * 0.165), 0 )
 	
 	surface.SetDrawColor(speedocol.lettering)
 	surface.SetMaterial(Material("unitvehicles/speedometers/ug2/3rdperson_turbolines_custom_" .. cvs.gaugetype .. ".png"))
-	surface.DrawTexturedRectRotated( speedopos.x - (w * 0.085), speedopos.y + (w * 0.08), UV_UI.W(w * 0.165), UV_UI.W(w * 0.165), 0 )
+	surface.DrawTexturedRectRotated( speedopos.x - (w * 0.085), speedopos.y + (w * 0.08), (w * 0.165), (w * 0.165), 0 )
 	
 	local healthmeter = {
 		idle = 0,
@@ -171,25 +197,25 @@ local function underground2_speedometer( ... )
 
 	local healthAngle = healthmeter.idle + healthmeter.direction * (healthFrac * (healthmeter.max - healthmeter.idle))
 
-	-- DrawMeter( speedopos.x - UV_UI.W(w * 0.121), speedopos.y + UV_UI.W(w * 0.044), UV_UI.W(w * 0.041), UV_UI.W(w * 0.009), health, 5, speedocol.health, 220 )
+	-- DrawMeter( speedopos.x - (w * 0.121), speedopos.y + (w * 0.044), (w * 0.041), (w * 0.009), health, 5, speedocol.health, 220 )
 
 	surface.SetMaterial(Material("unitvehicles/speedometers/ug2/3rdperson_turbodial_custom_" .. cvs.gaugetype .. ".png"))
 	surface.SetDrawColor(speedocol.needle)
 
-	surface.DrawTexturedRectRotated( speedopos.x - UV_UI.W(w * 0.121), speedopos.y + UV_UI.W(w * 0.044), UV_UI.W(w * 0.02), UV_UI.W(w * 0.075), healthAngle )
+	surface.DrawTexturedRectRotated( speedopos.x - (w * 0.121), speedopos.y + (w * 0.044), (w * 0.02), (w * 0.075), healthAngle )
 	
 	-- [[ RPM ]] --
 	local speedStr = tostring(speed)
 
 	surface.SetFont("UVMWFont7Smaller")
-	local digitW, _ = UV_UI.W(w * 0.0125)
+	local digitW, _ = (w * 0.0125)
 
-	local baseX = speedopos.x + UV_UI.W(w * 0.07)
-	local yPos = speedopos.y + UV_UI.W(h * 0.005)
+	local baseX = speedopos.x + (w * 0.07)
+	local yPos = speedopos.y + (h * 0.005)
 
 	for i = 1, #speedStr do
         local digitChar = string.sub( speedStr, i, i )
-		local digitX = baseX - ( #speedStr - i)  * ( digitW + UV_UI.W(w * 0.0025) )
+		local digitX = baseX - ( #speedStr - i)  * ( digitW + (w * 0.0025) )
 		draw.SimpleText(digitChar, "UVFont", digitX, yPos, speedocol.lettering, TEXT_ALIGN_RIGHT)
 	end
 
@@ -211,36 +237,9 @@ local function underground2_speedometer( ... )
 
 	surface.SetMaterial(Material("unitvehicles/speedometers/ug2/3rdperson_rpmdial_custom_" .. cvs.gaugetype .. ".png")) -- Needle
 	surface.SetDrawColor(speedocol.needle)
-	surface.DrawTexturedRectRotated( speedopos.x + UV_UI.W(w * 0.0025), speedopos.y - UV_UI.W(w * 0.00), UV_UI.W(w * 0.02), UV_UI.W(w * 0.17), angle )
+	surface.DrawTexturedRectRotated( speedopos.x + (w * 0.0025), speedopos.y - (w * 0.00), (w * 0.02), (w * 0.17), angle )
 end
 
 UV_UI.speedometer.underground2.main = underground2_speedometer
 
 UV_UI.speedometer.underground2.offsets = { x = 0.06, y = 0.25 }
-
-UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
-
-UVMenu.CustomizeHUD.underground2 = function()
-	UVMenu.CurrentMenu = UVMenu:Open({
-		Name = " ",
-		Width  = UV.ScaleW(1250),
-		Height = UV.ScaleH(760),
-		Description = true,
-		-- ColorPreview = true,
-		UnfocusClose = true,
-		Tabs = {
-			{ TabName = "NFS: Underground 2",
-				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
-						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
-				},
-				{ type = "label", text = "uv.speedo" },
-				{ type = "slider", text = "uv.speedo", convar = "uvspeedo_underground2_gauge", min = 0, max = 10, decimals = 0 },
-				{ type = "slider", text = "uv.ui.xaxis", desc = "uv.ui.xaxis.desc", convar = "uvspeedo_underground2_x", min = 0, max = 1, decimals = 3 },
-				{ type = "slider", text = "uv.ui.yaxis", desc = "uv.ui.yaxis.desc", convar = "uvspeedo_underground2_y", min = 0, max = 1, decimals = 3 },
-				{ type = "coloralpha", text = "uv.speedo.needle", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_underground2_col_needle" },
-				{ type = "coloralpha", text = "uv.speedo.lettering", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_underground2_col_lettering" },
-				{ type = "coloralpha", text = "uv.speedo.face", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_underground2_col_gauge" },
-			},
-		}
-	})
-end
