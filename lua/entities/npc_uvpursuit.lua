@@ -625,16 +625,17 @@ if SERVER then
 	end
 	
 	function ENT:DriveOnPath()
+		local unitpos = self.v:WorldSpaceCenter()
+		local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
+
 		local waypoints = table.Copy( self.tableroutetoenemy )
 		if not waypoints or next(waypoints) == nil then 
-			return self.v:WorldSpaceCenter() + (forward * 100)
+			return unitpos + (forward * 100)
 		end
-		
-		local unitpos = self.v:WorldSpaceCenter()
+
 		local reachThreshold = 250000
 		local passedThreshold = 16000000
 		
-		local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
 		local velocity = self.v:GetVelocity()
 		local velocityNormalized = velocity:GetNormalized()
 		local hasVelocity = velocity:LengthSqr() > 10000
