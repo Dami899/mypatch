@@ -227,7 +227,7 @@ if CLIENT then
 			if InfMap then render.OverrideDepthEnable(false, false) end
 			cam.End3D()
 			
-			local textScale = Lerp(fade, 1, 0.75)
+			local textScale = Lerp(fade, 0.25, 1)
 			
 			local unitType = GetConVar("unitvehicle_unitstype"):GetInt()
 
@@ -255,10 +255,22 @@ if CLIENT then
 				m:Scale(Vector(textScale, textScale, 1))
 				m:Translate(Vector(-cx, -cy, 0))
 
+				local cptext = UVString("uv.race.hud.check")
+				local hidearrow = nil
+				
+				if id == GetGlobalInt("uvrace_checkpoints") then --Finish line
+					if UVHUDRaceCurrentLap == UVHUDRaceLaps then --Last lap
+						cptext = UVString("uv.race.finish")
+						hidearrow = true
+					else
+						cptext = UVString("uv.race.hud.lap") .. " " .. (UVHUDRaceCurrentLap + 1)
+					end
+				end
+
 				cam.PushModelMatrix(m)
 					if id == currentcheckpoint then
-						draw.SimpleTextOutlined( UVString("uv.race.hud.check"), "UVFont5", data2D.x, data2D.y - 100, Color( 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color( 0, 0, 0, 50 ) )
-						draw.SimpleTextOutlined( string.format( displayString, math.Round(displayDist) ), "UVFont5UI", data2D.x, data2D.y - 60, Color( 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color( 0, 0, 0, 50 ) )
+						draw.SimpleTextOutlined( string.format( displayString, math.Round(displayDist) ), "UVFont5ShadowLarge", data2D.x, data2D.y - 125, Color( 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2.25, Color( 0, 0, 0, 50 ) )
+						draw.SimpleTextOutlined( cptext, "UVFont5UI", data2D.x, data2D.y - 70, Color( 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2.25, Color( 0, 0, 0, 50 ) )
 
 						local lp = LocalPlayer()
 						local playerForward = lp:GetForward()
@@ -286,7 +298,7 @@ if CLIENT then
 						local angleDiff = math.deg(math.atan2(cross, dot))
 
 						-- Clamp to -90..90 so arrow only rotates left/right
-						angleDiff = math.Clamp(angleDiff, -90, 90)
+						angleDiff = math.Clamp(angleDiff * 2, -90, 90)
 
 						-- Draw arrow in 2D HUD
 						local screenPos = center:ToScreen()
@@ -294,8 +306,9 @@ if CLIENT then
 
 						surface.SetMaterial(arrowMat)
 						surface.SetDrawColor(255, 255, 255, 255 * fade)
-						surface.DrawTexturedRectRotated(data2D.x, data2D.y, size, size, angleDiff)
-					
+						if not hidearrow then
+							surface.DrawTexturedRectRotated(data2D.x, data2D.y, size, size, angleDiff)
+						end
 					end
 				cam.PopModelMatrix()
 

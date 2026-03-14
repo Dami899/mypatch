@@ -2062,6 +2062,7 @@ else -- CLIENT stuff
 		if my_array then
 			UVHUDRaceCurrentCheckpoint = #my_array['Checkpoints']
 			UVHUDRaceCurrentPos = my_array['Position']
+			UVHUDRaceCurrentLap = my_array['Lap']
 		else
 			UVHUDRaceCurrentCheckpoint = nil
 		end
@@ -2775,6 +2776,9 @@ else -- CLIENT stuff
 		end
 
 		local checkpoint_count = #my_array['Checkpoints']
+		local lap_count = my_array['Lap']
+		
+		UVHUDRaceCurrentLap = lap_count
 
 		-- used by checkpoint entities
 		UVHUDRaceCurrentCheckpoint = checkpoint_count

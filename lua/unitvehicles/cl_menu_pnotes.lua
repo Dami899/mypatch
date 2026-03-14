@@ -9,7 +9,7 @@ UV = UV or {}
 
 UV.PNotes = {
 ["v1.3.0"] = {
-Date = { year = 2026, month = 3, day = 13 },
+Date = { year = 2026, month = 3, day = 14 },
 Text = [[
 **New Features**
 - Racing: Added a *Racer Difficulty* setting
@@ -35,7 +35,9 @@ Text = [[
 - AI Racers: When resetting while driving via Path Nodes, the AI racers will now assign themselves the closest small node rather than large node
 - AI Racers: Improved navigation via DV waypoints when freeroaming
 - AI Racers: When freeroaming via DV waypoints, if an AI racer gets stuck for a sufficient amount of time, it will reset its navigation target
-- Racing: Checkpoints now display the distance to them
+- Racing: Updated the appearance of checkpoints:
+      |-- Now displays the distance to the next checkpoint
+      |-- Displays an arrow inside the checkpoint pointing towards the next one
 - "Unlimited Durability" now gets applied whenever you enter a vehicle, not when a pursuit begins
 - When "Racer Pursuit Tech" is enabled, all players will receive random Pursuit Tech whenever they enter a vehicle
       |-- Only happens if the vehicle does not have Pursuit Tech already
