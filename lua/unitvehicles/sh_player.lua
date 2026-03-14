@@ -2350,10 +2350,14 @@ if SERVER then
 
             timer.Simple(time, function()
                 if IsValid(car) then
-                    car.grappler:Remove()
-                    car.grappler = nil
-                    car.grapplerconstraint:Remove()
-                    car.grapplerconstraint = nil
+                    if IsValid(car.grappler) then
+                        car.grappler:Remove()
+                        car.grappler = nil
+                    end
+                    if IsValid(car.grapplerconstraint) then
+                        car.grapplerconstraint:Remove()
+                        car.grapplerconstraint = nil
+                    end
                     hook.Remove("Think", grapplerThinkID)
                 end
             end)
