@@ -642,8 +642,9 @@ if SERVER then
 		local passedThreshold = 16000000
 		
 		local velocity = self.v:GetVelocity()
+		local velocitySqr = velocity:LengthSqr()
 		local velocityNormalized = velocity:GetNormalized()
-		local hasVelocity = velocity:LengthSqr() > 10000
+		local hasVelocity = velocitySqr > 10000
 		
 		for i = #waypoints, 1, -1 do
 			local waypoint = waypoints[i]
@@ -1417,7 +1418,7 @@ if SERVER then
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
 			local followSuspectHeadingOnGrid = suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC
 			if suspectInView and self.v.rhino then useDirectDriveBranch = true end
-			if eedist:LengthSqr() < 2000000 and suspectInView then useDirectDriveBranch = true end
+			if eedist:LengthSqr() < 200000 and suspectInView then useDirectDriveBranch = true end
 
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver or rhinoForceDirect) and next(self.tableroutetoenemy) ~= nil then

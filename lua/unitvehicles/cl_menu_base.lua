@@ -2219,10 +2219,29 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 			selectedRacers = ParseConvar()
 
+			function parentNode:DoRightClick()
+				local addAll = true
+
+				for _, veh in ipairs( vehicles ) do
+					local class = veh.class
+					if selectedRacers[class] then addAll = false break end
+				end
+
+				for _, veh in ipairs( vehicles ) do
+					local class = veh.class
+					selectedRacers[class] = addAll or nil
+					if veh.node then veh.node:SetIcon( addAll and "icon16/tick.png" or "icon16/car.png" ) end
+				end
+
+				UpdateRacersConvar()
+				UpdateFolderIcon( parentNode )
+			end
+
 			for _, veh in ipairs(vehicles) do
 				local class = veh.class
 				local node = parentNode:AddNode(veh.name or class)
 				node.ClassName = class
+				veh.node = node
 
 				classToNode[class] = node
 

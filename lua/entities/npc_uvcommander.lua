@@ -655,8 +655,9 @@ if SERVER then
 		local passedThreshold = 16000000
 		
 		local velocity = self.v:GetVelocity()
+		local velocitySqr = velocity:LengthSqr()
 		local velocityNormalized = velocity:GetNormalized()
-		local hasVelocity = velocity:LengthSqr() > 10000
+		local hasVelocity = velocitySqr > 10000
 		
 		for i = #waypoints, 1, -1 do
 			local waypoint = waypoints[i]
