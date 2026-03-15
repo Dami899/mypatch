@@ -3578,6 +3578,45 @@ end
 -- 	return false
 -- end
 
+function UVNavigateDVWaypoint2( self, vectors )
+	if not dvd or not dvd.Waypoints or next( dvd.Waypoints ) == nil then
+		self.NavigateBlind = true
+		return
+	end
+
+	if UVEnemyEscaping then
+		vectors = dvd.Waypoints[math.random( #dvd.Waypoints )].Target
+	end
+
+	local startPos = self.v:WorldSpaceCenter()
+	local endPos = isvector( vectors ) and vectors or (istable( vectors ) and vectors[1] or startPos)
+	local maxWaypoints = 12
+	local minStepSq = 625 
+	local route = {}
+	local lastAdded = nil
+	local viewOrigin = startPos
+
+	for i = 0, maxWaypoints - 1 do
+		local t = ( maxWaypoints > 1 ) and ( i / (maxWaypoints - 1) ) or 0
+		local samplePos = startPos + ( endPos - startPos ) * t
+		local wp = dvd.GetNearestWaypoint( samplePos )
+		if wp and wp.Target then
+			local v = wp.Target
+			if ( lastAdded == nil or v:DistToSqr( lastAdded ) > minStepSq ) then
+				table.insert( route, v )
+				lastAdded = v
+				viewOrigin = v
+			end
+		end
+	end
+	if next( route ) == nil then
+		return
+	end
+
+	self.tableroutetoenemy = route
+	return self.tableroutetoenemy
+end
+
 function UVNavigateDVWaypoint(self, vectors)
 	if UVEnemyEscaping then
 		vectors = dvd.Waypoints[math.random(#dvd.Waypoints)].Target
@@ -3600,7 +3639,6 @@ function UVNavigateDVWaypoint(self, vectors)
 	local enemyToSelf = FromEnemyToSelf and #FromEnemyToSelf or math.huge
 
 	operationStack = options[selfToEnemy <= enemyToSelf]
-	if #operationStack > 100 then return end
 
 	-- if FromSelfToEnemy and FromEnemyToSelf then
 	-- 	print("operationStack", #FromSelfToEnemy <= #FromEnemyToSelf)
