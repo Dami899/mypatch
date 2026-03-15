@@ -1,5 +1,32 @@
 UV.RegisterHUD( "prostreet", "NFS: ProStreet" )
 
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_prostreet_race_raceramount", 8, true, false)
+local maxracernrcv = GetConVar("uvhud_prostreet_race_raceramount"):GetString()
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.prostreet = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "NFS: ProStreet" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_prostreet_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
+
 UV_UI.racing.prostreet = UV_UI.racing.prostreet or {}
 
 local function prostreet_racing_main( ... )
@@ -45,7 +72,7 @@ local function prostreet_racing_main( ... )
     -- Racer List
     local alt = math.floor(CurTime() / 5) % 2 == 1 -- toggles every 5 seconds
     local boxyes = false
-    for i = 1, math.Clamp(racer_count, 1, 20), 1 do
+    for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_prostreet_race_raceramount"):GetString()), 1 do
         --if racer_count == 1 then return end
         local entry = string_array[i]
         
@@ -54,7 +81,7 @@ local function prostreet_racing_main( ... )
         local mode = entry[3]
         local diff = entry[4]
         local racercount = i * w * 0.0135
-        local racercountbox = i * w * 0.0135 * math.Clamp(racer_count, 1, 20)
+        local racercountbox = i * w * 0.0135 * math.Clamp(racer_count, 1, GetConVar("uvhud_prostreet_race_raceramount"):GetString())
         
         local Strings = {
             ["Time"] = "%s",

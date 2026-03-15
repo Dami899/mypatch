@@ -1,5 +1,32 @@
 UV.RegisterHUD( "underground2", "NFS: Underground 2" )
 
+-- [[ Convars ]] --
+-- Racing
+-- CreateClientConVar("uvhud_underground2_race_raceramount", 8, true, false)
+-- local maxracernrcv = GetConVar("uvhud_underground2_race_raceramount"):GetString()
+
+-- UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+-- UVMenu.CustomizeHUD.underground2 = function()
+	-- UVMenu.CurrentMenu = UVMenu:Open({
+		-- Name = " ",
+		-- Width  = UV.ScaleW(1200),
+		-- Height = UV.ScaleH(760),
+		-- DynamicHeight = true,
+		-- Description = true,
+		-- UnfocusClose = true,
+		-- Tabs = {
+			-- { TabName = "uv.ui.custhud",
+				-- { type = "label", text = "NFS: Underground 2" },
+				-- { type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						-- func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				-- },
+				-- { type = "infosimple", text = "uv.ui.custhud.race" },
+				-- { type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_underground2_race_raceramount", min = 4, max = 18, decimals = 0 },
+			-- },
+		-- }
+	-- })
+-- end
+
 UV_UI.racing.underground2 = UV_UI.racing.underground2 or {}
 
 UV_UI.racing.underground2.states = {

@@ -1,4 +1,30 @@
-UV.RegisterHUD( "mostwanted", "NFS: Most Wanted", true )
+UV.RegisterHUD( "mostwanted", "NFS: Most Wanted", true, true )
+
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_mostwanted_race_raceramount", 4, true, false)
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.mostwanted = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "NFS: Most Wanted" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_mostwanted_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
 
 local _last_backup_pulse_second = 0
 
@@ -1569,7 +1595,7 @@ local function mw_racing_main( ... )
 
     -- Racer List
     local alt = math.floor(CurTime() / 5) % 2 == 1
-    for i = 1, math.Clamp(racer_count, 1, 12) do
+    for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_mostwanted_race_raceramount"):GetString()) do
         if racer_count == 1 then return end
 
         local entry = string_array[i]

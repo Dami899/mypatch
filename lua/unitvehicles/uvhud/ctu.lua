@@ -1,5 +1,32 @@
 UV.RegisterHUD( "ctu", "Crash Time - Undercover" )
 
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_ctu_race_raceramount", 8, true, false)
+local maxracernrcv = GetConVar("uvhud_ctu_race_raceramount"):GetString()
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.ctu = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "Crash Time - Undercover" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_ctu_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
+
 UV_UI.racing.ctu = UV_UI.racing.ctu or {}
 -- UV_UI.pursuit.ctu = UV_UI.pursuit.ctu or {}
 
@@ -89,7 +116,7 @@ local function ctu_racing_main( ... )
 
 		-- Racer List
 		local alt = math.floor(CurTime() / 5) % 2 == 1 -- toggles every 5 seconds
-		for i = 1, math.Clamp(racer_count, 1, 16), 1 do
+		for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_ctu_race_raceramount"):GetString()), 1 do
 			--if racer_count == 1 then return end
 			local entry = string_array[i]
 			

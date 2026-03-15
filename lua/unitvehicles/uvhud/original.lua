@@ -1,5 +1,32 @@
 UV.RegisterHUD( "original", "Original", true )
 
+-- [[ Convars ]] --
+-- Racing
+-- CreateClientConVar("uvhud_original_race_raceramount", 4, true, false)
+-- local maxracernrcv = GetConVar("uvhud_original_race_raceramount"):GetString()
+
+-- UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+-- UVMenu.CustomizeHUD.original = function()
+	-- UVMenu.CurrentMenu = UVMenu:Open({
+		-- Name = " ",
+		-- Width  = UV.ScaleW(1200),
+		-- Height = UV.ScaleH(760),
+		-- DynamicHeight = true,
+		-- Description = true,
+		-- UnfocusClose = true,
+		-- Tabs = {
+			-- { TabName = "uv.ui.custhud",
+				-- { type = "label", text = "uv.ui.original" },
+				-- { type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						-- func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				-- },
+				-- { type = "infosimple", text = "uv.ui.custhud.race" },
+				-- { type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_original_race_raceramount", min = 4, max = 18, decimals = 0 },
+			-- },
+		-- }
+	-- })
+-- end
+
 UV_UI.racing.original = UV_UI.racing.original or {}
 UV_UI.pursuit.original = UV_UI.pursuit.original or {}
 
@@ -800,6 +827,7 @@ local function original_racing_main( ... )
     TEXT_ALIGN_RIGHT)
     
     -- Racer List
+    -- for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_original_race_raceramount"):GetString()), 1 do
     for i = 1, math.Clamp(racer_count, 1, 16), 1 do
         local entry = string_array[i]
         

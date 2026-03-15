@@ -21,9 +21,9 @@ CreateClientConVar("uvspeedo_carbon_col_gauge_b", 205, true, false)
 
 UV_UI.speedometer = UV_UI.speedometer or {}
 UV_UI.speedometer.carbon = UV_UI.speedometer.carbon or {}
-UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeSpeedo = UVMenu.CustomizeSpeedo or {}
 
-UVMenu.CustomizeHUD.carbon = function()
+UVMenu.CustomizeSpeedo.carbon = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = " ",
 		Width  = UV.ScaleW(1250),

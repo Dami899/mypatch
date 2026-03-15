@@ -8,6 +8,20 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
+["v1.3.1"] = {
+Date = { year = 2026, month = 3, day = 18 },
+Text = [[
+**New Features**
+- Added a new "Customize HUD" setting
+      |-- Currently only allows you to change how many racers are displayed on the leaderboard
+
+**Changes**
+
+**Fixes**
+
+]],
+},
+
 ["v1.3.0"] = {
 Date = { year = 2026, month = 3, day = 14 },
 Text = [[

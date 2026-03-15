@@ -1,5 +1,32 @@
 UV.RegisterHUD( "undercover", "NFS: Undercover", true )
 
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_undercover_race_raceramount", 8, true, false)
+local maxracernrcv = GetConVar("uvhud_undercover_race_raceramount"):GetString()
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.undercover = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "NFS: Undercover" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_undercover_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
+
 local function DrawScaledCenteredTextLines(text, font, x, y, color, scale)
     surface.SetFont(font)
     local lines = string.Explode("\n", text)
@@ -1203,7 +1230,7 @@ local function undercover_racing_main( ... )
     local baseY = h * 0.21 -- starting Y position of the list (adjust this freely)
     local spacing = h * 0.035 -- spacing between each racer (vertical gap)
     
-    for i = 1, math.Clamp(racer_count, 1, 12), 1 do
+    for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_undercover_race_raceramount"):GetString()), 1 do
         if racer_count == 1 then
             return
         end

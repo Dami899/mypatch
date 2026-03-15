@@ -1,5 +1,32 @@
 UV.RegisterHUD( "underground", "NFS: Underground" )
 
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_underground_race_raceramount", 4, true, false)
+local maxracernrcv = GetConVar("uvhud_underground_race_raceramount"):GetString()
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.underground = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "NFS: Underground" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_underground_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
+
 UV_UI.racing.underground = UV_UI.racing.underground or {}
 
 UV_UI.racing.underground.states = {
@@ -430,7 +457,7 @@ local function underground_racing_main( ... )
     
     -- Racer List
     local alt = math.floor(CurTime() / 5) % 2 == 1 -- toggles every 5 seconds
-    for i = 1, math.Clamp(racer_count, 1, 16), 1 do
+    for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_underground_race_raceramount"):GetString()), 1 do
         --if racer_count == 1 then return end
         local entry = string_array[i]
         
