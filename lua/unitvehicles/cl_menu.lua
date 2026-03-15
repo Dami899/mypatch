@@ -1,6 +1,7 @@
 UV = UV or {}
 UVMenu = UVMenu or {}
 UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeSpeedo = UVMenu.CustomizeSpeedo or {}
 
 -- Current Version -- Change this whenever a new update is releasing!
 UV.CurVersion = "v1.3.0" --MAJOR.MINOR.PATCH
@@ -582,10 +583,25 @@ UVMenu.Settings = function()
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
 				{ type = "combo", text = "uv.ui.backup", desc = "uv.ui.backup.desc", convar = "unitvehicle_hudtype_backup", content = backupHUDList },		
 
+				{ type = "button", text = "uv.ui.custhud", desc = "uv.ui.custhud.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function()
+					if UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()] then 
+						UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()], true)
+					end
+				end,
+				cond = function()
+					local hud = GetConVar("unitvehicle_hudtype_main"):GetString()
+					return UVMenu.CustomizeHUD[hud] ~= nil
+				end
+				},
+
 				{ type = "bool", text = "uv.ui.speedometer.enable", desc = "uv.ui.speedometer.enable.desc", convar = "unitvehicle_speedometer_enable" },
 				{ type = "combo", text = "uv.ui.speedometer", desc = "uv.ui.speedometer.desc", convar = "unitvehicle_speedometer", requireparentconvar = "unitvehicle_speedometer_enable", content = speedometerList },
 								
-				{ type = "button", text = "uv.ui.speedometer.cust", desc = "uv.ui.speedometer.cust.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvar = "unitvehicle_speedometer_enable", func = function() if  UVMenu.CustomizeHUD[GetConVar("unitvehicle_speedometer"):GetString()] then UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_speedometer"):GetString()], true) end end },
+				{ type = "button", text = "uv.ui.speedometer.cust", desc = "uv.ui.speedometer.cust.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvar = "unitvehicle_speedometer_enable", func = function()
+					if UVMenu.CustomizeSpeedo[GetConVar("unitvehicle_speedometer"):GetString()] then
+						UVMenu.OpenMenu(UVMenu.CustomizeSpeedo[GetConVar("unitvehicle_speedometer"):GetString()], true)
+					end
+				end },
 				
 				{ type = "bool", text = "uv.ui.racertags", desc = "uv.ui.racertags.desc", convar = "unitvehicle_racertags" },
 				{ type = "bool", text = "uv.ui.preracepopup", desc = "uv.ui.preracepopup.desc", convar = "unitvehicle_preraceinfo" },

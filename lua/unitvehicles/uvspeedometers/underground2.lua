@@ -21,9 +21,9 @@ CreateClientConVar("uvspeedo_underground2_col_gauge_b", 255, true, false)
 
 UV_UI.speedometer = UV_UI.speedometer or {}
 UV_UI.speedometer.underground2 = UV_UI.speedometer.underground2 or {}
-UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeSpeedo = UVMenu.CustomizeSpeedo or {}
 
-UVMenu.CustomizeHUD.underground2 = function()
+UVMenu.CustomizeSpeedo.underground2 = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = " ",
 		Width  = UV.ScaleW(1250),

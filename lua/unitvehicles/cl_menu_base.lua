@@ -4635,6 +4635,7 @@ function UVMenu:Open(menu)
     local fw, fh = Width, Height
     local fx, fy = (sw - fw) * 0.5, (sh - fh) * 0.5
     local watchedConvars = {}
+	local watchedConds = {}
 
     local frame = vgui.Create("DFrame")
     UV.SettingsFrame = frame
@@ -4876,6 +4877,9 @@ function UVMenu:Open(menu)
 				if entry.requireparentconvar then watchedConvars[entry.requireparentconvar] = true end
 				if entry.requireparentconvarfloat then watchedConvars[entry.requireparentconvarfloat] = true end
 				if entry.requireparentconvarvariable then watchedConvars[entry.requireparentconvarvariable] = true end
+				if entry.cond then
+					table.insert(watchedConds, entry)
+				end
             end
         end
 
@@ -4998,6 +5002,15 @@ function UVMenu:Open(menu)
 						lastValues[cvName] = val
 						shouldRefresh = true
 					end
+				end
+			end
+
+			for _, entry in ipairs(watchedConds) do
+				local ok = entry.cond and entry.cond()
+
+				if lastValues[entry] ~= ok then
+					lastValues[entry] = ok
+					shouldRefresh = true
 				end
 			end
 

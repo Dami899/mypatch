@@ -21,9 +21,9 @@ CreateClientConVar("uvspeedo_mostwanted_col_gauge_b", 127, true, false)
 
 UV_UI.speedometer = UV_UI.speedometer or {}
 UV_UI.speedometer.mostwanted = UV_UI.speedometer.mostwanted or {}
-UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeSpeedo = UVMenu.CustomizeSpeedo or {}
 
-UVMenu.CustomizeHUD.mostwanted = function()
+UVMenu.CustomizeSpeedo.mostwanted = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = " ",
 		Width  = UV.ScaleW(1250),
