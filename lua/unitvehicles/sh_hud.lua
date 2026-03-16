@@ -996,6 +996,188 @@ if CLIENT then
 	return str
 end
 
+	UVHUDTimedBars = UVHUDTimedBars or {}
+	UVHUDActiveBar = UVHUDActiveBar or nil
+	
+	function UVHUD_AddTimedBar(id, duration, labelToken, priority, label2, args)
+		local now = CurTime()
+
+		UVHUDTimedBars[id] = {
+			id = id,
+			label = labelToken,
+			label2 = label2,
+			priority = priority or 0,
+
+			startTime = now,
+			endTime = now + duration,
+
+			closeTime = nil,
+			hidden = false,
+			args = args
+		}
+	end
+	
+	function UVHUD_CloseTimedBar(id)
+		local bar = UVHUDTimedBars[id]
+		if not bar then return end
+
+		if not bar.closeTime then
+			bar.closeTime = CurTime()
+		end
+	end
+	
+	function UVHUD_GetTopBar()
+		local best = nil
+
+		for _, bar in pairs(UVHUDTimedBars) do
+
+			if not bar.closeTime then
+				if not best or bar.priority > best.priority then
+					best = bar
+				end
+			end
+		end
+
+		return best
+	end
+
+	function UVHUD_TimedBar(bar)
+		local w, h = ScrW(), ScrH()
+		
+		local now = CurTime()
+		local realTime = RealTime()
+		
+		local startTime = bar.startTime
+		local endTime = bar.endTime
+		local labelToken = bar.label
+		local label2Token = bar.label2
+		local closingTime = bar.closeTime
+		
+		local animTime = now - startTime
+
+		-- Phase durations
+		local delay = 0.1
+		local expandDuration = 0.25
+		local whiteFadeInDuration = 0.025
+		local blackFadeOutDuration = 1
+
+		local expandStart = delay
+		local whiteStart = expandStart + expandDuration
+		local blackStart = whiteStart + whiteFadeInDuration
+		local endAnim = blackStart + blackFadeOutDuration
+
+		-- Compute bar width
+		local currentWidth
+
+		if closingTime then
+			local retractDuration = 0.25
+			local p = math.Clamp((now - closingTime) / retractDuration, 0, 1)
+
+			currentWidth = Lerp(p, w, 0)
+		else
+			local barProgress = 0
+			if animTime >= expandStart then
+				barProgress = math.Clamp((animTime - expandStart) / expandDuration, 0, 1)
+			end
+
+			currentWidth = Lerp(barProgress, 0, w)
+		end
+
+		local barHeight = h * (label2Token == "" and 0.05 or 0.075)
+		local barX = (w - currentWidth) / 2
+		local barY = h - barHeight
+
+		-- Compute bar color
+		local colorVal = 0
+		if animTime >= whiteStart and animTime < blackStart then
+			-- black → white
+			local p = (animTime - whiteStart) / whiteFadeInDuration
+			colorVal = Lerp(math.Clamp(p, 0, 1), 0, 255)
+		elseif animTime >= blackStart then
+			-- white → black
+			local p = (animTime - blackStart) / blackFadeOutDuration
+			colorVal = Lerp(math.Clamp(p, 0, 1), 255, 0)
+		end
+		
+		if not closingTime and now >= endTime then
+			UVHUD_CloseTimedBar(bar.id)
+		end
+
+		-- Only draw when HUD is enabled
+		if GetConVar("cl_drawhud"):GetBool() then
+			-- Draw bar
+			surface.SetMaterial(UVMaterials["RESPAWN_BG"])
+			surface.SetDrawColor(Color(colorVal, colorVal, colorVal, 255))
+			surface.DrawTexturedRect(barX, barY, currentWidth, barHeight)
+
+			-- Display text only after bar is white or fading
+			if animTime >= whiteStart then
+				-- local timeLeft = math.max(0, math.floor(endTime - now + 0.999))
+				
+				local timeLeft = math.max(0, endTime - now)  -- numeric
+				local timeLeftStr
+
+				-- Choose decimal precision
+				if timeLeft > 10 then
+					timeLeftStr = string.format("%.0f", timeLeft)  -- 0 decimals
+				else
+					timeLeftStr = string.format("%.1f", timeLeft)  -- 1 decimal
+				end
+
+				-- Blink red depending on time left
+				local blink = 255 * math.abs(math.sin(realTime * 4))
+				local blink2 = 255 * math.abs(math.sin(realTime * 6))
+				local blink3 = 255 * math.abs(math.sin(realTime * 8))
+				local redblink = 255
+
+				if not noblink then
+					if timeLeft >= 10 then
+						redblink = redblink
+					elseif timeLeft >= 5 then
+						redblink = blink
+					elseif timeLeft >= 3 then
+						redblink = blink2
+					else
+						redblink = blink3
+					end
+				end
+
+				-- Draw Text
+				local text1, text2 = UVString(labelToken), timeLeftStr
+				local textAlpha = 255
+		
+				local formatStr = UVString(labelToken)
+
+				if bar.args then
+					text1 = string.format(formatStr, unpack(bar.args), timeLeftStr)
+				else
+					text1 = string.format(formatStr, timeLeftStr)
+				end
+
+				if closingTime then
+					local fadeDur = 0.1
+					local t = math.Clamp((now - closingTime) / fadeDur, 0, 1)
+					textAlpha = 1 - t
+				end
+
+				if label2Token then
+					local ytextpos = h * 0.925
+
+					if label2Token == "" then
+						ytextpos = h * 0.955
+					end
+
+					text2 = UVString(label2Token)
+				end
+
+				surface.SetAlphaMultiplier(textAlpha)
+				markup.Parse( "<font=UVSettingsFontBig>" .. text1 .. "</font>", w ):Draw(w * 0.5, h * 0.925, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				markup.Parse( "<font=UVSettingsFontBig>" .. text2 .. "</font>", w ):Draw(w * 0.5, h * 0.96, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				surface.SetAlphaMultiplier(1)
+			end
+		end
+	end
+
 end
 
 function Carbon_FormatRaceTime(curTime)

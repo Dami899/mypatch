@@ -16,6 +16,14 @@ Text = [[
       |-- Currently only allows you to change how many racers are displayed on the leaderboard
 
 **Changes**
+- Reworked the Reset system
+      |-- Can now be done while moving
+	  |-- Press [key:unitvehicle_keybind_resetposition] to begin the Reset countdown; press again to cancel it
+- If you reset mid-pursuit, you'll gain these penalties for 10s:
+      |-- <color=255,100,100>+500%</color> Time until Busted
+      |-- <color=255,100,100>+200%</color> Bust Speed (MPH)
+- UV Menu: Added the ability to press [+attack2] on folders in the *Vehicle Override* to add/remove all vehicles in that category
+- Updated localizations
 
 **Fixes**
 

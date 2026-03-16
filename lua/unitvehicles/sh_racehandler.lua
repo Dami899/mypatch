@@ -753,8 +753,9 @@ if SERVER then
 		end
 	end
 
-	local function UVRaceEndCountdown()
+	net.Receive("UVRace_BeginEndCountdown", function(len, ply)
 		if UVHUDRaceFinishCountdownStarted then return end
+
 		timer.Create("UVRaceFinishCountdown", GetConVar("unitvehicle_racednftimer"):GetInt(), 1, function()
 			UVRaceEnd()
 			
@@ -763,16 +764,13 @@ if SERVER then
 				net.Broadcast()
 			end)
 		end)
-	end
-
-	net.Receive("UVRace_BeginEndCountdown", function(len, ply)
-		UVRaceEndCountdown()
 	end)
 	
 	net.Receive("UVRace_StopEndCountdown", function(len, ply)
 		if timer.Exists("UVRaceFinishCountdown") then
 			timer.Remove("UVRaceFinishCountdown")
 		end
+		
 	end)
 
 	hook.Add("player_activate", "UVRaceArrayInit", function( data )
@@ -2081,34 +2079,21 @@ else -- CLIENT stuff
 	end)
 
 	net.Receive( "uvrace_resetfailed", function()
-		local lang = UVString
-
-		-- chat.AddText(
-			-- Color(255, 126, 126),
-			-- lang( net.ReadString() )
-		-- )
-		-- UVRaceNotify( lang( net.ReadString() ), 2  )
+		UVHUD_CloseTimedBar("reset")
 
 		UV_UI.general.events.CenterNotification({
-            text = lang( net.ReadString() ),
+            text = UVString( net.ReadString() ),
 		})
 	end)
 
-	net.Receive( "uvrace_resetcountdown", function()
-		local lang = UVString
+	net.Receive("uvrace_resetcountdown", function()
 		local time_left = net.ReadInt(4)
 
-		-- chat.AddText(
-			-- Color(255, 255, 255),
-			-- string.format( lang("uv.race.resetcountdown"), tostring(time_left) ), 
-			-- time_left 
-		-- )
-		
-		-- UVRaceNotify( string.format( lang("uv.race.resetcountdown"), tostring(time_left) ), 2  )
-		
-		UV_UI.general.events.CenterNotification({
-            text = string.format( lang("uv.race.resetcountdown"), tostring(time_left) ), 
-		})
+		-- UV_UI.general.events.CenterNotification({
+			-- text = string.format(UVString("uv.resetting"), tostring(time_left)),
+		-- })
+
+		UVHUD_AddTimedBar( "reset", time_left, "uv.resetting", 10, string.format( UVString("uv.chase.select.spawning.cooldown2"), UVReplaceKeybinds( "[key:unitvehicle_keybind_resetposition]", "Big" ) ) )
 	end)
 
 	net.Receive( "uvrace_invite", function()
@@ -2131,6 +2116,8 @@ else -- CLIENT stuff
 
 		UVHUDRaceFinishCountdownStarted = false
 		UVHUDRaceFinishEndTime = nil
+		
+		UVHUD_CloseTimedBar( "race_end" )
 
 		UVRaceStarting = false
 
@@ -2215,6 +2202,8 @@ else -- CLIENT stuff
 					
 					UVHUDRaceFinishCountdownStarted = true
 					UVHUDRaceFinishEndTime = CurTime() + GetConVar("unitvehicle_racednftimer"):GetInt()
+
+					UVHUD_AddTimedBar( "race_end", GetConVar("unitvehicle_racednftimer"):GetInt(), "uv.race.endsin", 5 )
 				end
 
 				if IsValid(participant) and participant:GetDriver() == LocalPlayer() and RacingMusic:GetBool() then
@@ -2483,83 +2472,6 @@ else -- CLIENT stuff
 		-- For the UI
 		hook.Run("UIEventHook", "racing", "onRaceStartTimer", { starttime = time })
 	end)
-	
-	local function DrawTimedBar(startTime, endTime, labelToken)
-		local now = CurTime()
-		local realTime = RealTime()
-		local startTime = startTime or now
-		local animTime = now - startTime
-		local w, h = ScrW(), ScrH()
-
-		-- Phase durations
-		local delay = 0.1
-		local expandDuration = 0.25
-		local whiteFadeInDuration = 0.025
-		local blackFadeOutDuration = 1
-
-		local expandStart = delay
-		local whiteStart = expandStart + expandDuration
-		local blackStart = whiteStart + whiteFadeInDuration
-		local endAnim = blackStart + blackFadeOutDuration
-
-		-- Compute bar width
-		local barProgress = 0
-		if animTime >= expandStart then
-			barProgress = math.Clamp((animTime - expandStart) / expandDuration, 0, 1)
-		end
-
-		local currentWidth = Lerp(barProgress, 0, w)
-		local barHeight = h * 0.075
-		local barX = (w - currentWidth) / 2
-		local barY = h - barHeight
-
-		-- Compute bar color
-		local colorVal = 0
-		if animTime >= whiteStart and animTime < blackStart then
-			-- black → white
-			local p = (animTime - whiteStart) / whiteFadeInDuration
-			colorVal = Lerp(math.Clamp(p, 0, 1), 0, 255)
-		elseif animTime >= blackStart then
-			-- white → black
-			local p = (animTime - blackStart) / blackFadeOutDuration
-			colorVal = Lerp(math.Clamp(p, 0, 1), 255, 0)
-		end
-
-		-- Only draw when HUD is enabled
-		if GetConVar("cl_drawhud"):GetBool() then
-			-- Draw bar
-			surface.SetMaterial(UVMaterials["RACE_COUNTDOWN_BG"])
-			surface.SetDrawColor(Color(colorVal, colorVal, colorVal, 255))
-			surface.DrawTexturedRect(barX, barY, currentWidth, barHeight)
-
-			-- Display text only after bar is white or fading
-			if animTime >= whiteStart then
-				local timeLeft = math.max(0, math.floor(endTime - now + 0.999))
-
-				-- Blink red depending on time left
-				local blink = 255 * math.abs(math.sin(realTime * 4))
-				local blink2 = 255 * math.abs(math.sin(realTime * 6))
-				local blink3 = 255 * math.abs(math.sin(realTime * 8))
-				local redblink = 255
-
-				if timeLeft >= 10 then
-					redblink = redblink
-				elseif timeLeft >= 5 then
-					redblink = blink
-				elseif timeLeft >= 3 then
-					redblink = blink2
-				else
-					redblink = blink3
-				end
-
-				-- Outline alpha fades in as colorVal returns to black
-				local outlineAlpha = math.Clamp(255 - colorVal, 0, 255)
-
-				draw.SimpleTextOutlined( UVString(labelToken), "UVSettingsFontBig", w * 0.5, h * 0.925, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
-				draw.SimpleTextOutlined( timeLeft, "UVSettingsFontBig", w * 0.5, h * 0.96, Color(255, redblink, redblink), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
-			end
-		end
-	end
 
 	local ALLOWED_SPEEDOMETER_CLASSES = {
 		'base_glide_car',
@@ -2638,12 +2550,47 @@ else -- CLIENT stuff
 		end
 
 		-- Timed bars
-		if UVHUDRaceFinishCountdownStarted and not UVHUDCopMode then
-			DrawTimedBar(UVHUDRaceFinishStartTime, UVHUDRaceFinishEndTime, "uv.race.endsin")
+		for _, bar in pairs(UVHUDTimedBars) do
+			if bar.hidden and CurTime() >= bar.endTime then
+				bar.closeTime = CurTime()
+			end
 		end
-		if timer.Exists("uvrace_startpursuit") and not UVHUDCopMode then
-			DrawTimedBar(UVHUDRacePursuitStartTime, UVHUDRacePursuitEndTime, "uv.race.endsin")
+
+		local best = UVHUD_GetTopBar()
+
+		if best and best ~= UVHUDActiveBar then
+			if UVHUDActiveBar and best.priority > UVHUDActiveBar.priority then
+				UVHUDActiveBar.hidden = true
+			end
+
+			best.hidden = false
+			if best ~= UVHUDActiveBar then
+				best.startTime = CurTime()
+			end
+
+			UVHUDActiveBar = best
 		end
+
+		if UVHUDActiveBar then
+			UVHUD_TimedBar(UVHUDActiveBar)
+			
+			if UVHUDActiveBar.closeTime then
+				if CurTime() - UVHUDActiveBar.closeTime > 0.25 then
+
+					UVHUDTimedBars[UVHUDActiveBar.id] = nil
+					UVHUDActiveBar = nil
+
+				end
+			end
+		end
+
+		-- if UVHUDRaceFinishCountdownStarted and not UVHUDCopMode then
+			-- DrawTimedBar(UVHUDRaceFinishStartTime, UVHUDRaceFinishEndTime, "uv.race.endsin")
+		-- end
+		
+		-- if timer.Exists("uvrace_startpursuit") and not UVHUDCopMode then
+			-- DrawTimedBar(UVHUDRacePursuitStartTime, UVHUDRacePursuitEndTime, "uv.race.endsin")
+		-- end
 
 		-- Advanced Countdown & GET READY
 		if UVRaceCountdown and hudyes then
