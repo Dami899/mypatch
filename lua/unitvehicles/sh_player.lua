@@ -772,7 +772,13 @@ if SERVER then
            -- if not UVRaceInProgress then return end
             
             local key = "VehicleReset_"..car:EntIndex()
-            if timer.Exists( key ) then return end
+            if timer.Exists( key ) then
+                timer.Remove(key)
+                net.Start("uvrace_resetfailed")
+                net.WriteString("uv.resetting.cancel")
+                net.Send(ply)
+				return
+			end
             
             if car.hasreset then
                 net.Start("uvrace_resetfailed")
@@ -781,12 +787,12 @@ if SERVER then
                 return
             end
             
-            if car:GetVelocity():LengthSqr() > 5000 then
-                net.Start("uvrace_resetfailed")
-                net.WriteString("uv.race.resetstationary")
-                net.Send(ply)
-                return
-            end
+            -- if car:GetVelocity():LengthSqr() > 5000 then
+                -- net.Start("uvrace_resetfailed")
+                -- net.WriteString("uv.race.resetstationary")
+                -- net.Send(ply)
+                -- return
+            -- end
             
             if car.UVHUDBusting then
                 timer.Remove(key)
@@ -797,42 +803,20 @@ if SERVER then
             end
             
             net.Start( "uvrace_resetcountdown" )
-            net.WriteInt(2, 4)
+            net.WriteInt(3, 4)
             net.Send(ply)
             
-            timer.Create( key, 1, 2, function()
-                local remaining_reps = timer.RepsLeft( key )
+            timer.Create( key, 3, 1, function()
+                local remaining_reps = timer.TimeLeft( key )
                 
                 if not IsValid(car) or car:GetDriver() ~= ply then
                     timer.Remove(key)
                 end
-                
-                if car:GetVelocity():LengthSqr() > 5000 then
-                    net.Start("uvrace_resetfailed")
-                    net.WriteString("uv.race.resetstationary")
-                    net.Send(ply)
-                    return
-                end
-                
-                if car.UVHUDBusting then
-                    timer.Remove(key)
-                    net.Start("uvrace_resetfailed")
-                    net.WriteString("uv.race.resetbusting")
-                    net.Send(ply)
-                    return
-                end
-                
-                if remaining_reps > 0 then
-                    net.Start( "uvrace_resetcountdown" )
-                    net.WriteInt(remaining_reps, 4)
-                    net.Send(ply)
-                else
-                    if IsValid(car) and car:GetDriver() == ply then
-                        UVResetPosition(car)
-                    end
-                end
+
+				if IsValid(car) and car:GetDriver() == ply then
+					UVResetPosition(car)
+				end
             end)
-            --UVResetPosition(car)
         end
     end)
     

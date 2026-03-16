@@ -2187,6 +2187,7 @@ if SERVER then
 			net.Start("UVSpawnQueueUpdate")
 			net.WriteString("") -- empty vehicle = clear
 			net.WriteInt(0, 16)
+			net.WriteString("")
 			net.Send(ply)
 
 			net.Start("UVHUDRespawnInUVPlyMsg")
@@ -2259,6 +2260,7 @@ if SERVER then
 				SpawnCooldownTable[ply] = 0
 			else
 				if CurTime() - SpawnCooldownTable[ply] < SpawnCooldown:GetInt() then
+
 					plymsg.msg = "uv.chase.select.spawning.cooldown"
 					plymsg.cooldown = cooldown
 					
@@ -2267,6 +2269,7 @@ if SERVER then
 					net.Start("UVSpawnQueueUpdate")
 					net.WriteString(unitname)      -- vehicle/unit name
 					net.WriteInt(cooldown, 16) -- cooldown in seconds
+					net.WriteString(plymsg.msg) -- player message
 					net.Send(ply)
 				end
 			end
@@ -4000,80 +4003,19 @@ else -- CLIENT Settings | HUD/Options
 			UVHUDPursuitRespawnNoticeTriggered = false
 		end
 
-		if localPlayer.uvspawningunit and localPlayer.uvspawningunit.vehicle then
-			local now = CurTime()
-			local startTime = localPlayer.uvspawningunit.startTime
-			local animTime = now - startTime
+		-- if localPlayer.uvspawningunit and localPlayer.uvspawningunit.vehicle then
+			-- local elapsed = CurTime() - localPlayer.uvspawningunit.startTime
+			-- local remaining = math.max(0, localPlayer.uvspawningunit.cooldown - elapsed)
+			-- local carn = lang(localPlayer.uvspawningunit.vehicle)
+			-- local timel = string.format("%.1f", remaining)
 
-			-- Copied over
-			local elapsed = CurTime() - localPlayer.uvspawningunit.startTime
-			local remaining = math.max(0, localPlayer.uvspawningunit.cooldown - elapsed)
-			local carn = lang(localPlayer.uvspawningunit.vehicle)
-			local timel = string.format("%.1f", remaining)
-					
-			-- Phase durations
-			local delay = 0.1
-			local expandDuration = 0.25
-			local whiteFadeInDuration = 0.025
-			local blackFadeOutDuration = 1
-
-			local expandStart = delay
-			local whiteStart = expandStart + expandDuration
-			local blackStart = whiteStart + whiteFadeInDuration
-			local endAnim = blackStart + blackFadeOutDuration
-
-			-- Compute bar width
-			local barProgress = 0
-			if animTime >= expandStart then
-				barProgress = math.Clamp((animTime - expandStart) / expandDuration, 0, 1)
-			end
-
-			local currentWidth = Lerp(barProgress, 0, w)
-			local barHeight = h * 0.075
-			local barX = (w - currentWidth) / 2
-			local barY = h - barHeight
-
-			-- Compute bar color
-			local colorVal = 0
-			if animTime >= whiteStart and animTime < blackStart then
-				-- black → white
-				local p = (animTime - whiteStart) / whiteFadeInDuration
-				colorVal = Lerp(math.Clamp(p, 0, 1), 0, 255)
-			elseif animTime >= blackStart then
-				-- white → black
-				local p = (animTime - blackStart) / blackFadeOutDuration
-				colorVal = Lerp(math.Clamp(p, 0, 1), 255, 0)
-			end
-
-			-- Draw bar
-			surface.SetMaterial(UVMaterials["RESPAWN_BG"])
-			surface.SetDrawColor(Color(colorVal, colorVal, colorVal, 255))
-			surface.DrawTexturedRect(barX, barY, currentWidth, barHeight)
-
-			-- Display text only after bar is white or fading
-			if animTime >= whiteStart then
-				local outlineAlpha = math.Clamp(255 - colorVal, 0, 255)
-				local text = "%s %s"
-				if RandomPlayerUnits:GetBool() then
-					text = string.format( lang("uv.chase.select.spawning.cooldown.random"), timel )
-				else
-					text = string.format( lang("uv.chase.select.spawning.cooldown"), carn, timel )
-				end
-				
-				-- draw.SimpleTextOutlined( text, "UVFont5", w * 0.5, h * 0.9, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
-				-- draw.SimpleTextOutlined( string.format( lang("uv.chase.select.spawning.cooldown2"), UVBindButtonName(UVKeybindResetPosition:GetInt()) ), "UVFont5", w * 0.5, h * 0.95, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
-				
-				-- draw.SimpleTextOutlined( text, "UVFont5", w * 0.5, h * 0.9, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
-				-- draw.SimpleTextOutlined( string.format( lang("uv.chase.select.spawning.cooldown2"), UVBindButtonName(UVKeybindResetPosition:GetInt()) ), "UVFont5", w * 0.5, h * 0.95, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
-				
-				
-				local keyCode = GetConVar("unitvehicle_keybind_resetposition"):GetInt()
-				local keyText = string.lower(UVBindButtonName(keyCode))
-
-				markup.Parse( "<font=UVSettingsFontBig>" .. text .. "</font>", w ):Draw(w * 0.5, h * 0.925, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-				markup.Parse( "<font=UVSettingsFontBig>" .. string.format( lang("uv.chase.select.spawning.cooldown2"), UVReplaceKeybinds( "[key:unitvehicle_keybind_resetposition]", "Big" ) ) .. "</font>", w ):Draw(w * 0.5, h * 0.96, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-			end
-		end
+			-- local text = "%s %s"
+			-- if RandomPlayerUnits:GetBool() then
+				-- text = string.format( UVString("uv.chase.select.spawning.cooldown.random"), timel )
+			-- else
+				-- text = string.format( UVString("uv.chase.select.spawning.cooldown"), carn, timel )
+			-- end
+		-- end
 
 		if not RacerTags:GetBool() or uvclientjammed then
 			if GMinimap then
@@ -4560,6 +4502,10 @@ else -- CLIENT Settings | HUD/Options
 		local unit = net.ReadString() or ""
 		local cooldown = net.ReadString()
 		local msgt = string.format( UVString(msg), UVString(unit), cooldown )
+		
+		if msg == "uv.chase.select.spawn.cancel" then
+			UVHUD_CloseTimedBar("unit_spawn")
+		end
 
 		if (RandomPlayerUnits:GetBool() and cooldown) or not cooldown then
 			msgt = string.format( UVString(msg), UVString(unit) )
@@ -4575,6 +4521,7 @@ else -- CLIENT Settings | HUD/Options
 	net.Receive("UVSpawnQueueUpdate", function()
 		local vehicle = net.ReadString()
 		local cooldown = net.ReadInt(16)
+		local msg = net.ReadString()
 
 		if vehicle == "" then
 			UVHUDPursuitRespawnNoticeStarted = false
@@ -4586,6 +4533,10 @@ else -- CLIENT Settings | HUD/Options
 				cooldown = cooldown,
 				startTime = CurTime()
 			}
+			
+			local rm = "uv.chase.select.spawning.cooldown.random"
+
+			UVHUD_AddTimedBar( "unit_spawn", cooldown, msg, 10, string.format( UVString("uv.chase.select.spawning.cooldown2"), UVReplaceKeybinds( "[key:unitvehicle_keybind_resetposition]", "Big" ) ), msg ~= rm and {vehicle} or nil )
 		end
 	end)
 
