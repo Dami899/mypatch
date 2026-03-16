@@ -779,8 +779,8 @@ UVMenu.Settings = function()
 				{ type = "label", text = "uv.ainav", sv = true },
 				{ type = "bool", text = "uv.ainav.pathfind", desc = "uv.ainav.pathfind.desc", convar = "unitvehicle_pathfinding", sv = true },
 				{ type = "bool", text = "uv.ainav.dvpriority", desc = "uv.ainav.dvpriority.desc", convar = "unitvehicle_dvwaypointspriority", sv = true },
-				{ type = "bool", text = "uv.ainav.dvdistancebased", desc = "uv.ainav.dvdistancebased.desc", convar = "unitvehicle_dvwaypointsdistancebased", sv = true },
 				{ type = "bool", text = "uv.ainav.dvnavoptimized", desc = "uv.ainav.dvnavoptimized.desc", convar = "unitvehicle_dvnavioptimized", sv = true },
+				{ type = "bool", text = "uv.ainav.dvdistancebased", desc = "uv.ainav.dvdistancebased.desc", convar = "unitvehicle_dvwaypointsdistancebased", sv = true },
 			},
 			{ TabName = "uv.addons", Icon = "unitvehicles/icons/generic_cart.png", sv = true,
 				unpack(addonTabRows)

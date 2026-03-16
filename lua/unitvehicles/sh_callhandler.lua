@@ -114,7 +114,7 @@ if SERVER then
         local SpeedTable = {}
         
         for k, v in pairs(UVPotentialSuspects) do
-            local speed = v:GetVelocity():Length2DSqr()
+            local speed = v:GetVelocity():LengthSqr()
             table.insert(SpeedTable, speed)
         end
         
@@ -132,18 +132,33 @@ if SERVER then
         else
             SpeedLimit = SpeedLimitConVar
         end
+
+        local infraction = 'speed'
+        local infractionspeed = speed - SpeedLimit
         
-        if speed > (SpeedLimit+30976) then
+        if infractionspeed > 3097600 then --reckless
+            UVPreInfractionCount = UVPreInfractionCount + 3
+            infraction = 'reckless'
+            UVAddInfraction(suspect, infraction)
+        elseif infractionspeed > 774400 then --veryspeed
+            UVPreInfractionCount = UVPreInfractionCount + 2
+            infraction = 'veryspeed'
+            UVAddInfraction(suspect, infraction)
+        elseif infractionspeed > 30976 then --speed
             UVPreInfractionCount = UVPreInfractionCount + 1
-            if UVPreInfractionCount >= 10 then
-                UVCallInitiate(suspect, 1)
-            end
+            UVAddInfraction(suspect, infraction)
+        end
+
+        if UVPreInfractionCount >= 10 then
+            UVCallInitiate(suspect, 1, infraction)
         end
         
     end
     
-    function UVCallInitiate(suspectvehicle, type)
+    function UVCallInitiate(suspectvehicle, type, infraction)
         if not GetConVar("unitvehicle_callresponse"):GetBool() or UVTargeting or uvcallexists then return end
+
+        UVAddInfraction(suspectvehicle, infraction, true)
         
         UVPreInfractionCount = 0
         
