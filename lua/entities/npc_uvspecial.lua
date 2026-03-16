@@ -36,6 +36,7 @@ if SERVER then
 	local DVWaypointsPriority = GetConVar("unitvehicle_dvwaypointspriority")
 	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn")
 	local Catchup = GetConVar("unitvehicle_unitcatchup")
+	local DVNavigationOptimized = GetConVar("unitvehicle_dvnavioptimized")
 
 	local UVPathClasses = {
 		["npc_uvpatrol"] = true, ["npc_uvpursuit"] = true, ["npc_uvsupport"] = true,
@@ -558,16 +559,16 @@ if SERVER then
 	end
 	
 	function ENT:PathFindToEnemy(vectors)
-		
+
 		if not vectors or not isvector(vectors) or not GetConVar("unitvehicle_pathfinding"):GetBool() or self.NavigateCooldown or self.v.roadblocking then -- or self.NavigateBlind
 			return
 		end
 		
 		self.NavigateCooldown = true
-		timer.Simple(1, function()
+		timer.Create(self._cooldownString, 1, 1, function()
 			self.NavigateCooldown = nil 
 		end)
-		
+
 		if DVWaypointsPriority:GetBool() then
 			local enemy_nearest_waypoint = nil
 			local friendly_nearest_waypoint = nil
@@ -581,7 +582,7 @@ if SERVER then
 				local friendly_waypoint_position = friendly_nearest_waypoint and friendly_nearest_waypoint.Target + ( vector_up * 50 ) or vector_origin
 				local enemy_waypoint_position = enemy_nearest_waypoint and enemy_nearest_waypoint.Target + ( vector_up * 50 ) or vector_origin
 
-				if enemy_nearest_waypoint then
+				if enemy_nearest_waypoint and not InfMap then
 					local friendly_waypoint_distance = friendly_nearest_waypoint and friendly_waypoint_position:DistToSqr( friendly_position ) or math.huge
 					local enemy_waypoint_distance = enemy_nearest_waypoint.Target:DistToSqr(vectors)
 					local comparison_value = ( dvd.WaypointSize or 200 ) ^ 4
@@ -600,7 +601,7 @@ if SERVER then
 			end
 
 			if enemy_nearest_waypoint then
-				if UVNavigateDVWaypoint(self, vectors) then
+				if ( DVNavigationOptimized:GetBool() and UVNavigateDVWaypointOptimized(self, vectors) ) or ( ( not DVNavigationOptimized:GetBool() ) and UVNavigateDVWaypoint(self, vectors) ) then
 					return
 				elseif UVNavigateNavmesh(self, vectors) then
 					return
@@ -608,25 +609,25 @@ if SERVER then
 			else
 				if UVNavigateNavmesh(self, vectors) then
 					return
-				elseif UVNavigateDVWaypoint(self, vectors) then
+				elseif ( DVNavigationOptimized:GetBool() and UVNavigateDVWaypointOptimized(self, vectors) ) or ( ( not DVNavigationOptimized:GetBool() ) and UVNavigateDVWaypoint(self, vectors) ) then
 					return
 				end
 			end
 		else
 			if UVNavigateNavmesh(self, vectors) then
 				return
-			elseif UVNavigateDVWaypoint(self, vectors) then
+			elseif ( DVNavigationOptimized:GetBool() and UVNavigateDVWaypointOptimized(self, vectors) ) or ( ( not DVNavigationOptimized:GetBool() ) and UVNavigateDVWaypoint(self, vectors) ) then
 				return
 			end
 		end
-		
+
 		if next(self.tableroutetoenemy) == nil and not self.NavigateBlind then
 			self.NavigateBlind = true
 			if self.returningtopatrol then
 				self.returningtopatrol = nil
 			end
 		end
-		
+
 	end
 	
 	function ENT:DriveOnPath()
@@ -642,8 +643,9 @@ if SERVER then
 		local passedThreshold = 16000000
 		
 		local velocity = self.v:GetVelocity()
+		local velocitySqr = velocity:LengthSqr()
 		local velocityNormalized = velocity:GetNormalized()
-		local hasVelocity = velocity:LengthSqr() > 10000
+		local hasVelocity = velocitySqr > 10000
 		
 		for i = #waypoints, 1, -1 do
 			local waypoint = waypoints[i]
@@ -669,23 +671,23 @@ if SERVER then
 			return unitpos + (forward * 100)
 		end
 
-		if waypoints[1] then
-			local firstWaypoint = waypoints[1]
-			local midPoint = unitpos + (firstWaypoint - unitpos) * 0.5
-			table.insert(waypoints, 1, midPoint)
-		end
+		-- if waypoints[1] then
+		-- 	local firstWaypoint = waypoints[1]
+		-- 	local midPoint = unitpos + (firstWaypoint - unitpos) * 0.5
+		-- 	table.insert(waypoints, 1, midPoint)
+		-- end
 		
 		local bestWaypoint = waypoints[1]
 		local bestScore = -math.huge
-		local hasAnyClearPath = false
+		local hasAnyClearPath = true
 		
-		for i = 1, #waypoints do
-			local waypointpos = waypoints[i] + (vector_up * 50)
-			if UVStraightToWaypoint(unitpos, waypointpos) then
-				hasAnyClearPath = true
-				break
-			end
-		end
+		-- for i = 1, #waypoints do
+		-- 	local waypointpos = waypoints[i] + (vector_up * 50)
+		-- 	if UVStraightToWaypoint(unitpos, waypointpos) then
+		-- 		hasAnyClearPath = true
+		-- 		break
+		-- 	end
+		-- end
 		
 		for i = 1, #waypoints do
 			local waypoint = waypoints[i]
@@ -695,7 +697,7 @@ if SERVER then
 			local dist = math.sqrt(distSqr)
 			local toWaypointNormalized = toWaypoint:GetNormalized()
 			
-			local hasLineOfSight = UVStraightToWaypoint(unitpos, waypointpos)
+			local hasLineOfSight = InfMap or UVStraightToWaypoint(unitpos, waypointpos)
 			
 			local score = 0
 			
@@ -755,11 +757,11 @@ if SERVER then
 		for _, veh in ipairs( UVUnitVehicles ) do
 			if veh ~= self.v and IsValid(veh) then 
 				local otherPos = veh:WorldSpaceCenter()
-				local toOther = otherPos - (unitpos + (forward * 100))
+				local toOther = otherPos - unitpos
 				local distSq = toOther:LengthSqr()
 				local fwdDot = toOther:GetNormalized():Dot(forward)
 				local distToWpSq = (otherPos - bestWaypoint):LengthSqr()
-				if UVStraightToWaypoint(unitpos, otherPos) and ((fwdDot > forwardDotMin and distSq < aheadMaxDistSq) or distToWpSq < onWaypointRadiusSq) then
+				if ((fwdDot > forwardDotMin and distSq < aheadMaxDistSq) or (distToWpSq < onWaypointRadiusSq)) and velocitySqr > veh:GetVelocity():LengthSqr() then
 					needOffset = true
 					break
 				end
@@ -1417,7 +1419,7 @@ if SERVER then
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
 			local followSuspectHeadingOnGrid = suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC
 			if suspectInView and self.v.rhino then useDirectDriveBranch = true end
-			if eedist:LengthSqr() < 2000000 and suspectInView then useDirectDriveBranch = true end
+			if eedist:LengthSqr() < 200000 and suspectInView then useDirectDriveBranch = true end
 
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver or rhinoForceDirect) and next(self.tableroutetoenemy) ~= nil then
