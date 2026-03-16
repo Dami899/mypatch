@@ -2356,6 +2356,28 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult, catchup )
 	end
 end
 
+function UVIsSeenByUnit(vehicle)
+	local units = ents.FindByClass("npc_uv*")
+	local airUnits = ents.FindByClass("uvair")
+
+	table.Add( units, airUnits )
+	table.Add( units, playerUnits )
+	
+	for i, w in pairs(units) do
+		if w:GetClass() ~= 'uvair' then
+			if w.e == vehicle and not w.toofar and w:VisualOnTarget(vehicle) then
+				return true
+			end
+		else
+			if self:GetTarget() == vehicle and not w.Downed and not w.disengaging and w:IsSeeTarget() then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
 --[[
 	/// INFRACTIONS LIST ///
 	- Speeding (reach 10+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
@@ -2371,11 +2393,13 @@ end
 	- Public Endangerment (use a Pursuit Tech/cause a Traffic vehicle to swerve out of your way)
 	- Vehicular Homicide (cause a vehicle to explode/run over a pedestrian)
 
-	*you must be seen by the Unit or be reported by a witness for an infraction to be counted, except for Resisting Arrest
+	*you must be seen by the Unit or be reported by a witness for an infraction to be counted, except for Resisting Arrest and Overuse of Resources
 ]]
 
-function UVAddInfraction(vehicle, infraction)
+function UVAddInfraction(vehicle, infraction, reported)
 	if not IsValid(vehicle) or not vehicle:IsVehicle() then return end
+	if not reported and not UVIsSeenByUnit(vehicle) then return end
+
 	if not vehicle.Infractions then vehicle.Infractions = {} end
 	table.insert(vehicle.Infractions, infraction)
 end
