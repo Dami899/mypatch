@@ -36,6 +36,7 @@ if SERVER then
 	local DVWaypointsPriority = GetConVar("unitvehicle_dvwaypointspriority")
 	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn")
 	local Catchup = GetConVar("unitvehicle_unitcatchup")
+	local DVNavigationOptimized = GetConVar("unitvehicle_dvnavioptimized")
 
 	local UVPathClasses = {
 		["npc_uvpatrol"] = true, ["npc_uvpursuit"] = true, ["npc_uvsupport"] = true,
@@ -586,13 +587,13 @@ if SERVER then
 					local friedlyEnemyDistance = friendly_position:DistToSqr(vectors)
 					local isFriendlyEnemyTooClose = friedlyEnemyDistance < 500000
 
-					local isInvalid = enemyTooFarFromWaypoint or not enemyCanSeeWaypoint or not friendlyCanSeeWaypoint or isFriendlyEnemyTooClose or friendlyTooFarFromWaypoint
+					local isInvalid = enemyTooFarFromWaypoint or not enemyCanSeeWaypoint or not friendlyCanSeeWaypoint or isFriendlyEnemyTooClose
 					if isInvalid then enemy_nearest_waypoint = nil end
 				end
 			end
 
 			if enemy_nearest_waypoint then
-				if UVNavigateDVWaypoint(self, vectors) then
+				if ( DVNavigationOptimized:GetBool() and UVNavigateDVWaypointOptimized(self, vectors) ) or ( ( not DVNavigationOptimized:GetBool() ) and UVNavigateDVWaypoint(self, vectors) ) then
 					return
 				elseif UVNavigateNavmesh(self, vectors) then
 					return
@@ -600,14 +601,14 @@ if SERVER then
 			else
 				if UVNavigateNavmesh(self, vectors) then
 					return
-				elseif UVNavigateDVWaypoint(self, vectors) then
+				elseif ( DVNavigationOptimized:GetBool() and UVNavigateDVWaypointOptimized(self, vectors) ) or ( ( not DVNavigationOptimized:GetBool() ) and UVNavigateDVWaypoint(self, vectors) ) then
 					return
 				end
 			end
 		else
 			if UVNavigateNavmesh(self, vectors) then
 				return
-			elseif UVNavigateDVWaypoint(self, vectors) then
+			elseif ( DVNavigationOptimized:GetBool() and UVNavigateDVWaypointOptimized(self, vectors) ) or ( ( not DVNavigationOptimized:GetBool() ) and UVNavigateDVWaypoint(self, vectors) ) then
 				return
 			end
 		end
@@ -688,7 +689,7 @@ if SERVER then
 			local dist = math.sqrt(distSqr)
 			local toWaypointNormalized = toWaypoint:GetNormalized()
 			
-			local hasLineOfSight = UVStraightToWaypoint(unitpos, waypointpos)
+			local hasLineOfSight = InfMap or UVStraightToWaypoint(unitpos, waypointpos)
 			
 			local score = 0
 			
@@ -2239,7 +2240,6 @@ if SERVER then
 		net.WriteInt(self.v:GetCreationID(), 32)
 		net.WriteString("unit")
 		net.Broadcast()
-		
 	end
 else --if CLIENT
 	function ENT:Initialize()

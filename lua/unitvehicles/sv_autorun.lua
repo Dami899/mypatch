@@ -3759,7 +3759,7 @@ end
 -- 	return false
 -- end
 
-function UVNavigateDVWaypoint2( self, vectors )
+function UVNavigateDVWaypointOptimized( self, vectors )
 	if not dvd or not dvd.Waypoints or next( dvd.Waypoints ) == nil then
 		self.NavigateBlind = true
 		return
@@ -3771,7 +3771,7 @@ function UVNavigateDVWaypoint2( self, vectors )
 
 	local startPos = self.v:WorldSpaceCenter()
 	local endPos = isvector( vectors ) and vectors or (istable( vectors ) and vectors[1] or startPos)
-	local maxWaypoints = 12
+	local maxWaypoints = 4
 	local minStepSq = 625 
 	local route = {}
 	local lastAdded = nil

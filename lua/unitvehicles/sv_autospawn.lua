@@ -1,5 +1,9 @@
 local dvd = DecentVehicleDestination
 
+local POLICE_SPAWN_DIST_FAR_SQ   = 25000000
+local POLICE_SPAWN_DIST_MAX_SQ   = 100000000
+local POLICE_SPAWN_MAX_CANDIDATES = 64
+
 --SIMFPHYS ONLY--
 
 local function ValidateModel( model )
@@ -450,37 +454,59 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	
 	local enemywaypoint = dvd.GetNearestWaypoint(enemylocation)
 	local enemywaypointgroup = enemywaypoint["Group"]
+
 	local waypointtable = {}
 	local prioritywaypointtable = {}
 	local prioritywaypointtable2 = {}
 	local prioritywaypointtable3 = {}
-	for k, v in ipairs(dvd.Waypoints) do
-		local Waypoint = v["Target"]
-		local distance = enemylocation - Waypoint
-		local vect = distance:GetNormalized()
-		local evectdot = vect:Dot(suspectvelocity)
-		if distance:LengthSqr() > 25000000 then
-			if enemywaypointgroup == v["Group"] then
-				if UVStraightToWaypoint(enemylocation, Waypoint) then
-					if evectdot < 0 then
-						table.insert(prioritywaypointtable, v)
-					elseif distance:LengthSqr() < 25000000 then
-						table.insert(prioritywaypointtable2, v)
-					end
-				elseif distance:LengthSqr() < 100000000 then
-					table.insert(prioritywaypointtable3, v)
-				end
-			elseif distance:LengthSqr() < 100000000 then
-				table.insert(waypointtable, v)
+
+	local candidates = {}
+	
+	for k, v in ipairs( dvd.Waypoints ) do
+		local Waypoint = v.Target
+		local delta = enemylocation - Waypoint
+		local distSq = delta:LengthSqr()
+		if distSq <= POLICE_SPAWN_DIST_FAR_SQ or distSq >= POLICE_SPAWN_DIST_MAX_SQ then
+			continue
+		end
+		
+		if v.Group ~= enemywaypointgroup then
+			table.insert( waypointtable, v )
+			continue
+		end
+		
+		local vect = delta:GetNormalized()
+		local evectdot = vect:Dot( suspectvelocity )
+		
+		if evectdot < 0 then
+			table.insert( candidates, { wp = v, distSq = distSq, score = -evectdot * distSq } )
+		else
+			table.insert( candidates, { wp = v, distSq = distSq, score = distSq } )
+		end
+	end
+
+	table.sort( candidates, function(a, b) return a.score < b.score end )
+	
+	for i = 1, math.min( #candidates, POLICE_SPAWN_MAX_CANDIDATES ) do
+		local v = candidates[i].wp
+		local Waypoint = v.Target
+		if UVStraightToWaypoint( enemylocation, Waypoint ) then
+			local delta = enemylocation - Waypoint
+			local vect = delta:GetNormalized()
+			local evectdot = vect:Dot( suspectvelocity )
+			
+			if evectdot < 0 then
+				table.insert( prioritywaypointtable, v )
+			else
+				table.insert( prioritywaypointtable2, v )
 			end
+		else
+			table.insert( prioritywaypointtable3, v )
 		end
 	end
 
 	if next(prioritywaypointtable) ~= nil then
 		uvspawnpointwaypoint = prioritywaypointtable[math.random(#prioritywaypointtable)]
-		uvspawnpoint = uvspawnpointwaypoint["Target"]
-	elseif next(prioritywaypointtable2) ~= nil then
-		uvspawnpointwaypoint = prioritywaypointtable2[math.random(#prioritywaypointtable2)]
 		uvspawnpoint = uvspawnpointwaypoint["Target"]
 	elseif next(prioritywaypointtable3) ~= nil then
 		uvspawnpointwaypoint = prioritywaypointtable3[math.random(#prioritywaypointtable3)]
