@@ -31,42 +31,26 @@ local function uv_general()
 		['Grappler'] = 'uv.ptech.grappler.short',
     }
 
-	-- local debugjam = true
+	local hudconvar = GetConVar("unitvehicle_speedometer"):GetString()
+	local xConVar = GetConVar("uvspeedo_" .. hudconvar .. "_x")
+	local yConVar = GetConVar("uvspeedo_" .. hudconvar .. "_y")
 
+	local hudpos = { x = xConVar and xConVar:GetFloat() or 0.815, y = yConVar and yConVar:GetFloat() or 0.6 }
+	local racing = UV_UI.speedometer[hudconvar]
+	local offsets = racing and racing.offsets
+	local hudoffset = { x = offsets and offsets.x or 0, y = offsets and offsets.y or 0 }
+	
+	if not GetConVar("unitvehicle_speedometer_enable"):GetBool() then
+		hudpos = { x = 0.824, y = 0.6 }
+		hudoffset = { x = 0, y = 0 }
+	end
+
+	-- local debugjam = true
     -- if not debugjam then
     if not uvclientjammed then
         for i = 1, 2 do
             local keyCode = GetConVar("unitvehicle_pursuittech_keybindslot_" .. i):GetInt()
             local tech = UVHUDPursuitTech[i]
-
-			local hudconvar = GetConVar("unitvehicle_speedometer"):GetString()
-
-			local xConVar = GetConVar("uvspeedo_" .. hudconvar .. "_x")
-			local yConVar = GetConVar("uvspeedo_" .. hudconvar .. "_y")
-
-			local hudpos = {
-				x = xConVar and xConVar:GetFloat() or 0.815,
-				y = yConVar and yConVar:GetFloat() or 0.6
-			}
-
-			local racing = UV_UI.speedometer[hudconvar]
-			local offsets = racing and racing.offsets
-
-			local hudoffset = {
-				x = offsets and offsets.x or 0,
-				y = offsets and offsets.y or 0
-			}
-			
-			if not GetConVar("unitvehicle_speedometer_enable"):GetBool() then -- This is FUBAR but fuck you; Improve if you wish
-				hudpos = {
-					x = 0.824,
-					y = 0.6
-				}
-				hudoffset = {
-					x = 0,
-					y = 0
-				}
-			end
 
             local xOffset = w * (hudpos.x - hudoffset.x)
             local y = h * (hudpos.y - hudoffset.y)
@@ -157,11 +141,15 @@ local function uv_general()
             end
         end
 	else
-		local y = h * 0.6
-		local textX = w * 0.87375
+		local xOffset = w * (hudpos.x - hudoffset.x)
+		local bw, bh = w * 0.06, h * 0.06
+		local keyX = w * 0.8425
+		local textX = xOffset + (bw * 0.95)
+		local y = h * (hudpos.y - hudoffset.y) + (bh * 0.25)
+
 		local blink = 255 * math.abs(math.sin(RealTime() * 6))
 
-		draw.SimpleTextOutlined( UVString("uv.ptech.jammer.hit.you"), "UVMostWantedLeaderboardFont", textX, y + (h * 0.0175), Color(255, 0, 0, blink), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0,blink))
+		draw.SimpleTextOutlined( UVString("uv.ptech.jammer.hit.you"), "UVMostWantedLeaderboardFont", textX, y, Color(255, 0, 0, blink), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0,blink))
     end
 end
 
@@ -285,7 +273,7 @@ UV_UI.general.events = {
 			local currentWidth
 			local text = UVString(UV_CurrentSubtitle)
 			local hasValidSubtitle = UV_CurrentSubtitle and text ~= "" and text ~= UV_CurrentSubtitle and CurTime() < (UV_SubtitleEnd or 0)
-			local subconvar = GetConVar("unitvehicle_subtitles"):GetBool() and hasValidSubtitle
+			local subconvar = (GetConVar("unitvehicle_subtitles"):GetBool() and hasValidSubtitle) or (UVHUDDisplayPursuit and UVHUDActiveBar)
 
 			if closing then
 				local closeAnimTime = now - closeStartTime

@@ -2456,11 +2456,6 @@ else -- CLIENT Settings | HUD/Options
 	local displaying_busted = false 
 	UVSettingKeybind = false
 
-	local UVHUDPursuitRespawnNoticeStarted = false
-	local UVHUDPursuitRespawnNoticeTriggered = false
-	local UVHUDPursuitRespawnNoticeEndTime = nil
-	local UVHUDPursuitRespawnNoticeStartTime = nil
-
 	local UVHUDScreenFlashHeatUp = 0
 
 	UVDeploys = 0
@@ -3994,30 +3989,6 @@ else -- CLIENT Settings | HUD/Options
 		local entities = ents.GetAll()
 		local box_color = Color(0, 255, 0)
 
-		
-		if UVHUDPursuitRespawnNoticeStarted and not UVHUDPursuitRespawnNoticeTriggered then
-			UVHUDPursuitRespawnNoticeTriggered = true
-			UVHUDPursuitRespawnNoticeStartTime = CurTime()
-		end
-
-		if not UVHUDPursuitRespawnNoticeStarted then
-			UVHUDPursuitRespawnNoticeTriggered = false
-		end
-
-		-- if localPlayer.uvspawningunit and localPlayer.uvspawningunit.vehicle then
-			-- local elapsed = CurTime() - localPlayer.uvspawningunit.startTime
-			-- local remaining = math.max(0, localPlayer.uvspawningunit.cooldown - elapsed)
-			-- local carn = lang(localPlayer.uvspawningunit.vehicle)
-			-- local timel = string.format("%.1f", remaining)
-
-			-- local text = "%s %s"
-			-- if RandomPlayerUnits:GetBool() then
-				-- text = string.format( UVString("uv.chase.select.spawning.cooldown.random"), timel )
-			-- else
-				-- text = string.format( UVString("uv.chase.select.spawning.cooldown"), carn, timel )
-			-- end
-		-- end
-
 		if not RacerTags:GetBool() or uvclientjammed then
 			if GMinimap then
 				for _, ent in pairs(UVHUDWantedSuspects) do
@@ -4525,10 +4496,8 @@ else -- CLIENT Settings | HUD/Options
 		local msg = net.ReadString()
 
 		if vehicle == "" then
-			UVHUDPursuitRespawnNoticeStarted = false
 			LocalPlayer().uvspawningunit = nil
 		else
-			UVHUDPursuitRespawnNoticeStarted = true
 			LocalPlayer().uvspawningunit = {
 				vehicle = vehicle,
 				cooldown = cooldown,
@@ -4768,7 +4737,6 @@ else -- CLIENT Settings | HUD/Options
 		end)
 	end)
 	
-
 	net.Receive('UV_Chatter', function()
 		local init_time = net.ReadFloat()
 		local audio_file = "sound/"..net.ReadString()
@@ -4827,7 +4795,6 @@ else -- CLIENT Settings | HUD/Options
 		end)
 	end)
 
-
 	net.Receive('UVBusted', function()
 		local array = net.ReadTable()
 
@@ -4837,6 +4804,7 @@ else -- CLIENT Settings | HUD/Options
 
 		if racer == LocalPlayer():GetName() then lp = true end
 
+		UVHUD_CloseTimedBar("reset_penalty")
 		hook.Run( 'UIEventHook', 'pursuit', 'onRacerBusted', racer, cop, lp )
 	end)
 

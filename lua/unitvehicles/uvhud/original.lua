@@ -956,8 +956,8 @@ local function original_pursuit_main( ... )
 		
 	local bottomyplus = 0
 
-	if (LocalPlayer().uvspawningunit and LocalPlayer().uvspawningunit.vehicle) or (not UVHUDCopMode and UVHUDRaceFinishCountdownStarted) then
-		bottomyplus = -(h * 0.1)
+	if UVHUDActiveBar then
+		bottomyplus = -(h * 0.075)
 	end
 
 	local bottomy = h * 0.9 + bottomyplus

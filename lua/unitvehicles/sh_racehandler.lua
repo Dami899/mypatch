@@ -2078,7 +2078,7 @@ else -- CLIENT stuff
 		end
 	end)
 
-	net.Receive( "uvrace_resetfailed", function()
+	net.Receive( "uvresetfailed", function()
 		UVHUD_CloseTimedBar("reset")
 
 		UV_UI.general.events.CenterNotification({
@@ -2086,14 +2086,16 @@ else -- CLIENT stuff
 		})
 	end)
 
-	net.Receive("uvrace_resetcountdown", function()
-		local time_left = net.ReadInt(4)
-
-		-- UV_UI.general.events.CenterNotification({
-			-- text = string.format(UVString("uv.resetting"), tostring(time_left)),
-		-- })
+	net.Receive("uvresetcountdown", function()
+		local time_left = net.ReadInt(16)
 
 		UVHUD_AddTimedBar( "reset", time_left, "uv.resetting", 10, string.format( UVString("uv.chase.select.spawning.cooldown2"), UVReplaceKeybinds( "[key:unitvehicle_keybind_resetposition]", "Big" ) ) )
+	end)
+
+	net.Receive("uvresetpenalty", function()
+		local time_left = net.ReadInt(16)
+
+		UVHUD_AddTimedBar( "reset_penalty", time_left, "uv.resetting.penalty2", 50, "uv.resetting.penalty", nil, true )
 	end)
 
 	net.Receive( "uvrace_invite", function()

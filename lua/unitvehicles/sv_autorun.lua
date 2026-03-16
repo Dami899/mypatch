@@ -222,8 +222,6 @@ NETWORK_STRINGS = {
 	"uvrace_notification",
 	"uvrace_decline",
 	"uvrace_sendmessage",
-	"uvrace_resetcountdown",
-	"uvrace_resetfailed",
 	"uvrace_replace",
 	"uvrace_disqualify",
 	"uvrace_checkpointcomplete",
@@ -239,6 +237,11 @@ NETWORK_STRINGS = {
 	"UVRace_StopEndCountdown",
 	"UVSpottedFreeze",
 	"UVSpottedUnfreeze",
+
+	-- Resetting
+	"uvresetcountdown",
+	"uvresetfailed",
+	"uvresetpenalty",
 
 	-- Headlights
 	"UVToggleHeadlights",
@@ -2780,6 +2783,8 @@ function UVBustEnemy(self, enemy, finearrest)
 
 	enemy.uvbusted = true
 	enemy.UVBustingProgress = 0
+	enemy.UVBustingPenaltyMult = enemy.UVBustingPenaltyMult or 1
+	
 	-- if UVRaceTable['Participants'] then
 	-- 	if UVRaceTable['Participants'][enemy] then
 	-- 		UVRaceTable['Participants'][enemy].Busted = true
@@ -3293,6 +3298,10 @@ function UVCheckIfBeingBusted(enemy)
 
 	UVBustSpeed = UVBustSpeed or 5
 	
+	if enemy.hasreset then
+		UVBustSpeed = UVBustSpeed * (enemy.UVBustingPenaltyMult or 1)
+	end
+	
 	if not enemy.uvbusted and btimeout and btimeout > 0 and enemy:GetVelocity():LengthSqr() < UVBustSpeed and not UVEnemyEscaping and next(UVUnitsChasing) ~= nil and
 	(closestdistancetounit < 250000 or closestunit.CloseToTarget) and 
 	(IsValid(closestunit.e) or (isfunction(closestunit.GetTarget)) and IsValid(closestunit:GetTarget())) then
@@ -3330,7 +3339,7 @@ function UVCheckIfBeingBusted(enemy)
 			enemy.UVBustingLastProgress = CurTime()
 			enemy.UVBustingLastProgress2 = enemy.UVBustingProgress
 		end
-		enemy.UVBustingProgress = enemy.UVBustingLastProgress2 + (CurTime() - enemy.UVBustingLastProgress)
+		enemy.UVBustingProgress = enemy.UVBustingLastProgress2 + (CurTime() - enemy.UVBustingLastProgress) * (enemy.UVBustingPenaltyMult or 1)
 		if enemy.UVBustingProgress >= (btimeout-1) and not enemy.nearbust then
 			enemy.nearbust = true
 		end
