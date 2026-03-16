@@ -2126,7 +2126,190 @@ local MUTATOR_FUNCTIONS = {
 	end
 }
 
-local VEHICLE_BASE_PERFORMANCE_SETS = {
+local POLICE_VEHICLE_BASE_PERFORMANCE_SETS = {
+	['Simfphys'] = {
+		['Efficiency'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxTraction'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['BrakePower'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		}
+	},
+	['Glide'] = {
+		['BrakePower'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		-- Note: The cornering accuracy of the AI on Glide heavily depends on SteerConeMaxAngle, this also applies for units
+		-- originally i only kept SteerConeChangeRate for Infmap use, comment out again if not plausible -aux
+		-- ['SteerConeChangeRate'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['IsCatchup'] = true,
+		-- 	['Info'] = {
+		-- 		['Type'] = "Multiply",
+		-- 		['Modifier'] = 1.25,
+		-- 		['Min'] = 0,
+		-- 		['Max'] = math.huge
+		-- 	}
+		-- },
+		-- ['SteerConeMaxSpeed'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['IsUnit'] = true,
+		-- 	['Info'] = {
+		-- 		['Type'] = "Multiply",
+		-- 		['Modifier'] = 1,
+		-- 		['Min'] = 0,
+		-- 		['Max'] = math.huge
+		-- 	}
+		-- },
+		['SteerConeMaxAngle'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1.25,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxRPM'] = {
+			['DataType'] = "NetworkVar",
+			['IsCatchup'] = true,
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 0.75,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxRPMTorque'] = {
+			--['IsUnit'] = true,
+			['IsCatchup'] = true,
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 0.75,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MinRPMTorque'] = {
+			--['IsUnit'] = true,
+			['IsCatchup'] = true,
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 0.75,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['ForwardTractionMax'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 2,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMax'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMaxAng'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMin'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SuspensionLength'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 0.75
+			}
+		},
+		['SpringStrength'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 1.25
+			}
+		},
+		['SpringDamper'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 1.5
+			}
+		},
+		-- ['PowerDistribution'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['IsUnit'] = true,
+		-- 	['IsCatchup'] = true,
+		-- 	['Info'] = {
+		-- 		['Type'] = "Static",
+		-- 		['Modifier'] = 0.1,
+		-- 		['Min'] = 1,
+		-- 		['Max'] = 1.2,
+		-- 	}
+		-- },
+	},
+	['prop_vehicle_jeep'] = {
+
+	}
+}
+
+local RACER_VEHICLE_BASE_PERFORMANCE_SETS = {
 	['Simfphys'] = {
 		['Efficiency'] = {
 			['DataType'] = "NetworkVar",
@@ -2199,7 +2382,6 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 		},
 		['MaxRPM'] = {
 			['DataType'] = "NetworkVar",
-			['IsUnit'] = true,
 			['IsCatchup'] = true,
 			['Info'] = {
 				['Type'] = "Multiply",
@@ -2295,7 +2477,6 @@ local VEHICLE_BASE_PERFORMANCE_SETS = {
 		},
 		['PowerDistribution'] = {
 			['DataType'] = "NetworkVar",
-			['IsUnit'] = true,
 			['IsCatchup'] = true,
 			['Info'] = {
 				['Type'] = "Static",
@@ -2317,14 +2498,15 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult, catchup )
 	local isSimfphysVehicle = vehicle.IsSimfphyscar
 	local isGlideVehicle = vehicle.IsGlideVehicle
 
+	local performanceSets = vehicle.UnitVehicle and POLICE_VEHICLE_BASE_PERFORMANCE_SETS or RACER_VEHICLE_BASE_PERFORMANCE_SETS
 	local needle = nil
 
 	if vehicle.IsSimfphyscar then
-		needle = VEHICLE_BASE_PERFORMANCE_SETS['Simfphys']
+		needle = performanceSets['Simfphys']
 	elseif vehicle.IsGlideVehicle then
-		needle = VEHICLE_BASE_PERFORMANCE_SETS['Glide']
+		needle = performanceSets['Glide']
 	else
-		needle = VEHICLE_BASE_PERFORMANCE_SETS['prop_vehicle_jeep']
+		needle = performanceSets['prop_vehicle_jeep']
 	end
 
 	if not vehicle.__UVOriginalPerformance then vehicle.__UVOriginalPerformance = {} end
@@ -2332,7 +2514,6 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult, catchup )
 	for stat, data in pairs( needle ) do
 		local multiplier = mult
 		if mult > 1 then
-			if data.IsUnit and not vehicle.UnitVehicle then continue end
 			if data.IsCatchup and not catchup then multiplier = 1 end
 		end
 		if data.DataType == "NetworkVar" then
