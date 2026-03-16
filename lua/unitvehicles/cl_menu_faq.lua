@@ -58,14 +58,14 @@ You can follow us on our Trello page, or our Discord server, both of which you c
 # -- What console commands are there I can use?
 
  |-- uv_spawnvehicles - Spawns patrolling AI Units
- |-- uv_setheat [x] - Sets the Heat Level
+ |-- uv_setheat {X} - Sets the Heat Level
  |-- uv_despawnvehicles - Despawns Patrolling AI Units
  |-- uv_resetallsettings - Resets all server settings to their default values
  |-- uv_startpursuit - Starts a countdown before beginning a pursuit
  |-- uv_stoppursuit - Stops a pursuit with AI Units assuming you've escaped
  |-- uv_wantedtable - Prints a list of wanted suspects to the console
  |-- uv_clearbounty - Sets the bounty value to 0
- |-- uv_setbounty [x] - Sets the bounty value
+ |-- uv_setbounty {X} - Sets the bounty value
  |-- uv_spawn_as_unit - Allows you to join as the Unit
 ]],
 
@@ -338,14 +338,14 @@ Du kan följa oss på vår Trello-sida, eller på vår Discord-server. Du hittar
 # -- Vilka konsolkommandon kan jag använda?
 
  |-- uv_spawnvehicles - Spawnar patrullerande AI-enheter
- |-- uv_setheat [x] - Sätter spaningsnivån
+ |-- uv_setheat {X} - Sätter spaningsnivån
  |-- uv_despawnvehicles - Tar bort patrullerande AI-enheter
  |-- uv_resetallsettings - Återställer alla serverinställningar
  |-- uv_startpursuit - Påbörjar en nedräkning innan en jakt startas
  |-- uv_stoppursuit - Stoppar jakten där AI-enheter tror att du kommit undan
  |-- uv_wantedtable - Skriver ut en lista på efterlysta misstänka i konsolen
  |-- uv_clearbounty - Sätter belöningsvärdet till 0
- |-- uv_setbounty [x] - Sätter belöningsvärdet
+ |-- uv_setbounty {X} - Sätter belöningsvärdet
  |-- uv_spawn_as_unit - Tillåter dig att gå med som en enhet
 ]],
 
@@ -617,14 +617,14 @@ Puedes seguirnos en nuestra página de Trello, o en nuestro servidor de Discord,
 # -- ¿Qué comandos de consola hay para usar?
 
  |-- uv_spawnvehicles - Aparece unidades IA que patrullan.
- |-- uv_setheat [x] - Establece el nivel de persecución.
+ |-- uv_setheat {X} - Establece el nivel de persecución.
  |-- uv_despawnvehicles - Desaparece unidades IA que patrullan.
  |-- uv_resetallsettings - Reestablece todos ajustes del servidor a sus valores por defecto.
  |-- uv_startpursuit - Comienza un conteo antes de comenzar una persecución.
  |-- uv_stoppursuit - Detiene la persecución con unidades IA las cuales asumen que escapaste.
  |-- uv_wantedtable - Muestra una lista de sospechosos buscados en la consola.
  |-- uv_clearbounty - Establece el valor de la bolsa a 0.
- |-- uv_setbounty [x] - Establece el valor de la bolsa.
+ |-- uv_setbounty {X} - Establece el valor de la bolsa.
  |-- uv_spawn_as_unit - Te permite unirte como unidad policial.
 ]],
 
@@ -897,14 +897,14 @@ Unit Vehicles - это аддон, ориентированный на песо�
 # -- Какие есть консольные команды, которые я могу использовать?
 
  |-- uv_spawnvehicles - Размещает патрулирующих ИИ Юнитов
- |-- uv_setheat [x] - Устанавливает Уровень Жары
+ |-- uv_setheat {X} - Устанавливает Уровень Жары
  |-- uv_despawnvehicles - Удаляет патрулирующих ИИ Юнитов
  |-- uv_resetallsettings - Сбрасивает все серверные настройки до их изначальных значений
  |-- uv_startpursuit - Начинает отсчёт до начала погони
  |-- uv_stoppursuit - Останавливает погоню с ИИ Юнитами, предполагая ваш побег
  |-- uv_wantedtable - Выводит список разыскиваемых подозреваемых в консоль
  |-- uv_clearbounty - Устанавливает значение награды на 0
- |-- uv_setbounty [x] - Устанавливает значение награды
+ |-- uv_setbounty {X} - Устанавливает значение награды
  |-- uv_spawn_as_unit - Позволяет вам присоединиться в качестве Юнита
 ]],
 
@@ -1176,14 +1176,14 @@ Możesz obserwować naszą stronę na Trello lub dołączyć na Discorda. Oba li
 # -- Jakich komend mogę użyć?
 
  |-- uv_spawnvehicles - Pojawia patrolujące jednostki SI
- |-- uv_setheat [x] - Ustawia Poziom Obławy
+ |-- uv_setheat {X} - Ustawia Poziom Obławy
  |-- uv_despawnvehicles - Usuwa patrolujące Jednostki SI
  |-- uv_resetallsettings - Resetuje wszystkie ustawienia do domyślnych wartości
  |-- uv_startpursuit - Rozpoczyna pościg po odliczeniu
  |-- uv_stoppursuit - Zatrzymuje pościg zakładając że zakończył się ucieczką
  |-- uv_wantedtable - Drukuje listę poszukiwanych w konsoli
  |-- uv_clearbounty - Ustawia notowania na 0
- |-- uv_setbounty [x] - Ustawia notowania na wpisaną liczbę
+ |-- uv_setbounty {X} - Ustawia notowania na wpisaną liczbę
  |-- uv_spawn_as_unit - Pojawia Cię jako Jednostka
 ]],
 
@@ -1458,14 +1458,14 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 # -- 有哪些可以使用的控制台命令？
 
  |-- uv_spawnvehicles - 生成巡逻中的 AI 单位
- |-- uv_setheat [x] - 设置热度等级
+ |-- uv_setheat {X} - 设置热度等级
  |-- uv_despawnvehicles - 移除所有巡逻中的 AI 单位
  |-- uv_resetallsettings - 将所有服务器设置重置为默认值
  |-- uv_startpursuit - 开始一次追逐前的倒计时
  |-- uv_stoppursuit - 停止当前追逐（AI 单位将认为你已成功逃脱）
  |-- uv_wantedtable - 在控制台中输出当前被通缉的嫌疑人列表
  |-- uv_clearbounty - 将悬赏值重置为 0
- |-- uv_setbounty [x] - 设置悬赏值
+ |-- uv_setbounty {X} - 设置悬赏值
  |-- uv_spawn_as_unit - 允许你以单位身份加入
 ]],
 

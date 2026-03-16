@@ -18,15 +18,16 @@ Text = [[
 **Changes**
 - Reworked the Reset system
       |-- Can now be done while moving
-	  |-- Press [key:unitvehicle_keybind_resetposition] to begin the Reset countdown; press again to cancel it
-- If you reset mid-pursuit, you'll gain these penalties for 10s:
-      |-- <color=255,100,100>+500%</color> Time until Busted
-      |-- <color=255,100,100>+200%</color> Bust Speed (MPH)
+      |-- Press [key:unitvehicle_keybind_resetposition] to begin the Reset countdown; press it again to cancel it
+- If you reset mid-pursuit, you'll gain these penalties for <color=255,255,100>10</color> seconds:
+      |-- <color=255,100,100>+400%</color> Time until Busted & Bust Speed (MPH)
+- Reworked the lower notification system
+      |-- Affects the <color=255,255,100>Race ends in</color>, <color=255,255,100>Spawn as {Unit}</color> and new <color=255,255,100>Resetting in</color> timers
 - UV Menu: Added the ability to press [+attack2] on folders in the *Vehicle Override* to add/remove all vehicles in that category
 - Updated localizations
 
 **Fixes**
-
+- 
 ]],
 },
 
