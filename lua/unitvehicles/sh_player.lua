@@ -1252,6 +1252,7 @@ if SERVER then
 
         if used then
             UVReplicatePT( car, slot )
+            UVAddInfraction(car, 'endanger')
         end
 
         return used

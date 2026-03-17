@@ -1345,6 +1345,13 @@ if SERVER then
 					UVResourcePointsTimer = CurTime()
 					UVResourcePointsTimerMax = UVBackupTimerMax
 					UVBackupUnderway = true
+
+					if #UVWantedTableVehicle > 0 then
+						for _, v in pairs(UVWantedTableVehicle) do
+							UVAddInfraction(v, 'resource', true)
+						end
+					end
+
 					timer.Simple(1, function()
 						local units = ents.FindByClass("npc_uv*")
 						local random_entry = math.random(#units)
@@ -1718,14 +1725,14 @@ if SERVER then
 
 					if not check then
 						for _, unit in pairs(UVUnitVehicles) do
-								if UVVisualOnTarget(unit, v) then
-									v.inunitview = true
-									table.insert(visible_suspects, v)
-								else
-									if not table.HasValue(visible_suspects, v) then
-										v.inunitview = false 
-									end
+							if UVVisualOnTarget(unit, v) then
+								v.inunitview = true
+								table.insert(visible_suspects, v)
+							else
+								if not table.HasValue(visible_suspects, v) then
+									v.inunitview = false 
 								end
+							end
 						end
 					end
 
@@ -1790,9 +1797,15 @@ if SERVER then
 			if not UVEnemyEscaping then
 				UVEnemyEscaping = true
 				UVCooldownProgressTimeout = CurTime()
+
+				for _, v in pairs(UVWantedTableVehicle) do
+					UVAddInfraction(v, 'resist', true)
+				end
+
 				if timer.Exists("UVTimeTillNextHeat") then
 					timer.Pause("UVTimeTillNextHeat")
 				end
+
 				if Chatter:GetBool() and not UVCalm and not UVEnemyBusted then
 					if next(ents.FindByClass("npc_uv*")) ~= nil then
 						local units = ents.FindByClass("npc_uv*")
@@ -2126,9 +2139,17 @@ if SERVER then
 					escapedtable["Deploys"] = UVDeploys
 					escapedtable["Roadblocks"] = UVRoadblocksDodged
 					escapedtable["Spikestrips"] = UVSpikestripsDodged
-					net.Start( "UVHUDEscapedDebrief" )
-					net.WriteTable(escapedtable)
-					net.Send(UVWantedTableDriver)
+
+					for _, v in pairs(UVWantedTableDriver) do
+						local vehicle = UVGetVehicle(driver)
+						local infractionstable = vehicle and vehicle.Infractions or {}
+
+						net.Start( "UVHUDEscapedDebrief" )
+						net.WriteTable(escapedtable)
+						net.WriteTable(infractionstable)
+						net.Send(v)
+					end
+
 					net.Start( "UVHUDCopModeEscapedDebrief" )
 					net.WriteTable(escapedtable)
 					net.Send(UVPlayerUnitTablePlayers)
@@ -4593,6 +4614,7 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive("UVHUDBustedDebrief", function()
 		local debrieftable = net.ReadTable()
+		local infractionstable = net.ReadTable()
 
 		if UVHUDCopMode then return end
 
@@ -4627,6 +4649,7 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive("UVHUDEscapedDebrief", function()
 		local debrieftable = net.ReadTable()
+		local infractionstable = net.ReadTable()
 
 		if UVHUDCopMode then return end
 
@@ -4810,6 +4833,17 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive("UVHUDWreckedDebrief", function()
 		UVMenu.OpenMenu(UVMenu.WreckedDebrief, true)
+	end)
+
+	net.Receive('UVInfractions', function()
+		local text = net.ReadString()
+		local number = net.ReadInt(5)
+		
+		text = UVString("uv.results.infractions") .. " " .. number .. ": " .. UVString("uv.infraction." .. text)
+
+		UV_UI.general.events.CenterNotification({
+            text = text,
+		})
 	end)
 
 	hook.Add("PopulateToolMenu", "UVMenu", function()

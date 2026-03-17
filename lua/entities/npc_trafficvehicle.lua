@@ -273,7 +273,7 @@ if SERVER then
 		local pos = class == "prop_vehicle_jeep" and self.v:WorldSpaceCenter() or self.v:GetPos()
 		pos.z = pos.z + self.v.rideheight
 
-		local tr = util.TraceLine({start = pos, endpos = (pos+(self.v:GetVelocity()*2)), mask = MASK_NPCWORLDSTATIC})
+		local tr = util.TraceLine({start = pos, endpos = (pos+(self.v:GetVelocity()*2)), mask = MASK_ALL})
 		local Fraction = tr.Fraction ~= 1
 		local HitNormal = tr.HitNormal.z < 0.45 --Ignore small inclines
 
@@ -309,18 +309,23 @@ if SERVER then
 			rightstart:Rotate(Angle(0, -90, 0))
 		end
 		
-		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC})
-		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC})
+		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+(vector_up * 50)), mask = MASK_ALL})
+		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+(vector_up * 50)), mask = MASK_ALL})
 
 		local Fraction = trleft.Fraction ~= 1 or trright.Fraction ~= 1
 		local HitNormal = trleft.HitNormal.z < 0.45 or trright.HitNormal.z < 0.45 --Ignore small inclines
 
 		if not tobool(Fraction and HitNormal) then return false end
 
+		local vehicleleft = trleft.Entity
+		local vehicleright = trright.Entity
+
 		if trleft.Fraction > trright.Fraction then
+			UVAddInfraction(vehicleleft, 'endanger')
 			return turnleft
 		end
 		if trleft.Fraction < trright.Fraction then
+			UVAddInfraction(vehicleright, 'endanger')
 			return turnright
 		end
 

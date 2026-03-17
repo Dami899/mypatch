@@ -918,6 +918,11 @@ function ENT:Explode()
 		self.crashing = true
 		UVBounty = (UVBounty+bountyplus)
 		UVComboBounty = UVComboBounty + 1
+		if #UVWantedTableVehicle > 0 then
+			for _, v in pairs(UVWantedTableVehicle) do
+				UVAddInfraction(v, 'homicide')
+			end
+		end
 	end
 end
 
