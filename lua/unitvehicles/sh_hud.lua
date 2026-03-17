@@ -171,6 +171,10 @@ UVMaterials = {
     ["SCANNER_LEDS"] = Material("unitvehicles/hud/RADAR_LEDS_COLOR.png"),
     ["SCANNER_LEDS_INV"] = Material("unitvehicles/hud/RADAR_LEDS_COLOR_INV.png"),
     
+    ["INFRACTIONS_BG"] = Material("unitvehicles/hud/outter_ring_infractions.png"),
+    ["INFRACTIONS_BG_RING"] = Material("unitvehicles/hud/outter_ring.png"),
+    ["INFRACTIONS_ICON"] = Material("unitvehicles/hud/generic_infraction.png"),
+	
     -- Carbon
     ["TAKEDOWN_CIRCLE_CARBON"] = Material("unitvehicles/icons_carbon/FULL_CIRCLE.png"),
     ["TAKEDOWN_RING_CARBON"] = Material("unitvehicles/icons_carbon/FULL_CIRCLE_RING.png"),

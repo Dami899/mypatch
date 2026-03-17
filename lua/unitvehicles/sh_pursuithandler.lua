@@ -4622,15 +4622,15 @@ else -- CLIENT Settings | HUD/Options
 		local UVRoadblocksDodged = debrieftable["Roadblocks"]
 		local UVSpikestripsDodged = debrieftable["Spikestrips"]
 
-		print("You have been busted by the Unit Vehicles!\n" .. 
-			"Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
-			"Pursuit Duration - " .. UVTimer .. "\n" ..
-			"Police Vehicles Involved - " .. UVDeploys .. "\n" ..
-			"Damaged Police Vehicles - " .. UVTags .. "\n" ..
-			"Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
-			"Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
-			"Spike Strips Dodged - " .. UVSpikestripsDodged
-		)
+		-- print("You have been busted by the Unit Vehicles!\n" .. 
+			-- "Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
+			-- "Pursuit Duration - " .. UVTimer .. "\n" ..
+			-- "Police Vehicles Involved - " .. UVDeploys .. "\n" ..
+			-- "Damaged Police Vehicles - " .. UVTags .. "\n" ..
+			-- "Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
+			-- "Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
+			-- "Spike Strips Dodged - " .. UVSpikestripsDodged
+		-- )
 
 		timer.Simple(5, function()
 			UVHUDDisplayBusting = false
@@ -4640,11 +4640,11 @@ else -- CLIENT Settings | HUD/Options
 		if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
 			UVMenu.CloseCurrentMenu()
 			timer.Simple(0.5, function()
-				hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable )
+				hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable, infractionstable )
 			end)
 			return
 		end
-		hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable )
+		hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable, infractionstable )
 	end)
 
 	net.Receive("UVHUDEscapedDebrief", function()
@@ -4657,24 +4657,24 @@ else -- CLIENT Settings | HUD/Options
 		local UVRoadblocksDodged = debrieftable["Roadblocks"]
 		local UVSpikestripsDodged = debrieftable["Spikestrips"]
 
-		print("You have escaped from the Unit Vehicles!\n" .. 
-			"Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
-			"Pursuit Duration - " .. UVTimer .. "\n" ..
-			"Police Vehicles Involved - " .. UVDeploys .. "\n" ..
-			"Damaged Police Vehicles - " .. UVTags .. "\n" ..
-			"Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
-			"Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
-			"Spike Strips Dodged - " .. UVSpikestripsDodged
-		)
-		
+		-- print("You have escaped from the Unit Vehicles!\n" .. 
+			-- "Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
+			-- "Pursuit Duration - " .. UVTimer .. "\n" ..
+			-- "Police Vehicles Involved - " .. UVDeploys .. "\n" ..
+			-- "Damaged Police Vehicles - " .. UVTags .. "\n" ..
+			-- "Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
+			-- "Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
+			-- "Spike Strips Dodged - " .. UVSpikestripsDodged
+		-- )
+
 		if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
 			UVMenu.CloseCurrentMenu()
 			timer.Simple(0.5, function()
-				hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable )
+				hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable, infractionstable )
 			end)
 			return
 		end
-		hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable )
+		hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable, infractionstable )
 	end)
 
 	net.Receive("UVHUDCopModeEscapedDebrief", function()
@@ -4839,11 +4839,14 @@ else -- CLIENT Settings | HUD/Options
 		local text = net.ReadString()
 		local number = net.ReadInt(5)
 		
-		text = UVString("uv.results.infractions") .. " " .. number .. ": " .. UVString("uv.infraction." .. text)
+		-- text = UVString("uv.results.infractions") .. " " .. number .. ": " .. UVString("uv.infraction." .. text)
 
-		UV_UI.general.events.CenterNotification({
-            text = text,
-		})
+		-- UV_UI.general.events.CenterNotification({
+            -- text = text,
+		-- })
+		
+		text = UVString("uv.infraction." .. text)
+		hook.Run( 'UIEventHook', 'pursuit', 'onInfraction', text, number )
 	end)
 
 	hook.Add("PopulateToolMenu", "UVMenu", function()
