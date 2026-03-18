@@ -1454,7 +1454,7 @@ if SERVER then
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
 			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 4000000)
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
-			local followSuspectHeadingOnGrid = suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC
+			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC) or (InfMap and suspectOnWaypointGrid and suspectSameDirectionAsNPC and not suspectInView)
 			if eedist:LengthSqr() < 200000 and suspectInView then useDirectDriveBranch = true end
 
 			if useDirectDriveBranch then

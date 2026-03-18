@@ -369,7 +369,7 @@ function ENT:PhysicsUpdate()
 	local isValidTarget = IsValid(target)
 
 	local p = self:GetPos()
-	if math.abs(p.x)>16000 or math.abs(p.y)>16000 or math.abs(p.z)>16000 then
+	if not InfMap and (math.abs(p.x)>16000 or math.abs(p.y)>16000 or math.abs(p.z)>16000) then
 		if self.disengaging then
 			self:Remove()
 		end
