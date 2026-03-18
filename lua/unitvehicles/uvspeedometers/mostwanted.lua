@@ -175,7 +175,7 @@ local function mostwanted_speedometer( ... )
 	surface.DrawTexturedRectRotated( speedopos.x, speedopos.y - (w * 0.001), (w * 0.17), (w * 0.17), 0 )
 
     draw.SimpleText("▲", "UVFont5UI", speedopos.x - (w * 0.008), speedopos.y - (h * 0.065), speedocol.gearw, TEXT_ALIGN_CENTER)
-	draw.SimpleText( "8", "UVMWFont7Tiny", speedopos.x + (w * 0.007), speedopos.y - (h * 0.0725), Color(0,0,0,100), TEXT_ALIGN_CENTER )
+	draw.SimpleText( "8", "UVMWFont7Tiny", speedopos.x + (w * 0.007), speedopos.y - (h * 0.0725), Color(0,0,0,25), TEXT_ALIGN_CENTER )
 	draw.SimpleText( gearText, "UVMWFont7Tiny", speedopos.x + (w * 0.013), speedopos.y - (h * 0.0725), Color(0,0,0), TEXT_ALIGN_RIGHT )
 		
 	-- [[ Health ]] --
@@ -196,7 +196,7 @@ local function mostwanted_speedometer( ... )
 
 	for i = 1, 3 do
 		local digitX = baseX - ( 3 - i ) * ( digitW + (w * 0.0025) )
-		draw.SimpleText("8", "UVMWFont7Smaller", digitX, yPos, Color(0,0,0,100), TEXT_ALIGN_RIGHT)
+		draw.SimpleText("8", "UVMWFont7Smaller", digitX, yPos, Color(0,0,0,50), TEXT_ALIGN_RIGHT)
 	end
 
 	for i = 1, #speedStr do

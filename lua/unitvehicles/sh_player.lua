@@ -737,26 +737,34 @@ if SERVER then
             vehicle.hasreset = nil
         end)
 
+		-- Penalties for 10s
+		if UVTargeting and not UVHUDCooldown then
+			vehicle.UVBustingPenaltyMult = 5
+			timer.Simple(10, function()
+				vehicle.UVBustingPenaltyMult = 1
+			end)
+		end
+
         --Prevent abuse during pursuits by teleporting a Unit ahead
-        timer.Simple(delay, function()
-            if UVTargeting then
-                local units = ents.FindByClass("npc_uv*")
-                if #units == 0 then return end
+        -- timer.Simple(delay, function()
+            -- if UVTargeting and not UVHUDCooldown then
+                -- local units = ents.FindByClass("npc_uv*")
+                -- if #units == 0 then return end
 
-                for k, unit in pairs(units) do
-                    if IsValid(unit) and unit.e and unit.e == vehicle then
-                        local enemywaypoint = dvd.GetNearestWaypoint( vehicle:GetPos() )
-                        if not enemywaypoint.Neighbors or next(enemywaypoint.Neighbors) == nil then return end
-                        local neighbor = dvd.Waypoints[enemywaypoint.Neighbors[math.random(#enemywaypoint.Neighbors)]]
+                -- for k, unit in pairs(units) do
+                    -- if IsValid(unit) and unit.e and unit.e == vehicle then
+                        -- local enemywaypoint = dvd.GetNearestWaypoint( vehicle:GetPos() )
+                        -- if not enemywaypoint.Neighbors or next(enemywaypoint.Neighbors) == nil then return end
+                        -- local neighbor = dvd.Waypoints[enemywaypoint.Neighbors[math.random(#enemywaypoint.Neighbors)]]
 
-                        if neighbor and unit.v then
-                            UVOptimizeRespawn( unit.v, unit.v.rhino, unit.v.uvclasstospawnon == "npc_uvcommander", neighbor )
-                            break
-                        end
-                    end
-                end
-            end
-        end)
+                        -- if neighbor and unit.v then
+                            -- UVOptimizeRespawn( unit.v, unit.v.rhino, unit.v.uvclasstospawnon == "npc_uvcommander", neighbor )
+                            -- break
+                        -- end
+                    -- end
+                -- end
+            -- end
+        -- end)
     end
     
     net.Receive("UVResetPosition", function(len, ply)
@@ -774,36 +782,43 @@ if SERVER then
             local key = "VehicleReset_"..car:EntIndex()
             if timer.Exists( key ) then
                 timer.Remove(key)
-                net.Start("uvrace_resetfailed")
+                net.Start("uvresetfailed")
                 net.WriteString("uv.resetting.cancel")
                 net.Send(ply)
 				return
 			end
             
+            if table.HasValue( UVRaceCurrentParticipants, car ) and not UVRaceInProgress then
+                net.Start("uvresetfailed")
+                net.WriteString("uv.resetting.fail.racestart")
+                net.Send(ply)
+                return
+            end
+
             if car.hasreset then
-                net.Start("uvrace_resetfailed")
-                net.WriteString("uv.race.resetcooldown")
+                net.Start("uvresetfailed")
+                net.WriteString("uv.resetting.fail.cooldown")
                 net.Send(ply)
                 return
             end
             
             -- if car:GetVelocity():LengthSqr() > 5000 then
-                -- net.Start("uvrace_resetfailed")
-                -- net.WriteString("uv.race.resetstationary")
+                -- net.Start("uvresetfailed")
+                -- net.WriteString("uv.resetting.fail.stationary")
                 -- net.Send(ply)
                 -- return
             -- end
             
             if car.UVHUDBusting then
                 timer.Remove(key)
-                net.Start("uvrace_resetfailed")
-                net.WriteString("uv.race.resetbusting")
+                net.Start("uvresetfailed")
+                net.WriteString("uv.resetting.fail.busting")
                 net.Send(ply)
                 return
             end
             
-            net.Start( "uvrace_resetcountdown" )
-            net.WriteInt(3, 4)
+            net.Start( "uvresetcountdown" )
+            net.WriteInt(3, 16)
             net.Send(ply)
             
             timer.Create( key, 3, 1, function()
@@ -815,6 +830,11 @@ if SERVER then
 
 				if IsValid(car) and car:GetDriver() == ply then
 					UVResetPosition(car)
+					if UVTargeting and not UVHUDCooldown then
+						net.Start( "uvresetpenalty" )
+						net.WriteInt(10, 16)
+						net.Send(ply)
+					end
 				end
             end)
         end
@@ -1232,6 +1252,7 @@ if SERVER then
 
         if used then
             UVReplicatePT( car, slot )
+            UVAddInfraction(car, 'endanger')
         end
 
         return used
@@ -1298,11 +1319,13 @@ if SERVER then
         local maxDistance = math.pow( ( isUnit and UVUnitPTEMPMaxDistance:GetInt() ) or UVPTEMPMaxDistance:GetInt(), 2 )
 
         for _, v in pairs( vehiclePool ) do
-            local vehicleDistance = v:WorldSpaceCenter():DistToSqr(carPos)
-            if UVIsVehicleInCone( car, v, 90, maxDistance ) and vehicleDistance < shortestTargetDistance and not v.LockedOnBy and not v.wrecked then
-                target = v
-                shortestTargetDistance = vehicleDistance
-                break
+            if IsValid(v) then
+                local vehicleDistance = v:WorldSpaceCenter():DistToSqr(carPos)
+                if UVIsVehicleInCone( car, v, 90, maxDistance ) and vehicleDistance < shortestTargetDistance and not v.LockedOnBy and not v.wrecked then
+                    target = v
+                    shortestTargetDistance = vehicleDistance
+                    break
+                end
             end
         end
 

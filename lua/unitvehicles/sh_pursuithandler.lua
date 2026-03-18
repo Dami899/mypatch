@@ -1345,6 +1345,13 @@ if SERVER then
 					UVResourcePointsTimer = CurTime()
 					UVResourcePointsTimerMax = UVBackupTimerMax
 					UVBackupUnderway = true
+
+					if #UVWantedTableVehicle > 0 then
+						for _, v in pairs(UVWantedTableVehicle) do
+							UVAddInfraction(v, 'resource', true)
+						end
+					end
+
 					timer.Simple(1, function()
 						local units = ents.FindByClass("npc_uv*")
 						local random_entry = math.random(#units)
@@ -1718,14 +1725,14 @@ if SERVER then
 
 					if not check then
 						for _, unit in pairs(UVUnitVehicles) do
-								if UVVisualOnTarget(unit, v) then
-									v.inunitview = true
-									table.insert(visible_suspects, v)
-								else
-									if not table.HasValue(visible_suspects, v) then
-										v.inunitview = false 
-									end
+							if UVVisualOnTarget(unit, v) then
+								v.inunitview = true
+								table.insert(visible_suspects, v)
+							else
+								if not table.HasValue(visible_suspects, v) then
+									v.inunitview = false 
 								end
+							end
 						end
 					end
 
@@ -1790,9 +1797,15 @@ if SERVER then
 			if not UVEnemyEscaping then
 				UVEnemyEscaping = true
 				UVCooldownProgressTimeout = CurTime()
+
+				for _, v in pairs(UVWantedTableVehicle) do
+					UVAddInfraction(v, 'resist', true)
+				end
+
 				if timer.Exists("UVTimeTillNextHeat") then
 					timer.Pause("UVTimeTillNextHeat")
 				end
+
 				if Chatter:GetBool() and not UVCalm and not UVEnemyBusted then
 					if next(ents.FindByClass("npc_uv*")) ~= nil then
 						local units = ents.FindByClass("npc_uv*")
@@ -2126,9 +2139,17 @@ if SERVER then
 					escapedtable["Deploys"] = UVDeploys
 					escapedtable["Roadblocks"] = UVRoadblocksDodged
 					escapedtable["Spikestrips"] = UVSpikestripsDodged
-					net.Start( "UVHUDEscapedDebrief" )
-					net.WriteTable(escapedtable)
-					net.Send(UVWantedTableDriver)
+
+					for _, v in pairs(UVWantedTableDriver) do
+						local vehicle = UVGetVehicle(driver)
+						local infractionstable = vehicle and vehicle.Infractions or {}
+
+						net.Start( "UVHUDEscapedDebrief" )
+						net.WriteTable(escapedtable)
+						net.WriteTable(infractionstable)
+						net.Send(v)
+					end
+
 					net.Start( "UVHUDCopModeEscapedDebrief" )
 					net.WriteTable(escapedtable)
 					net.Send(UVPlayerUnitTablePlayers)
@@ -2455,11 +2476,6 @@ else -- CLIENT Settings | HUD/Options
 
 	local displaying_busted = false 
 	UVSettingKeybind = false
-
-	local UVHUDPursuitRespawnNoticeStarted = false
-	local UVHUDPursuitRespawnNoticeTriggered = false
-	local UVHUDPursuitRespawnNoticeEndTime = nil
-	local UVHUDPursuitRespawnNoticeStartTime = nil
 
 	local UVHUDScreenFlashHeatUp = 0
 
@@ -3994,30 +4010,6 @@ else -- CLIENT Settings | HUD/Options
 		local entities = ents.GetAll()
 		local box_color = Color(0, 255, 0)
 
-		
-		if UVHUDPursuitRespawnNoticeStarted and not UVHUDPursuitRespawnNoticeTriggered then
-			UVHUDPursuitRespawnNoticeTriggered = true
-			UVHUDPursuitRespawnNoticeStartTime = CurTime()
-		end
-
-		if not UVHUDPursuitRespawnNoticeStarted then
-			UVHUDPursuitRespawnNoticeTriggered = false
-		end
-
-		-- if localPlayer.uvspawningunit and localPlayer.uvspawningunit.vehicle then
-			-- local elapsed = CurTime() - localPlayer.uvspawningunit.startTime
-			-- local remaining = math.max(0, localPlayer.uvspawningunit.cooldown - elapsed)
-			-- local carn = lang(localPlayer.uvspawningunit.vehicle)
-			-- local timel = string.format("%.1f", remaining)
-
-			-- local text = "%s %s"
-			-- if RandomPlayerUnits:GetBool() then
-				-- text = string.format( UVString("uv.chase.select.spawning.cooldown.random"), timel )
-			-- else
-				-- text = string.format( UVString("uv.chase.select.spawning.cooldown"), carn, timel )
-			-- end
-		-- end
-
 		if not RacerTags:GetBool() or uvclientjammed then
 			if GMinimap then
 				for _, ent in pairs(UVHUDWantedSuspects) do
@@ -4525,10 +4517,8 @@ else -- CLIENT Settings | HUD/Options
 		local msg = net.ReadString()
 
 		if vehicle == "" then
-			UVHUDPursuitRespawnNoticeStarted = false
 			LocalPlayer().uvspawningunit = nil
 		else
-			UVHUDPursuitRespawnNoticeStarted = true
 			LocalPlayer().uvspawningunit = {
 				vehicle = vehicle,
 				cooldown = cooldown,
@@ -4624,6 +4614,7 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive("UVHUDBustedDebrief", function()
 		local debrieftable = net.ReadTable()
+		local infractionstable = net.ReadTable()
 
 		if UVHUDCopMode then return end
 
@@ -4631,15 +4622,15 @@ else -- CLIENT Settings | HUD/Options
 		local UVRoadblocksDodged = debrieftable["Roadblocks"]
 		local UVSpikestripsDodged = debrieftable["Spikestrips"]
 
-		print("You have been busted by the Unit Vehicles!\n" .. 
-			"Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
-			"Pursuit Duration - " .. UVTimer .. "\n" ..
-			"Police Vehicles Involved - " .. UVDeploys .. "\n" ..
-			"Damaged Police Vehicles - " .. UVTags .. "\n" ..
-			"Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
-			"Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
-			"Spike Strips Dodged - " .. UVSpikestripsDodged
-		)
+		-- print("You have been busted by the Unit Vehicles!\n" .. 
+			-- "Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
+			-- "Pursuit Duration - " .. UVTimer .. "\n" ..
+			-- "Police Vehicles Involved - " .. UVDeploys .. "\n" ..
+			-- "Damaged Police Vehicles - " .. UVTags .. "\n" ..
+			-- "Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
+			-- "Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
+			-- "Spike Strips Dodged - " .. UVSpikestripsDodged
+		-- )
 
 		timer.Simple(5, function()
 			UVHUDDisplayBusting = false
@@ -4649,15 +4640,16 @@ else -- CLIENT Settings | HUD/Options
 		if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
 			UVMenu.CloseCurrentMenu()
 			timer.Simple(0.5, function()
-				hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable )
+				hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable, infractionstable )
 			end)
 			return
 		end
-		hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable )
+		hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable, infractionstable )
 	end)
 
 	net.Receive("UVHUDEscapedDebrief", function()
 		local debrieftable = net.ReadTable()
+		local infractionstable = net.ReadTable()
 
 		if UVHUDCopMode then return end
 
@@ -4665,24 +4657,24 @@ else -- CLIENT Settings | HUD/Options
 		local UVRoadblocksDodged = debrieftable["Roadblocks"]
 		local UVSpikestripsDodged = debrieftable["Spikestrips"]
 
-		print("You have escaped from the Unit Vehicles!\n" .. 
-			"Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
-			"Pursuit Duration - " .. UVTimer .. "\n" ..
-			"Police Vehicles Involved - " .. UVDeploys .. "\n" ..
-			"Damaged Police Vehicles - " .. UVTags .. "\n" ..
-			"Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
-			"Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
-			"Spike Strips Dodged - " .. UVSpikestripsDodged
-		)
-		
+		-- print("You have escaped from the Unit Vehicles!\n" .. 
+			-- "Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
+			-- "Pursuit Duration - " .. UVTimer .. "\n" ..
+			-- "Police Vehicles Involved - " .. UVDeploys .. "\n" ..
+			-- "Damaged Police Vehicles - " .. UVTags .. "\n" ..
+			-- "Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
+			-- "Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
+			-- "Spike Strips Dodged - " .. UVSpikestripsDodged
+		-- )
+
 		if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
 			UVMenu.CloseCurrentMenu()
 			timer.Simple(0.5, function()
-				hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable )
+				hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable, infractionstable )
 			end)
 			return
 		end
-		hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable )
+		hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable, infractionstable )
 	end)
 
 	net.Receive("UVHUDCopModeEscapedDebrief", function()
@@ -4768,7 +4760,6 @@ else -- CLIENT Settings | HUD/Options
 		end)
 	end)
 	
-
 	net.Receive('UV_Chatter', function()
 		local init_time = net.ReadFloat()
 		local audio_file = "sound/"..net.ReadString()
@@ -4827,7 +4818,6 @@ else -- CLIENT Settings | HUD/Options
 		end)
 	end)
 
-
 	net.Receive('UVBusted', function()
 		local array = net.ReadTable()
 
@@ -4837,11 +4827,26 @@ else -- CLIENT Settings | HUD/Options
 
 		if racer == LocalPlayer():GetName() then lp = true end
 
+		UVHUD_CloseTimedBar("reset_penalty")
 		hook.Run( 'UIEventHook', 'pursuit', 'onRacerBusted', racer, cop, lp )
 	end)
 
 	net.Receive("UVHUDWreckedDebrief", function()
 		UVMenu.OpenMenu(UVMenu.WreckedDebrief, true)
+	end)
+
+	net.Receive('UVInfractions', function()
+		local text = net.ReadString()
+		local number = net.ReadInt(5)
+		
+		-- text = UVString("uv.results.infractions") .. " " .. number .. ": " .. UVString("uv.infraction." .. text)
+
+		-- UV_UI.general.events.CenterNotification({
+            -- text = text,
+		-- })
+		
+		text = UVString("uv.infraction." .. text)
+		hook.Run( 'UIEventHook', 'pursuit', 'onInfraction', text, number )
 	end)
 
 	hook.Add("PopulateToolMenu", "UVMenu", function()

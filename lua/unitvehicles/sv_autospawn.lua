@@ -1614,7 +1614,7 @@ function UVAutoSpawnTraffic()
 	if neighbor then
 		local neighborpoint = neighbor["Target"]
 		local neighbordistance = neighborpoint - uvspawnpoint
-		uvspawnpointangles = neighbordistance:Angle()
+		uvspawnpointangles = GetConVar("unitvehicle_traffic_assigntraffic"):GetBool() and neighbordistance:Angle() or neighbordistance:Angle()+Angle(0,180,0)
 	else
 		uvspawnpointangles = Angle(0,math.random(0,360),0)
 	end

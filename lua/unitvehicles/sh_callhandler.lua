@@ -1,16 +1,5 @@
 AddCSLuaFile()
 
---[[
-Type 1 = Speeding
-• Exceeding posted speed limits
-Type 2 = Damage To Property
-• Colliding with non-world entities
-Type 3 = Hit And Run
-• Colliding with vehicles
-Type 4 = Street Racing
-• Commiting either of the crimes above with multiple potential suspects
-]]
-
 local dvd = DecentVehicleDestination
 
 if SERVER then
@@ -89,6 +78,7 @@ if SERVER then
                 end
 			end
 
+            UVCheckForOffRoaders()
             UVCheckForSpeeders()
             UVTimeToCheckForPotentialSuspects = CurTime()
         end
@@ -107,6 +97,34 @@ if SERVER then
         end
         
     end)
+
+    function UVCheckForOffRoaders()
+        if next(UVPotentialSuspects) == nil or next(dvd.Waypoints) == nil then return end
+
+        for _, v in pairs(UVPotentialSuspects) do
+            local startPos = v:GetPos()
+            local endPos = startPos + (vector_up * -100) --being airborne also counts as offroading
+
+            local trace = util.TraceLine({
+                start = startPos,
+                endpos = endPos,
+                filter = v,
+                mask = MASK_SOLID_BRUSHONLY
+            })
+
+            local surfaceMaterial = trace.MatType
+            if surfaceMaterial == MAT_CONCRETE or surfaceMaterial == MAT_ASPHALT then
+                return
+            end
+
+            local texture = trace.HitTexture
+            if string.find(texture, "road") or string.find(texture, "asphalt") then return end
+
+            UVAddInfraction(v, 'offroad')
+
+        end
+
+    end
     
     function UVCheckForSpeeders()
         if next(UVPotentialSuspects) == nil or next(dvd.Waypoints) == nil then return end
@@ -114,7 +132,7 @@ if SERVER then
         local SpeedTable = {}
         
         for k, v in pairs(UVPotentialSuspects) do
-            local speed = v:GetVelocity():Length2DSqr()
+            local speed = v:GetVelocity():LengthSqr()
             table.insert(SpeedTable, speed)
         end
         
@@ -132,18 +150,49 @@ if SERVER then
         else
             SpeedLimit = SpeedLimitConVar
         end
+
+        local infraction = 'speed'
+        local infractionspeed = speed - SpeedLimit
         
-        if speed > (SpeedLimit+30976) then
-            UVPreInfractionCount = UVPreInfractionCount + 1
-            if UVPreInfractionCount >= 10 then
-                UVCallInitiate(suspect, 1)
-            end
+        if infractionspeed > 3097600 then --reckless
+            infraction = 'reckless'
+            UVAddInfraction(suspect, infraction)
+        elseif infractionspeed > 774400 then --veryspeed
+            infraction = 'veryspeed'
+            UVAddInfraction(suspect, infraction)
+        elseif infractionspeed > 30976 then --speed
+            UVAddInfraction(suspect, infraction)
         end
         
     end
+
+    --[[
+        Call Type 1 = Speeding
+        Call Type 2 = Damage To Property
+        Call Type 3 = Hit And Run
+        Call Type 4 = Street Racing
+    ]]
+    local CALL_TYPE = {
+        ['speed'] = 1,
+	    ['veryspeed'] = 1,
+	    ['reckless'] = 1,
+	    ['rampolice'] = 3,
+	    ['ram'] = 3,
+	    ['property'] = 2,
+	    ['resist'] = 1,
+	    ['offroad'] = 1,
+	    ['streetrace'] = 4,
+	    ['resource'] = 1,
+	    ['endanger'] = 1,
+	    ['homicide'] = 2,
+    }
     
-    function UVCallInitiate(suspectvehicle, type)
-        if not GetConVar("unitvehicle_callresponse"):GetBool() or UVTargeting or uvcallexists then return end
+    function UVCallInitiate(suspectvehicle, infraction)
+        if not GetConVar("unitvehicle_callresponse"):GetBool() or UVTargeting or uvcallexists or not UVPassConVarFilter(suspectvehicle) then return end
+
+        local calltype = CALL_TYPE[infraction] or 1
+
+        UVAddInfraction(suspectvehicle, infraction, true)
         
         UVPreInfractionCount = 0
         
@@ -152,24 +201,24 @@ if SERVER then
         local calllocation = suspectvehicle:GetPos()+(vector_up * 50)
         
         if #UVPotentialSuspects > 1 then --Multiple suspects
-            type = 4
+            calltype = 4
         end
         
         local timecheck = 5
         
-        if type == 1 then --Speeding
+        if calltype == 1 then --Speeding
             if GetConVar("unitvehicle_chatter"):GetBool() then
                 timecheck = UVChatterDispatchCallSpeeding(UVHeatLevel)
             end
-        elseif type == 2 then --Damage To Property
+        elseif calltype == 2 then --Damage To Property
             if GetConVar("unitvehicle_chatter"):GetBool() then
                 timecheck = UVChatterDispatchCallDamageToProperty(UVHeatLevel)
             end
-        elseif type == 3 then --Hit and Run
+        elseif calltype == 3 then --Hit and Run
             if GetConVar("unitvehicle_chatter"):GetBool() then
                 timecheck = UVChatterDispatchCallHitAndRun(UVHeatLevel)
             end
-        elseif type == 4 then --Street Racing
+        elseif calltype == 4 then --Street Racing
             if GetConVar("unitvehicle_chatter"):GetBool() then
                 timecheck = UVChatterDispatchCallStreetRacing(UVHeatLevel)
             end
@@ -187,7 +236,7 @@ if SERVER then
         end)
         
         timer.Simple(timecheck, function()
-            if type ~= 4 then
+            if calltype ~= 4 then
                 UVCallReportDescription(suspectvehicle, calllocation)
             else
                 UVCallRespond(suspectvehicle, true) --No questions asked

@@ -171,6 +171,10 @@ UVMaterials = {
     ["SCANNER_LEDS"] = Material("unitvehicles/hud/RADAR_LEDS_COLOR.png"),
     ["SCANNER_LEDS_INV"] = Material("unitvehicles/hud/RADAR_LEDS_COLOR_INV.png"),
     
+    ["INFRACTIONS_BG"] = Material("unitvehicles/hud/outter_ring_infractions.png"),
+    ["INFRACTIONS_BG_RING"] = Material("unitvehicles/hud/outter_ring.png"),
+    ["INFRACTIONS_ICON"] = Material("unitvehicles/hud/generic_infraction.png"),
+	
     -- Carbon
     ["TAKEDOWN_CIRCLE_CARBON"] = Material("unitvehicles/icons_carbon/FULL_CIRCLE.png"),
     ["TAKEDOWN_RING_CARBON"] = Material("unitvehicles/icons_carbon/FULL_CIRCLE_RING.png"),
@@ -999,7 +1003,7 @@ end
 	UVHUDTimedBars = UVHUDTimedBars or {}
 	UVHUDActiveBar = UVHUDActiveBar or nil
 	
-	function UVHUD_AddTimedBar(id, duration, labelToken, priority, label2, args)
+	function UVHUD_AddTimedBar(id, duration, labelToken, priority, label2, args, reversedTexts)
 		local now = CurTime()
 
 		UVHUDTimedBars[id] = {
@@ -1013,7 +1017,8 @@ end
 
 			closeTime = nil,
 			hidden = false,
-			args = args
+			args = args,
+			reversedTexts = reversedTexts or false
 		}
 	end
 	
@@ -1052,6 +1057,7 @@ end
 		local labelToken = bar.label
 		local label2Token = bar.label2
 		local closingTime = bar.closeTime
+		local reverseTexts = bar.reversedTexts
 		
 		local animTime = now - startTime
 
@@ -1171,8 +1177,13 @@ end
 				end
 
 				surface.SetAlphaMultiplier(textAlpha)
-				markup.Parse( "<font=UVSettingsFontBig>" .. text1 .. "</font>", w ):Draw(w * 0.5, h * 0.925, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-				markup.Parse( "<font=UVSettingsFontBig>" .. text2 .. "</font>", w ):Draw(w * 0.5, h * 0.96, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				if reverseTexts then
+					markup.Parse( "<font=UVSettingsFontBig>" .. text2 .. "</font>", w ):Draw(w * 0.5, h * 0.925, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+					markup.Parse( "<font=UVSettingsFontBig>" .. text1 .. "</font>", w ):Draw(w * 0.5, h * 0.96, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				else
+					markup.Parse( "<font=UVSettingsFontBig>" .. text1 .. "</font>", w ):Draw(w * 0.5, h * 0.925, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+					markup.Parse( "<font=UVSettingsFontBig>" .. text2 .. "</font>", w ):Draw(w * 0.5, h * 0.96, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				end
 				surface.SetAlphaMultiplier(1)
 			end
 		end

@@ -757,6 +757,16 @@ UV_UI.pursuit.original.events = {
         local ply = LocalPlayer()
 		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.fined"), finenr))
 	end,
+
+    onInfraction = function(text, number)
+
+        text = UVString("uv.results.infractions") .. " " .. number .. ": " .. text
+
+		UV_UI.general.events.CenterNotification({
+            text = text,
+		})
+        
+	end,
 }
 
 local function original_racing_main( ... )
@@ -956,8 +966,8 @@ local function original_pursuit_main( ... )
 		
 	local bottomyplus = 0
 
-	if (LocalPlayer().uvspawningunit and LocalPlayer().uvspawningunit.vehicle) or (not UVHUDCopMode and UVHUDRaceFinishCountdownStarted) then
-		bottomyplus = -(h * 0.1)
+	if UVHUDActiveBar then
+		bottomyplus = -(h * 0.075)
 	end
 
 	local bottomy = h * 0.9 + bottomyplus

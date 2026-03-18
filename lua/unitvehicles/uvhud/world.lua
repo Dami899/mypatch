@@ -1687,7 +1687,7 @@ local function world_pursuit_main( ... )
     -- [ Bottom Info Box ] --
 	local bottomyplus = 0
 
-    if (LocalPlayer().uvspawningunit and LocalPlayer().uvspawningunit.vehicle) or (not UVHUDCopMode and UVHUDRaceFinishCountdownStarted) then
+    if UVHUDActiveBar then
         bottomyplus = -(h * 0.065)
     end
 
