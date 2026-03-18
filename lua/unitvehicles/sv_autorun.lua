@@ -2676,10 +2676,12 @@ local function updateinfraction(vehicle, infraction)
 		local number = table.Count(vehicle.Infractions)
 		local driver = UVGetDriver(vehicle)
 
-		net.Start('UVInfractions')
-			net.WriteString(infraction)
-			net.WriteInt(number, 5)
-		net.Send(driver)
+		if driver and driver:IsPlayer() then
+			net.Start('UVInfractions')
+				net.WriteString(infraction)
+				net.WriteInt(number, 5)
+			net.Send(driver)
+		end
     end
 end
 

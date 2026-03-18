@@ -1319,11 +1319,13 @@ if SERVER then
         local maxDistance = math.pow( ( isUnit and UVUnitPTEMPMaxDistance:GetInt() ) or UVPTEMPMaxDistance:GetInt(), 2 )
 
         for _, v in pairs( vehiclePool ) do
-            local vehicleDistance = v:WorldSpaceCenter():DistToSqr(carPos)
-            if UVIsVehicleInCone( car, v, 90, maxDistance ) and vehicleDistance < shortestTargetDistance and not v.LockedOnBy and not v.wrecked then
-                target = v
-                shortestTargetDistance = vehicleDistance
-                break
+            if IsValid(v) then
+                local vehicleDistance = v:WorldSpaceCenter():DistToSqr(carPos)
+                if UVIsVehicleInCone( car, v, 90, maxDistance ) and vehicleDistance < shortestTargetDistance and not v.LockedOnBy and not v.wrecked then
+                    target = v
+                    shortestTargetDistance = vehicleDistance
+                    break
+                end
             end
         end
 
