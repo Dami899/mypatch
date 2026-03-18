@@ -1380,13 +1380,21 @@ UV_UI.pursuit.mostwanted.events = {
 			immediate = true,
 		})
 	end,
-	onFined = function( finenr )
+	onFined = function( finenr, finesdue )
 		UV_UI.racing.mostwanted.events.CenterNotification({
 			text = string.format( UVString("uv.hud.fine.fined"), finenr),
 			textNoFall = true,
 			noIcon = true,
 			immediate = true,
 		})
+		timer.Simple(3, function()
+			UV_UI.racing.mostwanted.events.CenterNotification({
+				text = string.format( UVString("uv.hud.fine.cost"), finesdue),
+				textNoFall = true,
+				noIcon = true,
+				immediate = true,
+			})
+		end)
 	end,
 	InfractionNoti = function()
 		local state = UV_UI.pursuit.mostwanted.states
@@ -1537,6 +1545,21 @@ concommand.Add("uv_test_infraction", function() -- DEBUGGING
 	}
 	
     UV_UI.pursuit.mostwanted.events.onInfraction(UVString(t[math.random(#t)]))
+
+	UV_UI.racing.mostwanted.events.CenterNotification({
+		text = string.format( UVString("uv.hud.fine.fined"), 1),
+		textNoFall = true,
+		noIcon = true,
+		immediate = true,
+	})
+	timer.Simple(2.5, function()
+		UV_UI.racing.mostwanted.events.CenterNotification({
+			text = string.format( UVString("uv.hud.fine.cost"), 1000),
+			textNoFall = true,
+			noIcon = true,
+			immediate = true,
+		})
+	end)
 end)
 
 UV_UI.pursuit.mostwanted.scannerConfig = {

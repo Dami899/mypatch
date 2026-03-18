@@ -2624,7 +2624,7 @@ end
 	'speed' = Speeding (reach 10+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
 	'veryspeed' = Excessive Speeding (reach 50+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
 	'reckless' = Reckless Driving (reach 100+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
-	'rampolice' = Ramming a Police Vehicle (hit a Unit)
+	'assault' = Ramming a Police Vehicle (hit a Unit)
 	'ram' = Hit & Run (hit a Traffic)
 	'property' = Damage to Property (hit a non-vehicle entity)
 	'resist' = Resisting Arrest (enter cooldown)
@@ -2635,8 +2635,26 @@ end
 	'homicide' = Vehicular Homicide (cause a vehicle to explode/run over a pedestrian)
 
 	*you must be seen by the Unit or be reported by a witness for an infraction to be counted, except for Resisting Arrest and Overuse of Resources
-	*infractions can be repeated and counted, but only inform the client if they have commited a NEW one
+	*infractions can be repeated and counted for calculating fines, but only inform the client if they have commited a NEW one
 ]]
+
+--[[
+	Fine Due = INFRACTION_FINE * UVHeatLevel
+]]
+UVINFRACTION_FINE = {
+	['speed'] = 150,
+	['veryspeed'] = 350,
+	['reckless'] = 1000,
+	['rampolice'] = 350,
+	['ram'] = 300,
+	['property'] = 100,
+	['resist'] = 300,
+	['offroad'] = 50,
+	['streetrace'] = 5000,
+	['resource'] = 100,
+	['endanger'] = 200,
+	['homicide'] = 10000,
+}
 
 local PRE_INFRACTION_COUNT = {
 	['speed'] = 1,
@@ -2683,6 +2701,14 @@ local function updateinfraction(vehicle, infraction)
 			net.Send(driver)
 		end
     end
+
+	if not vehicle.FinesDue then
+		vehicle.FinesDue = 0
+	end
+
+	for k, v in pairs(vehicle.Infractions) do
+		vehicle.FinesDue = vehicle.FinesDue + (UVINFRACTION_FINE[k] or 0) * (UVHeatLevel / 10)
+	end
 end
 
 function UVAddInfraction(vehicle, infraction, reported)
@@ -2920,6 +2946,7 @@ function UVBustEnemy(self, enemy, finearrest)
 	end
 	local timeacknowledge = 5
 	local enemyDriver = UVGetDriver(enemy)
+	local finesdue = enemy.FinesDue or 0
 	
 	if UVTargeting or self.UVAir or finearrest then --Arrest
 		if enemy:IsVehicle() then
@@ -3039,6 +3066,7 @@ function UVBustEnemy(self, enemy, finearrest)
 					net.Start( "UVHUDBustedDebrief" )
 					net.WriteTable(bustedtable)
 					net.WriteTable(infractionstable)
+					net.WriteInt(finesdue, 32)
 					net.Send(driver)
 				end
 				driver:KillSilent()
@@ -3101,6 +3129,7 @@ function UVBustEnemy(self, enemy, finearrest)
 				-- driver:PrintMessage( HUD_PRINTCENTER, "You have been fined! You have 10 seconds to drive away.")
 				net.Start( "UVFined" )
 				net.WriteUInt( enemy.UVFinedCount, 3 )
+				net.WriteInt(finesdue, 32)
 				net.Send(driver)
 			end)
 			driver:EmitSound("ui/pursuit/fined.wav", 0, 100, 0.5)
@@ -3118,6 +3147,10 @@ function UVBustEnemy(self, enemy, finearrest)
 			UVSetELSSound(false, car)
 		end
 	end
+
+	--Clear record
+	enemy.FinesDue = 0
+	enemy.Infractions = {}
 
 end
 

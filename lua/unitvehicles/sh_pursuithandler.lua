@@ -2141,13 +2141,18 @@ if SERVER then
 					escapedtable["Spikestrips"] = UVSpikestripsDodged
 
 					for _, v in pairs(UVWantedTableDriver) do
-						local vehicle = UVGetVehicle(driver)
-						local infractionstable = vehicle and vehicle.Infractions or {}
+						local vehicle = UVGetVehicle(v)
 
-						net.Start( "UVHUDEscapedDebrief" )
-						net.WriteTable(escapedtable)
-						net.WriteTable(infractionstable)
-						net.Send(v)
+						if IsValid(vehicle) then
+							local infractionstable = vehicle and vehicle.Infractions or {}
+							local finesdue = vehicle.FinesDue or 0
+
+							net.Start( "UVHUDEscapedDebrief" )
+							net.WriteTable(escapedtable)
+							net.WriteTable(infractionstable)
+							net.WriteInt(finesdue, 32)
+							net.Send(v)
+						end
 					end
 
 					net.Start( "UVHUDCopModeEscapedDebrief" )
@@ -3309,7 +3314,8 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive( "UVFined", function()
 		local finenr = net.ReadUInt(2)
-		hook.Run( 'UIEventHook', 'pursuit', 'onFined', finenr )
+		local finesdue = net.ReadInt(32)
+		hook.Run( 'UIEventHook', 'pursuit', 'onFined', finenr, finesdue )
 	end)
 
 	net.Receive( "UVFineArrest", function()
@@ -4615,22 +4621,13 @@ else -- CLIENT Settings | HUD/Options
 	net.Receive("UVHUDBustedDebrief", function()
 		local debrieftable = net.ReadTable()
 		local infractionstable = net.ReadTable()
+		local finesdue = net.ReadInt(32)
 
 		if UVHUDCopMode then return end
 
 		local UVDeploys = debrieftable["Deploys"]
 		local UVRoadblocksDodged = debrieftable["Roadblocks"]
 		local UVSpikestripsDodged = debrieftable["Spikestrips"]
-
-		-- print("You have been busted by the Unit Vehicles!\n" .. 
-			-- "Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
-			-- "Pursuit Duration - " .. UVTimer .. "\n" ..
-			-- "Police Vehicles Involved - " .. UVDeploys .. "\n" ..
-			-- "Damaged Police Vehicles - " .. UVTags .. "\n" ..
-			-- "Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
-			-- "Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
-			-- "Spike Strips Dodged - " .. UVSpikestripsDodged
-		-- )
 
 		timer.Simple(5, function()
 			UVHUDDisplayBusting = false
@@ -4650,22 +4647,13 @@ else -- CLIENT Settings | HUD/Options
 	net.Receive("UVHUDEscapedDebrief", function()
 		local debrieftable = net.ReadTable()
 		local infractionstable = net.ReadTable()
+		local finesdue = net.ReadInt(32)
 
 		if UVHUDCopMode then return end
 
 		local UVDeploys = debrieftable["Deploys"]
 		local UVRoadblocksDodged = debrieftable["Roadblocks"]
 		local UVSpikestripsDodged = debrieftable["Spikestrips"]
-
-		-- print("You have escaped from the Unit Vehicles!\n" .. 
-			-- "Total Bounty - " .. string.Comma(UVBounty).."\n" .. 
-			-- "Pursuit Duration - " .. UVTimer .. "\n" ..
-			-- "Police Vehicles Involved - " .. UVDeploys .. "\n" ..
-			-- "Damaged Police Vehicles - " .. UVTags .. "\n" ..
-			-- "Immobilized Police Vehicles - " .. UVWrecks .. "\n" ..
-			-- "Roadblocks Dodged - " .. UVRoadblocksDodged .. "\n" ..
-			-- "Spike Strips Dodged - " .. UVSpikestripsDodged
-		-- )
 
 		if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
 			UVMenu.CloseCurrentMenu()
