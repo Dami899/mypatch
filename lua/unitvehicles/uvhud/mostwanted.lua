@@ -1380,9 +1380,9 @@ UV_UI.pursuit.mostwanted.events = {
 			immediate = true,
 		})
 	end,
-	onFined = function( finenr )
+	onFined = function( finenr, finesdue )
 		UV_UI.racing.mostwanted.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finenr),
+			text = string.format( UVString("uv.hud.fine.fined"), finesdue, finenr),
 			textNoFall = true,
 			noIcon = true,
 			immediate = true,

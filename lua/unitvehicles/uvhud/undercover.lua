@@ -1179,9 +1179,9 @@ UV_UI.pursuit.undercover.events = {
 			immediate = true,
 		})
 	end,
-	onFined = function( finenr )
+	onFined = function( finenr, finesdue )
 		UV_UI.racing.undercover.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finenr),
+			text = string.format( UVString("uv.hud.fine.fined"), finesdue, finenr),
 			color = Color(0,194,255),
 			immediate = true,
 		})

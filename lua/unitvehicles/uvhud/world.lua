@@ -1225,9 +1225,9 @@ end,
 			timer = 3,
 		})
 	end,
-	onFined = function( finenr )
+	onFined = function( finenr, finesdue )
 		UV_UI.racing.world.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finenr),
+			text = string.format( UVString("uv.hud.fine.fined"), finesdue, finenr),
 			color = Color( 137, 242, 248 ),
 			colorbg = Color(66, 194, 222, 50),
 			immediate = true,

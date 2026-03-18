@@ -753,9 +753,9 @@ UV_UI.pursuit.original.events = {
 		ply:PrintMessage(HUD_PRINTCENTER, UVString("uv.hud.fine.pullover"))
 	end,
 
-	onFined = function( finenr )
+	onFined = function( finenr, finesdue )
         local ply = LocalPlayer()
-		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.fined"), finenr))
+		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.fined"), finesdue, finenr))
 	end,
 
     onInfraction = function(text, number)
@@ -1169,6 +1169,7 @@ local function original_pursuit_main( ... )
                         draw.DrawText( string.format( lang("uv.chase.backupin"), UVBackupTimer ), "UVFont-Smaller",w/2,bottomy + (h * 0.05), UVResourcePointsColor, TEXT_ALIGN_CENTER )
                     end
                 else
+                    local busttext = ""
                     if busttime >= 3 then
                         busttext = lang("uv.chase.busting")
                         bustcol = Color( 255, 0, 0)
