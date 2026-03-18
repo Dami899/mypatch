@@ -755,7 +755,10 @@ UV_UI.pursuit.original.events = {
 
 	onFined = function( finenr, finesdue )
         local ply = LocalPlayer()
-		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.fined"), finesdue, finenr))
+		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.fined"), finenr))
+		timer.Simple(3, function()
+			ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.cost"), finesdue))
+		end)
 	end,
 
     onInfraction = function(text, number)

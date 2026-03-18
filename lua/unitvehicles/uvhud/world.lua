@@ -223,7 +223,6 @@ UV_UI.racing.world.events = {
 			end
 		end)
 	end,
-
 	ShowResults = function(sortedRacers) -- World
 		local w, h = ScrW(), ScrH()
 
@@ -498,7 +497,6 @@ UV_UI.racing.world.events = {
 			end
 		end)
 	end,
-
 	onRaceEnd = function( sortedRacers, stringArray )
 		local triggerTime = CurTime()
 		local duration = 10
@@ -539,7 +537,6 @@ UV_UI.racing.world.events = {
 			end
 		end)
 	end,
-
 	onLapComplete = function( participant, new_lap, old_lap, lap_time, lap_time_cur, is_local_player, is_global_best, lap_final, local_finished, user_finished, suppress_lap_ui )
 		local name = UVHUDRaceInfo.Participants[participant] and UVHUDRaceInfo.Participants[participant].Name or "Unknown"
 		
@@ -576,7 +573,6 @@ UV_UI.racing.world.events = {
 			colorbg = Color(66, 194, 222, 50),
 		})
 	end,
-		
 	onParticipantDisqualified = function(data)
 		local participant = data.Participant
 		local is_local_player = data.is_local_player
@@ -597,7 +593,6 @@ UV_UI.racing.world.events = {
 			timer = is_local_player and 3 or 1,
 		})
 	end,
-
 	onRaceStartTimer = function(data)
 		local starttime = data.starttime
 		local noready = data.noReadyText
@@ -738,7 +733,6 @@ UV_UI.racing.world.events = {
 		end)
 
 	end,
-
 	onLapSplit = function(participant, checkpoint, is_local_player, numParticipants)
 		if not is_local_player then return end
 		if numParticipants <= 1 then return end
@@ -777,7 +771,6 @@ UV_UI.racing.world.events = {
 			colorbg = Color(66, 194, 222, 50),
 		})
 	end,
-
 	onWrongWay = function(timestamp, isWrongWay)
 		if isWrongWay then
 			UV_UI.racing.world.events.CenterNotification({
@@ -875,7 +868,6 @@ UV_UI.pursuit.world.events = {
     onHeatLevelUpdate = function(...)
         
     end,
-        
 	onRacerBusted = function( racer, cop, lp )
 		local cnt = string.format(UVString("uv.hud.racer.arrested"), racer, UVString(cop))
 		
@@ -890,7 +882,6 @@ UV_UI.pursuit.world.events = {
 			immediate = lp and true or false,
 		})
 	end,
-	
     ShowDebrief = function(params) -- Carbon
         if UVHUDDisplayRacing then return end
         if IsValid(ResultPanel) then ResultPanel:Remove() end
@@ -1165,57 +1156,52 @@ UV_UI.pursuit.world.events = {
 			end)
 		end
     end,
-    
-onRacerEscapedDebrief = function(escapedtable)
-    local params = {
-        dataTable = escapedtable,
-        color = Color(255, 183, 61),
-        iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = UVString("uv.results.escapedfrom"),
-		faction = "Racer",
-    }
-    UV_UI.pursuit.world.events.ShowDebrief(params)
-end,
-
-onRacerBustedDebrief = function(bustedtable)
-    local params = {
-        dataTable = bustedtable,
-        color = Color(255, 183, 61),
-        iconMaterial = UVMaterials['RESULTCOP'],
-		titleText = UVString("uv.results.busted"),
-        titleVar = string.format( UVString("uv.results.bustedby"), UVString( bustedtable["Unit"] ) ),
-		spawnAsUnit = true,
-		bustedBG = true,
-		faction = "Racer",
-    }
-    UV_UI.pursuit.world.events.ShowDebrief(params)
-end,
-
-onCopBustedDebrief = function(bustedtable)
-    local params = {
-        dataTable = bustedtable,
-        color = Color(61, 183, 255),
-        textcolor = Color(142, 221, 255, 107),
-        iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = UVString("uv.results.busted"),
-        titleVar = UVString("uv.results.suspects.busted"),
-        -- titleVar = string.format( UVString("uv.results.suspects.busted"), bustedtable["Unit"] ),
-    }
-    UV_UI.pursuit.world.events.ShowDebrief(params)
-end,
-
-onCopEscapedDebrief = function(escapedtable)
-    local params = {
-        dataTable = escapedtable,
-        color = Color(61, 183, 255),
-        textcolor = Color(142, 221, 255, 107),
-        iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = string.format(UVString("uv.results.suspects.escaped.num"), UVHUDWantedSuspectsNumber),
-		bustedBG = true,
-    }
-    UV_UI.pursuit.world.events.ShowDebrief(params)
-end,
-
+	onRacerEscapedDebrief = function(escapedtable)
+		local params = {
+			dataTable = escapedtable,
+			color = Color(255, 183, 61),
+			iconMaterial = UVMaterials['RESULTCOP'],
+			titleText = UVString("uv.results.escapedfrom"),
+			faction = "Racer",
+		}
+		UV_UI.pursuit.world.events.ShowDebrief(params)
+	end,
+	onRacerBustedDebrief = function(bustedtable)
+		local params = {
+			dataTable = bustedtable,
+			color = Color(255, 183, 61),
+			iconMaterial = UVMaterials['RESULTCOP'],
+			titleText = UVString("uv.results.busted"),
+			titleVar = string.format( UVString("uv.results.bustedby"), UVString( bustedtable["Unit"] ) ),
+			spawnAsUnit = true,
+			bustedBG = true,
+			faction = "Racer",
+		}
+		UV_UI.pursuit.world.events.ShowDebrief(params)
+	end,
+	onCopBustedDebrief = function(bustedtable)
+		local params = {
+			dataTable = bustedtable,
+			color = Color(61, 183, 255),
+			textcolor = Color(142, 221, 255, 107),
+			iconMaterial = UVMaterials['RESULTCOP'],
+			titleText = UVString("uv.results.busted"),
+			titleVar = UVString("uv.results.suspects.busted"),
+			-- titleVar = string.format( UVString("uv.results.suspects.busted"), bustedtable["Unit"] ),
+		}
+		UV_UI.pursuit.world.events.ShowDebrief(params)
+	end,
+	onCopEscapedDebrief = function(escapedtable)
+		local params = {
+			dataTable = escapedtable,
+			color = Color(61, 183, 255),
+			textcolor = Color(142, 221, 255, 107),
+			iconMaterial = UVMaterials['RESULTCOP'],
+			titleText = string.format(UVString("uv.results.suspects.escaped.num"), UVHUDWantedSuspectsNumber),
+			bustedBG = true,
+		}
+		UV_UI.pursuit.world.events.ShowDebrief(params)
+	end,
 	onPullOverRequest = function(...)
 		UV_UI.racing.world.events.CenterNotification({
 			text = UVString("uv.hud.fine.pullover"),
@@ -1227,12 +1213,21 @@ end,
 	end,
 	onFined = function( finenr, finesdue )
 		UV_UI.racing.world.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finesdue, finenr),
+			text = string.format( UVString("uv.hud.fine.fined"), finenr),
 			color = Color( 137, 242, 248 ),
 			colorbg = Color(66, 194, 222, 50),
 			immediate = true,
 			timer = 5,
 		})
+		timer.Simple(4, function()
+			UV_UI.racing.world.events.CenterNotification({
+				text = string.format( UVString("uv.hud.fine.cost"), finesdue),
+				color = Color( 137, 242, 248 ),
+				colorbg = Color(66, 194, 222, 50),
+				immediate = true,
+				timer = 5,
+			})
+		end)
 	end,
 }
 

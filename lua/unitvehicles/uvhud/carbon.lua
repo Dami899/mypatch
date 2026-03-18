@@ -1591,10 +1591,17 @@ UV_UI.pursuit.carbon.events = {
 	end,
 	onFined = function( finenr, finesdue )
 		UV_UI.racing.carbon.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finesdue, finenr),
+			text = string.format( UVString("uv.hud.fine.fined"), finenr),
 			noIcon = true,
 			immediate = true,
 		})
+		timer.Simple(3, function()
+			UV_UI.racing.carbon.events.CenterNotification({
+				text = string.format( UVString("uv.hud.fine.cost"), finesdue),
+				noIcon = true,
+				immediate = true,
+			})
+		end)
 	end,
 }
 
