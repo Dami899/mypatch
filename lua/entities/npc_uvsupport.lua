@@ -408,7 +408,7 @@ if SERVER then
 		if checkDist then
 			if targetPos:DistToSqr(self.v:WorldSpaceCenter()) > checkDist then return false end
 		end
-		
+
 		if considerVelocity then
 			local targetVel = vector_origin
 			local physObj = target:GetPhysicsObject()
@@ -426,7 +426,7 @@ if SERVER then
 				start = target:WorldSpaceCenter(), 
 				endpos = targetPos, 
 				mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
-				filter = {self, self.v, target, 'glide_wheel', 'npc_uv*'}
+				filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
 			})
 
 			if trace.Hit then targetPos = trace.HitPos end
@@ -438,7 +438,7 @@ if SERVER then
 			start = startPos, 
 			endpos = targetPos, 
 			mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
-			filter = {self, self.v, target, 'glide_wheel', 'npc_uv*'}
+			filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
 		})
 		
 		if tr.Fraction < 0.8 then return false end
@@ -455,7 +455,65 @@ if SERVER then
 		
 		-- return groundCheck.Hit and groundCheck.Fraction < 0.7
 	end
+
+	function ENT:StraightToTarget(target, considerVelocity, checkDist)
+		if not self.v or not target then
+			return false
+		end
+		
+		local targetPos = target:WorldSpaceCenter()
+
+		if checkDist then
+			if targetPos:DistToSqr(self.v:WorldSpaceCenter()) > checkDist then return false end
+		end
+
+		if considerVelocity then
+			local targetVel = vector_origin
+			local physObj = target:GetPhysicsObject()
+
+			if IsValid(physObj) then
+				local vel = physObj:GetVelocity()
+				targetVel = vel * 5
+			else
+				local vel = target:GetVelocity()
+				targetVel = vel * 5
+			end
+
+			targetPos = targetPos + targetVel
+			local trace = util.TraceLine({
+				start = target:WorldSpaceCenter(), 
+				endpos = targetPos, 
+				mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
+				filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
+			})
+
+			if trace.Hit then targetPos = trace.HitPos end
+		end
 	
+		local startPos = self.v:WorldSpaceCenter()
+		
+		local tr = util.TraceLine({
+			start = startPos, 
+			endpos = targetPos, 
+			mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
+			filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
+		})
+		
+		if tr.Fraction < 0.8 then return false end
+		
+		-- local midPoint = (startPos + targetPos) / 2
+		-- local groundCheck = util.TraceLine({
+		-- 	start = midPoint,
+		-- 	endpos = midPoint - Vector(0, 0, 250),
+		-- 	mask = MASK_NPCWORLDSTATIC,
+		-- 	filter = {self, self.v, target}
+		-- })
+
+		return true
+		
+		-- return groundCheck.Hit and groundCheck.Fraction < 0.7
+	end
+
 	function ENT:VisualOnTarget(target)
 		if not self.v or not target then
 			return
@@ -463,7 +521,7 @@ if SERVER then
 		local tr = util.TraceLine({start = self.v:WorldSpaceCenter(), endpos = target:WorldSpaceCenter(), mask = MASK_OPAQUE, filter = {self, self.v, target}}).Fraction==1
 		return tobool(tr)
 	end
-	
+
 	function ENT:ObstaclesNearby()
 		if not self.v or not self.v.rideheight then
 			return
@@ -480,7 +538,7 @@ if SERVER then
 
 		return tobool(Fraction and HitNormal)
 	end
-	
+
 	function ENT:ObstaclesNearbySide()
 		if not self.v or not self.v.width then
 			return
@@ -529,8 +587,6 @@ if SERVER then
 		return false
 
 	end
-
-	
 
 	function ENT:FriendlyNearbySide()
 		if not self.v or not self.v.width then
@@ -1431,7 +1487,7 @@ if SERVER then
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
 			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 4000000)
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
-			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC) or (InfMap and suspectOnWaypointGrid and suspectSameDirectionAsNPC and not suspectInView)
+			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC)
 			if eedist:LengthSqr() < 200000 and suspectInView then useDirectDriveBranch = true end
 			
 			if useDirectDriveBranch then

@@ -400,7 +400,7 @@ if SERVER then
 				start = target:WorldSpaceCenter(), 
 				endpos = targetPos, 
 				mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
-			filter = {self, self.v, target, 'glide_wheel', 'npc_uv*'}
+				filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
 			})
 
 			if trace.Hit then targetPos = trace.HitPos end
@@ -412,7 +412,7 @@ if SERVER then
 			start = startPos, 
 			endpos = targetPos, 
 			mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
-			filter = {self, self.v, target, 'glide_wheel', 'npc_uv*'}
+			filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
 		})
 		
 		if tr.Fraction < 0.8 then return false end
@@ -429,7 +429,7 @@ if SERVER then
 		
 		-- return groundCheck.Hit and groundCheck.Fraction < 0.7
 	end
-	
+
 	function ENT:VisualOnTarget(target)
 		if not self.v or not target then
 			return
@@ -437,7 +437,7 @@ if SERVER then
 		local tr = util.TraceLine({start = self.v:WorldSpaceCenter(), endpos = target:WorldSpaceCenter(), mask = MASK_OPAQUE, filter = {self, self.v, target}}).Fraction==1
 		return tobool(tr)
 	end
-	
+
 	function ENT:ObstaclesNearby()
 		if not self.v or not self.v.rideheight then
 			return
@@ -454,7 +454,7 @@ if SERVER then
 
 		return tobool(Fraction and HitNormal)
 	end
-	
+
 	function ENT:ObstaclesNearbySide()
 		if not self.v or not self.v.width then
 			return
@@ -504,8 +504,6 @@ if SERVER then
 
 	end
 
-	
-
 	function ENT:FriendlyNearbySide()
 		if not self.v or not self.v.width then
 			return
@@ -552,6 +550,7 @@ if SERVER then
 		return
 
 	end
+
 	
 	function ENT:PathFindToEnemy(vectors)
 
@@ -1409,7 +1408,7 @@ if SERVER then
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
 			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 4000000)
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
-			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC) or (InfMap and suspectOnWaypointGrid and suspectSameDirectionAsNPC and not suspectInView)
+			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC)
 			if eedist:LengthSqr() < 200000 and suspectInView then useDirectDriveBranch = true end
 
 			if useDirectDriveBranch then

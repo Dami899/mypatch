@@ -382,7 +382,7 @@ if SERVER then
 		if checkDist then
 			if targetPos:DistToSqr(self.v:WorldSpaceCenter()) > checkDist then return false end
 		end
-		
+
 		if considerVelocity then
 			local targetVel = vector_origin
 			local physObj = target:GetPhysicsObject()
@@ -400,7 +400,7 @@ if SERVER then
 				start = target:WorldSpaceCenter(), 
 				endpos = targetPos, 
 				mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
-				filter = {self, self.v, target, 'glide_wheel', 'npc_uv*'}
+				filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
 			})
 
 			if trace.Hit then targetPos = trace.HitPos end
@@ -412,7 +412,7 @@ if SERVER then
 			start = startPos, 
 			endpos = targetPos, 
 			mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
-			filter = {self, self.v, target, 'glide_wheel', 'npc_uv*'}
+			filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
 		})
 		
 		if tr.Fraction < 0.8 then return false end
@@ -429,7 +429,7 @@ if SERVER then
 		
 		-- return groundCheck.Hit and groundCheck.Fraction < 0.7
 	end
-	
+
 	function ENT:VisualOnTarget(target)
 		if not self.v or not target then
 			return
@@ -437,7 +437,7 @@ if SERVER then
 		local tr = util.TraceLine({start = self.v:WorldSpaceCenter(), endpos = target:WorldSpaceCenter(), mask = MASK_OPAQUE, filter = {self, self.v, target}}).Fraction==1
 		return tobool(tr)
 	end
-	
+
 	function ENT:ObstaclesNearby()
 		if not self.v or not self.v.rideheight then
 			return
@@ -454,7 +454,7 @@ if SERVER then
 
 		return tobool(Fraction and HitNormal)
 	end
-	
+
 	function ENT:ObstaclesNearbySide()
 		if not self.v or not self.v.width then
 			return
@@ -502,46 +502,6 @@ if SERVER then
 
 		return false
 
-	end
-
-	function ENT:IsPathBlocked()
-	    if not IsValid(self.v) then return false end
-		
-	    local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
-	    local speed = self.v:GetVelocity():Length()
-		
-	    local obbMax = self.v:OBBMaxs()
-	    local forwardOffset = math.max(obbMax.x, obbMax.y)
-		
-	    local startPos = self.v:LocalToWorld(Vector(forwardOffset, 0, 30)) 
-		
-	    local lookAheadRange = 490 + (speed * 0.8)
-	    local endPos = startPos + (forward * lookAheadRange)
-		
-	    local mins = Vector(-10, -50, -20)
-	    local maxs = Vector(10, 50, 50)
-		
-	    local tr = util.TraceHull({
-	        start = startPos,
-	        endpos = endPos,
-	        filter = function(ent) 
-	            if ent == self.v or ent == self or ent:GetParent() == self.v then return false end
-	            if ent:GetClass() == "predictable_entity" or ent:GetClass() == "path_track" then return false end
-	            return true 
-	        end,
-	        mins = mins,
-	        maxs = maxs,
-	        mask = MASK_NPCSOLID
-	    })
-	
-	    if tr.Hit and IsValid(tr.Entity) then
-	        local ent = tr.Entity
-	        if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() or ent:IsVehicle() then
-	            return true
-	        end
-	    end
-	
-	    return false
 	end
 
 	function ENT:FriendlyNearbySide()
@@ -1454,7 +1414,7 @@ if SERVER then
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
 			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 4000000)
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
-			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC) or (InfMap and suspectOnWaypointGrid and suspectSameDirectionAsNPC and not suspectInView)
+			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC)
 			if eedist:LengthSqr() < 200000 and suspectInView then useDirectDriveBranch = true end
 
 			if useDirectDriveBranch then

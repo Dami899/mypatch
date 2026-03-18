@@ -3680,7 +3680,7 @@ function UVVisualOnTarget(unit, target)
 		return
 	end
 	if unit.wrecked then return end
-	local tr = util.TraceLine({start = unit:WorldSpaceCenter(), endpos = target:WorldSpaceCenter(), mask = (InfMap and MASK_ALL or MASK_OPAQUE), filter = {unit, target, 'glide_wheel', 'npc_uv*'}}).Fraction==1
+	local tr = util.TraceLine({start = unit:WorldSpaceCenter(), endpos = target:WorldSpaceCenter(), mask = (InfMap and MASK_ALL or MASK_OPAQUE), filter = {unit, target, 'glide_wheel', UVUnitVehicles}}).Fraction==1
 	return tobool(tr)
 end
 
