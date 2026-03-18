@@ -1455,7 +1455,7 @@ if SERVER then
 			end
 
 			local eedist = self.e:WorldSpaceCenter() - self.v:WorldSpaceCenter() --Fixed distance between the vehicle and the enemy.
-
+			local eedistSqr = eedist:LengthSqr()
 			local selfvelocity = self.v:GetVelocity():LengthSqr()
 			local enemyvelocity = self.e:GetVelocity():LengthSqr()
 
@@ -1469,7 +1469,7 @@ if SERVER then
 			local suspectHeadingTowardNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(eedistNorm) < -0.3
 			local suspectHeadingAwayFromNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(eedistNorm) > 0.3
 			local suspectBehindNPC = eedist:Dot(forward) < 0
-			local suspectSameDirectionAsNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(forward) > 0.5
+			local suspectSameDirectionAsNPC = enemyVelLenSqr > 30976 and enemyVel:GetNormalized():Dot(forward) > 0.7
 
 			local suspectOnWaypointGrid = true
 			if dvd and next(dvd.Waypoints or {}) ~= nil then
@@ -1487,8 +1487,9 @@ if SERVER then
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
 			local suspectInView = not UVEnemyEscaping and self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 4000000)
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
-			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC)
-			if eedist:LengthSqr() < 200000 and suspectInView then useDirectDriveBranch = true end
+			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC) or (InfMap and suspectOnWaypointGrid and suspectSameDirectionAsNPC and not suspectInView)
+			if eedistSqr < 200000 and suspectInView then useDirectDriveBranch = true end
+			if InfMap and eedistSqr > 1000000 and not suspectBehindNPC then followSuspectHeadingOnGrid = false end
 			
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver) and next(self.tableroutetoenemy) ~= nil then
