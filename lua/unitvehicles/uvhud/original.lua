@@ -757,6 +757,16 @@ UV_UI.pursuit.original.events = {
         local ply = LocalPlayer()
 		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.fined"), finenr))
 	end,
+
+    onInfraction = function(text, number)
+
+        text = UVString("uv.results.infractions") .. " " .. number .. ": " .. text
+
+		UV_UI.general.events.CenterNotification({
+            text = text,
+		})
+        
+	end,
 }
 
 local function original_racing_main( ... )
