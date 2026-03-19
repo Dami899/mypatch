@@ -1435,37 +1435,41 @@ if SERVER then
 					damage = damage * 2
 					force = force * 2
 				end
-                
-                UVDamage( 
-                    target, 
-                    damage
-                )
 
-                hook.Add( "Think", hookIdentifier .. "headlight", function() 
-                    UVSetHeadlight( 
+                if not target.esfon then
+                    UVDamage( 
                         target, 
-                        math.random( 0, 2 ) 
-                    ) 
-                end)
-
-                timer.Simple( 1, function()
-                    hook.Remove( "Think", hookIdentifier .. "headlight" )
-                    UVSetHeadlight( 
-                        target, 
-                        lastHeadlightState 
+                        damage
                     )
-                end)
-
-                local targetPhysObj = target:GetPhysicsObject()
-                local targetForward = target:GetForward()
-                local targetRight = target:GetRight()
-
-                local targetPos = target:WorldSpaceCenter()
-
-                targetPhysObj:ApplyForceOffset( 
-                    ( math.Rand( -1, 1 ) * targetRight ) * ( targetPhysObj:GetMass() * force ), -- ( force / 100 )
-                    targetPos - ( targetForward * 100 )
-                )
+                
+                    hook.Add( "Think", hookIdentifier .. "headlight", function() 
+                        UVSetHeadlight( 
+                            target, 
+                            math.random( 0, 2 ) 
+                        ) 
+                    end)
+                
+                    timer.Simple( 1, function()
+                        hook.Remove( "Think", hookIdentifier .. "headlight" )
+                        UVSetHeadlight( 
+                            target, 
+                            lastHeadlightState 
+                        )
+                    end)
+                
+                    local targetPhysObj = target:GetPhysicsObject()
+                    local targetForward = target:GetForward()
+                    local targetRight = target:GetRight()
+                
+                    local targetPos = target:WorldSpaceCenter()
+                
+                    targetPhysObj:ApplyForceOffset( 
+                        ( math.Rand( -1, 1 ) * targetRight ) * ( targetPhysObj:GetMass() * force ), -- ( force / 100 )
+                        targetPos - ( targetForward * 100 )
+                    )
+                else
+                    UVDeactivateESF(target)
+                end
 
                 --
 
