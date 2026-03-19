@@ -3499,7 +3499,6 @@ function UVCheckIfBeingBusted(enemy)
 					elseif enemy.UVBustingProgress > enemy.UVHighestBustingProgress then
 						enemy.UVHighestBustingProgress = enemy.UVBustingProgress
 					end
-					print(enemy.UVHighestBustingProgress)
 				end
 			end
 			if (enemy.UVBustingProgress <= 0 or enemy.uvbusted) and not enemy.UVHUDBustingDelayed then

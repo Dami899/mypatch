@@ -4637,11 +4637,11 @@ else -- CLIENT Settings | HUD/Options
 		if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
 			UVMenu.CloseCurrentMenu()
 			timer.Simple(0.5, function()
-				hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable, infractionstable )
+				hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable, infractionstable, finesdue )
 			end)
 			return
 		end
-		hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable, infractionstable )
+		hook.Run( 'UIEventHook', 'pursuit', 'onRacerBustedDebrief', debrieftable, infractionstable, finesdue )
 	end)
 
 	net.Receive("UVHUDEscapedDebrief", function()
@@ -4658,11 +4658,11 @@ else -- CLIENT Settings | HUD/Options
 		if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
 			UVMenu.CloseCurrentMenu()
 			timer.Simple(0.5, function()
-				hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable, infractionstable )
+				hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable, infractionstable, finesdue )
 			end)
 			return
 		end
-		hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable, infractionstable )
+		hook.Run( 'UIEventHook', 'pursuit', 'onRacerEscapedDebrief', debrieftable, infractionstable, finesdue )
 	end)
 
 	net.Receive("UVHUDCopModeEscapedDebrief", function()
