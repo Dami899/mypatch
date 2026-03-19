@@ -1418,8 +1418,6 @@ if SERVER then
 			if eedistSqr < 200000 and suspectInView then useDirectDriveBranch = true end
 			if InfMap and eedistSqr > 1000000 and not suspectBehindNPC then followSuspectHeadingOnGrid = false end
 
-			print(followSuspectHeadingOnGrid)
-
 			if useDirectDriveBranch then
 				if (not suspectOnWaypointGrid or suspectHeadingAwayFromNPC or suspectPulledOver) and next(self.tableroutetoenemy) ~= nil then
 					self.tableroutetoenemy = {}
