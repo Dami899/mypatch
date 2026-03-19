@@ -38,15 +38,15 @@ if SERVER then
 	end)
 
 	net.Receive("UVPursuitBreakerLoad", function( length, ply )
-		local jsonfile = net.ReadString()
-		UVLoadPursuitBreaker(jsonfile)
+		local id = net.ReadInt(32)
+		UVSpawnPursuitBreaker(id)
 	end)
 	
 	net.Receive("UVPursuitBreakerLoadAll", function( length, ply )
 		--Load ALL Pursuit Breakers
 		local pursuitbreakers = file.Find( "unitvehicles/pursuitbreakers/"..game.GetMap().."/*.json", "DATA" )
 		for k,v in pairs(pursuitbreakers) do
-			UVLoadPursuitBreaker(v)
+			UVSpawnPursuitBreaker(v)
 		end
 	end)
 
@@ -186,7 +186,7 @@ if CLIENT then
 				return
 			end
 
-			for _, filename in ipairs(files) do
+			for id, filename in ipairs(files) do
 				local btn = UVPursuitBreakerScrollPanel:Add("DButton")
 				btn:Dock(TOP)
 				btn:DockMargin(0, 0, 0, 4)
@@ -226,7 +226,7 @@ if CLIENT then
 					SetClipboardText(filename)
 
 					net.Start("UVPursuitBreakerLoad")
-					net.WriteString(filename)
+					net.WriteInt(id, 32)
 					net.SendToServer()
 				end
 			end

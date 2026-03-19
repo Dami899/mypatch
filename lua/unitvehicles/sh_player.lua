@@ -400,7 +400,7 @@ if SERVER then
 				if not ptrefilled and not repaired and vehicle:GetChassisHealth() >= vehicle.MaxChassisHealth then return end
 				vehicle:Repair()
 
-                if AutoHealth:GetBool() and vehicle.UVWanted then
+                if not vehicle.UnitVehicle and (AutoHealth:GetBool() or (vehicle.RacerVehicle and vehicle.RacerVehicle:IsNPC() and AutoHealthRacer:GetBool())) then
                     vehicle:SetChassisHealth(math.huge)
 				    vehicle:SetEngineHealth(math.huge)
                     vehicle:UpdateHealthOutputs()
@@ -1569,20 +1569,23 @@ if SERVER then
         end
         if car.IsGlideVehicle then
             local repaired = false
-            
-            for _, v in pairs(car.wheels) do
-                if IsValid(v) and v.bursted then
-                    repaired = true
-                    v.bursted = false
-					v:Repair()
-					timer.Remove("uvspiked"..v:EntIndex())
-                end
+			
+			for _, v in pairs(vehicle.wheels) do
+				if IsValid(v) and v.bursted then
+					repaired = true
+					v.bursted = false
+				    v:Repair()
+				    timer.Remove("uvspiked"..v:EntIndex())
+				end
+			end
+			
+			if not repaired and vehicle:GetChassisHealth() >= vehicle.MaxChassisHealth then return end
+			vehicle:Repair()
+            if not vehicle.UnitVehicle and (AutoHealth:GetBool() or (vehicle.RacerVehicle and vehicle.RacerVehicle:IsNPC() and AutoHealthRacer:GetBool())) then
+                vehicle:SetChassisHealth(math.huge)
+			    vehicle:SetEngineHealth(math.huge)
+                vehicle:UpdateHealthOutputs()
             end
-
-            if not repaired and car:GetChassisHealth() >= car.MaxChassisHealth then return end
-            is_repaired = true
-            car:EmitSound('ui/pursuit/repair.wav')
-            car:Repair()
         end
         
         local driver = UVGetDriver(car)

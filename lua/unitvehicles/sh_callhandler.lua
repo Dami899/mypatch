@@ -62,7 +62,7 @@ if SERVER then
 
             SpawnAI(SpawnRacerAI, SpawnTrafficAI)
 
-            if #UVLoadedPursuitBreakers < UVPBMax:GetInt() then
+            if table.Count(UVLoadedPursuitBreakers) < UVPBMax:GetInt() then
 				if UVPBSpawnCondition:GetInt() == 3 then
                     UVAutoLoadPursuitBreaker()
                 elseif UVPBSpawnCondition:GetInt() == 2 and UVGetIfSomeoneDriving() then

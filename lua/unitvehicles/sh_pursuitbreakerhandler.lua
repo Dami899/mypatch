@@ -2,6 +2,8 @@ AddCSLuaFile()
 
 if SERVER then
     
+    local PRELOADED_PURSUITBREAKERS = {}
+    
     local function RemovePursuitBreaker(ent)
         
         if not IsValid( ent ) then return end
@@ -21,11 +23,9 @@ if SERVER then
         
     end
     
-    function UVLoadPursuitBreaker(jsonfile, checkdistance)
-        local JSONData = file.Read( "unitvehicles/pursuitBreakers/"..game.GetMap().."/"..jsonfile, "DATA" )
-        if not JSONData then return end
-        
-        local pbdata = util.JSONToTable(JSONData, true) --Load Pursuit Breaker
+    function UVSpawnPursuitBreaker(id, checkdistance)
+        local pbdata = PRELOADED_PURSUITBREAKERS[id]
+        if not pbdata then return end
         
         local location = pbdata.Location or pbdata.Maxs
         local activeduration = pbdata.ActiveDuration or 10
@@ -49,31 +49,12 @@ if SERVER then
                 return
             end
         end
-        
-        if table.HasValue(UVLoadedPursuitBreakers, jsonfile) then 
-            for _, ent in ents.Iterator() do
-                if ent.PursuitBreaker == jsonfile then 
-                    local ConstrainedEntities = constraint.GetAllConstrainedEntities( ent )
-                    for _, ent in pairs( ConstrainedEntities ) do
-                        RemovePursuitBreaker(ent)
-                    end
-                end
-            end
-            if table.HasValue(UVLoadedPursuitBreakers, jsonfile) then
-                table.RemoveByValue(UVLoadedPursuitBreakers, jsonfile)
-            end
-            timer.Simple(1, function()
-                if not table.HasValue(UVLoadedPursuitBreakers, jsonfile) then
-                    UVLoadPursuitBreaker(jsonfile) --Try again
-                end
-            end)
-            return
-        end
-        table.insert(UVLoadedPursuitBreakers, jsonfile)
-        table.insert(UVLoadedPursuitBreakersLoc, location)
+
+        UVLoadedPursuitBreakers[id] = true
+        UVLoadedPursuitBreakersLoc[id] = location
         
         net.Start("UVAddPursuitBreaker")
-        net.WriteString(jsonfile)
+        net.WriteInt(id, 32)
         net.WriteInt(location.x, 32)
         net.WriteInt(location.y, 32)
         net.WriteInt(location.z, 32)
@@ -150,8 +131,10 @@ if SERVER then
         end
         
         for k, ent in pairs( entities ) do
-            ent.PursuitBreaker = jsonfile
+            ent.PursuitBreaker = pbdata.jsonfile
+            ent.PursuitBreakerID = pbdata.id
             ent.PursuitBreakerLoc = location
+            ent.PursuitBreakerData = pbdata
             ent.ActiveDuration = activeduration
             ent.DontUnweldProps = dontunweldprops
             ent:AddCallback("PhysicsCollide", function(ent, data)
@@ -247,19 +230,19 @@ if SERVER then
         
         local entities = {}
         local constraints = {}
-        local jsonfile = hitent.PursuitBreaker
+        local id = hitent.PursuitBreakerID
+        local pbdata = hitent.PursuitBreakerData
         local location = hitent.PursuitBreakerLoc
         local activeduration = hitent.ActiveDuration or 10
         local dontunweldprops = hitent.DontUnweldProps or nil
         
         hitent.PursuitBreaker = nil
         
-        if table.HasValue(UVLoadedPursuitBreakersLoc, location) then
-            table.RemoveByValue(UVLoadedPursuitBreakersLoc, location)
-        end
+        UVLoadedPursuitBreakers[id] = nil
+        UVLoadedPursuitBreakersLoc[id] = nil
         
         net.Start("UVTriggerPursuitBreaker")
-        net.WriteString(jsonfile)
+        net.WriteInt(id, 32)
         net.WriteInt(location.x, 32)
         net.WriteInt(location.y, 32)
         net.WriteInt(location.z, 32)
@@ -283,9 +266,8 @@ if SERVER then
             timer.Simple(UVPBCooldown:GetInt(), function()
                 if IsValid(ent) then
                     ent:Remove()
-                    if table.HasValue(UVLoadedPursuitBreakers, jsonfile) then
-                        table.RemoveByValue(UVLoadedPursuitBreakers, jsonfile)
-                    end
+                    UVLoadedPursuitBreakers[id] = nil
+                    UVLoadedPursuitBreakersLoc[id] = nil
                 end
             end)
             
@@ -327,7 +309,7 @@ if SERVER then
         
         --Check if it's a gas station
         if UVTargeting then
-            if string.find(jsonfile:lower(), "gas") then
+            if string.find(pbdata.jsonfile:lower(), "gas") then
                 UVSoundChatter(hitent, 1, "pursuitbreakergas", 8)
             else
                 if Chatter:GetBool() then
@@ -350,23 +332,31 @@ if SERVER then
     end
     
     function UVAutoLoadPursuitBreaker()
-        local pursuitBreakers = file.Find( "unitvehicles/pursuitBreakers/"..game.GetMap().."/*.json", "DATA" )
-        
+        if next(PRELOADED_PURSUITBREAKERS) == nil then return end
+
+        local id = math.random( #PRELOADED_PURSUITBREAKERS )
+        local pbdata = PRELOADED_PURSUITBREAKERS[id]
+        if not pbdata or UVLoadedPursuitBreakers[id] then return end
+
+        UVSpawnPursuitBreaker(id, true)
+    end
+
+    function UVPreloadPursuitBreakers()
+        PRELOADED_PURSUITBREAKERS = {}
+
+        local mapName = game.GetMap()
+        local pursuitBreakers = file.Find( "unitvehicles/pursuitBreakers/"..mapName.."/*.json", "DATA" )
         if not pursuitBreakers then return end
         if next(pursuitBreakers) == nil then return end
-        
-        local availablePursuitBreakers = {}
-        for k, v in pairs(pursuitBreakers) do
-            if not table.HasValue(UVLoadedPursuitBreakers, v) then
-                table.insert(availablePursuitBreakers, v)
-            end
+
+        for id, jsonfile in ipairs(pursuitBreakers) do
+            local JSONData = file.Read( "unitvehicles/pursuitBreakers/"..mapName.."/"..jsonfile, "DATA" )
+            local pbdata = util.JSONToTable( JSONData or "" , true)
+            if pbdata then pbdata.jsonfile = jsonfile pbdata.id = id table.insert( PRELOADED_PURSUITBREAKERS, pbdata ) print("Preloaded pursuit breaker: "..jsonfile) end
         end
-        
-        if next(availablePursuitBreakers) == nil then return end
-        
-        local randompb = availablePursuitBreakers[math.random(#availablePursuitBreakers)]
-        UVLoadPursuitBreaker(randompb, true)
     end
+
+    UVPreloadPursuitBreakers()
     
 else
 
@@ -377,14 +367,14 @@ else
     end)
     
     net.Receive("UVAddPursuitBreaker", function()
-        local jsonfile = net.ReadString()
+        local id = net.ReadInt(32)
         local location = Vector(net.ReadInt(32), net.ReadInt(32), net.ReadInt(32))
 
         table.insert(UVHUDPursuitBreakers, location)
 
         if GMinimap then
             blip, id = GMinimap:AddBlip( {
-                id = jsonfile,
+                id = "PB"..id,
                 position = location,
                 icon = "unitvehicles/icons/MINIMAP_ICON_PURSUIT_BREAKER.png",
                 scale = 1.5,
@@ -395,13 +385,13 @@ else
     end)
     
     net.Receive("UVTriggerPursuitBreaker", function()
-        local jsonfile = net.ReadString()
+        local id = net.ReadInt(32)
         local location = Vector(net.ReadInt(32), net.ReadInt(32), net.ReadInt(32))
 
         table.RemoveByValue(UVHUDPursuitBreakers, location)
 
         if GMinimap then
-            GMinimap:RemoveBlipById( jsonfile )
+            GMinimap:RemoveBlipById( "PB"..id )
         end
     end)
     

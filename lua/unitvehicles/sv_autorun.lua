@@ -651,7 +651,7 @@ function HandleVehicleSpawning(Patrolling)
 
 	if not SpawnMainUnits:GetBool() then return end
 
-	local canSpawnRoadblock = next(ents.FindByClass("npc_uv*")) ~= nil and uvRoadblockDeployable and #UVLoadedRoadblocks < UVRBMax:GetInt() 
+	local canSpawnRoadblock = next(ents.FindByClass("npc_uv*")) ~= nil and uvRoadblockDeployable and table.Count(UVLoadedRoadblocks) < UVRBMax:GetInt() 
 	local canSpawnHelicopter = #ents.FindByClass("uvair") < 1 and uvHelicopterDeployable and CurTime() - UVHeliCooldown > 120
 
 	local pool = {

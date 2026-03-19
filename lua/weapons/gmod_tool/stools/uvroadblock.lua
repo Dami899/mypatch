@@ -52,14 +52,14 @@ if SERVER then
 	end)
 
 	net.Receive("UVRoadblocksLoad", function( length, ply )
-		local jsonfile = net.ReadString()
-		UVLoadRoadblock(jsonfile, true)
+		local id = net.ReadInt(32)
+		UVSpawnRoadblock(id, true)
 	end)
 
 	net.Receive("UVRoadblocksLoadAll", function( length, ply )
 		local saved_roadblocks = file.Find("unitvehicles/roadblocks/"..game.GetMap().."/*.json", "DATA")
 		for k,v in pairs(saved_roadblocks) do
-			UVLoadRoadblock(v, true)
+			UVSpawnRoadblock(v, true)
 		end
 	end)
 	
@@ -206,7 +206,7 @@ if CLIENT then
 					SetClipboardText(selecteditem)
 
 					net.Start("UVRoadblocksLoad")
-					net.WriteString(selecteditem)
+					net.WriteInt(k, 32)
 					net.SendToServer()
 					notification.AddLegacy( string.format( language.GetPhrase("tool.uvroadblock.loaded"), selecteditem ), NOTIFY_UNDO, 5 )
 					surface.PlaySound( "buttons/button15.wav" )
@@ -261,7 +261,7 @@ if CLIENT then
 				return
 			end
 
-			for _, filename in ipairs(files) do
+			for id, filename in ipairs(files) do
 				local btn = UVRoadblocksScrollPanel:Add("DButton")
 				btn:Dock(TOP)
 				btn:DockMargin(0, 0, 0, 4)
@@ -309,7 +309,7 @@ if CLIENT then
 					SetClipboardText(selecteditem)
 
 					net.Start("UVRoadblocksLoad")
-					net.WriteString(selecteditem)
+					net.WriteInt(id, 32)
 					net.SendToServer()
 					notification.AddLegacy( string.format( language.GetPhrase("tool.uvroadblock.loaded"), selecteditem ), NOTIFY_UNDO, 5 )
 					surface.PlaySound( "buttons/button15.wav" )
