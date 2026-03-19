@@ -3661,6 +3661,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			{ name = "+attack2", token = "+attack2" },
 			{ name = "invnext", token = "invnext" },
 			{ name = "invprev", token = "invprev" },
+			{ name = "+speed", token = "+speed" },
 		}
 		
 		local TokenToName = {}

@@ -978,9 +978,17 @@ UV_UI.pursuit.mostwanted.events = {
         local debrieficon = params.iconMaterial or UVMaterials['RESULTCOP']
         local debrieftitletext = params.titleText or "Title Text"
 		local debriefunitspawn = params.spawnAsUnit or false
-        
+        local finescost = string.Comma( params.finesdue or 0 )
         local infractiondata = params.infractionTable or false
-        local unservedinfractions = infractiondata and #infractiondata or "Unknown"
+        local unservedinfractions = 0
+
+		if infractiondata then
+			local count = 0
+			for k, v in pairs(infractiondata) do
+				count = count + 1
+			end
+			unservedinfractions = count
+		end
 
         local w = ScrW()
         local h = ScrH()
@@ -1024,24 +1032,68 @@ UV_UI.pursuit.mostwanted.events = {
 
         local revealStartTime = CurTime()
         local displaySequence = {}
+		
+		local isRebuilding = false
         
         -- Data and labels
-        local infoLabels = {
-            { label = UVString("uv.results.chase.bounty"), value = bounty },
-            { label = UVString("uv.results.chase.time"), value = time },
-            { label = UVString("uv.results.chase.units.deployed"), value = deploys },
-            { label = UVString("uv.results.chase.units.damaged"), value = tags },
-            { label = UVString("uv.results.chase.units.destroyed"), value = wrecks },
-            { label = UVString("uv.results.chase.dodged.blocks"), value = roadblocksdodged },
-            { label = UVString("uv.results.chase.dodged.spikes"), value = spikestripsdodged }
-        }
+		local showingInfractions = false
+		local infractionKeys = {
+			"speed",
+			"veryspeed",
+			"reckless",
+			"rampolice",
+			"ram",
+			"property",
+			"resist",
+			"offroad",
+			"streetrace",
+			"resource",
+			"endanger",
+			"homicide"
+		}
 		
-		local infractionLabel = { label = UVString("uv.results.chase.unserved"), value = unservedinfractions }
-        
-		-- if infractiondata then
-			table.insert(infoLabels, infractionLabel)
-		-- end
+		local function BuildInfoLabels()
+			local labels = {}
+
+			if not showingInfractions then
+				-- ORIGINAL VIEW
+				labels = {
+					{ label = UVString("uv.results.chase.bounty"), value = bounty },
+					{ label = UVString("uv.results.chase.time"), value = time },
+					{ label = UVString("uv.results.chase.units.deployed"), value = deploys },
+					{ label = UVString("uv.results.chase.units.damaged"), value = tags },
+					{ label = UVString("uv.results.chase.units.destroyed"), value = wrecks },
+					{ label = UVString("uv.results.chase.dodged.blocks"), value = roadblocksdodged },
+					{ label = UVString("uv.results.chase.dodged.spikes"), value = spikestripsdodged }
+				}
+
+				if infractiondata then
+					table.insert(labels, {
+						label = UVString("uv.results.chase.unserved"),
+						value = unservedinfractions
+					})
+				end
+				
+				table.insert(labels, { label = UVString("uv.results.chase.fines"), value = "$" .. finescost } )
+			else
+				-- INFRACTION VIEW
+				if infractiondata then
+					for _, key in ipairs(infractionKeys) do
+						local value = infractiondata[key] or 0
+
+						table.insert(labels, {
+							label = UVString("uv.infraction." .. key),
+							value = value
+						})
+					end
+				end
+			end
+
+			return labels
+		end
 		
+		local infoLabels = BuildInfoLabels()
+
         -- Build the sequence including empty tabs to keep layout intact
         local h1, h2 = h*0.2475, h*0.2875
         local xLeft = w * 0.205
@@ -1073,6 +1125,34 @@ UV_UI.pursuit.mostwanted.events = {
 
 		local tipstring = params.faction == "Racer" and UV.Tips.Racer or UV.Tips.Units
 		local randomTipText = tipstring[math.random(1, #tipstring)]
+
+		local function RebuildDisplay()
+			if isRebuilding then return end
+			isRebuilding = true
+
+			displaySequence = {}
+			local infoLabels = BuildInfoLabels()
+
+			for i = 1, 13 do
+				local revealTime = CurTime() + (i - 1) * revealInterval
+				
+				local yPos = (i % 2 == 1)
+					and h1 + math.floor(i / 2) * h * 0.08
+					or h2 + math.floor((i - 1) / 2) * h * 0.08
+
+				local entry = {
+					y = yPos,
+					leftText = infoLabels[i] and infoLabels[i].label or nil,
+					rightText = infoLabels[i] and tostring(infoLabels[i].value) or nil,
+					revealTime = revealTime
+				}
+
+				table.insert(displaySequence, entry)
+			end
+
+			revealStartTime = CurTime()
+			flashStartTime = nil
+		end
 		
         ResultPanel.Paint = function(self, w, h)
             local curTime = CurTime()
@@ -1086,9 +1166,10 @@ UV_UI.pursuit.mostwanted.events = {
                 end
             end
             
-            if allEntriesRevealed and not flashStartTime then
-                flashStartTime = curTime
-            end
+			if allEntriesRevealed and not flashStartTime then
+				flashStartTime = curTime
+				isRebuilding = false
+			end
             
             local flashProgress = flashStartTime and math.min((curTime - flashStartTime) / flashDuration, 1) or 0
             
@@ -1208,15 +1289,29 @@ UV_UI.pursuit.mostwanted.events = {
                 
                 -- Icon and texts fade in (stay full alpha after flash)
                 DrawIcon(debrieficon, w * 0.225, h * 0.1575, .05, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha))
-                draw.DrawText(UVString("uv.results.pursuit"), "UVFont5", w * 0.25, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
+                draw.DrawText(UVString(showingInfractions and "uv.results.infractions" or "uv.results.pursuit"), "UVFont5", w * 0.25, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
                 
                 draw.DrawText(debrieftitletext, "UVFont5", w * 0.5, h * 0.2, Color(255, 255, 255, textAlpha), TEXT_ALIGN_CENTER)
 
-				local conttext = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big") .. "</font></color>"
+				local conttexts = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>"
+				local conttexte = "</font></color>"
 				
-				local ustext = ""
+				local conttext = conttexts .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big") .. conttexte
+				
+				-- Infractions present
+				if infractiondata then
+					local infratext = "uv.results.infractions.lower"
+					
+					if showingInfractions then
+						infratext = "uv.results.pursuit.lower"
+					end
+				
+					conttext = conttext .. "     " .. conttexts .. UVReplaceKeybinds("[+speed] " .. UVString(infratext), "Big") .. conttexte
+				end
+
+				-- Spawn as a Unit
 				if debriefunitspawn and (UVHUDWantedSuspects and #UVHUDWantedSuspects > 0) then
-					conttext = conttext .. "     <color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big") .. "</font></color>"
+					conttext = conttext .. "     " .. conttexts .. UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big") .. conttexte
 				end
 
 				local tiptext = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVMostWantedLeaderboardFont>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
@@ -1299,10 +1394,27 @@ UV_UI.pursuit.mostwanted.events = {
 					gui.EnableScreenClicker(false)
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
+					hook.Remove("CreateMove", "UseKeyToggleInfractions")
 
 					surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
 					closing = true
 					closeStartTime = CurTime()
+				end
+			end
+		end)
+		
+		hook.Add("CreateMove", "UseKeyToggleInfractions", function()
+			local ply = LocalPlayer()
+			if not IsValid(ply) then return end
+			if isRebuilding then return end
+
+			if ply:KeyPressed(IN_SPEED) then
+				if IsValid(ResultPanel) and not closing and infractiondata then
+					showingInfractions = not showingInfractions
+
+					surface.PlaySound("uvui/mw/FE_COMMON_MB [5].wav")
+
+					RebuildDisplay()
 				end
 			end
 		end)
@@ -1317,6 +1429,7 @@ UV_UI.pursuit.mostwanted.events = {
 						gui.EnableScreenClicker(false)
 						hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 						hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
+						hook.Remove("CreateMove", "UseKeyToggleInfractions")
 						
 						surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
 						closing = true
@@ -1329,22 +1442,24 @@ UV_UI.pursuit.mostwanted.events = {
 			end)
 		end
 	end,
-	onRacerEscapedDebrief = function(escapedtable, infractionstable)
+	onRacerEscapedDebrief = function(escapedtable, infractionstable, finesdue)
 		local params = {
 			faction = "Racer",
 			dataTable = escapedtable,
 			infractionTable = infractionstable,
+			finesdue = finesdue,
 			color = Color(255, 183, 61),
 			iconMaterial = UVMaterials['RESULTCOP'],
 			titleText = UVString("uv.results.escapedfrom"),
 		}
 		UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
 	end,
-	onRacerBustedDebrief = function(bustedtable, infractionstable)
+	onRacerBustedDebrief = function(bustedtable, infractionstable, finesdue)
 		local params = {
 			faction = "Racer",
 			dataTable = bustedtable,
 			infractionTable = infractionstable,
+			finesdue = finesdue,
 			color = Color(255, 183, 61),
 			iconMaterial = UVMaterials['RESULTCOP'],
 			titleText = string.format( UVString("uv.results.bustedby"), UVString( bustedtable["Unit"] ) ),
