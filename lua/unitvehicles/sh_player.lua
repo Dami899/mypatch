@@ -1574,7 +1574,7 @@ if SERVER then
         if car.IsGlideVehicle then
             local repaired = false
 			
-			for _, v in pairs(vehicle.wheels) do
+			for _, v in pairs(car.wheels) do
 				if IsValid(v) and v.bursted then
 					repaired = true
 					v.bursted = false
@@ -1583,13 +1583,17 @@ if SERVER then
 				end
 			end
 			
-			if not repaired and vehicle:GetChassisHealth() >= vehicle.MaxChassisHealth then return end
-			vehicle:Repair()
-            if not vehicle.UnitVehicle and (AutoHealth:GetBool() or (vehicle.RacerVehicle and vehicle.RacerVehicle:IsNPC() and AutoHealthRacer:GetBool())) then
-                vehicle:SetChassisHealth(math.huge)
-			    vehicle:SetEngineHealth(math.huge)
-                vehicle:UpdateHealthOutputs()
+			if not repaired and car:GetChassisHealth() >= car.MaxChassisHealth then return end
+            
+			car:Repair()
+            car:EmitSound('ui/pursuit/repair.wav')
+            if not car.UnitVehicle and (AutoHealth:GetBool() or (car.RacerVehicle and car.RacerVehicle:IsNPC() and AutoHealthRacer:GetBool())) then
+                car:SetChassisHealth(math.huge)
+			    car:SetEngineHealth(math.huge)
+                car:UpdateHealthOutputs()
             end
+
+            is_repaired = true
         end
         
         local driver = UVGetDriver(car)

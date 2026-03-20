@@ -1165,7 +1165,7 @@ if SERVER then
 		if next(UVLoadedPursuitBreakers) ~= nil then
 			for k, v in pairs(UVLoadedPursuitBreakers) do
 				net.Start("UVTriggerPursuitBreaker")
-				net.WriteString(v)
+				net.WriteInt(k, 32)
 				net.Broadcast()
 			end
 		end
