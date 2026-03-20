@@ -257,7 +257,38 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
  |-- 3. Once welded, press [+attack2] on any piece of the Pursuit Breaker
  |-- 4. Tweak the settings to your liking, then click [string:uv.tool.create]
 ]],
+["Pursuit.Infractions"] = [[
+# -- What are infractions? Which ones exist?
 
+There are 12 different infractions you can acquire during pursuits. They are:
+
+[string:uv.infraction.speed]
+      |-- [ncstring:uv.infraction.speed.desc]
+[string:uv.infraction.veryspeed]
+      |-- [ncstring:uv.infraction.veryspeed.desc]
+[string:uv.infraction.reckless]
+      |-- [ncstring:uv.infraction.reckless.desc]
+[string:uv.infraction.rampolice]
+      |-- [ncstring:uv.infraction.rampolice.desc]
+[string:uv.infraction.ram]
+      |-- [ncstring:uv.infraction.ram.desc]
+[string:uv.infraction.property]
+      |-- [ncstring:uv.infraction.property.desc]
+[string:uv.infraction.resist]
+      |-- [ncstring:uv.infraction.resist.desc]
+[string:uv.infraction.offroad]
+      |-- [ncstring:uv.infraction.offroad.desc]
+[string:uv.infraction.streetrace]
+      |-- [ncstring:uv.infraction.streetrace.desc]
+[string:uv.infraction.resource]
+      |-- [ncstring:uv.infraction.resource.desc]
+[string:uv.infraction.endanger]
+      |-- [ncstring:uv.infraction.endanger.desc]
+[string:uv.infraction.homicide]
+      |-- [ncstring:uv.infraction.homicide.desc]
+]],
+
+-- Other
 ["Other.CreateTraffic"] = [[
 # -- How do I spawn traffic?
 
@@ -535,6 +566,36 @@ Du använder verktyget [string:tool.uvpursuitbreaker.name]:
  |-- 2. Med verktyget [string:tool.weld.name] (eller alternativ), svetsa alla delar tillsammans
  |-- 3. När dem är svetsade, tryck på [+attack2] på vilken del som helst i vägspärren
  |-- 4. Ändra inställningarna som du vill, och tryck därefter på [string:uv.tool.create]
+]],
+["Pursuit.Infractions"] = [[
+# -- Vad är en överträdelse? Vilka finns det?
+
+Det finns 12 olika överträdelser du kan motta under jakter. Dem är:
+
+[string:uv.infraction.speed]
+      |-- [ncstring:uv.infraction.speed.desc]
+[string:uv.infraction.veryspeed]
+      |-- [ncstring:uv.infraction.veryspeed.desc]
+[string:uv.infraction.reckless]
+      |-- [ncstring:uv.infraction.reckless.desc]
+[string:uv.infraction.rampolice]
+      |-- [ncstring:uv.infraction.rampolice.desc]
+[string:uv.infraction.ram]
+      |-- [ncstring:uv.infraction.ram.desc]
+[string:uv.infraction.property]
+      |-- [ncstring:uv.infraction.property.desc]
+[string:uv.infraction.resist]
+      |-- [ncstring:uv.infraction.resist.desc]
+[string:uv.infraction.offroad]
+      |-- [ncstring:uv.infraction.offroad.desc]
+[string:uv.infraction.streetrace]
+      |-- [ncstring:uv.infraction.streetrace.desc]
+[string:uv.infraction.resource]
+      |-- [ncstring:uv.infraction.resource.desc]
+[string:uv.infraction.endanger]
+      |-- [ncstring:uv.infraction.endanger.desc]
+[string:uv.infraction.homicide]
+      |-- [ncstring:uv.infraction.homicide.desc]
 ]],
 
 ["Other.CreateTraffic"] = [[
@@ -816,6 +877,36 @@ Usa la herramienta [string:tool.uvpursuitbreaker.name]:
  |-- 3. Una vez soldados, presiona [+attack2] en cualquier objeto de la pausa de persecución.
  |-- 4. Cambia los ajustes a cómo te parezcan mejor, después haz click en [string:uv.tool.create]
 ]],
+-- ["Pursuit.Infractions"] = [[ -- "Infracciones"
+-- # -- What are infractions? Which ones exist?
+
+-- There are 12 different infractions you can acquire during pursuits. They are:
+
+-- [string:uv.infraction.speed]
+      -- |-- [ncstring:uv.infraction.speed.desc]
+-- [string:uv.infraction.veryspeed]
+      -- |-- [ncstring:uv.infraction.veryspeed.desc]
+-- [string:uv.infraction.reckless]
+      -- |-- [ncstring:uv.infraction.reckless.desc]
+-- [string:uv.infraction.rampolice]
+      -- |-- [ncstring:uv.infraction.rampolice.desc]
+-- [string:uv.infraction.ram]
+      -- |-- [ncstring:uv.infraction.ram.desc]
+-- [string:uv.infraction.property]
+      -- |-- [ncstring:uv.infraction.property.desc]
+-- [string:uv.infraction.resist]
+      -- |-- [ncstring:uv.infraction.resist.desc]
+-- [string:uv.infraction.offroad]
+      -- |-- [ncstring:uv.infraction.offroad.desc]
+-- [string:uv.infraction.streetrace]
+      -- |-- [ncstring:uv.infraction.streetrace.desc]
+-- [string:uv.infraction.resource]
+      -- |-- [ncstring:uv.infraction.resource.desc]
+-- [string:uv.infraction.endanger]
+      -- |-- [ncstring:uv.infraction.endanger.desc]
+-- [string:uv.infraction.homicide]
+      -- |-- [ncstring:uv.infraction.homicide.desc]
+-- ]],
 
 ["Other.CreateTraffic"] = [[
 # -- ¿Cómo aparezco tráfico?
@@ -1096,6 +1187,36 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
  |-- 3. Как только всё сварено, нажми [+attack2] по любой части Погонелома
  |-- 4. Измени настройки на свой вкус, затем нажми [string:uv.tool.create]
 ]],
+-- ["Pursuit.Infractions"] = [[ -- Нарушения
+-- # -- What are infractions? Which ones exist?
+
+-- There are 12 different infractions you can acquire during pursuits. They are:
+
+-- [string:uv.infraction.speed]
+      -- |-- [ncstring:uv.infraction.speed.desc]
+-- [string:uv.infraction.veryspeed]
+      -- |-- [ncstring:uv.infraction.veryspeed.desc]
+-- [string:uv.infraction.reckless]
+      -- |-- [ncstring:uv.infraction.reckless.desc]
+-- [string:uv.infraction.rampolice]
+      -- |-- [ncstring:uv.infraction.rampolice.desc]
+-- [string:uv.infraction.ram]
+      -- |-- [ncstring:uv.infraction.ram.desc]
+-- [string:uv.infraction.property]
+      -- |-- [ncstring:uv.infraction.property.desc]
+-- [string:uv.infraction.resist]
+      -- |-- [ncstring:uv.infraction.resist.desc]
+-- [string:uv.infraction.offroad]
+      -- |-- [ncstring:uv.infraction.offroad.desc]
+-- [string:uv.infraction.streetrace]
+      -- |-- [ncstring:uv.infraction.streetrace.desc]
+-- [string:uv.infraction.resource]
+      -- |-- [ncstring:uv.infraction.resource.desc]
+-- [string:uv.infraction.endanger]
+      -- |-- [ncstring:uv.infraction.endanger.desc]
+-- [string:uv.infraction.homicide]
+      -- |-- [ncstring:uv.infraction.homicide.desc]
+-- ]],
 
 ["Other.CreateTraffic"] = [[
 # -- Как мне разместить трафик?
@@ -1376,6 +1497,36 @@ Używając narzędzia [string:tool.uvpursuitbreaker.name]:
  |-- 3. Po zespawaniu, wciśnij [+attack2] na którykolwiek obiekt Spowalniacza
  |-- 4. Zmień ustawienia według uznania, następnie wciśnij [string:uv.tool.create]
 ]],
+-- ["Pursuit.Infractions"] = [[ -- "Wykroczenia"
+-- # -- What are infractions? Which ones exist?
+
+-- There are 12 different infractions you can acquire during pursuits. They are:
+
+-- [string:uv.infraction.speed]
+      -- |-- [ncstring:uv.infraction.speed.desc]
+-- [string:uv.infraction.veryspeed]
+      -- |-- [ncstring:uv.infraction.veryspeed.desc]
+-- [string:uv.infraction.reckless]
+      -- |-- [ncstring:uv.infraction.reckless.desc]
+-- [string:uv.infraction.rampolice]
+      -- |-- [ncstring:uv.infraction.rampolice.desc]
+-- [string:uv.infraction.ram]
+      -- |-- [ncstring:uv.infraction.ram.desc]
+-- [string:uv.infraction.property]
+      -- |-- [ncstring:uv.infraction.property.desc]
+-- [string:uv.infraction.resist]
+      -- |-- [ncstring:uv.infraction.resist.desc]
+-- [string:uv.infraction.offroad]
+      -- |-- [ncstring:uv.infraction.offroad.desc]
+-- [string:uv.infraction.streetrace]
+      -- |-- [ncstring:uv.infraction.streetrace.desc]
+-- [string:uv.infraction.resource]
+      -- |-- [ncstring:uv.infraction.resource.desc]
+-- [string:uv.infraction.endanger]
+      -- |-- [ncstring:uv.infraction.endanger.desc]
+-- [string:uv.infraction.homicide]
+      -- |-- [ncstring:uv.infraction.homicide.desc]
+-- ]],
 
 ["Other.CreateTraffic"] = [[
 # -- Jak pojawić Ruch Drogowy?
@@ -1657,6 +1808,36 @@ Other pursuit/AI settings can be found in [string:uv.settings].
  |-- 3. 焊接完成后，对追逐破坏器的任意一个部件按下 [+attack2]
  |-- 4. 根据需要调整设置，然后点击 [string:uv.tool.create]
 ]],
+-- ["Pursuit.Infractions"] = [[ -- " 违法事件 "
+-- # -- What are infractions? Which ones exist?
+
+-- There are 12 different infractions you can acquire during pursuits. They are:
+
+-- [string:uv.infraction.speed]
+      -- |-- [ncstring:uv.infraction.speed.desc]
+-- [string:uv.infraction.veryspeed]
+      -- |-- [ncstring:uv.infraction.veryspeed.desc]
+-- [string:uv.infraction.reckless]
+      -- |-- [ncstring:uv.infraction.reckless.desc]
+-- [string:uv.infraction.rampolice]
+      -- |-- [ncstring:uv.infraction.rampolice.desc]
+-- [string:uv.infraction.ram]
+      -- |-- [ncstring:uv.infraction.ram.desc]
+-- [string:uv.infraction.property]
+      -- |-- [ncstring:uv.infraction.property.desc]
+-- [string:uv.infraction.resist]
+      -- |-- [ncstring:uv.infraction.resist.desc]
+-- [string:uv.infraction.offroad]
+      -- |-- [ncstring:uv.infraction.offroad.desc]
+-- [string:uv.infraction.streetrace]
+      -- |-- [ncstring:uv.infraction.streetrace.desc]
+-- [string:uv.infraction.resource]
+      -- |-- [ncstring:uv.infraction.resource.desc]
+-- [string:uv.infraction.endanger]
+      -- |-- [ncstring:uv.infraction.endanger.desc]
+-- [string:uv.infraction.homicide]
+      -- |-- [ncstring:uv.infraction.homicide.desc]
+-- ]],
 
 ["Other.CreateTraffic"] = [[
 # -- 我该如何生成交通车辆？

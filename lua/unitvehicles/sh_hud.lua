@@ -982,6 +982,11 @@ if CLIENT then
 			return "<color=255,255,0>" .. UVString(locstring) .. "</color>"
 		end)
 
+		-- [ncstring:phrase] -- Without colour
+		str = str:gsub("%[ncstring:([^%]]+)%]", function(locstring)
+			return UVString(locstring)
+		end)
+
 		-- [glyph:phrase]
 		str = str:gsub("%[glyph:([^%]]+)%]", function(glyph)
 			return UVKeybindIcon(glyph, glyphsize)

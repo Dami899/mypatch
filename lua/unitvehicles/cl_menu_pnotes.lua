@@ -15,7 +15,8 @@ Text = [[
 - Added *Infractions* during pursuits
       |-- When performing actions seen by Units, you'll gain Infractions
       |-- These are counted on the *Pursuit Results* screen for Racers only
-      |-- Only available on the *Most Wanted* HUD
+      |-- Available exclusively on the *Most Wanted* HUD for now
+      |-- Added a new FAQ section under *Pursuits* explaining each infraction
 - Added a new "Customize HUD" setting
       |-- Currently only allows you to change how many racers are displayed on the leaderboard
 

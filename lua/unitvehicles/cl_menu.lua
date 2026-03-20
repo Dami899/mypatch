@@ -875,6 +875,7 @@ UVMenu.FAQ = function()
 				
 				{ type = "info", text = UVGetFAQText("Pursuit.JoinAsUnit") },
 				{ type = "info", text = UVGetFAQText("Pursuit.Respawn") },
+				{ type = "info", text = UVGetFAQText("Pursuit.Infractions") },
 			},
 
 			{ TabName = "uv.faq.other", Icon = "unitvehicles/icons_settings/info.png",
