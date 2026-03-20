@@ -9,11 +9,12 @@ UV = UV or {}
 
 UV.PNotes = {
 ["v1.3.1"] = {
-Date = { year = 2026, month = 3, day = 18 },
+Date = { year = 2026, month = 3, day = 20 },
 Text = [[
 **New Features**
 - Added *Infractions* during pursuits
       |-- When performing actions seen by Units, you'll gain Infractions
+      |-- Units will respond to calls and target drivers committing Infractions
       |-- These are counted on the *Pursuit Results* screen for Racers only
       |-- Available exclusively on the *Most Wanted* HUD for now
       |-- Added a new FAQ section under *Pursuits* explaining each infraction
@@ -29,6 +30,7 @@ Text = [[
 - Reworked the lower notification system
       |-- Affects the <color=255,255,100>Race ends in</color>, <color=255,255,100>Spawn as {Unit}</color> and new <color=255,255,100>Resetting in</color> timers
 - UV Menu: Added the ability to press [+attack2] on folders in the *Vehicle Override* to add/remove all vehicles in that category
+- Improved optimazion across the board
 - Updated localizations
 ]],
 },
