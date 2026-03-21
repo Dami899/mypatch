@@ -877,10 +877,10 @@ Usa la herramienta [string:tool.uvpursuitbreaker.name]:
  |-- 3. Una vez soldados, presiona [+attack2] en cualquier objeto de la pausa de persecución.
  |-- 4. Cambia los ajustes a cómo te parezcan mejor, después haz click en [string:uv.tool.create]
 ]],
--- ["Pursuit.Infractions"] = [[ -- "Infracciones"
--- # -- What are infractions? Which ones exist?
+["Pursuit.Infractions"] = [[ -- "Infracciones"
+-- # -- ¿Que son las infracciones? ¿Cuales existen?
 
--- There are 12 different infractions you can acquire during pursuits. They are:
+-- Hay 12 diferentes infracciones que puedes adquirir durante las persecuciones. Estas son:
 
 -- [string:uv.infraction.speed]
       -- |-- [ncstring:uv.infraction.speed.desc]
