@@ -35,6 +35,8 @@ if SERVER then
 		net.Start("UVPursuitBreakerRefresh")
 		net.Send(ply)
 
+		UVPreloadPursuitBreakers()
+
 	end)
 
 	net.Receive("UVPursuitBreakerLoad", function( length, ply )

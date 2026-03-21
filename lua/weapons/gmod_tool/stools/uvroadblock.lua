@@ -49,6 +49,8 @@ if SERVER then
 		net.Start("UVRoadblocksRefresh")
 		net.Send(ply)
 
+		UVPreloadRoadblocks()
+
 	end)
 
 	net.Receive("UVRoadblocksLoad", function( length, ply )
