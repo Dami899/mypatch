@@ -999,7 +999,7 @@ Unit Vehicles - это аддон, ориентированный на песо�
  |-- uv_spawn_as_unit - Позволяет вам присоединиться в качестве Юнита
 ]],
 
--- Racing
+-- Гонки
 ["Racing.Joining"] = [[
 # -- Как мне присоединяться к гонкам?
 
@@ -1028,7 +1028,7 @@ Unit Vehicles - это аддон, ориентированный на песо�
 ["Racing.Resetting"] = [[
 # -- Я застрял! Как мне вернуться?
 
- |-- Нажми [key:unitvehicle_keybind_resetposition] чтобы вернуть свою машину
+ |-- Нажми [key:unitvehicle_keybind_resetposition], чтобы вернуть свою машину
  |-- Подожди 3 секунды
  |-- Ты вернулся на последнюю пройденную контрольную точку!
  
@@ -1060,7 +1060,7 @@ Use the [string:tool.uvracemanager.name] tool:
 *-- Шаг 1: Создай Контрольные Точки*
  |-- Нажми [+attack] в одном месте, чтобы начать установку контрольной точки
  |-- Нажми [+attack] по другому месту, чтобы закончить установку
- |-- Совет: Нажми [+use] чтобы повысить высоту контрольной точки автоматически
+ |-- Совет: Нажми [+use], чтобы повысить высоту контрольной точки автоматически
  
 
 *-- Шаг 2: Размести Контрольные Точки по порядку*
@@ -1110,7 +1110,7 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- [string:tool.uvracemanager.node.curve] присваивает изгиб точке, которая присоединяется, что полезно для точек, размещённых на повортах
 ]],
 
--- Pursuits
+-- Погони
 ["Pursuit.Starting"] = [[
 # -- Как мне начать погоню?
 
@@ -1188,9 +1188,9 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
  |-- 4. Измени настройки на свой вкус, затем нажми [string:uv.tool.create]
 ]],
 -- ["Pursuit.Infractions"] = [[ -- Нарушения
--- # -- What are infractions? Which ones exist?
+-- # -- Что такое нарушения? Какие существуют?
 
--- There are 12 different infractions you can acquire during pursuits. They are:
+-- Есть 12 различных нарушений, которые ты можешь совершить в течение погонь. Среди них:
 
 -- [string:uv.infraction.speed]
       -- |-- [ncstring:uv.infraction.speed.desc]
@@ -1257,9 +1257,9 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
 Ты можешь найти данные, связанные с UV, хранящиеся в директории *data/unitvehicles* игры.
 ]],
 --[[["Other.AddonCreation"] = [[
-# -- How do I create my own content/addon for Unit Vehicles?
+# -- Как мне создать собственный контент/аддон для Unit Vehicles?
 
-Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+Проверь один из закреплённых сообщений на странице мастерской аддон внутри вкладки Обсуждений.
 ]]--,
 }
 
