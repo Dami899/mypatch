@@ -238,8 +238,10 @@ if SERVER then
         
         hitent.PursuitBreaker = nil
         
-        UVLoadedPursuitBreakers[id] = nil
-        UVLoadedPursuitBreakersLoc[id] = nil
+        timer.Simple(UVPBCooldown:GetInt(), function()
+            UVLoadedPursuitBreakers[id] = nil
+            UVLoadedPursuitBreakersLoc[id] = nil
+        end)
         
         net.Start("UVTriggerPursuitBreaker")
         net.WriteInt(id, 32)
@@ -266,8 +268,6 @@ if SERVER then
             timer.Simple(UVPBCooldown:GetInt(), function()
                 if IsValid(ent) then
                     ent:Remove()
-                    UVLoadedPursuitBreakers[id] = nil
-                    UVLoadedPursuitBreakersLoc[id] = nil
                 end
             end)
             
