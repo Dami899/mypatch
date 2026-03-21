@@ -1028,7 +1028,7 @@ Unit Vehicles - это аддон, ориентированный на песо�
 ["Racing.Resetting"] = [[
 # -- Я застрял! Как мне вернуться?
 
- |-- Нажми [key:unitvehicle_keybind_resetposition] чтобы вернуть свою машину
+ |-- Нажми [key:unitvehicle_keybind_resetposition], чтобы вернуть свою машину
  |-- Подожди 3 секунды
  |-- Ты вернулся на последнюю пройденную контрольную точку!
  
@@ -1060,7 +1060,7 @@ Use the [string:tool.uvracemanager.name] tool:
 *-- Шаг 1: Создай Контрольные Точки*
  |-- Нажми [+attack] в одном месте, чтобы начать установку контрольной точки
  |-- Нажми [+attack] по другому месту, чтобы закончить установку
- |-- Совет: Нажми [+use] чтобы повысить высоту контрольной точки автоматически
+ |-- Совет: Нажми [+use], чтобы повысить высоту контрольной точки автоматически
  
 
 *-- Шаг 2: Размести Контрольные Точки по порядку*
@@ -1110,7 +1110,7 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- [string:tool.uvracemanager.node.curve] присваивает изгиб точке, которая присоединяется, что полезно для точек, размещённых на повортах
 ]],
 
--- Pursuits
+-- Pursuit
 ["Pursuit.Starting"] = [[
 # -- Как мне начать погоню?
 
@@ -1187,36 +1187,36 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
  |-- 3. Как только всё сварено, нажми [+attack2] по любой части Погонелома
  |-- 4. Измени настройки на свой вкус, затем нажми [string:uv.tool.create]
 ]],
--- ["Pursuit.Infractions"] = [[ -- Нарушения
--- # -- What are infractions? Which ones exist?
+["Pursuit.Infractions"] = [[
+# -- Что такое нарушения? Какие существуют?
 
--- There are 12 different infractions you can acquire during pursuits. They are:
+Есть 12 различных нарушений, которые ты можешь совершить в течение погонь. Среди них:
 
--- [string:uv.infraction.speed]
-      -- |-- [ncstring:uv.infraction.speed.desc]
--- [string:uv.infraction.veryspeed]
-      -- |-- [ncstring:uv.infraction.veryspeed.desc]
--- [string:uv.infraction.reckless]
-      -- |-- [ncstring:uv.infraction.reckless.desc]
--- [string:uv.infraction.rampolice]
-      -- |-- [ncstring:uv.infraction.rampolice.desc]
--- [string:uv.infraction.ram]
-      -- |-- [ncstring:uv.infraction.ram.desc]
--- [string:uv.infraction.property]
-      -- |-- [ncstring:uv.infraction.property.desc]
--- [string:uv.infraction.resist]
-      -- |-- [ncstring:uv.infraction.resist.desc]
--- [string:uv.infraction.offroad]
-      -- |-- [ncstring:uv.infraction.offroad.desc]
--- [string:uv.infraction.streetrace]
-      -- |-- [ncstring:uv.infraction.streetrace.desc]
--- [string:uv.infraction.resource]
-      -- |-- [ncstring:uv.infraction.resource.desc]
--- [string:uv.infraction.endanger]
-      -- |-- [ncstring:uv.infraction.endanger.desc]
--- [string:uv.infraction.homicide]
-      -- |-- [ncstring:uv.infraction.homicide.desc]
--- ]],
+[string:uv.infraction.speed]
+      |-- [ncstring:uv.infraction.speed.desc]
+[string:uv.infraction.veryspeed]
+      |-- [ncstring:uv.infraction.veryspeed.desc]
+[string:uv.infraction.reckless]
+      |-- [ncstring:uv.infraction.reckless.desc]
+[string:uv.infraction.rampolice]
+      |-- [ncstring:uv.infraction.rampolice.desc]
+[string:uv.infraction.ram]
+      |-- [ncstring:uv.infraction.ram.desc]
+[string:uv.infraction.property]
+      |-- [ncstring:uv.infraction.property.desc]
+[string:uv.infraction.resist]
+      |-- [ncstring:uv.infraction.resist.desc]
+[string:uv.infraction.offroad]
+      |-- [ncstring:uv.infraction.offroad.desc]
+[string:uv.infraction.streetrace]
+      |-- [ncstring:uv.infraction.streetrace.desc]
+[string:uv.infraction.resource]
+      |-- [ncstring:uv.infraction.resource.desc]
+[string:uv.infraction.endanger]
+      |-- [ncstring:uv.infraction.endanger.desc]
+[string:uv.infraction.homicide]
+      |-- [ncstring:uv.infraction.homicide.desc]
+]],
 
 ["Other.CreateTraffic"] = [[
 # -- Как мне разместить трафик?
@@ -1256,11 +1256,11 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
 
 Ты можешь найти данные, связанные с UV, хранящиеся в директории *data/unitvehicles* игры.
 ]],
---[[["Other.AddonCreation"] = [[
-# -- How do I create my own content/addon for Unit Vehicles?
+["Other.AddonCreation"] = [[
+# -- Как мне создать собственный контент/аддон для Unit Vehicles?
 
-Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
-]]--,
+Проверь один из закреплённых сообщений на странице мастерской аддон внутри вкладки Обсуждений.
+]],
 }
 
 -- Polski (Polish) pl
