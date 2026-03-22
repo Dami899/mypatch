@@ -2549,6 +2549,41 @@ else -- CLIENT stuff
 			
 			if hudyes then
 				UV_UI.speedometer[speedotype].main( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength, health, cfnitrousenabled, cfnitrousamount, cfsbenabled, cfsbamount )
+				
+				-- Draw weapon switch notification
+				if Glide.currentVehicle.weaponSwitchNotification then
+					local notif = Glide.currentVehicle.weaponSwitchNotification
+
+					Glide.DrawWeaponSelection( notif.name, notif.icon )
+
+					if RealTime() > notif.time then
+						Glide.currentVehicle.weaponSwitchNotification = nil
+					end
+				end
+
+				local localPly = LocalPlayer()
+
+				-- Let the weapon class draw it's own HUD
+				if Glide.currentVehicle:GetDriver() == localPly then
+					local weapon = Glide.currentVehicle.weapons[Glide.currentVehicle.weaponSlotIndex]
+
+					if weapon then
+						weapon:DrawHUD( w, h )
+					end
+				end
+
+				-- If we have a custom crosshair, draw it now
+				local crosshair = Glide.currentVehicle.crosshair
+
+				if crosshair then
+					Glide.currentVehicle:UpdateCrosshairPosition()
+
+					local pos = crosshair.origin:ToScreen()
+
+					if pos.visible then
+						Glide.DrawWeaponCrosshair( pos.x, pos.y, crosshair.icon, crosshair.size, crosshair.color )
+					end
+				end
 			end
 		end
 
