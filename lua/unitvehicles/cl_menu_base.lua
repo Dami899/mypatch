@@ -1185,6 +1185,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 		local applyBtn = vgui.Create("DButton", wrap)
 		applyBtn:SetSize(UV.ScaleW(25), UV.ScaleH(25))
+		applyBtn:Dock(RIGHT)
 		applyBtn:SetText(" ")
 		applyBtn:SetVisible(false)
 		applyBtn.Paint = function(self2, w, h)
@@ -1214,7 +1215,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			valBox:SetPos(0, offsetY)
 
 			local btnX = valBox:GetWide() + 4
-			applyBtn:SetPos(valPanel:GetX() + btnX, offsetY)
+			-- applyBtn:SetPos(valPanel:GetX() + btnX, offsetY)
 		end
 
 		wrap.OnSizeChanged = LayoutValPanel

@@ -877,36 +877,36 @@ Usa la herramienta [string:tool.uvpursuitbreaker.name]:
  |-- 3. Una vez soldados, presiona [+attack2] en cualquier objeto de la pausa de persecución.
  |-- 4. Cambia los ajustes a cómo te parezcan mejor, después haz click en [string:uv.tool.create]
 ]],
-["Pursuit.Infractions"] = [[ -- "Infracciones"
--- # -- ¿Que son las infracciones? ¿Cuales existen?
+["Pursuit.Infractions"] = [[
+# -- ¿Que son las infracciones? ¿Cuales existen?
 
--- Hay 12 diferentes infracciones que puedes adquirir durante las persecuciones. Estas son:
+Hay 12 diferentes infracciones que puedes adquirir durante las persecuciones. Estas son:
 
--- [string:uv.infraction.speed]
-      -- |-- [ncstring:uv.infraction.speed.desc]
--- [string:uv.infraction.veryspeed]
-      -- |-- [ncstring:uv.infraction.veryspeed.desc]
--- [string:uv.infraction.reckless]
-      -- |-- [ncstring:uv.infraction.reckless.desc]
--- [string:uv.infraction.rampolice]
-      -- |-- [ncstring:uv.infraction.rampolice.desc]
--- [string:uv.infraction.ram]
-      -- |-- [ncstring:uv.infraction.ram.desc]
--- [string:uv.infraction.property]
-      -- |-- [ncstring:uv.infraction.property.desc]
--- [string:uv.infraction.resist]
-      -- |-- [ncstring:uv.infraction.resist.desc]
--- [string:uv.infraction.offroad]
-      -- |-- [ncstring:uv.infraction.offroad.desc]
--- [string:uv.infraction.streetrace]
-      -- |-- [ncstring:uv.infraction.streetrace.desc]
--- [string:uv.infraction.resource]
-      -- |-- [ncstring:uv.infraction.resource.desc]
--- [string:uv.infraction.endanger]
-      -- |-- [ncstring:uv.infraction.endanger.desc]
--- [string:uv.infraction.homicide]
-      -- |-- [ncstring:uv.infraction.homicide.desc]
--- ]],
+[string:uv.infraction.speed]
+      |-- [ncstring:uv.infraction.speed.desc]
+[string:uv.infraction.veryspeed]
+      |-- [ncstring:uv.infraction.veryspeed.desc]
+[string:uv.infraction.reckless]
+      |-- [ncstring:uv.infraction.reckless.desc]
+[string:uv.infraction.rampolice]
+      |-- [ncstring:uv.infraction.rampolice.desc]
+[string:uv.infraction.ram]
+      |-- [ncstring:uv.infraction.ram.desc]
+[string:uv.infraction.property]
+      |-- [ncstring:uv.infraction.property.desc]
+[string:uv.infraction.resist]
+      |-- [ncstring:uv.infraction.resist.desc]
+[string:uv.infraction.offroad]
+      |-- [ncstring:uv.infraction.offroad.desc]
+[string:uv.infraction.streetrace]
+      |-- [ncstring:uv.infraction.streetrace.desc]
+[string:uv.infraction.resource]
+      |-- [ncstring:uv.infraction.resource.desc]
+[string:uv.infraction.endanger]
+      |-- [ncstring:uv.infraction.endanger.desc]
+[string:uv.infraction.homicide]
+      |-- [ncstring:uv.infraction.homicide.desc]
+]],
 
 ["Other.CreateTraffic"] = [[
 # -- ¿Cómo aparezco tráfico?
