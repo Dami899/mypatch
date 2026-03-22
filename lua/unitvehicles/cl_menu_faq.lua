@@ -58,14 +58,14 @@ You can follow us on our Trello page, or our Discord server, both of which you c
 # -- What console commands are there I can use?
 
  |-- uv_spawnvehicles - Spawns patrolling AI Units
- |-- uv_setheat [x] - Sets the Heat Level
+ |-- uv_setheat {X} - Sets the Heat Level
  |-- uv_despawnvehicles - Despawns Patrolling AI Units
  |-- uv_resetallsettings - Resets all server settings to their default values
  |-- uv_startpursuit - Starts a countdown before beginning a pursuit
  |-- uv_stoppursuit - Stops a pursuit with AI Units assuming you've escaped
  |-- uv_wantedtable - Prints a list of wanted suspects to the console
  |-- uv_clearbounty - Sets the bounty value to 0
- |-- uv_setbounty [x] - Sets the bounty value
+ |-- uv_setbounty {X} - Sets the bounty value
  |-- uv_spawn_as_unit - Allows you to join as the Unit
 ]],
 
@@ -75,7 +75,6 @@ You can follow us on our Trello page, or our Discord server, both of which you c
 
 If someone has prepared a race, and they send an invite, you'll receive an on-screen notification inviting you to it, assuming that you are in a vehicle and no pursuit is ongoing.
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- How do I race with AI?
 
@@ -96,7 +95,6 @@ There are two ways of doing that:
 **Notes**
  |-- Ensure the [string:uv.tool.base.title] variable matches your desired base.
 ]],
-
 ["Racing.Resetting"] = [[
 # -- I'm stuck! How do I reset?
 
@@ -108,7 +106,6 @@ There are two ways of doing that:
  |-- You cannot reset when being busted
  |-- You cannot reset while already moving
 ]],
-
 ["Racing.Starting"] = [[
 # -- How do I start racing?
 
@@ -125,7 +122,6 @@ Begin a race by going to [string:uv.rm] in the UV Menu:
  |-- If there are no existing races, you'll have to make your own
  |-- Alternatively, find some on the Workshop!
 ]],
-
 ["Racing.Create"] = [[
 # -- How do I create races?
 Use the [string:tool.uvracemanager.name] tool:
@@ -146,7 +142,8 @@ Use the [string:tool.uvracemanager.name] tool:
  
 
 *-- Step 3: Create Grid Slots*
- |-- Press [+reload] to place Grid Slots
+ |-- Press [+reload] to change modes to Grid Slots
+ |-- Press [+attack] to place out Grid Slots
  |-- The numbers on the slots represent starting order
  |-- Want more racers? Place more slots!
  
@@ -164,6 +161,24 @@ If the AI is going too fast, you'll have to alter the speedlimit value found in 
 If you have a race already loaded, you can press [+attack2] on the Checkpoint to edit it and apply the updated speedlimit.
 Alternatively, you can edit the last number in the race data file.
 ]],
+["Racing.Create.PathNode"] = [[
+# -- What are "Path Nodes" and how do I use them?
+
+Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+
+
+**-- Creating Path Nodes**
+With the [string:tool.uvracemanager.name] tool equipped:
+ |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ |-- Press [+attack] anywhere on the map to create a node
+ |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+
+**-- Editing Path Nodes**
+With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -174,7 +189,6 @@ Alternatively, you can edit the last number in the race data file.
  |-- Alternatively, drive into or drive recklessly near a Unit
  |-- Away you go!
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- Can I join the Pursuit as a Unit?
 
@@ -183,6 +197,21 @@ Yes you can! And it's simple:
  |-- Click [string:uv.pm.spawnas]
  |-- Pick the vehicle you want to drive
  |-- Away you go!
+]],
+["Pursuit.PursuitSettings"] = [[
+# -- How do I switch up Units and other Pursuit settings?
+
+Most crucial settings are found inside of [string:uv.hm]:
+ |-- Go to [string:uv.pm]
+ |-- Click [string:uv.hm]
+
+-- Here's what you can do in [string:uv.hm]:
+ |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
+ |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
+ |-- [string:uv.hm.vp]: Set voices of each Unit type.
+ |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+
+Other pursuit/AI settings can be found in [string:uv.settings].
 ]],
 ["Pursuit.Respawn"] = [[
 # -- I'm stuck or too far from the suspect(s)! How do I reset?
@@ -228,7 +257,38 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
  |-- 3. Once welded, press [+attack2] on any piece of the Pursuit Breaker
  |-- 4. Tweak the settings to your liking, then click [string:uv.tool.create]
 ]],
+["Pursuit.Infractions"] = [[
+# -- What are infractions? Which ones exist?
 
+There are 12 different infractions you can acquire during pursuits. They are:
+
+[string:uv.infraction.speed]
+      |-- [ncstring:uv.infraction.speed.desc]
+[string:uv.infraction.veryspeed]
+      |-- [ncstring:uv.infraction.veryspeed.desc]
+[string:uv.infraction.reckless]
+      |-- [ncstring:uv.infraction.reckless.desc]
+[string:uv.infraction.rampolice]
+      |-- [ncstring:uv.infraction.rampolice.desc]
+[string:uv.infraction.ram]
+      |-- [ncstring:uv.infraction.ram.desc]
+[string:uv.infraction.property]
+      |-- [ncstring:uv.infraction.property.desc]
+[string:uv.infraction.resist]
+      |-- [ncstring:uv.infraction.resist.desc]
+[string:uv.infraction.offroad]
+      |-- [ncstring:uv.infraction.offroad.desc]
+[string:uv.infraction.streetrace]
+      |-- [ncstring:uv.infraction.streetrace.desc]
+[string:uv.infraction.resource]
+      |-- [ncstring:uv.infraction.resource.desc]
+[string:uv.infraction.endanger]
+      |-- [ncstring:uv.infraction.endanger.desc]
+[string:uv.infraction.homicide]
+      |-- [ncstring:uv.infraction.homicide.desc]
+]],
+
+-- Other
 ["Other.CreateTraffic"] = [[
 # -- How do I spawn traffic?
 
@@ -268,6 +328,11 @@ Yes you can. And it's simple:
 
 You can find your UV-related data stored in your game's *data/unitvehicles* directory.
 ]],
+["Other.AddonCreation"] = [[
+# -- How do I create my own content/addon for Unit Vehicles?
+
+Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+]],
 }
 
 -- Svenska (Swedish) sv-se
@@ -304,14 +369,14 @@ Du kan följa oss på vår Trello-sida, eller på vår Discord-server. Du hittar
 # -- Vilka konsolkommandon kan jag använda?
 
  |-- uv_spawnvehicles - Spawnar patrullerande AI-enheter
- |-- uv_setheat [x] - Sätter spaningsnivån
+ |-- uv_setheat {X} - Sätter spaningsnivån
  |-- uv_despawnvehicles - Tar bort patrullerande AI-enheter
  |-- uv_resetallsettings - Återställer alla serverinställningar
  |-- uv_startpursuit - Påbörjar en nedräkning innan en jakt startas
  |-- uv_stoppursuit - Stoppar jakten där AI-enheter tror att du kommit undan
  |-- uv_wantedtable - Skriver ut en lista på efterlysta misstänka i konsolen
  |-- uv_clearbounty - Sätter belöningsvärdet till 0
- |-- uv_setbounty [x] - Sätter belöningsvärdet
+ |-- uv_setbounty {X} - Sätter belöningsvärdet
  |-- uv_spawn_as_unit - Tillåter dig att gå med som en enhet
 ]],
 
@@ -321,7 +386,6 @@ Du kan följa oss på vår Trello-sida, eller på vår Discord-server. Du hittar
 
 Om något har förberett ett race och skickat en inbjudan så får du en notifikation på skärmen som bjuder in dig till den, förutsatt att du är i ett fordon och ingen jakt pågår.
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- Hur tävlar jag med AI?
 
@@ -342,7 +406,6 @@ Det finns två sätt att göra det:
 **Notera**
  |-- Kolla så att [string:uv.tool.base.title]-variabeln matchar din valda bas.
 ]],
-
 ["Racing.Resetting"] = [[
 # -- Jag har fastnat! Hur återställer jag?
 
@@ -354,7 +417,6 @@ Det finns två sätt att göra det:
  |-- Du kan inte återställa när du arresteras
  |-- Du kan inte återställa när du är i rörelse
 ]],
-
 ["Racing.Starting"] = [[
 # -- Hur börjar jag ett race?
 
@@ -371,7 +433,6 @@ Påbörja ett race genom att gå till [string:uv.rm] i UV-menyn:
  |-- Om det inte finns något race så behöver du skapa ditt eget
  |-- Alternativt så hittar du några på Workshop!
 ]],
-
 ["Racing.Create"] = [[
 # -- Hur skapar jag ett race?
 Använd verktyget [string:tool.uvracemanager.name]:
@@ -391,8 +452,9 @@ Använd verktyget [string:tool.uvracemanager.name]:
  |-- AI:n kommer alltid använda den sist utplacerade kontrollpunkten
  
 
-*-- Steg 3: Skapa spawnpunkter*
- |-- Tryck på [+reload] för att placera ut Spawnpunkter
+*-- Steg 3: Skapa rutnätsplatser*
+ |-- Tryck på [+reload] för att växla läge till rutnätsplatser
+ |-- Tryck på [+attack] för att placera ut rutnätsplatser
  |-- Punkternas nummer representerar startordning
  |-- Vill du ha fler tävlande? Placera ut fler punkter!
  
@@ -410,6 +472,23 @@ Om AI:n kör för fort så behöver du redigera hastighetsbegränsningsvärdet s
 Om ett race redan är laddat så kan du trycka på [+attack2] på Kontrollpunkten för att redigera den och tillämpa den uppdaterade gränsen.
 Alternativt så kan du redigera det sista värdet i racets datafil.
 ]],
+["Racing.Create.PathNode"] = [[
+# -- Vad är "sökvägsnoder", och hur använder jag dem?
+
+Sökvägsnoder är en alternativ navigeringsmetod som används av Racing AI:n under lopp. Dem skapas med verktyget [string:tool.uvracemanager.name].
+
+**-- Skapa sökvägsnoder**
+Med verktyget [string:tool.uvracemanager.name] framtaget:
+ |-- Tryck på [+reload] tills du bytt till [string:tool.uvracemanager.node]-läget
+ |-- Tryck på [+attack] på kartan för att skapa en nod
+ |-- Tryck på [+attack] på ett annat ställe på kartan för att skapa en ny nod; den föregående noden ansluter sig automatiskt till den
+ |-- Tryck på [+attack] på en existerande nod för att markera den; klicka på den igen för att ta bort den, eller klicka på en annan nod för att ansluta den markerade noden till den
+
+**-- Redigera sökvägsnoder**
+Med verktyget [string:tool.uvracemanager.name] satt till [string:tool.uvracemanager.node], tryck på [+attack2] på en existerande nod för att öppna [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] sätter hastigheten som AI:n följer efter dem passerat denna nod
+ |-- [string:tool.uvracemanager.node.curve] tillämpar en kurva till noden denna ansluter sig till, vilket är användbart på noder placerade i och runt kurvor
+]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -420,7 +499,6 @@ Alternativt så kan du redigera det sista värdet i racets datafil.
  |-- Alternativt så krockar du med, eller köra galet nära en Enhet
  |-- Iväg med dig!
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- Kan jag gå med jakten som en Enhet?
 
@@ -429,6 +507,21 @@ Ja, det kan du! Och simpelt är det:
  |-- Tryck på [string:uv.pm.spawnas]
  |-- Välj fordonet du vill köra
  |-- Iväg med dig!
+]],
+["Pursuit.PursuitSettings"] = [[
+# -- Hur byter jag enheter och andra jaktinställningar?
+
+Dem flesta kritiska inställningarna finns inne i [string:uv.hm]:
+ |-- Gå till [string:uv.pm]
+ |-- Klicka på [string:uv.hm]
+
+-- Här är det du kan göra i [string:uv.hm]:
+ |-- [string:uv.hm.presets]: Du kan ladda en förinställning för att snabbt tillämpa en samling inställningar till en Jakt, skapade av andra spelare eller du själv.
+ |-- [string:uv.settings.general]: Ändra generella inställningar i din jakt med spaningsnivåer, belöningar och mer.
+ |-- [string:uv.hm.vp]: Välj röster till varje enhetstyp.
+ |-- [string:uv.pursuit.heatlevels]: Välj vilka enhetsfordon som jagar dig vid spaningsnivå X, och andra inställningar relaterad till den spaningsnivån.
+
+Andra jakt/AI-inställningar hittar du i [string:uv.settings].
 ]],
 ["Pursuit.Respawn"] = [[
 # -- Jag har fastnat eller är för långt bort från dem misstänkta! Hur återställer jag?
@@ -474,6 +567,36 @@ Du använder verktyget [string:tool.uvpursuitbreaker.name]:
  |-- 3. När dem är svetsade, tryck på [+attack2] på vilken del som helst i vägspärren
  |-- 4. Ändra inställningarna som du vill, och tryck därefter på [string:uv.tool.create]
 ]],
+["Pursuit.Infractions"] = [[
+# -- Vad är en överträdelse? Vilka finns det?
+
+Det finns 12 olika överträdelser du kan motta under jakter. Dem är:
+
+[string:uv.infraction.speed]
+      |-- [ncstring:uv.infraction.speed.desc]
+[string:uv.infraction.veryspeed]
+      |-- [ncstring:uv.infraction.veryspeed.desc]
+[string:uv.infraction.reckless]
+      |-- [ncstring:uv.infraction.reckless.desc]
+[string:uv.infraction.rampolice]
+      |-- [ncstring:uv.infraction.rampolice.desc]
+[string:uv.infraction.ram]
+      |-- [ncstring:uv.infraction.ram.desc]
+[string:uv.infraction.property]
+      |-- [ncstring:uv.infraction.property.desc]
+[string:uv.infraction.resist]
+      |-- [ncstring:uv.infraction.resist.desc]
+[string:uv.infraction.offroad]
+      |-- [ncstring:uv.infraction.offroad.desc]
+[string:uv.infraction.streetrace]
+      |-- [ncstring:uv.infraction.streetrace.desc]
+[string:uv.infraction.resource]
+      |-- [ncstring:uv.infraction.resource.desc]
+[string:uv.infraction.endanger]
+      |-- [ncstring:uv.infraction.endanger.desc]
+[string:uv.infraction.homicide]
+      |-- [ncstring:uv.infraction.homicide.desc]
+]],
 
 ["Other.CreateTraffic"] = [[
 # -- Hur spawnar jag trafik?
@@ -514,11 +637,16 @@ Ja, det kan du. Och simpelt är det:
 
 Du kan hitta all din UV-data i spelets *data/unitvehicles*-mapp.
 ]],
+["Other.AddonCreation"] = [[
+# -- Hur skapar jag eget innehåll/tillägg till Unit Vehicles?
+
+Kolla på ett av dem fästa meddelandena på tilläggets workshop-sida, inne i Diskussioner-fliken.
+]],
 }
 
 -- Español (Spanish) es-es
 UV.FAQ["es-es"] = {
--- Introducción
+-- Introduction
 ["Intro"] = [[
 # -- ¿De qué trata esta extensión?
 
@@ -550,24 +678,23 @@ Puedes seguirnos en nuestra página de Trello, o en nuestro servidor de Discord,
 # -- ¿Qué comandos de consola hay para usar?
 
  |-- uv_spawnvehicles - Aparece unidades IA que patrullan.
- |-- uv_setheat [x] - Establece el nivel de persecución.
+ |-- uv_setheat {X} - Establece el nivel de persecución.
  |-- uv_despawnvehicles - Desaparece unidades IA que patrullan.
  |-- uv_resetallsettings - Reestablece todos ajustes del servidor a sus valores por defecto.
  |-- uv_startpursuit - Comienza un conteo antes de comenzar una persecución.
  |-- uv_stoppursuit - Detiene la persecución con unidades IA las cuales asumen que escapaste.
  |-- uv_wantedtable - Muestra una lista de sospechosos buscados en la consola.
  |-- uv_clearbounty - Establece el valor de la bolsa a 0.
- |-- uv_setbounty [x] - Establece el valor de la bolsa.
+ |-- uv_setbounty {X} - Establece el valor de la bolsa.
  |-- uv_spawn_as_unit - Te permite unirte como unidad policial.
 ]],
 
--- Carreras
+-- Racing
 ["Racing.Joining"] = [[
 # -- ¿Cómo me uno a las carreras?
 
 Si alguien ya preparó una carrera, y te envian una invitación, recibirás una notificación en pantalla en la que te invitan a ella, asumiendo que estás en un vehículo y no hay ninguna persecución en curso.
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- ¿Cómo corro con la IA?
 
@@ -588,7 +715,6 @@ Hay 2 maneras de hacerlo:
 **Notas**
  |-- Asegúrate que la variable [string:uv.tool.base.title] es la misma a la de tu base de vehículos asignada.
 ]],
-
 ["Racing.Resetting"] = [[
 # -- ¡Me atasqué! ¿Cómo reaparezco?
 
@@ -600,7 +726,6 @@ Hay 2 maneras de hacerlo:
  |-- No puedes restablecer mientras estás siendo arrestado.
  |-- No puedes restablecer cuando ya te estás moviendo.
 ]],
-
 ["Racing.Starting"] = [[
 # -- ¿Cómo comienzo a correr?
 
@@ -617,7 +742,6 @@ Comienza una carrera yendo a [string:uv.rm] en el menú de UV:
  |-- Si no hay carreras existentes, tendrás que crear una.
  |-- ¡Como alternativa, busca si hay en la workshop!
 ]],
-
 ["Racing.Create"] = [[
 # -- ¿Cómo creo carreras?
 Usa la herramienta [string:tool.uvracemanager.name]:
@@ -638,7 +762,8 @@ Usa la herramienta [string:tool.uvracemanager.name]:
  
 
 *-- Paso 3: Crea espacios en la grilla*
- |-- Presiona [+reload] para poner espacios en la grilla
+ |-- Presiona [+reload] para cambiar el modo a Espacios en la grilla 
+ |-- Presiona [+attack] para poner Espacios en la grilla
  |-- Los números en los espacios representan el orden de las posiciones
  |-- ¿Quieres más corredores? ¡Pon más espacios!
  
@@ -656,17 +781,34 @@ Si la IA va muy rápido, tendrás que cambiar el límite de velocidad que encont
 Si tienes una carrera ya cargada, puedes presionar [+attack2] en el punto de control para editarlo y aplicar el límite de velocidad actualizado.
 Alternativamente, puedes editar el ultimo numero en el archivo "race data".
 ]],
+["Racing.Create.PathNode"] = [[
+# -- ¿Que son los "Path Nodes" y como los uso?
 
--- Persecuciones
+Los Path Nodes son un método de navegación alternativa usado por los corredores IA mientras se encuentran en una carrera. Se crean mediante la herramienta [string:tool.uvracemanager.name].
+
+
+**-- Creando Path Nodes**
+Con la herramienta [string:tool.uvracemanager.name] equipada:
+ |-- Presiona [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ |-- Presiona [+attack] en cualquier parte del mapa para crear un nodo
+ |-- Presiona [+attack] en cualquier otro lugar para crear un nuevo nodo; los nodos puestos anteriormente se conectaran automáticamente a el
+ |-- Presiona [+attack] en cualquier nodo existente para resaltarlo; haz click en el de nuevo para removerlo, o haz click en otro nodo para conectar el nodo resaltado a el
+
+**-- Editando Path Nodes**
+Con [string:tool.uvracemanager.name] y establecido a [string:tool.uvracemanager.node], presiona [+attack2] en un nodo existente para abrir [string:tool.uvracemanager.node.settings]:
+ |-- El [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ |-- El [string:tool.uvracemanager.node.curve] le asigna una curva al nodo al que se conecta, lo cual es útil para nodos puestos al rededor de curvas 
+]],
+
+-- Pursuits
 ["Pursuit.Starting"] = [[
-# -- ¿Cómo empiezo una persecución?
+# -- ¿Cómo comienzo una persecución?
 
  |-- Ve a [string:uv.pm]
  |-- Haz click en [string:uv.pm.pursuit.start]
  |-- Alternativamente, conduce agresivamente o colisiona con una unidad policial
  |-- ¡Y allí vas!
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- ¿Puedo unirme a la persecución como unidad policial?
 
@@ -675,6 +817,21 @@ Alternativamente, puedes editar el ultimo numero en el archivo "race data".
  |-- Haz click en [string:uv.pm.spawnas]
  |-- Elige el vehículo que quieras conducir
  |-- ¡Y allí vas!
+]],
+["Pursuit.PursuitSettings"] = [[
+# -- ¿Cómo cambio unidades y otros ajustes de persecución?
+
+Los ajustes mas cruciales se encuentran dentro del [string:uv.hm]:
+ |-- Ve a [string:uv.pm]
+ |-- Haz click en [string:uv.hm]
+
+-- Esto es lo que puedes hacer en [string:uv.hm]:
+ |-- [string:uv.hm.presets]: Puedes cargar un preajuste para rapidamente aplicar un set de ajustes a una persecución, creados por otros jugadores o por tú mismo.
+ |-- [string:uv.settings.general]: Cambia los ajustes generales de tu persecución en relación con los niveles de persecución, bolsa, y más.
+ |-- [string:uv.hm.vp]: Establece las voces de cada tipo de unidad.
+ |-- [string:uv.pursuit.heatlevels]: Establece que unidades te perseguiran en determinado nivel de persecución, entre otros ajustes relacionados con ese nivel de persecución.
+
+Otros ajustes de persecución/IA pueden ser encontrados en [string:uv.settings].
 ]],
 ["Pursuit.Respawn"] = [[
 # -- ¡Estoy atascado o muy lejos de el/los sospechoso(s)! ¿Cómo reaparezco?
@@ -720,6 +877,36 @@ Usa la herramienta [string:tool.uvpursuitbreaker.name]:
  |-- 3. Una vez soldados, presiona [+attack2] en cualquier objeto de la pausa de persecución.
  |-- 4. Cambia los ajustes a cómo te parezcan mejor, después haz click en [string:uv.tool.create]
 ]],
+["Pursuit.Infractions"] = [[
+# -- ¿Que son las infracciones? ¿Cuales existen?
+
+Hay 12 diferentes infracciones que puedes adquirir durante las persecuciones. Estas son:
+
+[string:uv.infraction.speed]
+      |-- [ncstring:uv.infraction.speed.desc]
+[string:uv.infraction.veryspeed]
+      |-- [ncstring:uv.infraction.veryspeed.desc]
+[string:uv.infraction.reckless]
+      |-- [ncstring:uv.infraction.reckless.desc]
+[string:uv.infraction.rampolice]
+      |-- [ncstring:uv.infraction.rampolice.desc]
+[string:uv.infraction.ram]
+      |-- [ncstring:uv.infraction.ram.desc]
+[string:uv.infraction.property]
+      |-- [ncstring:uv.infraction.property.desc]
+[string:uv.infraction.resist]
+      |-- [ncstring:uv.infraction.resist.desc]
+[string:uv.infraction.offroad]
+      |-- [ncstring:uv.infraction.offroad.desc]
+[string:uv.infraction.streetrace]
+      |-- [ncstring:uv.infraction.streetrace.desc]
+[string:uv.infraction.resource]
+      |-- [ncstring:uv.infraction.resource.desc]
+[string:uv.infraction.endanger]
+      |-- [ncstring:uv.infraction.endanger.desc]
+[string:uv.infraction.homicide]
+      |-- [ncstring:uv.infraction.homicide.desc]
+]],
 
 ["Other.CreateTraffic"] = [[
 # -- ¿Cómo aparezco tráfico?
@@ -760,6 +947,11 @@ Si puedes. Y es simple:
 
 Puedes encontrar tus datos relacionados con UV guardados en el directorio *data/unitvehicles* de tu juego.
 ]],
+["Other.AddonCreation"] = [[
+# -- ¿Como creo my propio contenido/exstensión para Unit Vehicles?
+
+Revisa uno de los mensajes fijadoos en la página de la workshop para esta extensión, dentro de la tabla de discuciones.
+]],
 }
 
 -- Русский (Russian) ru
@@ -796,14 +988,14 @@ Unit Vehicles - это аддон, ориентированный на песо�
 # -- Какие есть консольные команды, которые я могу использовать?
 
  |-- uv_spawnvehicles - Размещает патрулирующих ИИ Юнитов
- |-- uv_setheat [x] - Устанавливает Уровень Жары
+ |-- uv_setheat {X} - Устанавливает Уровень Жары
  |-- uv_despawnvehicles - Удаляет патрулирующих ИИ Юнитов
  |-- uv_resetallsettings - Сбрасивает все серверные настройки до их изначальных значений
  |-- uv_startpursuit - Начинает отсчёт до начала погони
  |-- uv_stoppursuit - Останавливает погоню с ИИ Юнитами, предполагая ваш побег
  |-- uv_wantedtable - Выводит список разыскиваемых подозреваемых в консоль
  |-- uv_clearbounty - Устанавливает значение награды на 0
- |-- uv_setbounty [x] - Устанавливает значение награды
+ |-- uv_setbounty {X} - Устанавливает значение награды
  |-- uv_spawn_as_unit - Позволяет вам присоединиться в качестве Юнита
 ]],
 
@@ -813,7 +1005,6 @@ Unit Vehicles - это аддон, ориентированный на песо�
 
 Если кто-то приготовил гонку, а затем отправил приглашение, у тебя появится уведомление на экране, предполагая, что ты в машине и не в погоне.
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- Как мне устроить гонку с ИИ?
 
@@ -834,11 +1025,10 @@ Unit Vehicles - это аддон, ориентированный на песо�
 **Примечания**
  |-- Убедись, что значение [string:uv.tool.base.title] соответсвует твоей желаемой базе.
 ]],
-
 ["Racing.Resetting"] = [[
 # -- Я застрял! Как мне вернуться?
 
- |-- Нажми [key:unitvehicle_keybind_resetposition] чтобы вернуть свою машину
+ |-- Нажми [key:unitvehicle_keybind_resetposition], чтобы вернуть свою машину
  |-- Подожди 3 секунды
  |-- Ты вернулся на последнюю пройденную контрольную точку!
  
@@ -846,7 +1036,6 @@ Unit Vehicles - это аддон, ориентированный на песо�
  |-- Ты не сможешь вернуться во время ареста
  |-- Ты не сможешь вернуться во время движения
 ]],
-
 ["Racing.Starting"] = [[
 # -- Как мне начать гонку?
 
@@ -863,7 +1052,6 @@ Unit Vehicles - это аддон, ориентированный на песо�
  |-- Если нет имеющихся гонок, ты можешь создать свою
  |-- Или же ты можешь найти некоторые в Мастерской!
 ]],
-
 ["Racing.Create"] = [[
 # -- Как мне создавать гонки?
 Use the [string:tool.uvracemanager.name] tool:
@@ -872,7 +1060,7 @@ Use the [string:tool.uvracemanager.name] tool:
 *-- Шаг 1: Создай Контрольные Точки*
  |-- Нажми [+attack] в одном месте, чтобы начать установку контрольной точки
  |-- Нажми [+attack] по другому месту, чтобы закончить установку
- |-- Совет: Нажми [+use] чтобы повысить высоту контрольной точки автоматически
+ |-- Совет: Нажми [+use], чтобы повысить высоту контрольной точки автоматически
  
 
 *-- Шаг 2: Размести Контрольные Точки по порядку*
@@ -884,7 +1072,8 @@ Use the [string:tool.uvracemanager.name] tool:
  
 
 *-- Шаг 3: Создай Места Старта*
- |-- Нажми [+reload] чтобы разместить Места Старта
+ |-- Нажимай [+reload], чтобы сменить режим на Места Старта
+ |-- Нажми [+attack], чтобы разместить Место Старта
  |-- Номера на местах отображают порядок старта
  |-- Хочешь больше гонщиков? Размести больше мест!
  
@@ -902,8 +1091,26 @@ Use the [string:tool.uvracemanager.name] tool:
 Если у тебя есть уже загруженная гонка, ты можешь нажать [+attack2] по Контрольной Точке, чтобы изменить её и принять обновлённое ограничение скорости.
 Или же ты можешь изменить последний номер в файле данных гонки.
 ]],
+["Racing.Create.PathNode"] = [[
+# -- Что такое "Путевые Точки" и как мне использовать их?
 
--- Pursuits
+Путевые Точки - это альтернативный метод навигации, используемые ИИ Гонщиками во время гонок. Они создаются, используя инструмент [string:tool.uvracemanager.name].
+
+
+**-- Создание Путевых Точек**
+С помощью инструмента [string:tool.uvracemanager.name]:
+ |-- Нажимай [+reload], пока не переключишься на режим [string:tool.uvracemanager.node]
+ |-- Нажми [+attack] где-нибудь на карте, чтобы создать точку
+ |-- Нажми [+attack] где-то ещё, чтобы создать новую точку; предыдущая точка автоматически присоединиться
+ |-- Нажми [+attack] по существующей точки, чтобы выделить её; нажми по ней снова, чтобы удалить или нажми по другой точке, чтобы соединить её с выделенной
+
+**-- Изменение Путевых Точек**
+С помощью [string:tool.uvracemanager.name] установи [string:tool.uvracemanager.node], нажми [+attack2] по существующей точке, чтобы открыть [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] устанавливает скорость, на которой ИИ может передвигаться после прохождения этой точки
+ |-- [string:tool.uvracemanager.node.curve] присваивает изгиб точке, которая присоединяется, что полезно для точек, размещённых на повортах
+]],
+
+-- Pursuit
 ["Pursuit.Starting"] = [[
 # -- Как мне начать погоню?
 
@@ -912,7 +1119,6 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- Или же превышай скорость или врежься в Юнита
  |-- Уходи скорей!
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- Могу ли я присоединиться к Погоне в качестве Юнита?
 
@@ -921,6 +1127,21 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- Нажми [string:uv.pm.spawnas]
  |-- Выбери машину, на которой хочешь ехать
  |-- Поезжай!
+]],
+["Pursuit.PursuitSettings"] = [[
+# -- Как мне переключать Юниты и другие настройки Погони?
+
+Самые важные настройки находятся в [string:uv.hm]:
+ |-- Перейди в [string:uv.pm]
+ |-- Нажми [string:uv.hm]
+
+-- Вот что ты можешь сделать в [string:uv.hm]:
+ |-- [string:uv.hm.presets]: Ты можешь загрузить пресеть, чтобы принять набор настроек Погони, созданные другими игроками или тобой.
+ |-- [string:uv.settings.general]: Изменить основные настройки погони, относящиеся к уровням погони, награде и т.д.
+ |-- [string:uv.hm.vp]: Устанавливает Голоса каждому типу Юнита.
+ |-- [string:uv.pursuit.heatlevels]: Устанавливает, какой Юнит будет преследовать тебя на X Уровне Жары среди других настроек, относящихся к этому Уровня Жары.
+
+Другие настройки Погони/ИИ находятся в [string:uv.settings].
 ]],
 ["Pursuit.Respawn"] = [[
 # -- Я застрял или слишком далеко от подозреваемого(мых)! Как мне вернуться?
@@ -966,6 +1187,36 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
  |-- 3. Как только всё сварено, нажми [+attack2] по любой части Погонелома
  |-- 4. Измени настройки на свой вкус, затем нажми [string:uv.tool.create]
 ]],
+["Pursuit.Infractions"] = [[
+# -- Что такое нарушения? Какие существуют?
+
+Есть 12 различных нарушений, которые ты можешь совершить в течение погонь. Среди них:
+
+[string:uv.infraction.speed]
+      |-- [ncstring:uv.infraction.speed.desc]
+[string:uv.infraction.veryspeed]
+      |-- [ncstring:uv.infraction.veryspeed.desc]
+[string:uv.infraction.reckless]
+      |-- [ncstring:uv.infraction.reckless.desc]
+[string:uv.infraction.rampolice]
+      |-- [ncstring:uv.infraction.rampolice.desc]
+[string:uv.infraction.ram]
+      |-- [ncstring:uv.infraction.ram.desc]
+[string:uv.infraction.property]
+      |-- [ncstring:uv.infraction.property.desc]
+[string:uv.infraction.resist]
+      |-- [ncstring:uv.infraction.resist.desc]
+[string:uv.infraction.offroad]
+      |-- [ncstring:uv.infraction.offroad.desc]
+[string:uv.infraction.streetrace]
+      |-- [ncstring:uv.infraction.streetrace.desc]
+[string:uv.infraction.resource]
+      |-- [ncstring:uv.infraction.resource.desc]
+[string:uv.infraction.endanger]
+      |-- [ncstring:uv.infraction.endanger.desc]
+[string:uv.infraction.homicide]
+      |-- [ncstring:uv.infraction.homicide.desc]
+]],
 
 ["Other.CreateTraffic"] = [[
 # -- Как мне разместить трафик?
@@ -1005,9 +1256,14 @@ You use the [string:tool.uvpursuitbreaker.name] tool:
 
 Ты можешь найти данные, связанные с UV, хранящиеся в директории *data/unitvehicles* игры.
 ]],
+["Other.AddonCreation"] = [[
+# -- Как мне создать собственный контент/аддон для Unit Vehicles?
+
+Проверь один из закреплённых сообщений на странице мастерской аддон внутри вкладки Обсуждений.
+]],
 }
 
--- Polska (Polish) pl
+-- Polski (Polish) pl
 UV.FAQ["pl"] = {
 -- Introduction
 ["Intro"] = [[
@@ -1041,14 +1297,14 @@ Możesz obserwować naszą stronę na Trello lub dołączyć na Discorda. Oba li
 # -- Jakich komend mogę użyć?
 
  |-- uv_spawnvehicles - Pojawia patrolujące jednostki SI
- |-- uv_setheat [x] - Ustawia Poziom Obławy
+ |-- uv_setheat {X} - Ustawia Poziom Obławy
  |-- uv_despawnvehicles - Usuwa patrolujące Jednostki SI
  |-- uv_resetallsettings - Resetuje wszystkie ustawienia do domyślnych wartości
  |-- uv_startpursuit - Rozpoczyna pościg po odliczeniu
  |-- uv_stoppursuit - Zatrzymuje pościg zakładając że zakończył się ucieczką
  |-- uv_wantedtable - Drukuje listę poszukiwanych w konsoli
  |-- uv_clearbounty - Ustawia notowania na 0
- |-- uv_setbounty [x] - Ustawia notowania na wpisaną liczbę
+ |-- uv_setbounty {X} - Ustawia notowania na wpisaną liczbę
  |-- uv_spawn_as_unit - Pojawia Cię jako Jednostka
 ]],
 
@@ -1058,28 +1314,26 @@ Możesz obserwować naszą stronę na Trello lub dołączyć na Discorda. Oba li
 
 Jak gracz przygotuje Wyścig i Cię zaprosi, dostaniesz powiadomienie na ekranie pod warunkiem że znajdujesz się w pojeździe i nie goni Cię policja.
 ]],
+["Racing.SpawnAI"] = [[
+# -- Jak mogę ścigać się z SI?
 
--- ["Racing.SpawnAI"] = [[
--- # -- How do I race with AI?
+Są dwa sposoby na to:
 
--- There are two ways of doing that:
-
--- **Option 1**
- -- |-- 1. Spawn any Glide, Simfphys or HL2 Jeep vehicle.
- -- |-- 2. Pull out the [string:tool.uvracermanager.name] tool.
- -- |-- 3. Press [+attack2] on the vehicle.
- -- |-- 4. Tweak the settings to your liking, then click [string:uv.tool.create].
- -- |-- 5. Repeat for every vehicle you want the AI to use.
+**Opcja 1**
+ |-- 1. Pojaw dowolny pojazd z Glide, Simfphys lub bazy Jeepa z HL2.
+ |-- 2. Wyciągnij narzędzie [string:tool.uvracermanager.name].
+ |-- 3. Naciśnij [+attack2] na pojazd.
+ |-- 4. Doprecyzuj ustawienia według uznania, następnie wciśnij [string:uv.tool.create].
+ |-- 5. Powtórz dla każdego pojazdu jakiego ma używać SI.
  
--- **Option 2 (Recommended)**
- -- |-- 1. Open the [string:uv.airacer] tab.
- -- |-- 2. Enable [string:uv.airacer.override].
- -- |-- 3. In the list below the option, open the menus containing cars and press [+attack2] to add the vehicles to an AI vehicle list
+**Opcja 2 (Zalecana)**
+ |-- 1. Otwórz okno [string:uv.airacer].
+ |-- 2. Włącz [string:uv.airacer.override].
+ |-- 3. W liście pod ustawieniem, otwórz okno zawierające pojazdy i wciśnij [+attack2] aby dodać pojazd do listy pojazdów dla SI.
 
--- **Notes**
- -- |-- Ensure the [string:uv.tool.base.title] variable matches your desired base.
--- ]],
-
+**Uwagi**
+ |-- Upewnij się że zmienna [string:uv.tool.base.title] zgadza się z wybraną przez Ciebie bazą pojazdów.
+]],
 ["Racing.Resetting"] = [[
 # -- Samochód utknął! Co robić?
 
@@ -1091,8 +1345,6 @@ Jak gracz przygotuje Wyścig i Cię zaprosi, dostaniesz powiadomienie na ekranie
  |-- Nie można zresetować podczas aresztowania
  |-- Nie można zresetować podczas jazdy
 ]],
-
-
 ["Racing.Starting"] = [[
 # -- Jak rozpocząć Wyścig?
 
@@ -1109,8 +1361,6 @@ Rozpocząć Wyścig można w [string:uv.rm] w oknie UV:
  |-- Jeśli nie istnieje gotowa trasa, musisz stworzyć nową
  |-- Ewentualnie możesz przeszukać Warsztat Steam!
 ]],
-
-
 ["Racing.Create"] = [[
 # -- Jak stworzyć Wyścig?
 Przy użyciu narzędzia [string:tool.uvracemanager.name]:
@@ -1131,7 +1381,8 @@ Przy użyciu narzędzia [string:tool.uvracemanager.name]:
 
 
 *-- Krok 3: Utwórz miejsca startowe*
- |-- Wciśnij [+reload] aby położyć miejsce startowe
+ |-- Wciśnij [+reload] aby zmienić tryb na Miejsca Startowe
+ |-- Wciśnij [+attack] aby pojawiać Miejsca Startowe
  |-- Numery na slotach pokazują kolej startowania
  |-- Chcesz więcej zawodników? Połóż więcej miejsc startowych!
 
@@ -1150,7 +1401,24 @@ Jeśli SI jedzie zbyt szybko, będzie trzeba zmienić wartość limitu prędkoś
 Jeśli wyścig jest już wczytany, możesz wcisnąć [+attack2] na pkt kontrolny żeby go edytować i ustawić wybraną wartość limitu prędkości.
 Zamiast tego możesz też zmienić ostatnią liczbę w pliku danych wyścigu.
 ]],
+["Racing.Create.PathNode"] = [[
+# -- Czym są "punkty ścieżki" i jak ich użyć?
 
+Punkty ścieżki to alternatywny sposób na nawigację dla SI. Tworzone są narzędziem [string:tool.uvracemanager.name].
+
+
+**-- Tworzenie pkt ścieżki**
+Przy użyciu [string:tool.uvracemanager.name]:
+ |-- Wciśnij [+reload] dopóki nie przełączysz się na tryb [string:tool.uvracemanager.node] 
+ |-- Wciśnij [+attack] gdziekolwiek na mapie aby utworzyć pkt
+ |-- Wciśnij [+attack] znowu aby postawić kolejny pkt; poprzedni się automatycznie do niego połączy
+ |-- Wciśnij [+attack] na istniejący pkt aby go zaznaczyć; wciśnij go ponownie aby usunąć, albo wciśnij inny pkt aby połączyć do niego zaznaczony
+
+**-- Edytowanie pkt ścieżki**
+Przy użyciu [string:tool.uvracemanager.name] w trybie [string:tool.uvracemanager.node], wciśnij [+attack2] na istniejący pkt aby otworzyć [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] ustawia prędkość z jaką pojazdy będą się poruszać po przejechaniu przez ten pkt
+ |-- [string:tool.uvracemanager.node.curve] nadaje skręt w połączeniu między pktami, co przydaje się w przypadku połączeń na lub za skrętami
+]],
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1161,8 +1429,6 @@ Zamiast tego możesz też zmienić ostatnią liczbę w pliku danych wyścigu.
  |-- Ewentualnie uderz w Jednostkę lub jeździj nieostrożnie w jej pobliżu.
  |-- Gaz do dechy!
 ]],
-
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- Mogę dołączyć do Pościgu jako Jednostka?
 
@@ -1171,6 +1437,21 @@ Tak! To dość proste:
  |-- Kliknij [string:uv.pm.spawnas]
  |-- Wybierz pojazd do którego chcesz wsiąść
  |-- Powodzenia!
+]],
+["Pursuit.PursuitSettings"] = [[
+# -- Jak zmienić Jednostki i inne ustawienia Pościgów?
+
+Najważniejsze ustawienia znajdziesz w [string:uv.hm]:
+ |-- Przejdź do [string:uv.pm]
+ |-- Wciśnij [string:uv.hm]
+
+-- W [string:uv.hm] możesz:
+ |-- [string:uv.hm.presets]: Wczytać ustawienie wstępne lub szybko zastosować zmiany dla Pościgów, stworzone przez Ciebie lub innych graczy.
+ |-- [string:uv.settings.general]: Dostosować ustawienia Pościgu dotyczące Poziomów Obławy, Notowań itd.
+ |-- [string:uv.hm.vp]: Ustawić głos dla każdej z Jednostek.
+ |-- [string:uv.pursuit.heatlevels]: Ustawić Jednostki które będą Cię gonić na poszczególnych Poziomach Obławy, oraz zmienić inne ustawienia tych Poziomów.
+
+Inne ustawienia SI lub Pościgów znajdziesz w [string:uv.settings].
 ]],
 ["Pursuit.Respawn"] = [[
 # -- Auto utknęło lub jestem zbyt daleko od akcji! Jak je zresetować?
@@ -1216,7 +1497,36 @@ Używając narzędzia [string:tool.uvpursuitbreaker.name]:
  |-- 3. Po zespawaniu, wciśnij [+attack2] na którykolwiek obiekt Spowalniacza
  |-- 4. Zmień ustawienia według uznania, następnie wciśnij [string:uv.tool.create]
 ]],
+-- ["Pursuit.Infractions"] = [[ -- "Wykroczenia"
+-- # -- What are infractions? Which ones exist?
 
+-- There are 12 different infractions you can acquire during pursuits. They are:
+
+-- [string:uv.infraction.speed]
+      -- |-- [ncstring:uv.infraction.speed.desc]
+-- [string:uv.infraction.veryspeed]
+      -- |-- [ncstring:uv.infraction.veryspeed.desc]
+-- [string:uv.infraction.reckless]
+      -- |-- [ncstring:uv.infraction.reckless.desc]
+-- [string:uv.infraction.rampolice]
+      -- |-- [ncstring:uv.infraction.rampolice.desc]
+-- [string:uv.infraction.ram]
+      -- |-- [ncstring:uv.infraction.ram.desc]
+-- [string:uv.infraction.property]
+      -- |-- [ncstring:uv.infraction.property.desc]
+-- [string:uv.infraction.resist]
+      -- |-- [ncstring:uv.infraction.resist.desc]
+-- [string:uv.infraction.offroad]
+      -- |-- [ncstring:uv.infraction.offroad.desc]
+-- [string:uv.infraction.streetrace]
+      -- |-- [ncstring:uv.infraction.streetrace.desc]
+-- [string:uv.infraction.resource]
+      -- |-- [ncstring:uv.infraction.resource.desc]
+-- [string:uv.infraction.endanger]
+      -- |-- [ncstring:uv.infraction.endanger.desc]
+-- [string:uv.infraction.homicide]
+      -- |-- [ncstring:uv.infraction.homicide.desc]
+-- ]],
 
 ["Other.CreateTraffic"] = [[
 # -- Jak pojawić Ruch Drogowy?
@@ -1258,6 +1568,11 @@ Tak, i całkiem to proste:
 
 Dane związane z UV znajdziesz w folderze *data/unitvehicles*.
 ]],
+--[[["Other.AddonCreation"] = [[
+# -- How do I create my own content/addon for Unit Vehicles?
+
+Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+]]--,
 }
 
 -- 简体中文 (Chinese Simplified) zh-CN
@@ -1294,14 +1609,14 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 # -- 有哪些可以使用的控制台命令？
 
  |-- uv_spawnvehicles - 生成巡逻中的 AI 单位
- |-- uv_setheat [x] - 设置热度等级
+ |-- uv_setheat {X} - 设置热度等级
  |-- uv_despawnvehicles - 移除所有巡逻中的 AI 单位
  |-- uv_resetallsettings - 将所有服务器设置重置为默认值
  |-- uv_startpursuit - 开始一次追逐前的倒计时
  |-- uv_stoppursuit - 停止当前追逐（AI 单位将认为你已成功逃脱）
  |-- uv_wantedtable - 在控制台中输出当前被通缉的嫌疑人列表
  |-- uv_clearbounty - 将悬赏值重置为 0
- |-- uv_setbounty [x] - 设置悬赏值
+ |-- uv_setbounty {X} - 设置悬赏值
  |-- uv_spawn_as_unit - 允许你以单位身份加入
 ]],
 
@@ -1311,7 +1626,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 
 如果有人已经创建了一场比赛并向你发送了邀请，在你处于车辆中且当前没有进行中的追逐的情况下，你将会收到一个屏幕提示通知，邀请你加入该比赛。
 ]],
-
 ["Racing.SpawnAI"] = [[
 # -- 我该如何与 AI 进行比赛？
 
@@ -1332,7 +1646,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 **注意事项**
  |-- 请确保 [string:uv.tool.base.title] 变量与你想要使用的载具Base一致。
 ]],
-
 ["Racing.Resetting"] = [[
 # -- 我卡住了！该如何重置？
 
@@ -1344,7 +1657,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  |-- 被逮捕时无法重置
  |-- 车辆正在移动时无法重置
 ]],
-
 ["Racing.Starting"] = [[
 # -- 我该如何开始比赛？
 
@@ -1361,7 +1673,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  |-- 如果当前没有任何比赛，你需要自己创建一场
  |-- 或者，也可以前往创意工坊查找现成的比赛！
 ]],
-
 ["Racing.Create"] = [[
 # -- 我该如何创建比赛？
 使用 [string:tool.uvracemanager.name] 工具：
@@ -1382,7 +1693,8 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  
 
 *-- 第三步：创建发车位*
- |-- 按下 [+reload] 放置发车位
+ |-- Press [+reload] to change modes to Grid Slots
+ |-- Press [+attack] to place out Grid Slots
  |-- 发车位上的数字代表起跑顺序
  |-- 想要更多赛车手？放置更多发车位即可！
  
@@ -1400,6 +1712,24 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 如果当前已经加载了一场比赛，你可以对检查点按下 [+attack2] 进行编辑，并应用新的 speedlimit 设置。
 另外，你也可以直接编辑比赛数据文件中最后一个数值来修改该检查点的速度限制。
 ]],
+--[[["Racing.Create.PathNode"] = [[
+# -- What are "Path Nodes" and how do I use them?
+
+Path Nodes are an alternative navigation method used by the Racing AI when racing. They are created using the [string:tool.uvracemanager.name] tool.
+
+
+**-- Creating Path Nodes**
+With the [string:tool.uvracemanager.name] tool equipped:
+ |-- Press [+reload] until you switch to [string:tool.uvracemanager.node] mode
+ |-- Press [+attack] anywhere on the map to create a node
+ |-- Press [+attack] anywhere else to create a new node; the previously placed node will automatically connect to it
+ |-- Press [+attack] on any existing node to highlight it; click it again to remove it, or click on another node to connect the highlighted node to it
+
+**-- Editing Path Nodes**
+With [string:tool.uvracemanager.name] and set to [string:tool.uvracemanager.node], press [+attack2] on an existing node to open [string:tool.uvracemanager.node.settings]:
+ |-- [string:tool.uvracemanager.node.speedlimit] sets the speed in which the AI can go after they've passed this node
+ |-- [string:tool.uvracemanager.node.curve] assigns a curve to the node this connects to, which is useful for nodes placed in and around corners
+]]--,
 
 -- Pursuits
 ["Pursuit.Starting"] = [[
@@ -1410,7 +1740,6 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  |-- 或者，在单位附近高速行驶或进行危险驾驶
  |-- 然后，追逐正式开始！
 ]],
-
 ["Pursuit.JoinAsUnit"] = [[
 # -- 我可以作为单位加入追逐吗？
 
@@ -1420,6 +1749,21 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  |-- 选择你想驾驶的车辆
  |-- 然后，立即加入追逐！
 ]],
+--[[["Pursuit.PursuitSettings"] = [[
+# -- How do I switch up Units and other Pursuit settings?
+
+Most crucial settings are found inside of [string:uv.hm]:
+ |-- Go to [string:uv.pm]
+ |-- Click [string:uv.hm]
+
+-- Here's what you can do in [string:uv.hm]:
+ |-- [string:uv.hm.presets]: You can load a preset to quickly apply a set of settings to a Pursuit, created by other players or yourself.
+ |-- [string:uv.settings.general]: Tweak general settings of your pursuit regarding heat levels, bounty, and more.
+ |-- [string:uv.hm.vp]: Set voices of each Unit type.
+ |-- [string:uv.pursuit.heatlevels]: Set which Unit vehicles chase you at X Heat Level, amongst other settings related to that Heat Level.
+
+Other pursuit/AI settings can be found in [string:uv.settings].
+]]--,
 ["Pursuit.Respawn"] = [[
 # -- 我卡住了，或者离嫌疑人太远了！该如何重置？
 
@@ -1464,6 +1808,36 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
  |-- 3. 焊接完成后，对追逐破坏器的任意一个部件按下 [+attack2]
  |-- 4. 根据需要调整设置，然后点击 [string:uv.tool.create]
 ]],
+-- ["Pursuit.Infractions"] = [[ -- " 违法事件 "
+-- # -- What are infractions? Which ones exist?
+
+-- There are 12 different infractions you can acquire during pursuits. They are:
+
+-- [string:uv.infraction.speed]
+      -- |-- [ncstring:uv.infraction.speed.desc]
+-- [string:uv.infraction.veryspeed]
+      -- |-- [ncstring:uv.infraction.veryspeed.desc]
+-- [string:uv.infraction.reckless]
+      -- |-- [ncstring:uv.infraction.reckless.desc]
+-- [string:uv.infraction.rampolice]
+      -- |-- [ncstring:uv.infraction.rampolice.desc]
+-- [string:uv.infraction.ram]
+      -- |-- [ncstring:uv.infraction.ram.desc]
+-- [string:uv.infraction.property]
+      -- |-- [ncstring:uv.infraction.property.desc]
+-- [string:uv.infraction.resist]
+      -- |-- [ncstring:uv.infraction.resist.desc]
+-- [string:uv.infraction.offroad]
+      -- |-- [ncstring:uv.infraction.offroad.desc]
+-- [string:uv.infraction.streetrace]
+      -- |-- [ncstring:uv.infraction.streetrace.desc]
+-- [string:uv.infraction.resource]
+      -- |-- [ncstring:uv.infraction.resource.desc]
+-- [string:uv.infraction.endanger]
+      -- |-- [ncstring:uv.infraction.endanger.desc]
+-- [string:uv.infraction.homicide]
+      -- |-- [ncstring:uv.infraction.homicide.desc]
+-- ]],
 
 ["Other.CreateTraffic"] = [[
 # -- 我该如何生成交通车辆？
@@ -1504,4 +1878,9 @@ Unit Vehicles 是一款面向沙盒玩法的插件，让玩家无论是在多人
 
 所有与 UV 相关的数据都存储在游戏目录下的 *data/unitvehicles* 文件夹中。
 ]],
+--[[["Other.AddonCreation"] = [[
+# -- How do I create my own content/addon for Unit Vehicles?
+
+Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+]]--,
 }

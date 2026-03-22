@@ -1,5 +1,32 @@
 UV.RegisterHUD( "undercover", "NFS: Undercover", true )
 
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_undercover_race_raceramount", 8, true, false)
+local maxracernrcv = GetConVar("uvhud_undercover_race_raceramount"):GetString()
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.undercover = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "NFS: Undercover" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_undercover_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
+
 local function DrawScaledCenteredTextLines(text, font, x, y, color, scale)
     surface.SetFont(font)
     local lines = string.Explode("\n", text)
@@ -598,7 +625,7 @@ UV_UI.racing.undercover.events = {
 		if not IsValid(my_vehicle) then return end
 
 		-- Pull cached diffs from general racing HUD
-		local cached = UV_UI.general.racing.SplitDiffCache and UV_UI.general.racing.SplitDiffCache[my_vehicle]
+		local cached = UV_UI.racing.general.SplitDiffCache and UV_UI.racing.general.SplitDiffCache[my_vehicle]
 		local aheadDiff, behindDiff = "N/A", "N/A"
 
 		if cached then
@@ -628,6 +655,15 @@ UV_UI.racing.undercover.events = {
 		})
 	end,
 
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			UV_UI.racing.undercover.events.CenterNotification({
+				text = UVString("uv.race.wrongway"),
+				color = Color(200, 75, 75),
+				immediate = true,
+			})
+		end
+	end,
 }
 
 UV_UI.pursuit.undercover.events = {
@@ -856,6 +892,9 @@ UV_UI.pursuit.undercover.events = {
         
         local bustedTabHeight = 0
         
+		local tipstring = params.faction == "Racer" and UV.Tips.Racer or UV.Tips.Units
+		local randomTipText = tipstring[math.random(1, #tipstring)]
+		
         ResultPanel.Paint = function(self, w, h)
             local now = CurTime()
             
@@ -986,8 +1025,12 @@ UV_UI.pursuit.undercover.events = {
 			mk:Draw( cy, cx, cc, TEXT_ALIGN_TOP)
 			surface.SetAlphaMultiplier(1)
 			
-            draw.DrawText( string.format( lang("uv.results.autoclose"), math.max(0, timeremaining) ), "UVUndercoverLeaderboardFont", w*0.5, h*0.71, Color( 255, 255, 255, textAlpha ), TEXT_ALIGN_CENTER )
-            				
+            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVUndercoverLeaderboardFont", w*0.5, h*0.61, Color( 255, 255, 255, textAlpha ), TEXT_ALIGN_CENTER )
+
+			-- Tip
+			local tiptext = "<color=255,255,255><font=UVUndercoverLeaderboardFont>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+			markup.Parse(tiptext, w * 0.45):Draw(w * 0.5, h*0.705, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+
             if timeremaining < 1 then
                 startCloseAnimation()
             end
@@ -1038,6 +1081,7 @@ UV_UI.pursuit.undercover.events = {
         local params = {
             dataTable = escapedtable,
             titleText = UVString("uv.results.evaded"),
+			faction = "Racer",
         }
         UV_UI.pursuit.undercover.events.ShowDebrief(params)
     end,
@@ -1056,6 +1100,7 @@ UV_UI.pursuit.undercover.events = {
             isCop = true,
             dataTable = bustedtable,
             titleText = UVString("uv.results.busted"),
+			faction = "Racer",
             lineData = {
                 { text = UVString("uv.results.bustedby.carbon"), value = unit },
                 { text = UVString("uv.results.chase.bounty"), value = "$" .. bounty },
@@ -1134,11 +1179,16 @@ UV_UI.pursuit.undercover.events = {
 			immediate = true,
 		})
 	end,
-	onFined = function( finenr )
+	onFined = function( finenr, finesdue )
 		UV_UI.racing.undercover.events.CenterNotification({
 			text = string.format( UVString("uv.hud.fine.fined"), finenr),
 			color = Color(0,194,255),
 			immediate = true,
+		})
+		
+		UV_UI.racing.undercover.events.CenterNotification({
+			text = string.format( UVString("uv.hud.fine.cost"), finesdue),
+			color = Color(0,194,255),
 		})
 	end,
 }
@@ -1185,7 +1235,7 @@ local function undercover_racing_main( ... )
     local baseY = h * 0.21 -- starting Y position of the list (adjust this freely)
     local spacing = h * 0.035 -- spacing between each racer (vertical gap)
     
-    for i = 1, math.Clamp(racer_count, 1, 12), 1 do
+    for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_undercover_race_raceramount"):GetString()), 1 do
         if racer_count == 1 then
             return
         end
@@ -1472,7 +1522,7 @@ local function undercover_pursuit_main( ... )
     -- [ Bottom Info Box ] --
 	local bottomyplus = 0
 
-    if (LocalPlayer().uvspawningunit and LocalPlayer().uvspawningunit.vehicle) or (not UVHUDCopMode and UVHUDRaceFinishCountdownStarted) then
+    if UVHUDActiveBar then
         bottomyplus = -(h * 0.05)
     end
 

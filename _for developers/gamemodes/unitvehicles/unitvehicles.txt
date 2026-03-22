@@ -1,0 +1,22 @@
+"unitvehicles"
+{
+	"base"		    "base"
+	"title"		    "Unit Vehicles"
+	"maps"		    ""
+	"category"	    "pve"
+	"menusystem"	"1"
+	"workshopid"	"3656102216"
+
+	"settings"
+	{
+		1
+		{
+			"name"		"unitvehicles_starting_cash"
+			"text"		"Starting Cash"
+			"help"		"Start with a specified amount of cash"
+			"type"		"Numeric"
+			"default"	"10000"
+			"singleplayer"	"1"
+		}
+	}
+}

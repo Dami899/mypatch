@@ -15,34 +15,50 @@ local function uv_general()
     if not UVHUDPursuitTech then return end
 
     local PT_Replacement_Strings = {
-        ['EMP'] = '#uv.ptech.emp.short',
-        ['ESF'] = '#uv.ptech.esf.short',
-        ['Killswitch'] = '#uv.ptech.killswitch.short',
-        ['Jammer'] = '#uv.ptech.jammer.short',
-        ['Shockwave'] = '#uv.ptech.shockwave.short',
-        ['Stunmine'] = '#uv.ptech.stunmine.short',
-        ['Spikestrip'] = '#uv.ptech.spikes.short',
-        ['Repair Kit'] = '#uv.ptech.repairkit.short',
-        ['Power Play'] = '#uv.ptech.powerplay.short',
-        ['Shock Ram'] = '#uv.ptech.shockram.short',
-        ['GPS Dart'] = '#uv.ptech.gpsdart.short',
-        ['Juggernaut'] = '#uv.ptech.juggernaut.short',
+        ['EMP'] = 'uv.ptech.emp.short',
+        ['ESF'] = 'uv.ptech.esf.short',
+        ['Killswitch'] = 'uv.ptech.killswitch.short',
+        ['Jammer'] = 'uv.ptech.jammer.short',
+        ['Shockwave'] = 'uv.ptech.shockwave.short',
+        ['Stunmine'] = 'uv.ptech.stunmine.short',
+        ['Spikestrip'] = 'uv.ptech.spikes.short',
+        ['Repair Kit'] = 'uv.ptech.repairkit.short',
+        ['Power Play'] = 'uv.ptech.powerplay.short',
+        ['Shock Ram'] = 'uv.ptech.shockram.short',
+        ['GPS Dart'] = 'uv.ptech.gpsdart.short',
+        ['Juggernaut'] = 'uv.ptech.juggernaut.short',
+		['Ghost'] = 'uv.ptech.ghost.short',
+		['Grappler'] = 'uv.ptech.grappler.short',
     }
 
-	-- local debugjam = true
+	local hudconvar = GetConVar("unitvehicle_speedometer"):GetString()
+	local xConVar = GetConVar("uvspeedo_" .. hudconvar .. "_x")
+	local yConVar = GetConVar("uvspeedo_" .. hudconvar .. "_y")
 
+	local hudpos = { x = xConVar and xConVar:GetFloat() or 0.815, y = yConVar and yConVar:GetFloat() or 0.6 }
+	local racing = UV_UI.speedometer[hudconvar]
+	local offsets = racing and racing.offsets
+	local hudoffset = { x = offsets and offsets.x or 0, y = offsets and offsets.y or 0 }
+	
+	if not GetConVar("unitvehicle_speedometer_enable"):GetBool() then
+		hudpos = { x = 0.824, y = 0.6 }
+		hudoffset = { x = 0, y = 0 }
+	end
+
+	-- local debugjam = true
     -- if not debugjam then
     if not uvclientjammed then
         for i = 1, 2 do
             local keyCode = GetConVar("unitvehicle_pursuittech_keybindslot_" .. i):GetInt()
             local tech = UVHUDPursuitTech[i]
 
-            local xOffset = 0.815 + ((i - 1) * 0.0595)
-            local y = h * 0.6
+            local xOffset = w * (hudpos.x - hudoffset.x)
+            local y = h * (hudpos.y - hudoffset.y)
+            local xOffsetI = w * (hudpos.x - hudoffset.x) + ((i - 1) * (h * 0.105))
             local bw, bh = w * 0.06, h * 0.06
-            local x = w * xOffset
+            local x = xOffsetI
             local keyX = w * (0.8425 + ((i - 1) * 0.0625))
-            local textX = w * (0.8425 + ((i - 1) * 0.0625))
+            local textX = xOffset + (bw * 0.5) + ((i - 1) * (h * 0.105))
             local keyY = h * 0.57
 
             local bgColor = Color(0, 0, 0, 225)
@@ -52,23 +68,14 @@ local function uv_general()
             local textColor = Color(255, 255, 255, 125)
             local keyColor = Color(255, 255, 255, 125)
             local ammoText, techText = " - ", " - "
-            local keyText = UVBindButtonName(keyCode)
-			
-			
-            -- local bw, bh = UV_UI.W(w * 0.06), h * 0.06
-            -- local x = UV_UI.X(w * xOffset)
-            -- local keyX = UV_UI.X(w * (0.8425 + ((i - 1) * 0.0625)))
-            -- local textX = UV_UI.X(w * (0.8425 + ((i - 1) * 0.0625)))
 
             if tech then
-                -- Handle key press as before
                 if input.IsKeyDown(keyCode) and not gui.IsGameUIVisible() and vgui.GetKeyboardFocus() == nil then
                     net.Start("UVPTUse")
                     net.WriteInt(i, 16)
                     net.SendToServer()
                 end
 
-                -- Duration-aware cooldown
                 local timeSinceUsed = CurTime() - tech.LastUsed
                 local duration = tech.Duration or 0
                 local inDuration = duration > 0 and timeSinceUsed <= duration
@@ -82,7 +89,6 @@ local function uv_general()
                     showFillOverlay = true
                 end
 
-                -- Choose overlay color
                 if showFillOverlay then
                     local blink = 255 * math.abs(math.sin(RealTime() * 3))
                     fillOverlayColor = Color(blink, blink, 0, 175)
@@ -93,7 +99,7 @@ local function uv_general()
                 end
 
                 ammoText = tech.Ammo > 0 and tech.Ammo or " - "
-                techText = PT_Replacement_Strings[tech.Tech] or tech.Tech
+                techText = UVString(PT_Replacement_Strings[tech.Tech]) or tech.Tech
             end
 
             if hudyes then
@@ -119,7 +125,6 @@ local function uv_general()
 					if i == 1 then
 						surface.SetMaterial(UVMaterials["PT_LEFT"])
 						local T = math.Clamp(fillFrac * bw, 0, bw)
-						-- surface.DrawTexturedRectUV( x + (bw - T), y, T, bh, 1 - (T / bw), 0, 1, 1 )
 						surface.DrawTexturedRectUV( x, y, T, bh, 0, 0, T / bw, 1 )
 					else
 						surface.SetMaterial(UVMaterials["PT_RIGHT"])
@@ -128,19 +133,23 @@ local function uv_general()
 					end
 				end
 
-				draw.SimpleTextOutlined( techText, "UVMostWantedLeaderboardFont", textX, y + (h * 0.0075), textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0))
+				draw.SimpleTextOutlined( techText, "UVMostWantedLeaderboardFont2", textX, y + (h * 0.0075), textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0))
 				draw.SimpleTextOutlined( ammoText, "UVMostWantedLeaderboardFont", textX, y + (h * 0.0275), textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0))
 
 				local mk = markup.Parse( UVReplaceKeybinds( "[key:unitvehicle_pursuittech_keybindslot_" .. i .. "]", "Big" ), w )
-				mk:Draw(keyX, keyY, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				mk:Draw(x + (bw * 0.475), y - (bh * 0.5), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
             end
         end
 	else
-		local y = h * 0.6
-		local textX = w * 0.87375
+		local xOffset = w * (hudpos.x - hudoffset.x)
+		local bw, bh = w * 0.06, h * 0.06
+		local keyX = w * 0.8425
+		local textX = xOffset + (bw * 0.95)
+		local y = h * (hudpos.y - hudoffset.y) + (bh * 0.25)
+
 		local blink = 255 * math.abs(math.sin(RealTime() * 6))
 
-		draw.SimpleTextOutlined( UVString("uv.ptech.jammer.hit.you"), "UVMostWantedLeaderboardFont", textX, y + (h * 0.0175), Color(255, 0, 0, blink), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0,blink))
+		draw.SimpleTextOutlined( UVString("uv.ptech.jammer.hit.you"), "UVMostWantedLeaderboardFont", textX, y, Color(255, 0, 0, blink), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0,blink))
     end
 end
 
@@ -162,6 +171,12 @@ UV_UI.general.events = {
 		local immediate = params.immediate or nil
 		local iscritical = params.critical or nil
 		local notitimer = params.timer or 1
+		
+		-- Legacy notification (Original UI Exclusive)
+		if UVIsUsingOGHUD() then
+			LocalPlayer():PrintMessage(HUD_PRINTCENTER, ptext)
+			return
+		end
 
 		local StartClosing
 		local closing = false
@@ -258,7 +273,7 @@ UV_UI.general.events = {
 			local currentWidth
 			local text = UVString(UV_CurrentSubtitle)
 			local hasValidSubtitle = UV_CurrentSubtitle and text ~= "" and text ~= UV_CurrentSubtitle and CurTime() < (UV_SubtitleEnd or 0)
-			local subconvar = GetConVar("unitvehicle_subtitles"):GetBool() and hasValidSubtitle
+			local subconvar = (GetConVar("unitvehicle_subtitles"):GetBool() and hasValidSubtitle) or (UVHUDDisplayPursuit and UVHUDActiveBar)
 
 			if closing then
 				local closeAnimTime = now - closeStartTime
@@ -320,9 +335,10 @@ UV_UI.general.events = {
 	end,
 }
 
-UV_UI.general.racing = {}
+UV_UI.racing.general = {}
+UV_UI.pursuit.general = {}
 
-UV_UI.general.racing.SplitDiffCache = UV_UI.general.racing.SplitDiffCache or {}
+UV_UI.racing.general.SplitDiffCache = UV_UI.racing.general.SplitDiffCache or {}
 
 local function general_racing_main( ... )
     local w = ScrW()
@@ -389,7 +405,7 @@ local function general_racing_main( ... )
 		-- Color(0,0,0)
 	-- )
 	
-	UV_UI.general.racing.SplitDiffCache[my_vehicle] = { -- Store said debug data
+	UV_UI.racing.general.SplitDiffCache[my_vehicle] = { -- Store said debug data
 		Ahead = aheadText,
 		Behind = behindText,
 		LastCheckpoint = checkpoint_count -- optional
@@ -397,4 +413,135 @@ local function general_racing_main( ... )
 
 end
 
-UV_UI.general.racing.main = general_racing_main
+UV_UI.racing.general.main = general_racing_main
+
+UV_UI.pursuit.general.scannerConfig = {
+	radius = 30,
+	innerRadius = 14,
+	blipRadius = 8,
+	maxRange = 5000,
+	maxArc = 360,
+	posX = ScrW() * 0.5,
+	posY = ScrH() * 0.1,
+}
+
+local function ScannerCode(cfg)
+    local radius = cfg.radius or 30
+    local innerRadius = cfg.innerRadius or 14
+    local blipRadius = cfg.blipRadius or 8
+    local maxRange = cfg.maxRange or 5000
+    local maxArc = cfg.maxArc or 360
+    local centerx = cfg.posX
+    local centery = cfg.posY
+
+	local localPlayer = cfg.localPlayer
+	local w, h = cfg.w, cfg.h
+
+	local enemypos = localPlayer:GetPos()
+	local closestDist = math.huge
+	local found = false
+	local closestPos
+
+	local corner8tex, corner32tex = surface.GetTextureID("gui/corner8"), surface.GetTextureID("gui/corner32")
+	local function drawCircle(x, y, radius, seg)
+		surface.SetTexture(radius <= 8 and corner8tex or corner32tex)
+		surface.DrawTexturedRectUV( x-radius, y-radius, radius, radius, 0, 0, 1, 1 )
+		surface.DrawTexturedRectUV( x, y-radius, radius, radius, 1, 0, 0, 1 )
+		surface.DrawTexturedRectUV( x-radius, y, radius, radius, 0, 1, 1, 0 )
+		surface.DrawTexturedRectUV( x, y, radius, radius, 1, 1, 0, 0 )
+		draw.NoTexture()
+	end
+
+	-- Direction
+	local forwardYaw
+
+	if GetConVar("unitvehicle_policescanner_vehicle"):GetBool()
+		and IsValid(localPlayer:GetVehicle()) then
+
+		forwardYaw = localPlayer:GetVehicle():GetAngles().y + 90
+	else
+		forwardYaw = EyeAngles().y
+	end
+
+	for _, v in pairs(UnitTable) do
+		if IsValid(v) then
+			local pos = v:GetPos()
+			local dist = pos:DistToSqr(enemypos)
+
+			local angleDiff = math.AngleDifference(
+				forwardYaw,
+				(pos - enemypos):Angle().y
+			)
+
+			if math.abs(angleDiff) <= maxArc / 2 then
+				if dist < closestDist then
+					closestDist = dist
+					closestPos = pos
+					found = true
+				end
+			end
+		end
+	end
+
+	if not found then return end
+
+	local realDistance = math.sqrt(closestDist)
+
+	-- Range limit
+	if realDistance > maxRange then return end
+
+	surface.SetDrawColor(0,0,0,200)
+	drawCircle(centerx, centery, radius, 50)
+
+	local distanceFrac = math.Clamp(realDistance / maxRange, 0, 1)
+	local beepfrequency = math.Clamp(distanceFrac, 0.1, 1)
+
+	if beepfrequency >= 1 then
+		drawCircle(centerx, centery, innerRadius, 50)
+		return
+	end
+
+	surface.SetDrawColor(255,255,255,255)
+	drawCircle(centerx, centery, innerRadius, 50)
+
+	local angleDiff = math.AngleDifference(
+		forwardYaw,
+		(closestPos - enemypos):Angle().y
+	)
+
+	local angle = math.rad(angleDiff) + math.pi/2
+
+	surface.SetMaterial(UVMaterials["SCANNER_ARROW"])
+	surface.SetDrawColor(255,255,255,255)
+
+	-- Rotate relative to forward
+	surface.DrawTexturedRectRotated(
+		centerx,
+		centery,
+		radius * 2.5,   -- size
+		radius * 2.5,
+		-angleDiff       -- rotation in degrees
+	)
+
+	-- Beeping
+	-- local Beeped = Beeped or nil
+	if UVHUDBlipSoundTime < CurTime() then
+		UVHUDBlipSoundTime = CurTime() + beepfrequency
+
+		if PursuitSFX:GetBool() then
+			surface.PlaySound("ui/pursuit/spotting_blip.wav")
+		end
+
+		Beeped = true
+		timer.Simple(beepfrequency/2, function()
+			Beeped = false
+		end)
+	end
+
+	local beepcolor = Beeped and Color(0,255,0) or Color(0,0,0)
+
+	surface.SetDrawColor(beepcolor)
+	drawCircle(centerx, centery, blipRadius, 50)
+end
+
+UV_UI.pursuit.general.scanner = ScannerCode

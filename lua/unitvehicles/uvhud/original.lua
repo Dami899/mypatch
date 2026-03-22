@@ -1,5 +1,32 @@
 UV.RegisterHUD( "original", "Original", true )
 
+-- [[ Convars ]] --
+-- Racing
+-- CreateClientConVar("uvhud_original_race_raceramount", 4, true, false)
+-- local maxracernrcv = GetConVar("uvhud_original_race_raceramount"):GetString()
+
+-- UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+-- UVMenu.CustomizeHUD.original = function()
+	-- UVMenu.CurrentMenu = UVMenu:Open({
+		-- Name = " ",
+		-- Width  = UV.ScaleW(1200),
+		-- Height = UV.ScaleH(760),
+		-- DynamicHeight = true,
+		-- Description = true,
+		-- UnfocusClose = true,
+		-- Tabs = {
+			-- { TabName = "uv.ui.custhud",
+				-- { type = "label", text = "uv.ui.original" },
+				-- { type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						-- func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				-- },
+				-- { type = "infosimple", text = "uv.ui.custhud.race" },
+				-- { type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_original_race_raceramount", min = 4, max = 18, decimals = 0 },
+			-- },
+		-- }
+	-- })
+-- end
+
 UV_UI.racing.original = UV_UI.racing.original or {}
 UV_UI.pursuit.original = UV_UI.pursuit.original or {}
 
@@ -18,6 +45,8 @@ UV_UI.racing.original.states = {
     FrozenTimeValue = 0
 }
 
+UV_UI.racing.original.noready = true
+
 UV_UI.racing.original.events = {
     onLapComplete = function( participant, new_lap, old_lap, lap_time, lap_time_cur, is_local_player, is_global_best, lap_final, local_finished, user_finished, suppress_lap_ui )
 		local name = UVHUDRaceInfo.Participants[participant] and UVHUDRaceInfo.Participants[participant].Name or "Unknown"
@@ -31,7 +60,7 @@ UV_UI.racing.original.events = {
             laptimecolor = Color(0, 255, 255)
 		end
 
-        chat.AddText(laptimeprefixcolor, laptimeprefix, laptimecolor, laptime)
+        chat.AddText(laptimeprefixcolor, laptimeprefix, laptimecolor, " " .. laptime)
 
         if participant:GetDriver() ~= LocalPlayer() then return end
         
@@ -44,6 +73,57 @@ UV_UI.racing.original.events = {
         end)
 
     end,
+
+    onRaceStartTimer = function(data)
+		local starttime = data.starttime
+        local noready = data.noReadyText
+
+        --The font used does not support special characters and is therefore not localized.
+		local countdownTexts = {
+			[4] = 3,
+			[3] = 2,
+			[2] = 1,
+			[1] = "GO!"
+		}
+
+        local textToShow = countdownTexts[starttime]
+        
+        local now = CurTime()
+        local hookID = "UV_RaceCountdown_Original_" .. tostring(now)
+
+        hook.Add("HUDPaint", hookID, function()
+            if starttime > 4 and GetConVar("unitvehicle_preraceinfo"):GetInt() == 0 then
+			    draw.DrawText( "GET READY", "UVFont7", ScrW()/2, ScrH()/3, Color( 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+		    elseif textToShow then
+		    	draw.DrawText( textToShow, "UVFont7", ScrW()/2, ScrH()/3, Color( 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+		    end
+        end)
+
+        timer.Simple(1, function()
+            hook.Remove("HUDPaint", hookID)
+        end)
+	end,
+
+    onWrongWay = function(timestamp, isWrongWay)
+        local theme = GetConVar("unitvehicle_sfxtheme"):GetString()
+		local soundfiles = file.Find("sound/uvracesfx/" .. theme .. "/wrongway/*", "GAME")
+		if soundfiles and #soundfiles > 0 then
+			table.Shuffle(soundfiles)
+			local audio_path = "uvracesfx/" .. theme .. "/wrongway/" .. soundfiles[1]
+			surface.PlaySound(audio_path)
+		end
+
+        local now = CurTime()
+        local hookID = "UV_RaceCountdown_Original_" .. tostring(now)
+
+        hook.Add("HUDPaint", hookID, function()
+            draw.DrawText( "WRONG WAY", "UVFont7", ScrW()/2, ScrH()/3, Color( 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+        end)
+
+        timer.Simple(1.5, function()
+            hook.Remove("HUDPaint", hookID)
+        end)
+	end,
 
     onParticipantDisqualified = function(data)
 		local participant = data.Participant
@@ -59,7 +139,7 @@ UV_UI.racing.original.events = {
             disqtext = string.format(UVString("uv.chase.wrecked"))
             chat.AddText(Color(255, 0, 0), disqtext)
         else
-            chat.AddText(Color(255, 0, 0), name, Color(255, 255, 255), disqtext)
+            chat.AddText(Color(255, 0, 0), name, Color(255, 255, 255), " " .. disqtext)
         end
 
 	end,
@@ -176,6 +256,9 @@ UV_UI.pursuit.original.events = {
         local h = ScrH()
         
         local bustedtable = select( 1, ... )
+
+        local tipstring = UV.Tips.Units
+	    local randomTipText = tipstring[math.random(1, #tipstring)]
         
         --------------------------------------
         
@@ -188,11 +271,31 @@ UV_UI.pursuit.original.events = {
         local wrecks = UVWrecks
         local suspects = UVHUDWantedSuspectsNumber
         
+        -- Tip
+        local TipsPanel = vgui.Create("DFrame")
+        
+        TipsPanel:SetSize(math.Round(w), math.Round(h))
+        TipsPanel:SetBackgroundBlur(true)
+        TipsPanel:ShowCloseButton(false)
+        TipsPanel:Center()
+        TipsPanel:SetTitle("")
+        TipsPanel:SetDraggable(false)
+        TipsPanel:MakePopup()
+        TipsPanel:SetKeyboardInputEnabled(false)
+        TipsPanel:SetMouseInputEnabled( false )
+        
+        TipsPanel.Paint = function(self, w, h)
+            draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
+		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+        end
+        
         local ResultPanel = vgui.Create("DFrame")
         local OK = vgui.Create("DButton")
         
         ResultPanel:Add(OK)
-        ResultPanel:SetSize(math.Round(w*0.5208333333), math.Round(h*0.5555555556))
+        ResultPanel:SetSize(math.Round(w*0.52), math.Round(h*0.56))
         ResultPanel:SetBackgroundBlur(true)
         ResultPanel:ShowCloseButton(false)
         ResultPanel:Center()
@@ -241,6 +344,7 @@ UV_UI.pursuit.original.events = {
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
+                TipsPanel:Close()
             end
             
         end
@@ -248,6 +352,7 @@ UV_UI.pursuit.original.events = {
         function OK:DoClick() 
             hook.Remove("CreateMove", "JumpKeyCloseDebrief")
             ResultPanel:Close()
+            TipsPanel:Close()
         end
 
 		hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
@@ -258,6 +363,7 @@ UV_UI.pursuit.original.events = {
 				if IsValid(ResultPanel) then
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					ResultPanel:Close()
+                    TipsPanel:Close()
 				end
 			end
 		end)
@@ -268,6 +374,9 @@ UV_UI.pursuit.original.events = {
         local h = ScrH()
         
         local escapedtable = select( 1, ... )
+
+        local tipstring = UV.Tips.Units
+	    local randomTipText = tipstring[math.random(1, #tipstring)]
         
         --------------------------------------
         
@@ -279,12 +388,32 @@ UV_UI.pursuit.original.events = {
         local tags = UVTags
         local wrecks = UVWrecks
         local suspects = UVHUDWantedSuspectsNumber
+
+        -- Tip
+        local TipsPanel = vgui.Create("DFrame")
+        
+        TipsPanel:SetSize(math.Round(w), math.Round(h))
+        TipsPanel:SetBackgroundBlur(true)
+        TipsPanel:ShowCloseButton(false)
+        TipsPanel:Center()
+        TipsPanel:SetTitle("")
+        TipsPanel:SetDraggable(false)
+        TipsPanel:MakePopup()
+        TipsPanel:SetKeyboardInputEnabled(false)
+        TipsPanel:SetMouseInputEnabled( false )
+        
+        TipsPanel.Paint = function(self, w, h)
+            draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
+		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+        end
         
         local ResultPanel = vgui.Create("DFrame")
         local OK = vgui.Create("DButton")
         
         ResultPanel:Add(OK)
-        ResultPanel:SetSize(math.Round(w*0.5208333333), math.Round(h*0.5555555556))
+        ResultPanel:SetSize(math.Round(w*0.52), math.Round(h*0.56))
         ResultPanel:SetBackgroundBlur(true)
         ResultPanel:ShowCloseButton(false)
         ResultPanel:Center()
@@ -333,6 +462,7 @@ UV_UI.pursuit.original.events = {
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
+                TipsPanel:Close()
             end
             
         end
@@ -340,6 +470,7 @@ UV_UI.pursuit.original.events = {
         function OK:DoClick() 
             hook.Remove("CreateMove", "JumpKeyCloseDebrief")
             ResultPanel:Close()
+            TipsPanel:Close()
         end
         
 		hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
@@ -350,6 +481,7 @@ UV_UI.pursuit.original.events = {
 				if IsValid(ResultPanel) then
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					ResultPanel:Close()
+                    TipsPanel:Close()
 				end
 			end
 		end)
@@ -361,6 +493,9 @@ UV_UI.pursuit.original.events = {
         local h = ScrH()
         
         local escapedtable = select( 1, ... )
+
+        local tipstring = UV.Tips.Racer
+	    local randomTipText = tipstring[math.random(1, #tipstring)]
         
         --------------------------------------
         
@@ -371,12 +506,32 @@ UV_UI.pursuit.original.events = {
         local bounty = UVBounty
         local tags = UVTags
         local wrecks = UVWrecks
+
+        -- Tip
+        local TipsPanel = vgui.Create("DFrame")
+        
+        TipsPanel:SetSize(math.Round(w), math.Round(h))
+        TipsPanel:SetBackgroundBlur(true)
+        TipsPanel:ShowCloseButton(false)
+        TipsPanel:Center()
+        TipsPanel:SetTitle("")
+        TipsPanel:SetDraggable(false)
+        TipsPanel:MakePopup()
+        TipsPanel:SetKeyboardInputEnabled(false)
+        TipsPanel:SetMouseInputEnabled( false )
+        
+        TipsPanel.Paint = function(self, w, h)
+            draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
+		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+        end
         
         local ResultPanel = vgui.Create("DFrame")
         local OK = vgui.Create("DButton")
         
         ResultPanel:Add(OK)
-        ResultPanel:SetSize(math.Round(w*0.5208333333), math.Round(h*0.5555555556))
+        ResultPanel:SetSize(math.Round(w*0.52), math.Round(h*0.56))
         ResultPanel:SetBackgroundBlur(true)
         ResultPanel:ShowCloseButton(false)
         ResultPanel:Center()
@@ -426,6 +581,7 @@ UV_UI.pursuit.original.events = {
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
+                TipsPanel:Close()
             end
             
         end
@@ -433,6 +589,7 @@ UV_UI.pursuit.original.events = {
         function OK:DoClick() 
             hook.Remove("CreateMove", "JumpKeyCloseDebrief")
             ResultPanel:Close()
+            TipsPanel:Close()
         end
         
 		hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
@@ -443,6 +600,7 @@ UV_UI.pursuit.original.events = {
 				if IsValid(ResultPanel) then
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					ResultPanel:Close()
+                    TipsPanel:Close()
 				end
 			end
 		end)
@@ -452,6 +610,9 @@ UV_UI.pursuit.original.events = {
         local h = ScrH()
         
         local bustedtable = select( 1, ... )
+
+        local tipstring = UV.Tips.Racer
+	    local randomTipText = tipstring[math.random(1, #tipstring)]
         
         --------------------------------------
         
@@ -463,12 +624,32 @@ UV_UI.pursuit.original.events = {
         local bounty = UVBounty
         local tags = UVTags
         local wrecks = UVWrecks
+
+        -- Tip
+        local TipsPanel = vgui.Create("DFrame")
+        
+        TipsPanel:SetSize(math.Round(w), math.Round(h))
+        TipsPanel:SetBackgroundBlur(true)
+        TipsPanel:ShowCloseButton(false)
+        TipsPanel:Center()
+        TipsPanel:SetTitle("")
+        TipsPanel:SetDraggable(false)
+        TipsPanel:MakePopup()
+        TipsPanel:SetKeyboardInputEnabled(false)
+        TipsPanel:SetMouseInputEnabled( false )
+        
+        TipsPanel.Paint = function(self, w, h)
+            draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
+		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+        end
         
         local ResultPanel = vgui.Create("DFrame")
         local OK = vgui.Create("DButton")
         
         ResultPanel:Add(OK)
-        ResultPanel:SetSize(math.Round(w*0.5208333333), math.Round(h*0.5555555556))
+        ResultPanel:SetSize(math.Round(w*0.52), math.Round(h*0.56))
         ResultPanel:SetBackgroundBlur(true)
         ResultPanel:ShowCloseButton(false)
         ResultPanel:Center()
@@ -508,21 +689,21 @@ UV_UI.pursuit.original.events = {
             draw.SimpleText( spikestripsdodged, "UVFont2", w*0.99, h*0.75, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
             
             -- Time remaining and closing
-            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big")
+            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue") .. " (" .. math.max(0, timeremaining) .. ")", "Big")
             --draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. UVString("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
             local markuptext = "<color=255,255,255><font=UVFont2>".. contenttext .. "</font></color>"
             markup.Parse(markuptext):Draw(w*0.01, h*0.85, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
-            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2-Smaller", w*0.99, h*0.885, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
 			
 			if UVHUDWantedSuspects and #UVHUDWantedSuspects > 0 then
 				local spawnastext = UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big")
 				local markuptext2 = "<color=255,255,255><font=UVFont2>".. spawnastext .. "</font></color>"
-				markup.Parse(markuptext2):Draw(w*0.01, h*0.885, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+				markup.Parse(markuptext2):Draw(w*0.99, h*0.85, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
 			end
 
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
+                TipsPanel:Close()
             end
             
         end
@@ -530,6 +711,7 @@ UV_UI.pursuit.original.events = {
         function OK:DoClick() 
             hook.Remove("CreateMove", "JumpKeyCloseDebrief")
             ResultPanel:Close()
+            TipsPanel:Close()
         end
 
 		hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
@@ -541,6 +723,7 @@ UV_UI.pursuit.original.events = {
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
 					ResultPanel:Close()
+                    TipsPanel:Close()
 				end
 			end
 		end)
@@ -555,6 +738,7 @@ UV_UI.pursuit.original.events = {
 						hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 						hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
 						ResultPanel:Close()
+                        TipsPanel:Close()
 
 						net.Start("UVHUDRespawnInUVGetInfo")
 						net.SendToServer()
@@ -569,9 +753,22 @@ UV_UI.pursuit.original.events = {
 		ply:PrintMessage(HUD_PRINTCENTER, UVString("uv.hud.fine.pullover"))
 	end,
 
-	onFined = function( finenr )
+	onFined = function( finenr, finesdue )
         local ply = LocalPlayer()
 		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.fined"), finenr))
+		timer.Simple(3, function()
+			ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.cost"), finesdue))
+		end)
+	end,
+
+    onInfraction = function(text, number)
+
+        text = UVString("uv.results.infractions") .. " " .. number .. ": " .. text
+
+		UV_UI.general.events.CenterNotification({
+            text = text,
+		})
+        
 	end,
 }
 
@@ -643,6 +840,7 @@ local function original_racing_main( ... )
     TEXT_ALIGN_RIGHT)
     
     -- Racer List
+    -- for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_original_race_raceramount"):GetString()), 1 do
     for i = 1, math.Clamp(racer_count, 1, 16), 1 do
         local entry = string_array[i]
         
@@ -771,8 +969,8 @@ local function original_pursuit_main( ... )
 		
 	local bottomyplus = 0
 
-	if (LocalPlayer().uvspawningunit and LocalPlayer().uvspawningunit.vehicle) or (not UVHUDCopMode and UVHUDRaceFinishCountdownStarted) then
-		bottomyplus = -(h * 0.1)
+	if UVHUDActiveBar then
+		bottomyplus = -(h * 0.075)
 	end
 
 	local bottomy = h * 0.9 + bottomyplus
@@ -948,7 +1146,7 @@ local function original_pursuit_main( ... )
         
         local iconhigh = 0
 
-        if UVHUDDisplayBusting or UVHUDDisplayCooldown then
+        if UVHUDDisplayBusting or (UVHUDDisplayCooldown and not UVHUDCopMode) then
             iconhigh = h*0.035
         end
         
@@ -974,6 +1172,7 @@ local function original_pursuit_main( ... )
                         draw.DrawText( string.format( lang("uv.chase.backupin"), UVBackupTimer ), "UVFont-Smaller",w/2,bottomy + (h * 0.05), UVResourcePointsColor, TEXT_ALIGN_CENTER )
                     end
                 else
+                    local busttext = ""
                     if busttime >= 3 then
                         busttext = lang("uv.chase.busting")
                         bustcol = Color( 255, 0, 0)
@@ -1022,7 +1221,7 @@ local function original_pursuit_main( ... )
                 
                 local text = (UVHUDCopMode and "/// "..lang("uv.chase.cooldown").." ///") or lang("uv.chase.cooldown")
                 draw.DrawText( text, "UVFont-Smaller",w/2,bottomy + (h * 0.05), color, TEXT_ALIGN_CENTER )
-                iconhigh = h*0.035
+                iconhigh = not UVHUDCopMode and h*0.035 or iconhigh
             end
         else
             EvadingProgress = 0

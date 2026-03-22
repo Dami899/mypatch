@@ -15,6 +15,7 @@ local PursuitTechDefs = {
         racer = true, unit = true,
         convars = {
             damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
+            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             force    = { default = 100, min = 0, max = 1000, decimals = 0 },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5, min = 0, max = 120, decimals = 0 },
@@ -31,7 +32,7 @@ local PursuitTechDefs = {
         convars = {
             duration = { default = 10, min = 1, max = 30, decimals = 0 },
             power    = { default = 1000000, min = 100000, max = 10000000, decimals = 0 },
-            damage   = { default = 0.2, min = 0, max = 1, decimals = 1 },
+            damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
             damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5, min = 0, max = 120, decimals = 0 }
@@ -97,6 +98,8 @@ local PursuitTechDefs = {
         shortname = "spikestrip",
         racer = true, unit = true,
         convars = {
+            damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
+            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             duration = { default = 60, min = 5, max = 120, decimals = 0 },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
@@ -128,6 +131,35 @@ local PursuitTechDefs = {
             maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
         }
     },
+
+	["Ghost"] = {
+        name = "#uv.ptech.ghost",
+        sname = "#uv.ptech.ghost.short",
+        description = "#uv.ptech.ghost.desc",
+        shortname = "ghost",
+        racer = true, unit = false,
+        convars = {
+            duration = { default = 5, min = 1, max = 30, decimals = 0 },
+            cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
+            maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
+        }
+    },
+
+	["Grappler"] = {
+        name = "#uv.ptech.grappler",
+        sname = "#uv.ptech.grappler.short",
+        description = "#uv.ptech.grappler.desc",
+        shortname = "grappler",
+        racer = false, unit = true,
+        convars = {
+            duration = { default = 10, min = 1, max = 30, decimals = 0 },
+			disableduration = { default = 10, min = 1, max = 30, decimals = 0 },
+			length = { default = 1000, min = 1, max = 5000, decimals = 0 },
+			strength = { default = 10000, min = 1, max = 100000, decimals = 0 },
+            cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
+            maxammo     = { default = 5,  min = 0, max = 120, decimals = 0 }
+        }
+    },
 	
     ["Jammer"] = {
         name = "#uv.ptech.jammer",
@@ -151,7 +183,7 @@ local PursuitTechDefs = {
         convars = {
             power    = { default = 1000000, min = 100000, max = 10000000, decimals = 0 },
             damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
-            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1 },
+            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5, min = 0, max = 120, decimals = 0 }
         }
@@ -166,7 +198,7 @@ local PursuitTechDefs = {
         convars = {
             power    = { default = 1000000, min = 100000, max = 10000000, decimals = 0 },
             damage   = { default = 0.1, min = 0, max = 1, decimals = 1 },
-            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1 },
+            damagecommander = { default = 0.1, min = 0, max = 1, decimals = 1, nounit = true },
             cooldown = { default = 30, min = 0, max = 120, decimals = 0 },
             maxammo     = { default = 5, min = 0, max = 120, decimals = 0 }
         }
@@ -570,7 +602,9 @@ if CLIENT then
 				lab2:SetTextColor(Color(125,125,255))
 				table.insert(sliders, lab2)
 				for param, dat in pairs(info.convars) do
-					AddSlider(param, dat, true)
+                    if not dat.nounit then
+					    AddSlider(param, dat, true)
+                    end
 				end
 			end
 
@@ -701,7 +735,6 @@ function TOOL:LeftClick(trace)
 				Ammo     = ammo_val,
 				Cooldown = cd_val,
 				LastUsed = -math.huge,
-				Upgraded = false
 			}
 
 			UVReplicatePT(car, slot)

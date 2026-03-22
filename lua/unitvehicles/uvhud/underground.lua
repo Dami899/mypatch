@@ -1,5 +1,32 @@
 UV.RegisterHUD( "underground", "NFS: Underground" )
 
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_underground_race_raceramount", 4, true, false)
+local maxracernrcv = GetConVar("uvhud_underground_race_raceramount"):GetString()
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.underground = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "NFS: Underground" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_underground_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
+
 UV_UI.racing.underground = UV_UI.racing.underground or {}
 
 UV_UI.racing.underground.states = {
@@ -303,7 +330,7 @@ UV_UI.racing.underground.events = {
 		if not IsValid(my_vehicle) then return end
 
 		-- Pull cached diffs from general racing HUD
-		local cached = UV_UI.general.racing.SplitDiffCache and UV_UI.general.racing.SplitDiffCache[my_vehicle]
+		local cached = UV_UI.racing.general.SplitDiffCache and UV_UI.racing.general.SplitDiffCache[my_vehicle]
 		local aheadDiff, behindDiff = "N/A", "N/A"
 
 		if cached then
@@ -348,6 +375,25 @@ UV_UI.racing.underground.events = {
 		end)
 	end,
 
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			
+			local startTime = CurTime()
+			local duration = 1.5
+			
+			hook.Remove("HUDPaint", "UV_WRONGWAY_UG")
+			hook.Add("HUDPaint", "UV_WRONGWAY_UG", function()
+				local elapsed = CurTime() - startTime
+				if elapsed > duration then
+					hook.Remove("HUDPaint", "UV_WRONGWAY_UG")
+					return
+				end
+
+				local x, y = ScrW() * 0.5, ScrH() * 0.3
+				draw.SimpleTextOutlined( UVString("uv.race.wrongway"), "UVFont-Shadow", x, y, Color(200, 75, 75), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5,  Color(0,0,0,200) )
+			end)
+		end
+	end,
 }
 
 local function underground_racing_main( ... )
@@ -411,7 +457,7 @@ local function underground_racing_main( ... )
     
     -- Racer List
     local alt = math.floor(CurTime() / 5) % 2 == 1 -- toggles every 5 seconds
-    for i = 1, math.Clamp(racer_count, 1, 16), 1 do
+    for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_underground_race_raceramount"):GetString()), 1 do
         --if racer_count == 1 then return end
         local entry = string_array[i]
         

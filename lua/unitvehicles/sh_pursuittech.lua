@@ -46,7 +46,7 @@ UV_PT.Killswitch = {
 		local String = "uv.ptech.killswitch.dodged"
 		
         UV_UI.general.events.CenterNotification({
-            text = String,
+            text = UVString( String ),
         })
     end,
     EngineRestarting = function(tbl)
@@ -421,6 +421,24 @@ UV_PT.GPSDart = {
 UV_PT.Juggernaut = {
     Use = function(...)
         local userString = "uv.ptech.juggernaut.activated"
+
+        UV_UI.general.events.CenterNotification({
+            text = UVString( userString ),
+        })
+    end
+}
+UV_PT.Ghost = {
+    Use = function(...)
+        local userString = "uv.ptech.ghost.activated"
+
+        UV_UI.general.events.CenterNotification({
+            text = UVString( userString ),
+        })
+    end
+}
+UV_PT.Grappler = {
+    Use = function(...)
+        local userString = "uv.ptech.grappler.activated"
 
         UV_UI.general.events.CenterNotification({
             text = UVString( userString ),

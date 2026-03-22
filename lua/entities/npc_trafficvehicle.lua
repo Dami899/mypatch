@@ -19,47 +19,7 @@ ENT.Modelname = "models/props_lab/huladoll.mdl"
 
 local dvd = DecentVehicleDestination
 
-function ENT:IsPathBlocked()
-    if not IsValid(self.v) then return false end
 
-    local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
-    local speed = self.v:GetVelocity():Length()
-    
-    local obbMax = self.v:OBBMaxs()
-    local forwardOffset = math.max(obbMax.x, obbMax.y)
-    
-    local startPos = self.v:LocalToWorld(Vector(forwardOffset, 0, 30)) 
-    
-    local lookAheadRange = 490 + (speed * 0.8)
-    local endPos = startPos + (forward * lookAheadRange)
-
-    local mins = Vector(-10, -50, -20)
-    local maxs = Vector(10, 50, 50)
-
-    local tr = util.TraceHull({
-        start = startPos,
-        endpos = endPos,
-        filter = function(ent) 
-            if ent == self.v or ent == self or ent:GetParent() == self.v then return false end
-            -- Ignore specific small items that shouldn't stop a bus
-            if ent:GetClass() == "predictable_entity" or ent:GetClass() == "path_track" then return false end
-            return true 
-        end,
-        mins = mins,
-        maxs = maxs,
-        mask = MASK_NPCSOLID
-    })
-
-    if tr.Hit and IsValid(tr.Entity) then
-        local ent = tr.Entity
-        -- Stop for Players, NPCs, Nextbots, Vehicles, and Physics Props
-        if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() or ent:IsVehicle() then
-            return true
-        end
-    end
-
-    return false
-end
 
 if SERVER then	
 	--Setting ConVars.
@@ -305,11 +265,19 @@ if SERVER then
 	end
 	
 	function ENT:ObstaclesNearby()
-		if not self.v then
+		if not self.v or not self.v.rideheight then
 			return
 		end
-		local tr = util.TraceLine({start = self.v:WorldSpaceCenter(), endpos = (self.v:WorldSpaceCenter()+(self.v:GetVelocity()*2)), filter = {self.v, 'glide_wheel'}, mask = MASK_ALL}).Fraction ~= 1
-		return tobool(tr)
+
+		local class = self.v:GetClass()
+		local pos = class == "prop_vehicle_jeep" and self.v:WorldSpaceCenter() or self.v:GetPos()
+		pos.z = pos.z + self.v.rideheight
+
+		local tr = util.TraceLine({start = pos, endpos = (pos+(self.v:GetVelocity()*2)), mask = MASK_ALL, filter = {self, self.v, 'glide_wheel'}})
+		local Fraction = tr.Fraction ~= 1
+		local HitNormal = tr.HitNormal.z < 0.45 --Ignore small inclines
+
+		return tobool(Fraction and HitNormal)
 	end
 
 	function ENT:ObstaclesNearbySide()
@@ -341,13 +309,23 @@ if SERVER then
 			rightstart:Rotate(Angle(0, -90, 0))
 		end
 		
-		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+Vector(0,0,25)), filter = {self.v, 'glide_wheel'}, mask = MASK_ALL}).Fraction
-		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+Vector(0,0,25)), filter = {self.v, 'glide_wheel'}, mask = MASK_ALL}).Fraction
+		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+(vector_up * 50)), mask = MASK_ALL, filter = {self, self.v, 'glide_wheel'}})
+		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+(vector_up * 50)), mask = MASK_ALL, filter = {self, self.v, 'glide_wheel'}})
 
-		if trleft > trright then
+		local Fraction = trleft.Fraction ~= 1 or trright.Fraction ~= 1
+		local HitNormal = trleft.HitNormal.z < 0.45 or trright.HitNormal.z < 0.45 --Ignore small inclines
+
+		if not tobool(Fraction and HitNormal) then return false end
+
+		local vehicleleft = trleft.Entity
+		local vehicleright = trright.Entity
+
+		if trleft.Fraction > trright.Fraction then
+			UVAddInfraction(vehicleleft, 'endanger')
 			return turnleft
 		end
-		if trleft < trright then
+		if trleft.Fraction < trright.Fraction then
+			UVAddInfraction(vehicleright, 'endanger')
 			return turnright
 		end
 
@@ -471,26 +449,6 @@ if SERVER then
 					end
 				end
 			end --K turn
-
-			local isBlocked = self:IsPathBlocked()
-
-			if isBlocked then
-   			 	throttle = 0
-  			  	steer = 0
-  			  	self:UVHandbrakeOn() 
-				if not self.LastHonk or CurTime() > self.LastHonk + 2 then
-    			    self:SetHorn(true)
-					throttle = 0
-  			  		steer = 0
-  			  		self:UVHandbrakeOn() 
-     				timer.Simple(0.5, function() if IsValid(self) then self:SetHorn(false) end end)
-      			  	self.LastHonk = CurTime()
-    			end
-
-			    self.moving = CurTime() 
-			else
-			    self:UVHandbrakeOff()
-			end
 
 			local turn = self:ObstaclesNearbySide()
 			if turn then
@@ -682,6 +640,13 @@ if SERVER then
 	end
 	
 	function ENT:Initialize()
+		if next(dvd.Waypoints) == nil then
+			net.Start("UV_OpenDVWarning")
+			net.Broadcast() -- or target a specific player
+			SafeRemoveEntity(self)
+			return
+		end
+
 		self:SetNoDraw(true)
 		self:SetMoveType(MOVETYPE_NONE)
 		self:SetModel(self.Modelname)
@@ -709,6 +674,7 @@ if SERVER then
 			if v.IsScar then --If it's a SCAR.
 				if not v:HasDriver() then --If driver's seat is empty.
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.TrafficVehicle = self
 					v.HasDriver = function() return true end --SCAR script assumes there's a driver.
 					v.SpecialThink = function() end --Tanks or something sometimes make errors so disable thinking.
@@ -717,6 +683,7 @@ if SERVER then
 			elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
 				if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.TrafficVehicle = self
 					v:SetActive(true)
 					v:StartEngine()
@@ -727,6 +694,7 @@ if SERVER then
 			elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
 				if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.TrafficVehicle = self
 					v:EnableEngine(true)
 					v:StartEngine(true)
@@ -734,6 +702,7 @@ if SERVER then
 			elseif v.IsGlideVehicle and v.GetIsHonking then --Glide ( current way of checking if it is a valid vehicle is to check for ishonking netvar :^) )
 				if not IsValid(v:GetDriver()) then
 					self.v = v
+					v.uvclasstospawnon = self:GetClass()
 					v.TrafficVehicle = self
 					v:SetEngineState(2)
 					v.inputThrottleModifierMode = 2
@@ -792,6 +761,7 @@ if SERVER then
 					if v.IsScar then --If it's a SCAR.
 						if not v:HasDriver() then --If driver's seat is empty.
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.TrafficVehicle = self
 							v.HasDriver = function() return true end --SCAR script assumes there's a driver.
 							v.SpecialThink = function() end --Tanks or something sometimes make errors so disable thinking.
@@ -800,6 +770,7 @@ if SERVER then
 					elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
 						if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.TrafficVehicle = self
 							v:SetActive(true)
 							v:StartEngine()
@@ -810,6 +781,7 @@ if SERVER then
 					elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
 						if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.TrafficVehicle = self
 							v:EnableEngine(true)
 							v:StartEngine(true)
@@ -817,6 +789,7 @@ if SERVER then
 					elseif v.IsGlideVehicle then --Glide
 						if not IsValid(v:GetDriver()) then
 							self.v = v
+							v.uvclasstospawnon = self:GetClass()
 							v.TrafficVehicle = self
 							v:TurnOn()
 							v.inputThrottleModifierMode = 2
@@ -894,6 +867,8 @@ if SERVER then
 				self.v.length = ((collisionmax.y)-(collisionmin.y))
 			end
 		end
+
+		self.v.rideheight = collisionmin.z
 		
 		local min, max = self.v:GetHitBoxBounds(0, 0) --NPCs aim at the top of the vehicle referred by hit box.
 		if not isvector(max) then min, max = self.v:GetModelBounds() end --If getting hit box bounds is failed, get model bounds instead.

@@ -1,4 +1,30 @@
-UV.RegisterHUD( "mostwanted", "NFS: Most Wanted", true )
+UV.RegisterHUD( "mostwanted", "NFS: Most Wanted", true, true )
+
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_mostwanted_race_raceramount", 4, true, false)
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.mostwanted = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "NFS: Most Wanted" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_mostwanted_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
 
 local _last_backup_pulse_second = 0
 
@@ -13,6 +39,10 @@ UV_UI.pursuit.mostwanted.states = {
     EvasionColor = Color(255, 255, 255, 50),
     
     TakedownText = nil,
+
+    infractions = {},
+    infractionactive = false,
+    lastInfractionTime = 0,
 }
 
 UV_UI.racing.mostwanted.states = {
@@ -192,7 +222,6 @@ UV_UI.racing.mostwanted.events = {
 			end
         end)
 	end,
-	
 	notifState2 = {},
 	CenterNotification2 = function( params )
 		local immediate = params.immediate or false
@@ -296,7 +325,6 @@ UV_UI.racing.mostwanted.events = {
 		end)
 
 	end,
-
     ShowResults = function(sortedRacers) -- Most Wanted
         local debriefcolor = Color(255, 183, 61)
         
@@ -642,32 +670,31 @@ UV_UI.racing.mostwanted.events = {
 		end
 	end
 
-	function OK:DoClick()
-		surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
-		if not closing then
-			gui.EnableScreenClicker(false)
-			closing = true
-			closeStartTime = CurTime()
-		end
-	end
-
-	hook.Add("CreateMove", "JumpKeyCloseResults", function()
-		local ply = LocalPlayer()
-		if not IsValid(ply) then return end
-
-		if ply:KeyPressed(IN_JUMP) then
-			if IsValid(ResultPanel) and not closing then
+		function OK:DoClick()
+			surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
+			if not closing then
 				gui.EnableScreenClicker(false)
-				hook.Remove("CreateMove", "JumpKeyCloseResults")
-					
-				surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
 				closing = true
 				closeStartTime = CurTime()
 			end
 		end
-	end)
-end,
 
+		hook.Add("CreateMove", "JumpKeyCloseResults", function()
+			local ply = LocalPlayer()
+			if not IsValid(ply) then return end
+
+			if ply:KeyPressed(IN_JUMP) then
+				if IsValid(ResultPanel) and not closing then
+					gui.EnableScreenClicker(false)
+					hook.Remove("CreateMove", "JumpKeyCloseResults")
+						
+					surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
+					closing = true
+					closeStartTime = CurTime()
+				end
+			end
+		end)
+	end,
 	onRaceEnd = function( sortedRacers, stringArray )
 		local triggerTime = CurTime()
 		local duration = 10
@@ -709,7 +736,6 @@ end,
 			end
 		end)
 	end,
-
 	onLapComplete = function( participant, new_lap, old_lap, lap_time, lap_time_cur, is_local_player, is_global_best, lap_final, local_finished, user_finished, suppress_lap_ui )
 		local name = UVHUDRaceInfo and UVHUDRaceInfo.Participants[participant] and UVHUDRaceInfo.Participants[participant].Name or "Unknown"
 		
@@ -746,7 +772,6 @@ end,
 			iconMaterial = UVMaterials['CLOCK'],
 		})
 	end,
-		
 	onParticipantDisqualified = function(data)
 		local participant = data.Participant
 		local is_local_player = data.is_local_player
@@ -766,7 +791,6 @@ end,
 			immediate = is_local_player and true or false,
 		})
 	end,
-
 	onRaceStartTimer = function(data)
 		local starttime = data.starttime
 
@@ -798,7 +822,6 @@ end,
 			}, extraOpts)
 		)
 	end,
-
 	onLapSplit = function(participant, checkpoint, is_local_player, numParticipants)
 		if not is_local_player then return end
 		if numParticipants <= 1 then return end
@@ -808,7 +831,7 @@ end,
 		if not IsValid(my_vehicle) then return end
 
 		-- Pull cached diffs from general racing HUD
-		local cached = UV_UI.general.racing.SplitDiffCache and UV_UI.general.racing.SplitDiffCache[my_vehicle]
+		local cached = UV_UI.racing.general.SplitDiffCache and UV_UI.racing.general.SplitDiffCache[my_vehicle]
 		local aheadDiff, behindDiff = "N/A", "N/A"
 
 		if cached then
@@ -836,7 +859,16 @@ end,
 			textCol = noticol,
 		})
 	end,
-
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			UV_UI.racing.mostwanted.events.CenterNotification({
+				text = UVString("uv.race.wrongway"),
+				textNoFall = true,
+				noIcon = true,
+				immediate = true,
+			})
+		end
+	end,
 }
 
 UV_UI.pursuit.mostwanted.events = {
@@ -923,7 +955,6 @@ UV_UI.pursuit.mostwanted.events = {
     onHeatLevelUpdate = function(...)
         
     end,
-        
 	onRacerBusted = function( racer, cop, lp )
 		local cnt = string.format(UVString("uv.hud.racer.arrested"), racer, UVString(cop))
 		
@@ -938,7 +969,6 @@ UV_UI.pursuit.mostwanted.events = {
 			immediate = lp and true or false,
 		})
 	end,
-	
     ShowDebrief = function(params) -- Most Wanted
         if UVHUDDisplayRacing then return end
         
@@ -948,7 +978,18 @@ UV_UI.pursuit.mostwanted.events = {
         local debrieficon = params.iconMaterial or UVMaterials['RESULTCOP']
         local debrieftitletext = params.titleText or "Title Text"
 		local debriefunitspawn = params.spawnAsUnit or false
-        
+        local finescost = string.Comma( params.finesdue or 0 )
+        local infractiondata = params.infractionTable or false
+        local unservedinfractions = 0
+
+		if infractiondata then
+			local count = 0
+			for k, v in pairs(infractiondata) do
+				count = count + 1
+			end
+			unservedinfractions = count
+		end
+
         local w = ScrW()
         local h = ScrH()
         
@@ -988,21 +1029,71 @@ UV_UI.pursuit.mostwanted.events = {
 		OK.Paint = function() end
         
         local timestart = CurTime()
-        
+
         local revealStartTime = CurTime()
         local displaySequence = {}
+		
+		local isRebuilding = false
         
         -- Data and labels
-        local infoLabels = {
-            { label = UVString("uv.results.chase.bounty"), value = bounty },
-            { label = UVString("uv.results.chase.time"), value = time },
-            { label = UVString("uv.results.chase.units.deployed"), value = deploys },
-            { label = UVString("uv.results.chase.units.damaged"), value = tags },
-            { label = UVString("uv.results.chase.units.destroyed"), value = wrecks },
-            { label = UVString("uv.results.chase.dodged.blocks"), value = roadblocksdodged },
-            { label = UVString("uv.results.chase.dodged.spikes"), value = spikestripsdodged }
-        }
-        
+		local showingInfractions = false
+		local infractionKeys = {
+			"speed",
+			"veryspeed",
+			"reckless",
+			"rampolice",
+			"ram",
+			"property",
+			"resist",
+			"offroad",
+			"streetrace",
+			"resource",
+			"endanger",
+			"homicide"
+		}
+		
+		local function BuildInfoLabels()
+			local labels = {}
+
+			if not showingInfractions then
+				-- ORIGINAL VIEW
+				labels = {
+					{ label = UVString("uv.results.chase.bounty"), value = bounty },
+					{ label = UVString("uv.results.chase.time"), value = time },
+					{ label = UVString("uv.results.chase.units.deployed"), value = deploys },
+					{ label = UVString("uv.results.chase.units.damaged"), value = tags },
+					{ label = UVString("uv.results.chase.units.destroyed"), value = wrecks },
+					{ label = UVString("uv.results.chase.dodged.blocks"), value = roadblocksdodged },
+					{ label = UVString("uv.results.chase.dodged.spikes"), value = spikestripsdodged }
+				}
+
+				if infractiondata then
+					table.insert(labels, {
+						label = UVString("uv.results.chase.unserved"),
+						value = unservedinfractions
+					})
+				end
+				
+				table.insert(labels, { label = UVString("uv.results.chase.fines"), value = "$" .. finescost } )
+			else
+				-- INFRACTION VIEW
+				if infractiondata then
+					for _, key in ipairs(infractionKeys) do
+						local value = infractiondata[key] or 0
+
+						table.insert(labels, {
+							label = UVString("uv.infraction." .. key),
+							value = value
+						})
+					end
+				end
+			end
+
+			return labels
+		end
+		
+		local infoLabels = BuildInfoLabels()
+
         -- Build the sequence including empty tabs to keep layout intact
         local h1, h2 = h*0.2475, h*0.2875
         local xLeft = w * 0.205
@@ -1031,7 +1122,38 @@ UV_UI.pursuit.mostwanted.events = {
         local closeStartTime = 0
 
         local totalRevealTime = (revealInterval * 13) + flashDuration
-        
+
+		local tipstring = params.faction == "Racer" and UV.Tips.Racer or UV.Tips.Units
+		local randomTipText = tipstring[math.random(1, #tipstring)]
+
+		local function RebuildDisplay()
+			if isRebuilding then return end
+			isRebuilding = true
+
+			displaySequence = {}
+			local infoLabels = BuildInfoLabels()
+
+			for i = 1, 13 do
+				local revealTime = CurTime() + (i - 1) * revealInterval
+				
+				local yPos = (i % 2 == 1)
+					and h1 + math.floor(i / 2) * h * 0.08
+					or h2 + math.floor((i - 1) / 2) * h * 0.08
+
+				local entry = {
+					y = yPos,
+					leftText = infoLabels[i] and infoLabels[i].label or nil,
+					rightText = infoLabels[i] and tostring(infoLabels[i].value) or nil,
+					revealTime = revealTime
+				}
+
+				table.insert(displaySequence, entry)
+			end
+
+			revealStartTime = CurTime()
+			flashStartTime = nil
+		end
+		
         ResultPanel.Paint = function(self, w, h)
             local curTime = CurTime()
             
@@ -1044,9 +1166,10 @@ UV_UI.pursuit.mostwanted.events = {
                 end
             end
             
-            if allEntriesRevealed and not flashStartTime then
-                flashStartTime = curTime
-            end
+			if allEntriesRevealed and not flashStartTime then
+				flashStartTime = curTime
+				isRebuilding = false
+			end
             
             local flashProgress = flashStartTime and math.min((curTime - flashStartTime) / flashDuration, 1) or 0
             
@@ -1166,20 +1289,38 @@ UV_UI.pursuit.mostwanted.events = {
                 
                 -- Icon and texts fade in (stay full alpha after flash)
                 DrawIcon(debrieficon, w * 0.225, h * 0.1575, .05, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha))
-                draw.DrawText(UVString("uv.results.pursuit"), "UVFont5", w * 0.25, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
+                draw.DrawText(UVString(showingInfractions and "uv.results.infractions" or "uv.results.pursuit"), "UVFont5", w * 0.25, h * 0.1375, Color(debriefcolor.r, debriefcolor.g, debriefcolor.b, textAlpha), TEXT_ALIGN_LEFT)
                 
                 draw.DrawText(debrieftitletext, "UVFont5", w * 0.5, h * 0.2, Color(255, 255, 255, textAlpha), TEXT_ALIGN_CENTER)
 
-				local conttext = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big") .. "</font></color>"
+				local conttexts = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>"
+				local conttexte = "</font></color>"
 				
-				local ustext = ""
-				if debriefunitspawn and (UVHUDWantedSuspects and #UVHUDWantedSuspects > 0) then
-					conttext = conttext .. "     <color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVFont5UI>" .. UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big") .. "</font></color>"
+				local conttext = conttexts .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big") .. conttexte
+				
+				-- Infractions present
+				if infractiondata then
+					local infratext = "uv.results.infractions.lower"
+					
+					if showingInfractions then
+						infratext = "uv.results.pursuit.lower"
+					end
+				
+					conttext = conttext .. "     " .. conttexts .. UVReplaceKeybinds("[+speed] " .. UVString(infratext), "Big") .. conttexte
 				end
+
+				-- Spawn as a Unit
+				if debriefunitspawn and (UVHUDWantedSuspects and #UVHUDWantedSuspects > 0) then
+					conttext = conttext .. "     " .. conttexts .. UVReplaceKeybinds("[+reload] " .. UVString("uv.pm.spawnas"), "Big") .. conttexte
+				end
+
+				local tiptext = "<color="..debriefcolor.r..","..debriefcolor.g..","..debriefcolor.b.."><font=UVMostWantedLeaderboardFont>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
 
 				surface.SetAlphaMultiplier(textAlpha / 255)
 				markup.Parse(conttext):Draw(w * 0.205, h * 0.77, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+				markup.Parse(tiptext, w * 0.59):Draw(w * 0.205, h * 0.815, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 				surface.SetAlphaMultiplier(1)
+
             end
             
             -- Show/Hide OK button with fade
@@ -1233,100 +1374,119 @@ UV_UI.pursuit.mostwanted.events = {
 		end
 	end
 
-	function OK:DoClick()
-		surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
-		if not closing then
-			gui.EnableScreenClicker(false)
-			hook.Remove("CreateMove", "JumpKeyCloseDebrief")
-			hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
-			closing = true
-			closeStartTime = CurTime()
-		end
-	end
-
-	hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
-		local ply = LocalPlayer()
-		if not IsValid(ply) then return end
-
-		if ply:KeyPressed(IN_JUMP) then
-			if IsValid(ResultPanel) and not closing then
+		function OK:DoClick()
+			surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
+			if not closing then
 				gui.EnableScreenClicker(false)
 				hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 				hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
-
-				surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
 				closing = true
 				closeStartTime = CurTime()
 			end
 		end
-	end)
 
-	if debriefunitspawn and (UVHUDWantedSuspects and #UVHUDWantedSuspects > 0) then
-		hook.Add("CreateMove", "ReloadKeyCloseDebrief", function()
+		hook.Add("CreateMove", "JumpKeyCloseDebrief", function()
 			local ply = LocalPlayer()
 			if not IsValid(ply) then return end
 
-			if ply:KeyPressed(IN_RELOAD) then
+			if ply:KeyPressed(IN_JUMP) then
 				if IsValid(ResultPanel) and not closing then
 					gui.EnableScreenClicker(false)
 					hook.Remove("CreateMove", "JumpKeyCloseDebrief")
 					hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
-					
+					hook.Remove("CreateMove", "UseKeyToggleInfractions")
+
 					surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
 					closing = true
 					closeStartTime = CurTime()
-
-					net.Start("UVHUDRespawnInUVGetInfo")
-					net.SendToServer()
 				end
 			end
 		end)
-	end
-end,
+		
+		hook.Add("CreateMove", "UseKeyToggleInfractions", function()
+			local ply = LocalPlayer()
+			if not IsValid(ply) then return end
+			if isRebuilding then return end
 
-onRacerEscapedDebrief = function(escapedtable)
-    local params = {
-        dataTable = escapedtable,
-        color = Color(255, 183, 61),
-        iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = UVString("uv.results.escapedfrom"),
-    }
-    UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
-end,
+			if ply:KeyPressed(IN_SPEED) then
+				if IsValid(ResultPanel) and not closing and infractiondata then
+					showingInfractions = not showingInfractions
 
-onRacerBustedDebrief = function(bustedtable)
-    local params = {
-        dataTable = bustedtable,
-        color = Color(255, 183, 61),
-        iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = string.format( UVString("uv.results.bustedby"), UVString( bustedtable["Unit"] ) ),
-		spawnAsUnit = true,
-    }
-    UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
-end,
+					surface.PlaySound("uvui/mw/FE_COMMON_MB [5].wav")
 
-onCopBustedDebrief = function(bustedtable)
-    local params = {
-        dataTable = bustedtable,
-        color = Color(61, 183, 255),
-        textcolor = Color(142, 221, 255, 107),
-        iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = string.format( UVString("uv.results.suspects.busted"), bustedtable["Unit"] ),
-    }
-    UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
-end,
+					RebuildDisplay()
+				end
+			end
+		end)
 
-onCopEscapedDebrief = function(escapedtable)
-    local params = {
-        dataTable = escapedtable,
-        color = Color(61, 183, 255),
-        textcolor = Color(142, 221, 255, 107),
-        iconMaterial = UVMaterials['RESULTCOP'],
-        titleText = string.format(UVString("uv.results.suspects.escaped.num"), UVHUDWantedSuspectsNumber)
-    }
-    UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
-end,
+		if debriefunitspawn and (UVHUDWantedSuspects and #UVHUDWantedSuspects > 0) then
+			hook.Add("CreateMove", "ReloadKeyCloseDebrief", function()
+				local ply = LocalPlayer()
+				if not IsValid(ply) then return end
 
+				if ply:KeyPressed(IN_RELOAD) then
+					if IsValid(ResultPanel) and not closing then
+						gui.EnableScreenClicker(false)
+						hook.Remove("CreateMove", "JumpKeyCloseDebrief")
+						hook.Remove("CreateMove", "ReloadKeyCloseDebrief")
+						hook.Remove("CreateMove", "UseKeyToggleInfractions")
+						
+						surface.PlaySound( "uvui/mw/FE_COMMON_MB [4].wav" )
+						closing = true
+						closeStartTime = CurTime()
+
+						net.Start("UVHUDRespawnInUVGetInfo")
+						net.SendToServer()
+					end
+				end
+			end)
+		end
+	end,
+	onRacerEscapedDebrief = function(escapedtable, infractionstable, finesdue)
+		local params = {
+			faction = "Racer",
+			dataTable = escapedtable,
+			infractionTable = infractionstable,
+			finesdue = finesdue,
+			color = Color(255, 183, 61),
+			iconMaterial = UVMaterials['RESULTCOP'],
+			titleText = UVString("uv.results.escapedfrom"),
+		}
+		UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
+	end,
+	onRacerBustedDebrief = function(bustedtable, infractionstable, finesdue)
+		local params = {
+			faction = "Racer",
+			dataTable = bustedtable,
+			infractionTable = infractionstable,
+			finesdue = finesdue,
+			color = Color(255, 183, 61),
+			iconMaterial = UVMaterials['RESULTCOP'],
+			titleText = string.format( UVString("uv.results.bustedby"), UVString( bustedtable["Unit"] ) ),
+			spawnAsUnit = true,
+		}
+		UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
+	end,
+	onCopBustedDebrief = function(bustedtable)
+		local params = {
+			dataTable = bustedtable,
+			color = Color(61, 183, 255),
+			textcolor = Color(142, 221, 255, 107),
+			iconMaterial = UVMaterials['RESULTCOP'],
+			titleText = string.format( UVString("uv.results.suspects.busted"), bustedtable["Unit"] ),
+		}
+		UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
+	end,
+	onCopEscapedDebrief = function(escapedtable)
+		local params = {
+			dataTable = escapedtable,
+			color = Color(61, 183, 255),
+			textcolor = Color(142, 221, 255, 107),
+			iconMaterial = UVMaterials['RESULTCOP'],
+			titleText = string.format(UVString("uv.results.suspects.escaped.num"), UVHUDWantedSuspectsNumber)
+		}
+		UV_UI.pursuit.mostwanted.events.ShowDebrief(params)
+	end,
 	onPullOverRequest = function(...)
 		UV_UI.racing.mostwanted.events.CenterNotification({
 			text = UVString("uv.hud.fine.pullover"),
@@ -1335,15 +1495,306 @@ end,
 			immediate = true,
 		})
 	end,
-	onFined = function( finenr )
+	onFined = function( finenr, finesdue )
 		UV_UI.racing.mostwanted.events.CenterNotification({
 			text = string.format( UVString("uv.hud.fine.fined"), finenr),
 			textNoFall = true,
 			noIcon = true,
 			immediate = true,
 		})
+		timer.Simple(3, function()
+			UV_UI.racing.mostwanted.events.CenterNotification({
+				text = string.format( UVString("uv.hud.fine.cost"), finesdue),
+				textNoFall = true,
+				noIcon = true,
+				immediate = true,
+			})
+		end)
 	end,
+	InfractionNoti = function()
+		local state = UV_UI.pursuit.mostwanted.states
+
+		local baseX = UV_UI.X(ScrW() * 0.1)
+		local baseY = ScrH() * 0.125
+
+		local squareSizeMin = ScrW() * 0.01
+		local squareSizeMax = UV_UI.W(ScrW() * 0.125)
+		
+		local notitimer = 3
+
+		hook.Add("HUDPaint", "UV_INFRACTIONS_HUD", function()
+			local now = CurTime()
+
+			-- Animated sections
+			local timeSinceLast = now - state.lastInfractionTime
+			local expandTime = 0.25
+
+			local t = math.Clamp((now - (state.headerStart or now)) / expandTime, 0, 1)
+			local fadeOut = math.Clamp((timeSinceLast - notitimer) / 0.3, 0, 1)
+
+			-- local size = Lerp(t, squareSizeMin, squareSizeMax)
+			local size = squareSizeMax
+			local alpha = Lerp(t, 0, 255) * (1 - fadeOut)
+
+			-- Main BG
+			surface.SetDrawColor(223, 184, 127, alpha * 0.75)
+			surface.SetMaterial(UVMaterials["INFRACTIONS_BG"])
+			surface.DrawTexturedRectRotated(baseX, baseY, size, size, 0)
+			
+			-- Rotating circle-thing
+			local rot = (RealTime() * 120) % 360
+
+			surface.SetDrawColor(223, 184, 127, alpha)
+			surface.SetMaterial(UVMaterials["INFRACTIONS_BG_RING"])
+			surface.DrawTexturedRectRotated(baseX, baseY, size, size, rot)
+			
+			-- Infractions logo and its text
+			local logoT = math.Clamp((now - (state.infractionLogoStart or now)) / 0.25, 0, 1)
+			local logoScale = Lerp(logoT, 0.5, 1)
+
+			local logoSize = size * 0.5 * logoScale
+			local logoAlpha = 255 * logoT * (1 - fadeOut)
+			local blink = math.abs(math.sin(RealTime() * 3))
+
+			surface.SetMaterial(UVMaterials["INFRACTIONS_ICON"])
+			surface.SetDrawColor(255, 255, 255, logoAlpha)
+			surface.DrawTexturedRectRotated(baseX, baseY, logoSize, logoSize, 0)
+			
+			surface.SetDrawColor(223, 184, 127, logoAlpha * blink)
+			surface.DrawTexturedRectRotated(baseX, baseY, logoSize, logoSize, 0)
+			
+			local numAlpha = 255 * logoT * (1 - fadeOut)
+
+			draw.SimpleTextOutlined( tostring(state.infractionCount or 0), "UVFont5", baseX, baseY, Color(255, 255, 255, numAlpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, numAlpha) )
+
+			-- Infractions List
+			local spacing = ScrH() * 0.015
+			local startY = (baseY * 0.15) + size
+
+			for i = #state.infractions, 1, -1 do
+				local inf = state.infractions[i]
+				local life = now - inf.startTime
+
+				-- Fade in
+				local fadeIn = math.Clamp(life / 0.25, 0, 1)
+
+				-- Start removing after 2s
+				if life > notitimer and not inf.removing then
+					inf.removing = true
+					inf.removeStart = now
+				end
+
+				local removeT = 0
+				if inf.removing then
+					removeT = math.Clamp((now - inf.removeStart) / 0.3, 0, 1)
+				end
+
+				local alpha = 255 * fadeIn * (1 - removeT)
+
+				-- Movement (down on spawn, up on remove)
+				local yOffset = (i - 1) * spacing
+				-- yOffset = yOffset + Lerp(1 - fadeIn, -10, 0) -- drop-in
+				yOffset = yOffset + Lerp(1 - fadeIn, 20, 0) -- drop-in
+				yOffset = yOffset + Lerp(removeT, 0, -20)    -- rise-out
+
+				draw.SimpleTextOutlined( inf.text, "UVMostWantedLeaderboardFont2", baseX, startY + yOffset, Color(255, 255, 255, alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color(0, 0, 0, alpha) )
+
+				-- Remove finished
+				if removeT >= 1 then
+					table.remove(state.infractions, i)
+				end
+			end
+			
+			-- Header
+			local headerT = math.Clamp((now - (state.headerStart or now)) / 0.25, 0, 1)
+			local headerAlpha = 255 * headerT * (1 - fadeOut)
+			
+			draw.SimpleTextOutlined( UVString("uv.results.infractions"), "UVMostWantedLeaderboardFont", baseX, baseY + (size * 0.5), Color(223, 184, 127, headerAlpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color(0, 0, 0, headerAlpha) )
+
+			-- Cleanup
+			if timeSinceLast > (notitimer + 0.3) and #state.infractions == 0 then
+				hook.Remove("HUDPaint", "UV_INFRACTIONS_HUD")
+				state.infractionactive = false
+			end
+		end)
+	end,
+	onInfraction = function(text, number)
+		local state = UV_UI.pursuit.mostwanted.states
+
+		state.lastInfractionTime = CurTime()
+
+		table.insert(state.infractions, {
+			text = text,
+			startTime = CurTime(),
+			removing = false
+		})
+
+		-- Restart animations
+		state.headerStart = CurTime()
+		state.infractionLogoStart = CurTime()
+
+		-- Track count (use passed number or fallback)
+		state.infractionCount = number or (state.infractionCount or 0) + 1
+
+		if not state.infractionactive then
+			state.infractionactive = true
+			UV_UI.pursuit.mostwanted.events.InfractionNoti()
+		end
+	end
 }
+
+concommand.Add("uv_test_infraction", function() -- DEBUGGING
+	local t = {
+		"uv.infraction.speed",
+		"uv.infraction.veryspeed",
+		"uv.infraction.reckless",
+		"uv.infraction.rampolice",
+		"uv.infraction.ram",
+		"uv.infraction.property",
+		"uv.infraction.resist",
+		"uv.infraction.offroad",
+		"uv.infraction.streetrace",
+		"uv.infraction.resource",
+		"uv.infraction.endanger",
+		"uv.infraction.homicide"
+	}
+	
+    UV_UI.pursuit.mostwanted.events.onInfraction(UVString(t[math.random(#t)]))
+
+	UV_UI.racing.mostwanted.events.CenterNotification({
+		text = string.format( UVString("uv.hud.fine.fined"), 1),
+		textNoFall = true,
+		noIcon = true,
+		immediate = true,
+	})
+	timer.Simple(2.5, function()
+		UV_UI.racing.mostwanted.events.CenterNotification({
+			text = string.format( UVString("uv.hud.fine.cost"), 1000),
+			textNoFall = true,
+			noIcon = true,
+			immediate = true,
+		})
+	end)
+end)
+
+UV_UI.pursuit.mostwanted.scannerConfig = {
+	radius = 30,
+	innerRadius = 14,
+	blipRadius = 8,
+	maxRange = 5000,
+	maxArc = 130,
+	posX = ScrW() * 0.5,
+	posY = ScrH() * 0.1,
+}
+
+local function ScannerCode(cfg)
+    local radius = cfg.radius or 30
+    local innerRadius = cfg.innerRadius or 14
+    local blipRadius = cfg.blipRadius or 8
+    local maxRange = cfg.maxRange or 5000
+    local maxArc = cfg.maxArc or 360
+    local centerx = cfg.posX
+    local centery = cfg.posY
+
+	local localPlayer = cfg.localPlayer
+	local w, h = cfg.w, cfg.h
+
+	local enemypos = localPlayer:GetPos()
+	local closestDist = math.huge
+	local found = false
+	local closestPos
+	local anyUnits = false
+
+	-- Direction
+	local forwardYaw
+
+	if GetConVar("unitvehicle_policescanner_vehicle"):GetBool()
+		and IsValid(localPlayer:GetVehicle()) then
+		
+		forwardYaw = localPlayer:GetVehicle():GetAngles().y + 90
+	else
+		forwardYaw = EyeAngles().y
+	end
+
+	for _, v in pairs(UnitTable) do
+		if IsValid(v) then
+			anyUnits = true
+
+			local pos = v:GetPos()
+			local dist = pos:DistToSqr(enemypos)
+
+			local angleDiff = math.AngleDifference(
+				forwardYaw,
+				(pos - enemypos):Angle().y
+			)
+
+			if math.abs(angleDiff) <= maxArc / 2 then
+				if dist < closestDist then
+					closestDist = dist
+					closestPos = pos
+					found = true
+				end
+			end
+		end
+	end
+
+	if not anyUnits then return end
+
+	surface.SetMaterial(UVMaterials["SCANNER_BG"])
+	surface.SetDrawColor(0,0,0,200)
+    surface.DrawTexturedRect(UV_UI.XScaled(w * 0.375), centery - (h * 0.04), UV_UI.W(w * 0.25), h * 0.06)
+
+	surface.SetMaterial(UVMaterials["SCANNER_MIDDLE"])
+	surface.SetDrawColor(175,255,100)
+    surface.DrawTexturedRect(UV_UI.XScaled(w * 0.48), centery - (h * 0.04), UV_UI.W(w * 0.04), h * 0.06)
+
+	if not found then return end
+
+	local realDistance = math.sqrt(closestDist)
+
+	-- Range limit
+	if realDistance > maxRange then return end
+
+	local distanceFrac = math.Clamp(realDistance / maxRange, 0, 1)
+	local beepfrequency = math.Clamp(distanceFrac, 0.1, 1)
+
+	local angleDiff = math.AngleDifference(
+		forwardYaw,
+		(closestPos - enemypos):Angle().y
+	)
+
+	local angle = math.rad(angleDiff) + math.pi/2
+
+	surface.SetMaterial(UVMaterials["SCANNER_ARROW"])
+	surface.SetDrawColor(175,255,100,255)
+	surface.DrawTexturedRectRotated( centerx, centery, UV_UI.W(w * 0.04), UV_UI.W(w * 0.04), -angleDiff )
+
+	-- Beeping
+	-- local Beeped = Beeped or nil
+	if UVHUDBlipSoundTime < CurTime() then
+		UVHUDBlipSoundTime = CurTime() + beepfrequency
+
+		if PursuitSFX:GetBool() then
+			surface.PlaySound("ui/pursuit/spotting_blip.wav")
+		end
+
+		Beeped = true
+		timer.Simple(beepfrequency/2, function()
+			Beeped = false
+		end)
+	end
+
+	local beepcolor = Beeped and Color(175,255,100) or Color(0,0,0,0)
+
+	surface.SetDrawColor(beepcolor)
+	surface.SetMaterial(UVMaterials["SCANNER_LEDS"])
+    surface.DrawTexturedRect(UV_UI.XScaled(w * 0.3415), centery - (h * 0.04), UV_UI.W(w * 0.1725), h * 0.06)
+	
+	surface.SetMaterial(UVMaterials["SCANNER_LEDS_INV"])
+    surface.DrawTexturedRect(UV_UI.XScaled(w * 0.486), centery - (h * 0.04), UV_UI.W(w * 0.1725), h * 0.06)
+end
+
+UV_UI.pursuit.mostwanted.scanner = ScannerCode
 
 -- Functions
 local function mw_racing_main( ... )
@@ -1431,7 +1882,7 @@ local function mw_racing_main( ... )
 
     -- Racer List
     local alt = math.floor(CurTime() / 5) % 2 == 1
-    for i = 1, math.Clamp(racer_count, 1, 12) do
+    for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_mostwanted_race_raceramount"):GetString()) do
         if racer_count == 1 then return end
 
         local entry = string_array[i]
@@ -1739,7 +2190,7 @@ local function mw_pursuit_main( ... )
     -- [ Bottom Info Box ] --
 	local bottomyplus = 0
 
-    if (LocalPlayer().uvspawningunit and LocalPlayer().uvspawningunit.vehicle) or (not UVHUDCopMode and UVHUDRaceFinishCountdownStarted) then
+    if UVHUDActiveBar then
         bottomyplus = -(h * 0.075)
     end
 

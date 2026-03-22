@@ -13,6 +13,8 @@ UVHUDRaceAnimTriggered = false
 UVHUDRacePursuitEndTime = nil
 UVHUDRacePursuitStartTime = nil
 
+UVRace_UsingNodes = nil
+
 UVRaceLaps = CreateConVar( "unitvehicle_racelaps", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Number of laps to complete. Set to 1 to have sprint races." )
 UVRaceDNFTimer = CreateConVar( "unitvehicle_racednftimer", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "How long, once one racer crosses the line, the rest have to finish before DNF'ing." )
 UVRaceVisibleCheckpoints = CreateConVar( "unitvehicle_racevisiblecheckpoints", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Whether to show the checkpoints to the players." )
@@ -20,6 +22,220 @@ UVRacePursuitStart = CreateConVar( "unitvehicle_racepursuitstart", 0, {FCVAR_ARC
 UVRacePursuitStop = CreateConVar( "unitvehicle_racepursuitstop", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If a pursuit is active, immediately stop the pursuit when the race ends." )
 UVRacePursuitStopDespawn = CreateConVar( "unitvehicle_racepursuitstop_despawn", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If a pursuit is active, despawn all AI units when the race ends." )
 UVRaceClearAI = CreateConVar( "unitvehicle_raceclearai", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Removes all AI and their vehicles when the race ends." )
+UVRaceDifficulty = CreateConVar( "unitvehicle_racedifficulty", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Increases racing AI difficulty." )
+UVRaceCatchup = CreateConVar( "unitvehicle_racercatchup", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enables catch-up mode for AI racers." )
+
+UVMenuFirstCreate = CreateConVar( "unitvehicle_uvmenu_firstsetup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, whenever you open the UV Menu via the Context Menu, you'll be prompted to go through the first-time setup." )
+
+function UVFormLeaderboard(racers, overrideVehicle)
+	local lPr = CLIENT and LocalPlayer()
+	local sorted_table = {}
+	local lVehicle, lArray = nil, nil
+
+	for vehicle, array in pairs(racers) do
+		if IsValid(vehicle) and vehicle:GetDriver() == lPr then
+			lVehicle = vehicle
+			lArray = array
+		end
+
+		if overrideVehicle and vehicle == overrideVehicle then
+			lVehicle = vehicle
+			lArray = array
+		end
+
+		table.insert(sorted_table, {
+			vehicle = vehicle,
+			array = array
+		})
+	end
+
+	if not lArray then 
+		return sorted_table
+	end
+
+	local lCheckpointCount = #lArray.Checkpoints
+	local leaderboardLines = {}
+
+	-- Sort by: lap > checkpoints > checkpoint time
+	-- table.sort(sorted_table, function(a, b)
+	--     local aData, bData = a.array, b.array
+	--     if aData.Lap ~= bData.Lap then
+	--         return aData.Lap > bData.Lap
+	--     end
+
+	--     local aCP, bCP = #aData.Checkpoints, #bData.Checkpoints
+	--     if aCP ~= bCP then
+	--         return aCP > bCP
+	--     end
+
+	--     local aTime = aData.Checkpoints[aCP] or 0
+	--     local bTime = bData.Checkpoints[bCP] or 0
+	--     return aTime < bTime
+	-- end)
+	table.sort(sorted_table, function(a, b)
+		local aData, bData = a.array, b.array
+		-- if aData.Finished and not bData.Finished then
+		--     return true
+		-- elseif not aData.Finished and bData.Finished then
+		--     return false
+		-- end
+		local function getStatusPriority(data)
+			if data.Disqualified or data.Busted then return 3 end
+			if data.Finished then return 1 end
+			return 2
+		end
+
+		local aPriority = getStatusPriority(aData)
+		local bPriority = getStatusPriority(bData)
+
+		if aPriority ~= bPriority then
+			return aPriority < bPriority
+		end
+
+		if aData.Finished and bData.Finished then
+			local aLTime = aData.LastLapTime or math.huge
+			local bLTime = bData.LastLapTime or math.huge
+			if aLTime ~= bLTime then
+				return aLTime < bLTime
+			end
+		end
+
+		if aData.Lap ~= bData.Lap then
+			return aData.Lap > bData.Lap
+		end
+
+		local aCP, bCP = #aData.Checkpoints, #bData.Checkpoints
+		if aCP ~= bCP then
+			return aCP > bCP
+		end
+
+		local aTime = aData.Checkpoints[aCP] or 0
+		local bTime = bData.Checkpoints[bCP] or 0
+
+		if aTime ~= bTime then
+			return aTime < bTime
+		end
+
+		-- local aLTime = (aData.LastLapTime or math.huge) - UVHUDRaceInfo.Info.Time
+		-- local bLTime = (bData.LastLapTime or math.huge) - UVHUDRaceInfo.Info.Time
+		-- return aLTime < bLTime
+	end)
+
+	for i, v in ipairs(sorted_table) do
+		local vehicle = v.vehicle
+		local lang = UVString
+
+		if not IsValid(vehicle) then
+			--local line = string.format("%d. %s", i, v.array.Name)
+			--local str = ''
+			local mode = nil
+
+			if v.array.Finished then
+				--str = lang("uv.race.suffix.finished")
+				mode = 'Finished'
+			elseif v.array.Busted then
+				--str = lang("uv.race.suffix.busted")
+				mode = 'Busted'
+			else
+				--str = lang("uv.race.suffix.dnf")
+				mode = 'Disqualified'
+			end
+
+			--line = line .. str
+
+			--local selected_color = LBColors.Disqualified
+
+			table.insert(leaderboardLines, {v.array.Name or "Racer", nil, mode})
+		else
+			local array = v.array
+			local driver = vehicle:GetDriver()
+			local is_local_player = (IsValid(driver) and driver == lPr) or (overrideVehicle and vehicle == overrideVehicle)
+			local name = array.Name or "Racer"
+
+			local diff = nil -- Display mode (Lap, Time, Finished, DNF/Busted)
+			local mode = nil
+
+			-- local line = string.format("%d. %s", i, name)
+			-- local line = name
+
+			if not is_local_player then
+				local racerCPs = array.Checkpoints or {}
+				local racerCount = #racerCPs
+				local checkpointDiff = lCheckpointCount - racerCount
+				local totalTimeDiff = 0
+
+				if checkpointDiff ~= 0 then
+					local aheadCPs = (checkpointDiff > 0) and lArray.Checkpoints or racerCPs
+					local behindCPs = (aheadCPs == lArray.Checkpoints) and racerCPs or lArray.Checkpoints
+					local behindCount = #behindCPs
+
+					for j = 1, math.abs(checkpointDiff) do
+						local idx = behindCount + j
+						local timeNow = aheadCPs[idx]
+						local timePrev = aheadCPs[idx - 1] or timeNow
+						if timeNow then
+							totalTimeDiff = totalTimeDiff + (timeNow - timePrev)
+						end
+					end
+
+					if checkpointDiff > 0 then
+						totalTimeDiff = -totalTimeDiff
+					end
+				else
+					local localTime = lArray.Checkpoints[lCheckpointCount] or 0
+					local otherTime = racerCPs[racerCount] or 0
+					totalTimeDiff = localTime - otherTime
+				end
+
+				local sign = (totalTimeDiff >= 0) and "+" or "-"
+
+				local str = "???"
+
+				if v.array.Finished then
+					mode = 'Finished'
+					--str = lang("uv.race.suffix.finished")
+				elseif v.array.Busted then
+					mode = 'Busted'
+					--str = lang("uv.race.suffix.busted")
+				elseif v.array.Disqualified then
+					mode = 'Disqualified'
+					--str = lang("uv.race.suffix.dnf")
+				elseif v.array.Lap ~= lArray.Lap then
+					mode = 'Lap'
+					local difference = v.array.Lap - lArray.Lap
+					local ltext = "uv.race.suffix.lap"
+					if math.abs( difference ) ~= 1 then ltext = "uv.race.suffix.laps" end
+					--diff = ((difference > 0 and '+') or '-') ..math.abs( difference )
+					diff = difference
+					--str = string.format( lang(ltext), ((difference > 0 and '+') or '-') ..math.abs( difference ) )
+				else
+					mode = 'Time'
+					--str = string.format("  (%s%.3f)", sign, math.abs(totalTimeDiff))
+					diff = totalTimeDiff
+				end
+
+				--line = line .. str
+			end
+
+			local selected_color = nil
+
+			-- if is_local_player then
+			--     selected_color = LBColors.LocalPlayer
+			-- elseif array.Disqualified or array.Busted then
+			--     selected_color = LBColors.Disqualified
+			-- else
+			--     selected_color = LBColors.Others
+			-- end
+
+			table.insert(leaderboardLines, {name, is_local_player, mode, diff}) 
+		end
+	end
+
+	--UVSortedRacers = sorted_table
+
+	return sorted_table, leaderboardLines
+end
+
 
 if SERVER then	
 	UVRaceTable = {}
@@ -96,7 +312,7 @@ if SERVER then
 
 		-- Inject host dynamically
 		for _, ply in ipairs(player.GetAll()) do
-			if ply:IsSuperAdmin() then
+			if ply:IsAdmin() or ply:IsSuperAdmin() and (UVRace_CurrentTrackHost and ply:Nick() == UVRace_CurrentTrackHost) then
 				local veh = UVGetVehicle(ply)
 				if IsValid(veh) then
 					local id = veh:EntIndex()
@@ -257,6 +473,7 @@ if SERVER then
 		vehicle.currentlap = nil
 		vehicle.lastlaptime = nil
 		vehicle.bestlaptime = nil
+		vehicle.streetraceinfraction = nil
 	end
 
 	function UVRaceStart( laps ) --Start procedure
@@ -375,6 +592,12 @@ if SERVER then
 		UVRaceStartTime = CurTime()
 		UVRaceInProgress = true
 
+		if UVRace_Nodes and #UVRace_Nodes > 0 then
+			UVRace_UsingNodes = true
+		else
+			UVRace_UsingNodes = nil
+		end
+
 		UVRaceTable['Info']['Time'] = UVRaceStartTime
 
 		net.Start( "uvrace_begin" )
@@ -396,6 +619,14 @@ if SERVER then
 		UVRaceInEffect = nil
 		UVRaceInProgress = nil
 		UVRaceFirstSplitTriggered = nil
+		UVRace_UsingNodes = nil
+		
+		for _, ent in ipairs(ents.FindByClass("npc_racervehicle")) do
+			if ent.ClearDestination then
+				ent:ClearDestination()
+			end
+			ent.UV_CurrentNode = nil
+		end
 		
 		net.Start("UVRace_TrackReady")
 			net.WriteString("?")
@@ -459,6 +690,8 @@ if SERVER then
 			UVRace_LoadedConstraints[entityId] = nil
 		end
 
+		UVRaceClearNodes()
+
 		if UVRace_LoadedWaypoints then
 			--dvd.Waypoints = {}
 			--concommand.Run(ply. "dv_route_load")
@@ -521,8 +754,9 @@ if SERVER then
 		end
 	end
 
-	local function UVRaceEndCountdown()
+	net.Receive("UVRace_BeginEndCountdown", function(len, ply)
 		if UVHUDRaceFinishCountdownStarted then return end
+
 		timer.Create("UVRaceFinishCountdown", GetConVar("unitvehicle_racednftimer"):GetInt(), 1, function()
 			UVRaceEnd()
 			
@@ -531,16 +765,13 @@ if SERVER then
 				net.Broadcast()
 			end)
 		end)
-	end
-
-	net.Receive("UVRace_BeginEndCountdown", function(len, ply)
-		UVRaceEndCountdown()
 	end)
 	
 	net.Receive("UVRace_StopEndCountdown", function(len, ply)
 		if timer.Exists("UVRaceFinishCountdown") then
 			timer.Remove("UVRaceFinishCountdown")
 		end
+		
 	end)
 
 	hook.Add("player_activate", "UVRaceArrayInit", function( data )
@@ -879,14 +1110,21 @@ if SERVER then
 			return
 		end
 
-		if UVTargeting then
-			net.Start("uvrace_decline")
-			net.WriteString("uv.race.start.error.chased")
-			net.Send(ply)
-			return
-		end
+		-- if UVTargeting then
+		-- 	net.Start("uvrace_decline")
+		-- 	net.WriteString("uv.race.start.error.chased")
+		-- 	net.Send(ply)
+		-- 	return
+		-- end
 
 		RunConsoleCommand("uv_despawnvehicles")
+
+		
+		for k, v in pairs( UVUnitVehicles ) do
+			if IsValid(v) then
+				v:Remove()
+			end
+		end
 
 		-- Add player vehicle if not already a participant
 		for _, v in ents.Iterator() do
@@ -954,12 +1192,12 @@ if SERVER then
 		if not ply:IsSuperAdmin() then return end
 		if UVRaceInEffect then return end
 		
-		if UVTargeting then
-			net.Start("uvrace_decline")
-			net.WriteString("uv.race.invite.error.chased")
-			net.Send(ply)
-			return
-		end
+		-- if UVTargeting then
+		-- 	net.Start("uvrace_decline")
+		-- 	net.WriteString("uv.race.invite.error.chased")
+		-- 	net.Send(ply)
+		-- 	return
+		-- end
 		
 		local invited_racers = {}
 		
@@ -1028,6 +1266,8 @@ if SERVER then
 			if IsValid( entityObject ) then entityObject:Remove() end
 			UVRace_LoadedConstraints[entityId] = nil
 		end
+
+		UVRaceClearNodes()
 
 		local jsonfilename = string.Replace( "unitvehicles/races/" .. game.GetMap() .. "/" .. args[1], ".txt", ".json" )
 		if file.Exists(jsonfilename, "DATA") then 
@@ -1122,16 +1362,6 @@ if SERVER then
 					UVRace_LoadedWaypoints = false
 				end
 
-				for entityId, entityObject in pairs( UVRace_LoadedEntities ) do
-					if IsValid( entityObject ) then entityObject:Remove() end
-					UVRace_LoadedEntities[entityId] = nil
-				end
-		
-				for entityId, entityObject in pairs( UVRace_LoadedConstraints ) do
-					if IsValid( entityObject ) then entityObject:Remove() end
-					UVRace_LoadedConstraints[entityId] = nil
-				end
-
 				UVRaceEnd()
 				UVCounterActive = false
 		
@@ -1167,6 +1397,9 @@ else -- CLIENT stuff
 	UVRacingTheme = CreateClientConVar("unitvehicle_racetheme", "default", true, false, "Unit Vehicles: The theme of the current race.")
 	UVRacingThemeShuffle = CreateClientConVar("unitvehicle_racetheme_shuffle", 1, true, false, "Unit Vehicles: If set to 1, the race theme will be shuffled.")
 	UVRacingSFXTheme = CreateClientConVar("unitvehicle_sfxtheme", "unbound", true, false, "Unit Vehicles: The SFX theme of the current race.")
+	
+	UVGlideSpeedometer = CreateClientConVar("unitvehicle_speedometer_enable", 0, true, false, "Unit Vehicles: If enabled, allow Glide vehicles to utilize a custom speedometer from the chosen HUD Type, if it has one.")
+	UVSpeedometer = CreateClientConVar("unitvehicle_speedometer", "mostwanted", true, false, "Unit Vehicles: Which custom speedometer to utilize.")
 
 	-- local files, folders = file.Find( "sound/uvracemusic/*", "GAME" )
 	-- if folders ~= nil then
@@ -1345,14 +1578,14 @@ else -- CLIENT stuff
 						local parts = string.Explode(" - ", track)
 						artist = (#parts == 1) and "Unknown Artist" or parts[1]
 						title = (#parts == 1) and track or parts[2]
-						folder = trackFolder
+						folder = themeFolder
 					end
 
 					table.insert( UVPlaylists[themeFolder][trackFolder], {
 						path = trackPath,
 						artist = artist,
 						title = title,
-						folder = themeFolder,
+						folder = folder,
 					} )
 				end
 			end
@@ -1681,210 +1914,6 @@ else -- CLIENT stuff
 		return timestring
 	end
 
-	function UVFormLeaderboard(racers)
-		local lPr = LocalPlayer()
-		local sorted_table = {}
-		local lVehicle, lArray = nil, nil
-
-		for vehicle, array in pairs(racers) do
-			if IsValid(vehicle) and vehicle:GetDriver() == lPr then
-				lVehicle = vehicle
-				lArray = array
-			end
-
-			table.insert(sorted_table, {
-				vehicle = vehicle,
-				array = array
-			})
-		end
-
-		if not lArray then 
-			return sorted_table
-		end
-
-		local lCheckpointCount = #lArray.Checkpoints
-		local leaderboardLines = {}
-
-		-- Sort by: lap > checkpoints > checkpoint time
-		-- table.sort(sorted_table, function(a, b)
-		--     local aData, bData = a.array, b.array
-		--     if aData.Lap ~= bData.Lap then
-		--         return aData.Lap > bData.Lap
-		--     end
-
-		--     local aCP, bCP = #aData.Checkpoints, #bData.Checkpoints
-		--     if aCP ~= bCP then
-		--         return aCP > bCP
-		--     end
-
-		--     local aTime = aData.Checkpoints[aCP] or 0
-		--     local bTime = bData.Checkpoints[bCP] or 0
-		--     return aTime < bTime
-		-- end)
-		table.sort(sorted_table, function(a, b)
-			local aData, bData = a.array, b.array
-			-- if aData.Finished and not bData.Finished then
-			--     return true
-			-- elseif not aData.Finished and bData.Finished then
-			--     return false
-			-- end
-			local function getStatusPriority(data)
-				if data.Disqualified or data.Busted then return 3 end
-				if data.Finished then return 1 end
-				return 2
-			end
-
-			local aPriority = getStatusPriority(aData)
-			local bPriority = getStatusPriority(bData)
-
-			if aPriority ~= bPriority then
-				return aPriority < bPriority
-			end
-
-			if aData.Finished and bData.Finished then
-				local aLTime = aData.LastLapTime or math.huge
-				local bLTime = bData.LastLapTime or math.huge
-				if aLTime ~= bLTime then
-					return aLTime < bLTime
-				end
-			end
-
-			if aData.Lap ~= bData.Lap then
-				return aData.Lap > bData.Lap
-			end
-
-			local aCP, bCP = #aData.Checkpoints, #bData.Checkpoints
-			if aCP ~= bCP then
-				return aCP > bCP
-			end
-
-			local aTime = aData.Checkpoints[aCP] or 0
-			local bTime = bData.Checkpoints[bCP] or 0
-
-			if aTime ~= bTime then
-				return aTime < bTime
-			end
-
-			-- local aLTime = (aData.LastLapTime or math.huge) - UVHUDRaceInfo.Info.Time
-			-- local bLTime = (bData.LastLapTime or math.huge) - UVHUDRaceInfo.Info.Time
-			-- return aLTime < bLTime
-		end)
-
-		for i, v in ipairs(sorted_table) do
-			local vehicle = v.vehicle
-			local lang = UVString
-
-			if not IsValid(vehicle) then
-				--local line = string.format("%d. %s", i, v.array.Name)
-				--local str = ''
-				local mode = nil
-
-				if v.array.Finished then
-					--str = lang("uv.race.suffix.finished")
-					mode = 'Finished'
-				elseif v.array.Busted then
-					--str = lang("uv.race.suffix.busted")
-					mode = 'Busted'
-				else
-					--str = lang("uv.race.suffix.dnf")
-					mode = 'Disqualified'
-				end
-
-				--line = line .. str
-
-				--local selected_color = LBColors.Disqualified
-
-				table.insert(leaderboardLines, {v.array.Name or "Racer", nil, mode})
-			else
-				local array = v.array
-				local driver = vehicle:GetDriver()
-				local is_local_player = IsValid(driver) and driver == lPr
-				local name = array.Name or "Racer"
-
-				local diff = nil -- Display mode (Lap, Time, Finished, DNF/Busted)
-				local mode = nil
-
-				-- local line = string.format("%d. %s", i, name)
-				-- local line = name
-
-				if not is_local_player then
-					local racerCPs = array.Checkpoints or {}
-					local racerCount = #racerCPs
-					local checkpointDiff = lCheckpointCount - racerCount
-					local totalTimeDiff = 0
-
-					if checkpointDiff ~= 0 then
-						local aheadCPs = (checkpointDiff > 0) and lArray.Checkpoints or racerCPs
-						local behindCPs = (aheadCPs == lArray.Checkpoints) and racerCPs or lArray.Checkpoints
-						local behindCount = #behindCPs
-
-						for j = 1, math.abs(checkpointDiff) do
-							local idx = behindCount + j
-							local timeNow = aheadCPs[idx]
-							local timePrev = aheadCPs[idx - 1] or timeNow
-							if timeNow then
-								totalTimeDiff = totalTimeDiff + (timeNow - timePrev)
-							end
-						end
-
-						if checkpointDiff > 0 then
-							totalTimeDiff = -totalTimeDiff
-						end
-					else
-						local localTime = lArray.Checkpoints[lCheckpointCount] or 0
-						local otherTime = racerCPs[racerCount] or 0
-						totalTimeDiff = localTime - otherTime
-					end
-
-					local sign = (totalTimeDiff >= 0) and "+" or "-"
-
-					local str = "???"
-
-					if v.array.Finished then
-						mode = 'Finished'
-						--str = lang("uv.race.suffix.finished")
-					elseif v.array.Busted then
-						mode = 'Busted'
-						--str = lang("uv.race.suffix.busted")
-					elseif v.array.Disqualified then
-						mode = 'Disqualified'
-						--str = lang("uv.race.suffix.dnf")
-					elseif v.array.Lap ~= lArray.Lap then
-						mode = 'Lap'
-						local difference = v.array.Lap - lArray.Lap
-						local ltext = "uv.race.suffix.lap"
-						if math.abs( difference ) ~= 1 then ltext = "uv.race.suffix.laps" end
-						--diff = ((difference > 0 and '+') or '-') ..math.abs( difference )
-						diff = difference
-						--str = string.format( lang(ltext), ((difference > 0 and '+') or '-') ..math.abs( difference ) )
-					else
-						mode = 'Time'
-						--str = string.format("  (%s%.3f)", sign, math.abs(totalTimeDiff))
-						diff = totalTimeDiff
-					end
-
-					--line = line .. str
-				end
-
-				local selected_color = nil
-
-				-- if is_local_player then
-				--     selected_color = LBColors.LocalPlayer
-				-- elseif array.Disqualified or array.Busted then
-				--     selected_color = LBColors.Disqualified
-				-- else
-				--     selected_color = LBColors.Others
-				-- end
-
-				table.insert(leaderboardLines, {name, is_local_player, mode, diff}) 
-			end
-		end
-
-		--UVSortedRacers = sorted_table
-
-		return sorted_table, leaderboardLines
-	end
-
 	function UVStopRacing()
 		if not UVHUDDisplayRacing then return end
 
@@ -2032,6 +2061,7 @@ else -- CLIENT stuff
 		if my_array then
 			UVHUDRaceCurrentCheckpoint = #my_array['Checkpoints']
 			UVHUDRaceCurrentPos = my_array['Position']
+			UVHUDRaceCurrentLap = my_array['Lap']
 		else
 			UVHUDRaceCurrentCheckpoint = nil
 		end
@@ -2049,35 +2079,24 @@ else -- CLIENT stuff
 		end
 	end)
 
-	net.Receive( "uvrace_resetfailed", function()
-		local lang = UVString
-
-		-- chat.AddText(
-			-- Color(255, 126, 126),
-			-- lang( net.ReadString() )
-		-- )
-		-- UVRaceNotify( lang( net.ReadString() ), 2  )
+	net.Receive( "uvresetfailed", function()
+		UVHUD_CloseTimedBar("reset")
 
 		UV_UI.general.events.CenterNotification({
-            text = lang( net.ReadString() ),
+            text = UVString( net.ReadString() ),
 		})
 	end)
 
-	net.Receive( "uvrace_resetcountdown", function()
-		local lang = UVString
-		local time_left = net.ReadInt(4)
+	net.Receive("uvresetcountdown", function()
+		local time_left = net.ReadInt(16)
 
-		-- chat.AddText(
-			-- Color(255, 255, 255),
-			-- string.format( lang("uv.race.resetcountdown"), tostring(time_left) ), 
-			-- time_left 
-		-- )
-		
-		-- UVRaceNotify( string.format( lang("uv.race.resetcountdown"), tostring(time_left) ), 2  )
-		
-		UV_UI.general.events.CenterNotification({
-            text = string.format( lang("uv.race.resetcountdown"), tostring(time_left) ), 
-		})
+		UVHUD_AddTimedBar( "reset", time_left, "uv.resetting", 10, string.format( UVString("uv.chase.select.spawning.cooldown2"), UVReplaceKeybinds( "[key:unitvehicle_keybind_resetposition]", "Big" ) ) )
+	end)
+
+	net.Receive("uvresetpenalty", function()
+		local time_left = net.ReadInt(16)
+
+		UVHUD_AddTimedBar( "reset_penalty", time_left, "uv.resetting.penalty2", 50, "uv.resetting.penalty", nil, true )
 	end)
 
 	net.Receive( "uvrace_invite", function()
@@ -2100,6 +2119,8 @@ else -- CLIENT stuff
 
 		UVHUDRaceFinishCountdownStarted = false
 		UVHUDRaceFinishEndTime = nil
+		
+		UVHUD_CloseTimedBar( "race_end" )
 
 		UVRaceStarting = false
 
@@ -2184,6 +2205,8 @@ else -- CLIENT stuff
 					
 					UVHUDRaceFinishCountdownStarted = true
 					UVHUDRaceFinishEndTime = CurTime() + GetConVar("unitvehicle_racednftimer"):GetInt()
+
+					UVHUD_AddTimedBar( "race_end", GetConVar("unitvehicle_racednftimer"):GetInt(), "uv.race.endsin", 5 )
 				end
 
 				if IsValid(participant) and participant:GetDriver() == LocalPlayer() and RacingMusic:GetBool() then
@@ -2452,96 +2475,125 @@ else -- CLIENT stuff
 		-- For the UI
 		hook.Run("UIEventHook", "racing", "onRaceStartTimer", { starttime = time })
 	end)
+
+	local ALLOWED_SPEEDOMETER_CLASSES = {
+		'base_glide_car',
+		'base_glide_bike',
+		'base_glide_tank',
+		'base_glide_motorcycle',
+	}
+
+	local speedotype = GetConVar("unitvehicle_speedometer"):GetString()
 	
-	local function DrawTimedBar(startTime, endTime, labelToken)
-		local now = CurTime()
-		local realTime = RealTime()
-		local startTime = startTime or now
-		local animTime = now - startTime
-		local w, h = ScrW(), ScrH()
-
-		-- Phase durations
-		local delay = 0.1
-		local expandDuration = 0.25
-		local whiteFadeInDuration = 0.025
-		local blackFadeOutDuration = 1
-
-		local expandStart = delay
-		local whiteStart = expandStart + expandDuration
-		local blackStart = whiteStart + whiteFadeInDuration
-		local endAnim = blackStart + blackFadeOutDuration
-
-		-- Compute bar width
-		local barProgress = 0
-		if animTime >= expandStart then
-			barProgress = math.Clamp((animTime - expandStart) / expandDuration, 0, 1)
-		end
-
-		local currentWidth = Lerp(barProgress, 0, w)
-		local barHeight = h * 0.075
-		local barX = (w - currentWidth) / 2
-		local barY = h - barHeight
-
-		-- Compute bar color
-		local colorVal = 0
-		if animTime >= whiteStart and animTime < blackStart then
-			-- black → white
-			local p = (animTime - whiteStart) / whiteFadeInDuration
-			colorVal = Lerp(math.Clamp(p, 0, 1), 0, 255)
-		elseif animTime >= blackStart then
-			-- white → black
-			local p = (animTime - blackStart) / blackFadeOutDuration
-			colorVal = Lerp(math.Clamp(p, 0, 1), 255, 0)
-		end
-
-		-- Only draw when HUD is enabled
-		if GetConVar("cl_drawhud"):GetBool() then
-			-- Draw bar
-			surface.SetMaterial(UVMaterials["RACE_COUNTDOWN_BG"])
-			surface.SetDrawColor(Color(colorVal, colorVal, colorVal, 255))
-			surface.DrawTexturedRect(barX, barY, currentWidth, barHeight)
-
-			-- Display text only after bar is white or fading
-			if animTime >= whiteStart then
-				local timeLeft = math.max(0, math.floor(endTime - now + 0.999))
-
-				-- Blink red depending on time left
-				local blink = 255 * math.abs(math.sin(realTime * 4))
-				local blink2 = 255 * math.abs(math.sin(realTime * 6))
-				local blink3 = 255 * math.abs(math.sin(realTime * 8))
-				local redblink = 255
-
-				if timeLeft >= 10 then
-					redblink = redblink
-				elseif timeLeft >= 5 then
-					redblink = blink
-				elseif timeLeft >= 3 then
-					redblink = blink2
-				else
-					redblink = blink3
-				end
-
-				-- Outline alpha fades in as colorVal returns to black
-				local outlineAlpha = math.Clamp(255 - colorVal, 0, 255)
-
-				draw.SimpleTextOutlined( UVString(labelToken), "UVSettingsFontBig", w * 0.5, h * 0.925, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
-				draw.SimpleTextOutlined( timeLeft, "UVSettingsFontBig", w * 0.5, h * 0.96, Color(255, redblink, redblink), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0, outlineAlpha) )
+	hook.Add("Glide_CanDrawHUD", "UV_DisableGlideHUD", function(vehicle)
+		if UVGlideSpeedometer:GetBool() and (UV_UI.speedometer[speedotype] and UV_UI.speedometer[speedotype].main) then
+			if table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, vehicle.BaseClass.ClassName ) then
+				return false
 			end
 		end
-	end
+	end)
 
 	hook.Add("HUDPaint", "UVHUDRace", function()
 		local w, h = ScrW(), ScrH()
 		local hudyes = GetConVar("cl_drawhud"):GetBool()
 		local hudtype = GetConVar("unitvehicle_hudtype_main"):GetString()
-		
+		local speedotype = GetConVar("unitvehicle_speedometer"):GetString()
+
+		-- Custom speedometer code
+		if UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.speedometer[speedotype] and UV_UI.speedometer[speedotype].main) and table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, Glide.currentVehicle.BaseClass.ClassName ) then
+			local speed = Glide.currentVehicle:GetVelocity():Length()
+
+			local kmh = math.floor(speed * 3600 * 0.0000254 * 0.75)
+			local mph = math.floor(speed * 3600 / 63360 * 0.75)
+
+			local gear = Glide.currentVehicle:GetGear()
+			local rpm = math.floor(Glide.currentVehicle:GetEngineRPM())
+			local maxrpm = math.floor(Glide.currentVehicle:GetMaxRPM())
+			
+			local throttle = math.Round(Glide.currentVehicle:GetEngineThrottle(), 3)
+
+			local gearText = gear
+			if gear == -1 then gearText = "R"
+			elseif gear == 0 then gearText = "N" end
+
+			local speedval = Glide.Config.useKMH and kmh or mph
+			local speedname = Glide.Config.useKMH and "KMH" or "MPH"
+
+			local redlining = false
+			local redlinestrength = (Glide.currentVehicle.stream and Glide.currentVehicle.stream.redlineFrequency) or 0
+			
+			local health = Glide.currentVehicle:GetEngineHealth()
+			
+			local cfnitrousenabled = Glide.currentVehicle:GetNWBool( 'NitrousEnabled' )
+			local cfsbenabled = Glide.currentVehicle:GetNWBool( 'SpeedbreakerEnabled' )
+			
+			local cfnitrousamount = Glide.currentVehicle:GetNWFloat( 'NitrousAmount' ) or 0
+			local cfsbamount = Glide.currentVehicle:GetNWFloat( 'SpeedbreakerAmount' ) or 0
+			
+			if Glide.currentVehicle.stream and Glide.currentVehicle.stream.isRedlining then
+				redlining = true
+			end
+
+			local text = "<font=UVFont5UI>" ..
+			"RPM: " .. rpm .. " / " .. maxrpm .. "\n" .. 
+			"Speed: " .. speedval .. " " .. speedname .. "\n" ..
+			"Gear: " .. gearText .. "\n" .. 
+			"Throttle: " .. throttle .. "\n" .. 
+			"Redlining: " .. (redlining and "+ " .. redlinestrength or "-") .. "\n" .. 
+			"Durability: " .. math.Round(health * 100, 2) .. "%" .. "\n" .. 
+			"CF Nitrous: " .. math.Round(cfnitrousamount * 100, 2) .. "%" .. "\n" .. 
+			"CF Speedbreaker: " .. math.Round(cfsbamount * 100, 2) .. "%" .. "\n" .. 
+			"</font>"
+
+			-- markup.Parse(text, w):Draw(w - (w * 0.25), h - 70, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM) -- DEBUGGING
+			
+			if hudyes then
+				UV_UI.speedometer[speedotype].main( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength, health, cfnitrousenabled, cfnitrousamount, cfsbenabled, cfsbamount )
+			end
+		end
+
 		-- Timed bars
-		if UVHUDRaceFinishCountdownStarted and not UVHUDCopMode then
-			DrawTimedBar(UVHUDRaceFinishStartTime, UVHUDRaceFinishEndTime, "uv.race.endsin")
+		for _, bar in pairs(UVHUDTimedBars) do
+			if bar.hidden and CurTime() >= bar.endTime then
+				bar.closeTime = CurTime()
+			end
 		end
-		if timer.Exists("uvrace_startpursuit") and not UVHUDCopMode then
-			DrawTimedBar(UVHUDRacePursuitStartTime, UVHUDRacePursuitEndTime, "uv.race.endsin")
+
+		local best = UVHUD_GetTopBar()
+
+		if best and best ~= UVHUDActiveBar then
+			if UVHUDActiveBar and best.priority > UVHUDActiveBar.priority then
+				UVHUDActiveBar.hidden = true
+			end
+
+			best.hidden = false
+			if best ~= UVHUDActiveBar then
+				best.startTime = CurTime()
+			end
+
+			UVHUDActiveBar = best
 		end
+
+		if UVHUDActiveBar then
+			UVHUD_TimedBar(UVHUDActiveBar)
+			
+			if UVHUDActiveBar.closeTime then
+				if CurTime() - UVHUDActiveBar.closeTime > 0.25 then
+
+					UVHUDTimedBars[UVHUDActiveBar.id] = nil
+					UVHUDActiveBar = nil
+
+				end
+			end
+		end
+
+		-- if UVHUDRaceFinishCountdownStarted and not UVHUDCopMode then
+			-- DrawTimedBar(UVHUDRaceFinishStartTime, UVHUDRaceFinishEndTime, "uv.race.endsin")
+		-- end
+		
+		-- if timer.Exists("uvrace_startpursuit") and not UVHUDCopMode then
+			-- DrawTimedBar(UVHUDRacePursuitStartTime, UVHUDRacePursuitEndTime, "uv.race.endsin")
+		-- end
 
 		-- Advanced Countdown & GET READY
 		if UVRaceCountdown and hudyes then
@@ -2674,6 +2726,9 @@ else -- CLIENT stuff
 		end
 
 		local checkpoint_count = #my_array['Checkpoints']
+		local lap_count = my_array['Lap']
+		
+		UVHUDRaceCurrentLap = lap_count
 
 		-- used by checkpoint entities
 		UVHUDRaceCurrentCheckpoint = checkpoint_count
@@ -2706,6 +2761,8 @@ else -- CLIENT stuff
 
 		-- check for wrong way
 		UVLastWrongWayCheckTime = UVLastWrongWayCheckTime or CurTime()
+		UVWrongWayStart = UVWrongWayStart or nil
+		UVIsWrongWay = UVIsWrongWay or false
 
 		if _UVCurrentCheckpoint and IsValid(_UVCurrentCheckpoint) then
 			local vehicle_center = my_vehicle:WorldSpaceCenter()
@@ -2713,38 +2770,36 @@ else -- CLIENT stuff
 			local check_center_pos = (_UVCurrentCheckpoint:GetPos() + _UVCurrentCheckpoint:GetMaxPos()) / 2
 
 			local speed = vehicle_velocity:Length()
-			local min_speed = 50 -- units/sec threshold to consider movement
+			local min_speed = 100
 
 			if speed >= min_speed then
 				local to_checkpoint = (check_center_pos - vehicle_center):GetNormalized()
 				local normalized_velo = vehicle_velocity:GetNormalized()
-
 				local dot_product = normalized_velo:Dot(to_checkpoint)
 
-				-- If moving more than 90° away from checkpoint
-				if dot_product < 0 then
-					-- moving away
-					if CurTime() - UVLastWrongWayCheckTime > 3 then
-						if not UVHUDNotification and not UVRaceCountdown then
-							local theme = GetConVar("unitvehicle_sfxtheme"):GetString()
-							local soundfiles = file.Find("sound/uvracesfx/" .. theme .. "/wrongway/*", "GAME")
-							if soundfiles and #soundfiles > 0 then
-								table.Shuffle(soundfiles)
-								local audio_path = "uvracesfx/" .. theme .. "/wrongway/" .. soundfiles[1]
-								surface.PlaySound(audio_path)
-							end
-							if hudyes then 
-								UVRaceNotify(UVString("uv.race.wrongway"), 1.5)
-							end
+				if dot_product < -0.25 then
+					if not UVWrongWayStart then
+						UVWrongWayStart = CurTime()
+					end
+					if CurTime() - UVWrongWayStart > 1.5 then
+						if not UVIsWrongWay then
+							UVIsWrongWay = true
+							hook.Run("UIEventHook", "racing", "onWrongWay", CurTime(), true)
 						end
 					end
 				else
-					-- moving toward or not too far off-course
-					UVLastWrongWayCheckTime = CurTime()
+					UVWrongWayStart = nil
+					if UVIsWrongWay then
+						UVIsWrongWay = false
+						hook.Run("UIEventHook", "racing", "onWrongWay", CurTime(), false)
+					end
 				end
 			else
-				-- If stationary, don't trigger wrong way
-				UVLastWrongWayCheckTime = CurTime()
+				UVWrongWayStart = nil
+				if UVIsWrongWay then
+					UVIsWrongWay = false
+					hook.Run("UIEventHook", "racing", "onWrongWay", CurTime(), false)
+				end
 			end
 		end
 
@@ -2816,8 +2871,8 @@ else -- CLIENT stuff
 
 		local lang = UVString
 
-		if hudyes and UV_UI.general.racing then
-			UV_UI.general.racing.main( my_vehicle, my_array, string_array )
+		if hudyes and UV_UI.racing.general then
+			UV_UI.racing.general.main( my_vehicle, my_array, string_array )
 		end
 		
 		if hudyes and UV_UI.racing[hudtype] then
@@ -3067,6 +3122,22 @@ else -- CLIENT stuff
 			UVString("uv.race.pos.num." .. (UVHUDRaceCurrentPos or 1))
 		))
 		
+		-- AI Difficulty
+		local aidiffc = GetConVar("unitvehicle_racedifficulty"):GetFloat() or 0
+		local aidiff = {
+			[0]   = "uv.difficulty.1",
+			[0.5] = "uv.difficulty.2",
+			[1]   = "uv.difficulty.3"
+		}
+		local aidifficulty = aidiff[aidiffc]
+		
+		if #ents.FindByClass("npc_racervehicle") > 0 then
+			table.insert(squareTexts, string.format(
+				UVString("uv.prerace.aidifficulty"),
+				UVString(aidifficulty)
+			))
+		end
+
 		-- Participant List (NOT WORKING)
 		-- table.insert(squareTexts, string.format(
 			-- UVString("uv.prerace.participants"),

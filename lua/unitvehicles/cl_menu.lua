@@ -1,8 +1,10 @@
 UV = UV or {}
 UVMenu = UVMenu or {}
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeSpeedo = UVMenu.CustomizeSpeedo or {}
 
 -- Current Version -- Change this whenever a new update is releasing!
-UV.CurVersion = "v1.0.0" --MAJOR.MINOR.PATCH
+UV.CurVersion = "v1.3.1" --MAJOR.MINOR.PATCH
 
 -- Credits List
 UV.Credits = {
@@ -12,17 +14,36 @@ Aux
 Moka
 ET7970]],
 ["Translations"] = {
-		{ flag = "se", desc = "Svenska - Swedish", name = "Moka" },
-		{ flag = "gr", desc = "Ελληνικά - Greek", name = "TalonSolid" },
-		{ flag = "ru", desc = "Русский - Russian", name = "WladZ" },
-		{ flag = "cz", desc = "Čeština - Czech", name = "Despe" },
-		{ flag = "es", desc = "Español - Spanish", name = "Dami" },
-		-- { flag = "br", desc = "Português Brasileiro - Brazilian Portuguese", name = "Raiden_Gm" },
-		{ flag = "cn", desc = "简体中文 - Simplified Chinese", name = "Pathfinder_FUFU" },
-		{ flag = "th", desc = "แบบไทย - Thai", name = "Takis036" },
-		{ flag = "ua", desc = "Українська - Ukrainian", name = "Mr.Negative & Renegade_Glitch" },
-		{ flag = "pl", desc = "Polski - Polish", name = "TheSilent1" },
-		{ flag = "de", desc = "Deutsch - German", name = "Marig" },
+		-- { flag = "bg", desc = "Български | Bulgarian", name = "REPLACEME" },
+		{ flag = "cz", desc = "Čeština | Czech", name = "Despe" },
+		-- { flag = "dk", desc = "Dansk | Danish", name = "REPLACEME" },
+		{ flag = "de", desc = "Deutsch | German", name = "Marig" },
+		{ flag = "gr", desc = "Ελληνικά | Greek", name = "TalonSolid" },
+		{ flag = "es", desc = "Español | Spanish", name = "Dami" },
+		-- { flag = "et", desc = "Eesti | Estonian", name = "REPLACEME" },
+		-- { flag = "fi", desc = "Suomi | Finnish", name = "REPLACEME" },
+		-- { flag = "fr", desc = "Français | French", name = "REPLACEME" },
+		-- { flag = "il", desc = "עברית | Hebrew", name = "REPLACEME" },
+		-- { flag = "hr", desc = "Hrvatski | Croatian", name = "REPLACEME" },
+		-- { flag = "hu", desc = "Magyar | Hungarian", name = "REPLACEME" },
+		-- { flag = "it", desc = "Italiano | Italian", name = "REPLACEME" },
+		-- { flag = "jp", desc = "日本語 | Japanese", name = "REPLACEME" },
+		-- { flag = "kr", desc = "한국어 | Korean", name = "REPLACEME" },
+		-- { flag = "lt", desc = "Lietuvių | Lithuanian", name = "REPLACEME" },
+		-- { flag = "nl", desc = "Nederlands | Dutch", name = "REPLACEME" },
+		-- { flag = "no", desc = "Norsk | Norwegian", name = "REPLACEME" },
+		{ flag = "pl", desc = "Polski | Polish", name = "TheSilent1" },
+		{ flag = "br", desc = "Português (Brasil) | Brazilian Portuguese", name = "handsomemanhawks" },
+		-- { flag = "pt", desc = "Português | Portuguese", name = "REPLACEME" },
+		{ flag = "ru", desc = "Русский | Russian", name = "WladZ" },
+		-- { flag = "sk", desc = "Slovenčina | Slovak", name = "REPLACEME" },
+		{ flag = "se", desc = "Svenska | Swedish", name = "Moka" },
+		{ flag = "th", desc = "แบบไทย | Thai", name = "Takis036" },
+		-- { flag = "tr", desc = "Türkçe | Turkish", name = "REPLACEME" },
+		{ flag = "ua", desc = "Українська | Ukrainian", name = "Mr.Negative & Renegade_Glitch" },
+		-- { flag = "vn", desc = "Tiếng Việt | Vietnamese", name = "REPLACEME" },
+		{ flag = "cn", desc = "简体中文 | Simplified Chinese", name = "Pathfinder_FUFU" },
+		-- { flag = "tw", desc = "繁體中文 | Traditional Chinese", name = "REPLACEME" },
 	},
 ["Contributors"] = [[
 TalonSolid
@@ -32,6 +53,231 @@ Dami899
 mustang
 ]],
 }
+
+-- Formats PNote Strings
+local MonthNames = {
+    en = {
+        full  = { "January","February","March","April","May","June","July","August","September","October","November","December" },
+        short = { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec" },
+    },
+
+    fr = {
+        full  = { "janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre" },
+        short = { "janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc." },
+    },
+
+    de = {
+        full  = { "Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember" },
+        short = { "Jan.","Feb.","März","Apr.","Mai","Juni","Juli","Aug.","Sept.","Okt.","Nov.","Dez." },
+    },
+
+    ["es-ES"] = {
+        full  = { "enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre" },
+        short = { "ene.","feb.","mar.","abr.","may.","jun.","jul.","ago.","sept.","oct.","nov.","dic." },
+    },
+
+    it = {
+        full  = { "gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre" },
+        short = { "gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic" },
+    },
+
+    ["pt-BR"] = {
+        full  = { "janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro" },
+        short = { "jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez" },
+    },
+
+    ["pt-PT"] = {
+        full  = { "janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro" },
+        short = { "jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez" },
+    },
+
+    nl = {
+        full  = { "januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december" },
+        short = { "jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec" },
+    },
+
+    pl = {
+        full  = { "stycznia","lutego","marca","kwietnia","maja","czerwca","lipca","sierpnia","września","października","listopada","grudnia" },
+        short = { "sty","lut","mar","kwi","maj","cze","lip","sie","wrz","paź","lis","gru" },
+    },
+
+    cs = {
+        full  = { "ledna","února","března","dubna","května","června","července","srpna","září","října","listopadu","prosince" },
+        short = { "led","úno","bře","dub","kvě","čer","čvc","srp","zář","říj","lis","pro" },
+    },
+
+    sk = {
+        full  = { "januára","februára","marca","apríla","mája","júna","júla","augusta","septembra","októbra","novembra","decembra" },
+        short = { "jan","feb","mar","apr","máj","jún","júl","aug","sep","okt","nov","dec" },
+    },
+
+    ["sv-SE"] = {
+        full  = { "januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december" },
+        short = { "jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec" },
+    },
+
+    da = {
+        full  = { "januar","februar","marts","april","maj","juni","juli","august","september","oktober","november","december" },
+        short = { "jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec" },
+    },
+
+    no = {
+        full  = { "januar","februar","mars","april","mai","juni","juli","august","september","oktober","november","desember" },
+        short = { "jan","feb","mar","apr","mai","jun","jul","aug","sep","okt","nov","des" },
+    },
+
+    fi = {
+        full  = { "tammikuuta","helmikuuta","maaliskuuta","huhtikuuta","toukokuuta","kesäkuuta","heinäkuuta","elokuuta","syyskuuta","lokakuuta","marraskuuta","joulukuuta" },
+        short = { "tammi","helmi","maalis","huhti","touko","kesä","heinä","elo","syys","loka","marras","joulu" },
+    },
+
+    et = {
+        full  = { "jaanuar","veebruar","märts","aprill","mai","juuni","juuli","august","september","oktoober","november","detsember" },
+        short = { "jaan","veebr","märts","apr","mai","juuni","juuli","aug","sept","okt","nov","dets" },
+    },
+
+    lt = {
+        full  = { "sausio","vasario","kovo","balandžio","gegužės","birželio","liepos","rugpjūčio","rugsėjo","spalio","lapkričio","gruodžio" },
+        short = { "sau","vas","kov","bal","geg","bir","lie","rgp","rgs","spa","lap","gru" },
+    },
+
+    hr = {
+        full  = { "siječnja","veljače","ožujka","travnja","svibnja","lipnja","srpnja","kolovoza","rujna","listopada","studenoga","prosinca" },
+        short = { "sij","velj","ožu","tra","svi","lip","srp","kol","ruj","lis","stu","pro" },
+    },
+
+    hu = {
+        full  = { "január","február","március","április","május","június","július","augusztus","szeptember","október","november","december" },
+        short = { "jan","feb","márc","ápr","máj","jún","júl","aug","szept","okt","nov","dec" },
+    },
+
+    ro = {
+        full  = { "ianuarie","februarie","martie","aprilie","mai","iunie","iulie","august","septembrie","octombrie","noiembrie","decembrie" },
+        short = { "ian","feb","mar","apr","mai","iun","iul","aug","sept","oct","nov","dec" },
+    },
+
+    bg = {
+        full  = { "януари","февруари","март","април","май","юни","юли","август","септември","октомври","ноември","декември" },
+        short = { "ян.","фев.","март","апр.","май","юни","юли","авг.","септ.","окт.","ноем.","дек." },
+    },
+
+    ru = {
+        full  = { "января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря" },
+        short = { "янв.","февр.","март","апр.","май","июнь","июль","авг.","сент.","окт.","нояб.","дек." },
+    },
+
+    uk = {
+        full  = { "січня","лютого","березня","квітня","травня","червня","липня","серпня","вересня","жовтня","листопада","грудня" },
+        short = { "січ","лют","бер","квіт","трав","черв","лип","серп","вер","жовт","лист","груд" },
+    },
+
+    el = {
+        full  = { "Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου","Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου" },
+        short = { "Ιαν","Φεβ","Μαρ","Απρ","Μαΐ","Ιουν","Ιουλ","Αυγ","Σεπ","Οκτ","Νοε","Δεκ" },
+    },
+
+    tr = {
+        full  = { "Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık" },
+        short = { "Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara" },
+    },
+
+    he = {
+        full  = { "ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר" },
+        short = { "ינו׳","פבר׳","מרץ","אפר׳","מאי","יונ׳","יול׳","אוג׳","ספט׳","אוק׳","נוב׳","דצמ׳" },
+    },
+
+    ja = {
+        full  = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+        short = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+    },
+
+    ko = {
+        full  = { "1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월" },
+        short = { "1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월" },
+    },
+
+    ["zh-CN"] = {
+        full  = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+        short = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+    },
+
+    ["zh-TW"] = {
+        full  = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+        short = { "1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月" },
+    },
+
+    th = {
+        full  = { "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม" },
+        short = { "ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค." },
+    },
+
+    -- vi = {
+        -- full  = { "tháng 1","tháng 2","tháng 3","tháng 4","tháng 5","tháng 6","tháng 7","tháng 8","tháng 9","tháng 10","tháng 11","tháng 12" },
+        -- short = { "Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12" },
+    -- },
+}
+
+local DateFormats = {
+    en = "{day} {month} {year}",
+    fr = "{day} {month} {year}",
+    de = "{day}. {month} {year}",
+    ["es-ES"] = "{day} {month} {year}",
+    it = "{day} {month} {year}",
+    ["pt-BR"] = "{day} {month} {year}",
+    ["pt-PT"] = "{day} {month} {year}",
+    nl = "{day} {month} {year}",
+    pl = "{day} {month} {year}",
+    cs = "{day} {month} {year}",
+    sk = "{day} {month} {year}",
+    ["sv-SE"] = "{day} {month} {year}",
+    da = "{day} {month} {year}",
+    no = "{day} {month} {year}",
+    fi = "{day}. {month} {year}",
+    et = "{day}. {month} {year}",
+    lt = "{year} m. {month} {day} d.",
+    hr = "{day}. {month} {year}.",
+    hu = "{year}. {month} {day}.",
+    ro = "{day} {month} {year}",
+    bg = "{day} {month} {year}",
+    ru = "{day} {month} {year}",
+    uk = "{day} {month} {year}",
+    el = "{day} {month} {year}",
+    tr = "{day} {month} {year}",
+    he = "{day} ב{month} {year}",
+    ja = "{year}年{month}{day}日",
+    ko = "{year}년 {month} {day}일",
+    ["zh-CN"] = "{year}年{month}{day}日",
+    ["zh-TW"] = "{year}年{month}{day}日",
+    th = "{day} {month} {year}",
+    -- vi = "{day} {month} {year}",
+}
+
+local function FormatPatchDate(dateTbl, useFullMonth)
+    local lang = GetConVar("gmod_language"):GetString()
+    local format = DateFormats[lang] or "%Y-%m-%d"
+
+	-- Fallback
+    if format:find("%%") then
+        local time = os.time({
+            year  = dateTbl.year,
+            month = dateTbl.month,
+            day   = dateTbl.day,
+            hour  = 12
+        })
+
+        return os.date(format, time)
+    end
+
+    -- Fancy shit
+    local months = MonthNames[lang] or MonthNames["en"]
+    local monthType = useFullMonth and "full" or "short"
+    local monthName = months[monthType][dateTbl.month]
+
+    return format
+        :gsub("{day}", dateTbl.day)
+        :gsub("{month}", monthName)
+        :gsub("{year}", dateTbl.year)
+end
 
 if CLIENT then
 	list.Set("DesktopWindows", "UnitVehiclesMenu", {
@@ -44,13 +290,17 @@ if CLIENT then
 end
 
 concommand.Add("unitvehicles_menu", function()
-    if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
-        UVMenu.OpenMenu(UVMenu.CurrentMenu, true)
-    elseif UVMenu.LastMenu then
-        UVMenu.OpenMenu(UVMenu.LastMenu)
-    else
-        UVMenu.OpenMenu(UVMenu.Main)
-    end
+	if GetConVar("unitvehicle_uvmenu_firstsetup"):GetBool() and (LocalPlayer():IsAdmin() and LocalPlayer():IsSuperAdmin()) then
+		UVMenu.OpenMenu(UVMenu.FirstTimeSetup, true)
+	else
+		if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
+			UVMenu.OpenMenu(UVMenu.CurrentMenu, true)
+		elseif UVMenu.LastMenu then
+			UVMenu.OpenMenu(UVMenu.LastMenu)
+		else
+			UVMenu.OpenMenu(UVMenu.Main)
+		end
+	end
 	UVMenu.PlaySFX("menuopen")
 end)
 
@@ -98,8 +348,10 @@ end
 local function BuildHUDComboLists()
     local mainHUDs = {}
     local backupHUDs = {}
+    local speedometers = {}
 
 	-- PrintTable(UV.HUDRegistry)
+	-- PrintTable(UV.SpeedometerRegistry)
 
     for _, hud in pairs(UV.HUDRegistry or {}) do
 		table.insert(mainHUDs, {
@@ -115,6 +367,13 @@ local function BuildHUDComboLists()
         end
     end
 
+    for _, speedo in pairs(UV.SpeedometerRegistry or {}) do
+		table.insert(speedometers, {
+			speedo.name,       -- display text
+			speedo.codename    -- convar value
+		})
+    end
+
     table.sort(mainHUDs, function(a, b)
         return a[1] < b[1]
     end)
@@ -123,78 +382,18 @@ local function BuildHUDComboLists()
         return a[1] < b[1]
     end)
 
-    return mainHUDs, backupHUDs
+    table.sort(speedometers, function(a, b)
+        return a[1] < b[1]
+    end)
+
+    return mainHUDs, backupHUDs, speedometers
 end
 
-local mainHUDList, backupHUDList = BuildHUDComboLists()
-
--- Formats PNote Strings
-local DateFormats = {
-    -- English
-    ["en"]  = "%d/%m/%Y",
-
-    -- European
-    ["fr"] = "%d/%m/%Y", -- French
-    ["de"] = "%d.%m.%Y", -- German
-    ["es-ES"] = "%d/%m/%Y", -- Spanish
-    ["it"] = "%d/%m/%Y", -- Italian
-    ["pt"] = "%d/%m/%Y", -- Portuguese
-    ["pt-BR"] = "%d/%m/%Y", -- Brazilian Portuguese
-    ["nl"] = "%d-%m-%Y", -- Dutch
-    ["pl"] = "%d.%m.%Y", -- Polish
-    ["cs"] = "%d.%m.%Y", -- Czech
-    ["sk"] = "%d.%m.%Y", -- Slovak
-    ["hu"] = "%Y.%m.%d", -- Hungarian
-    ["ro"] = "%d.%m.%Y", -- Romanian
-    ["bg"] = "%d.%m.%Y", -- Bulgarian
-    ["hr"] = "%d.%m.%Y", -- Croatian
-    ["sr"] = "%d.%m.%Y", -- Serbian
-    ["sl"] = "%d.%m.%Y", -- Slovenian
-    ["el"] = "%d/%m/%Y", -- Greek
-    ["sv-SE"] = "%Y-%m-%d", -- Swedish
-    ["fi"] = "%d.%m.%Y", -- Finnish
-    ["da"] = "%d-%m-%Y", -- Danish
-    ["no"] = "%d.%m.%Y", -- Norwegian
-    ["lt"] = "%Y-%m-%d", -- Lithuanian
-    ["lv"] = "%d.%m.%Y", -- Latvian
-    ["et"] = "%d.%m.%Y", -- Estonian
-    ["uk"] = "%d.%m.%Y", -- Ukrainian
-    ["ru"] = "%d.%m.%Y", -- Russian
-
-    -- Asian
-    ["ja"] = "%Y/%m/%d", -- Japanese
-    ["zh-CN"] = "%Y-%m-%d", -- Simplified Chinese
-    ["zh-TW"] = "%Y-%m-%d", -- Traditional Chinese
-    ["ko"] = "%Y-%m-%d", -- Korean
-    ["th"] = "%d/%m/%Y", -- Thai
-    ["vi"] = "%d/%m/%Y", -- Vietnamese
-
-    -- Other
-    ["tr"] = "%d.%m.%Y", -- Turkish
-    ["ar"] = "%d/%m/%Y", -- Arabic
-    ["he"] = "%d/%m/%Y", -- Hebrew
-}
-
-local function FormatPatchDate(dateTbl)
-    local lang = GetConVar("gmod_language"):GetString()
-
-    -- Fallback if language isn't defined
-    local format = DateFormats[lang] or "%Y/%m/%d"
-
-    -- Convert to Unix time
-    local time = os.time({
-        year  = dateTbl.year,
-        month = dateTbl.month,
-        day   = dateTbl.day,
-        hour  = 12 -- avoids DST weirdness
-    })
-
-    return os.date(format, time)
-end
+local mainHUDList, backupHUDList, speedometerList = BuildHUDComboLists()
 
 ------- [ Main Menu ]-------
 UVMenu.Main = function()
-	local mainHUDList, backupHUDList = BuildHUDComboLists()
+	local mainHUDList, backupHUDList, speedometers = BuildHUDComboLists()
 	
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = UVString("uv.unitvehicles") .. " - " .. UV.CurVersion,
@@ -204,12 +403,22 @@ UVMenu.Main = function()
 		UnfocusClose = true,
 		Tabs = {
 		
-			{ TabName = "uv.menu.welcome", Icon = "unitvehicles/icons_settings/info.png", -- Welcome Page
-
+			{ TabName = "uv.menu.welcome", Icon = "unitvehicles/icons_settings/info.png", NoTitle = true, -- Welcome Page
+				
+				-- { type = "label", text = "uv.menu.pnotes" },
+				{ type = "image", text = "uv.ft.title", image = "unitvehicles/icons_settings/Welcome.png" },
+				{ type = "infosimple", text = string.format( UVString("uv.menu.lastupdate"), UV.CurVersion, FormatPatchDate(UV.PNotes[UV.CurVersion].Date) ) },
+				{ type = "button", text = "uv.menu.updatehistory", desc = "uv.menu.updatehistory.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.UpdateHistory, true) end },
+				-- { type = "image", image = "unitvehicles/icons_settings/pnotes/" .. UV.CurVersion .. ".png" },
+				
 				{ type = "label", text = "uv.menu.quick", desc = "uv.menu.quick.desc" },
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
+								
+				-- { type = "button", text = "uv.ui.custhud", desc = "uv.ui.custhud.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvarvariable = "unitvehicle_hudtype_main", requireparentconvarvalue = custHUDtable, func = function() if  UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()] then UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()], true) end end },
+				
 				{ type = "bool", text = "uv.audio.uvtrax.enable", desc = "uv.audio.uvtrax.desc", convar = "unitvehicle_racingmusic" },
 				{ type = "combo", text = "uv.audio.uvtrax.profile", desc = "uv.audio.uvtrax.profile.desc", convar = "unitvehicle_racetheme", requireparentconvar = "unitvehicle_racingmusic" },
+				
 				{ type = "button", text = "uv.pm.spawnas", desc = "uv.pm.spawnas.desc", convar = "uv_spawn_as_unit", prompts = {"uv.prompt.open.menu"}, func = 
 				function(self2)
 					UVMenu.CloseCurrentMenu(true)
@@ -220,10 +429,8 @@ UVMenu.Main = function()
 				end
 				},
 				
-				{ type = "label", text = "uv.menu.pnotes" },
-				{ type = "infosimple", text = string.format( UVString("uv.menu.lastupdate"), UV.CurVersion, FormatPatchDate(UV.PNotes[UV.CurVersion].Date) ) },
-				{ type = "image", image = "unitvehicles/icons_settings/pnotes/" .. UV.CurVersion .. ".png" },
-				{ type = "button", text = "uv.menu.updatehistory", desc = "uv.menu.updatehistory.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.UpdateHistory, true) end },
+				{ type = "button", text = "uv.pm.pursuit.start", convar = "uv_startpursuit", sv = true },
+				{ type = "button", text = "uv.pm.pursuit.stop", convar = "uv_stoppursuit", sv = true },
 				
 				-- { type = "info", text = UV.PNotes[UV.CurVersion].Text },
 			},
@@ -233,13 +440,7 @@ UVMenu.Main = function()
 				end,
 			},
 			
-			{ TabName = "uv.pm", Icon = "unitvehicles/icons/milestone_911.png", -- Pursuit Manager				
-				{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_unit_vehiclebase", sv = true, content = {
-						{ "HL2 Jeep", 1 } ,
-						{ "Simfphys", 2 } ,
-						{ "Glide", 3 } ,
-					},
-				},
+			{ TabName = "uv.pm", Icon = "unitvehicles/icons/milestone_911.png", -- Pursuit Manager
 				{ type = "button", text = "uv.pm.spawnas", desc = "uv.pm.spawnas.desc", convar = "uv_spawn_as_unit", prompts = {"uv.prompt.open.menu"}, func = 
 				function(self2)
 					UVMenu.CloseCurrentMenu(true)
@@ -270,9 +471,9 @@ UVMenu.Main = function()
 			
 			{ TabName = "uv.airacer", Icon = "unitvehicles/icons/(9)T_UI_PlayerRacer_Large_Icon.png", sv = true, -- AI Racer Manager
 				{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_racer_vehiclebase", sv = true, content = {
-						{ "HL2 Jeep", 1 } ,
-						{ "Simfphys", 2 } ,
-						{ "Glide", 3 } ,
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
 					},
 				},
 				{ type = "combo", text = "uv.tool.spawncondition", desc = "uv.tool.spawncondition.desc", convar = "unitvehicle_racer_spawncondition", sv = true, content = {
@@ -292,9 +493,9 @@ UVMenu.Main = function()
 			
 			{ TabName = "uv.tm", Icon = "unitvehicles/icons_settings/gameplay.png", sv = true, -- Traffic Manager
 				{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_traffic_vehiclebase", sv = true, content = {
-						{ "HL2 Jeep", 1 } ,
-						{ "Simfphys", 2 } ,
-						{ "Glide", 3 } ,
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
 					},
 				},
 				{ type = "combo", text = "uv.tool.spawncondition", desc = "uv.tool.spawncondition.desc", convar = "unitvehicle_traffic_spawncondition", sv = true, content = {
@@ -326,13 +527,18 @@ UVMenu.Main = function()
 				end,
 			},
 			
+			-- { TabName = "uv.ft", playsfx = "clickopen", Prompts = { "uv.prompt.open.menu" }, func = function() -- DEBUG
+					-- UVMenu.OpenMenu(UVMenu.FirstTimeSetup, true) -- First-Time Setup
+				-- end,
+			-- },
+			
 		}
 	})
 end
 
 -- Settings
 UVMenu.Settings = function()
-	local mainHUDList, backupHUDList = BuildHUDComboLists()
+	local mainHUDList, backupHUDList, speedometerList = BuildHUDComboLists()
 	
 	local addonTabRows = {}
 
@@ -375,11 +581,30 @@ UVMenu.Settings = function()
 
 				{ type = "label", text = "uv.settings.general" },
 				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
-				{ type = "combo", text = "uv.ui.backup", desc = "uv.ui.backup.desc", convar = "unitvehicle_hudtype_backup", content = backupHUDList },
+				{ type = "combo", text = "uv.ui.backup", desc = "uv.ui.backup.desc", convar = "unitvehicle_hudtype_backup", content = backupHUDList },		
+
+				{ type = "button", text = "uv.ui.custhud", desc = "uv.ui.custhud.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function()
+					if UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()] then 
+						UVMenu.OpenMenu(UVMenu.CustomizeHUD[GetConVar("unitvehicle_hudtype_main"):GetString()], true)
+					end
+				end,
+				cond = function()
+					local hud = GetConVar("unitvehicle_hudtype_main"):GetString()
+					return UVMenu.CustomizeHUD[hud] ~= nil
+				end
+				},
+
+				{ type = "bool", text = "uv.ui.speedometer.enable", desc = "uv.ui.speedometer.enable.desc", convar = "unitvehicle_speedometer_enable" },
+				{ type = "combo", text = "uv.ui.speedometer", desc = "uv.ui.speedometer.desc", convar = "unitvehicle_speedometer", requireparentconvar = "unitvehicle_speedometer_enable", content = speedometerList },
+								
+				{ type = "button", text = "uv.ui.speedometer.cust", desc = "uv.ui.speedometer.cust.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, noprefix = true, requireparentconvar = "unitvehicle_speedometer_enable", func = function()
+					if UVMenu.CustomizeSpeedo[GetConVar("unitvehicle_speedometer"):GetString()] then
+						UVMenu.OpenMenu(UVMenu.CustomizeSpeedo[GetConVar("unitvehicle_speedometer"):GetString()], true)
+					end
+				end },
+				
 				{ type = "bool", text = "uv.ui.racertags", desc = "uv.ui.racertags.desc", convar = "unitvehicle_racertags" },
 				{ type = "bool", text = "uv.ui.preracepopup", desc = "uv.ui.preracepopup.desc", convar = "unitvehicle_preraceinfo" },
-				{ type = "bool", text = "uv.ui.subtitles", desc = "uv.ui.subtitles.desc", convar = "unitvehicle_subtitles" },
-				{ type = "bool", text = "uv.ui.vehnametakedown", desc = "uv.ui.vehnametakedown.desc", convar = "unitvehicle_vehiclenametakedown" },
 				{ type = "combo", text = "uv.ui.unitstype", desc = "uv.ui.unitstype.desc", convar = "unitvehicle_unitstype", content = {
 						{ "uv.ui.unitstype.meter", 0 },
 						{ "uv.ui.unitstype.feet", 1 },
@@ -388,6 +613,12 @@ UVMenu.Settings = function()
 				},
 				{ type = "slider", text = "uv.ui.deadzone", desc = "uv.ui.deadzone.desc", convar = "unitvehicle_hud_deadzone", min = 0, max = 500, decimals = 0 },
 				{ type = "slider", text = "uv.ui.scale", desc = "uv.ui.scale.desc", convar = "unitvehicle_hud_scale", min = 0.1, max = 1, decimals = 2 },
+				
+				{ type = "label", text = "uv.pursuit" },
+				{ type = "bool", text = "uv.ui.policescanner", desc = "uv.ui.policescanner.desc", convar = "unitvehicle_policescanner" },
+				{ type = "bool", text = "uv.ui.policescanner.vehicle", desc = "uv.ui.policescanner.vehicle.desc", convar = "unitvehicle_policescanner_vehicle", requireparentconvar = "unitvehicle_policescanner" },
+				-- { type = "bool", text = "uv.ui.subtitles", desc = "uv.ui.subtitles.desc", convar = "unitvehicle_subtitles" },
+				{ type = "bool", text = "uv.ui.vehnametakedown", desc = "uv.ui.vehnametakedown.desc", convar = "unitvehicle_vehiclenametakedown" },
 
 				{ type = "label", text = "uv.ui.menu", desc = "uv.ui.menu.desc" },
 				{ type = "bool", text = "uv.ui.menu.hidedesc", desc = "uv.ui.menu.hidedesc.desc", convar = "uvmenu_hide_description" },
@@ -395,6 +626,7 @@ UVMenu.Settings = function()
 				{ type = "slider", text = "uv.ui.menu.openspeed", desc = "uv.ui.menu.openspeed.desc", convar = "uvmenu_open_speed", min = 0.1, max = 1, decimals = 2 },
 				{ type = "slider", text = "uv.ui.menu.closespeed", desc = "uv.ui.menu.closespeed.desc", convar = "uvmenu_close_speed", min = 0.1, max = 1, decimals = 2 },
 				{ type = "button", text = "uv.ui.menu.custcol", desc = "uv.ui.menu.custcol.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.SettingsCol, true) end },
+				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
 			},
 			{ TabName = "uv.audio.title", Icon = "unitvehicles/icons_settings/audio.png",
 
@@ -434,28 +666,37 @@ UVMenu.Settings = function()
 				{ type = "label", text = "uv.audio.uvtrax.editor", requireparentconvar = "unitvehicle_racingmusic" },
 				{ type = "uvtrax", text = "uv.audio.uvtrax.profiles", desc = "uv.audio.uvtrax.profiles.desc", requireparentconvar = "unitvehicle_racingmusic" },
 			},
-			{ TabName = "uv.keybinds", Icon = "unitvehicles/icons_settings/controls.png",
+			{ TabName = "uv.controls", Icon = "unitvehicles/icons_settings/controls.png",
 
-				{ type = "label", text = "uv.keybinds.pt" },
+				{ type = "label", text = "uv.controls.pt" },
 				{ type = "keybind", text = "uv.keybind.slot1", desc = "uv.keybind.slot1.desc", convar = "unitvehicle_pursuittech_keybindslot_1", slot = 1 },
 				{ type = "keybind", text = "uv.keybind.slot2", desc = "uv.keybind.slot2.desc", convar = "unitvehicle_pursuittech_keybindslot_2", slot = 2 },
 				
-				{ type = "label", text = "uv.keybinds.races" },
+				{ type = "label", text = "uv.controls.races" },
 				{ type = "keybind", text = "uv.keybind.skipsong", desc = "uv.keybind.skipsong.desc", convar = "unitvehicle_keybind_skipsong", slot = 3 },
 				{ type = "keybind", text = "uv.keybind.prevsong", desc = "uv.keybind.prevsong.desc", convar = "unitvehicle_keybind_prevsong", slot = 6 },
 				{ type = "keybind", text = "uv.keybind.resetposition", desc = "uv.keybind.resetposition.desc", convar = "unitvehicle_keybind_resetposition", slot = 4 },
 				{ type = "keybind", text = "uv.keybind.showresults", desc = "uv.keybind.showresults.desc", convar = "unitvehicle_keybind_raceresults", slot = 5 },
 				
-				{ type = "label", text = "uv.keybinds.glyphs" },
-				{ type = "bool", text = "uv.keybinds.glyphs.enable", desc = "uv.keybinds.glyphs.enable.desc", convar = "unitvehicle_glyph_override" },
-				{ type = "bindoverride", text = "uv.keybinds.glyphs.list.enable", desc = "uv.keybinds.glyphs.list.desc", convar = "unitvehicle_glyph_set", requireparentconvar = "unitvehicle_glyph_override" },
+				-- { type = "label", text = "uv.controls.controllermode" },
+				-- { type = "bool", text = "uv.controls.controllermode.enable", desc = "uv.controls.controllermode.enable.desc", convar = "unitvehicle_controllermode" },
+				
+				{ type = "label", text = "uv.controls.glyphs" },
+				{ type = "bool", text = "uv.controls.glyphs.enable", desc = "uv.controls.glyphs.enable.desc", convar = "unitvehicle_glyph_override" },
+				{ type = "bindoverride", text = "uv.controls.glyphs.list.enable", desc = "uv.controls.glyphs.list.desc", convar = "unitvehicle_glyph_set", requireparentconvar = "unitvehicle_glyph_override" },
 			},
 			{ TabName = "uv.pursuit", Icon = "unitvehicles/icons/milestone_pursuit.png", sv = true,
 				{ type = "label", text = "uv.pursuit.heatlevels", sv = true },
 				{ type = "bool", text = "uv.pursuit.heatlevels.enable", desc = "uv.pursuit.heatlevels.enable.desc", convar = "unitvehicle_heatlevels", sv = true },
 				{ type = "bool", text = "uv.pursuit.heatlevels.aiunits", desc = "uv.pursuit.heatlevels.aiunits.desc", convar = "unitvehicle_spawnmainunits", sv = true },
 				
+				{ type = "label", text = "uv.response", sv = true },
+				{ type = "bool", text = "uv.response.enable", desc = "uv.response.enable.desc", convar = "unitvehicle_callresponse", sv = true },
+				{ type = "slider", text = "uv.response.speedlimit", desc = "uv.response.speedlimit.desc", convar = "unitvehicle_speedlimit", min = 0, max = 100, decimals = 0, sv = true },
+				{ type = "bool", text = "uv.chatter.enable", desc = "uv.chatter.enable.desc", convar = "unitvehicle_chatter", sv = true },
+				
 				{ type = "label", text = "uv.settings.general", sv = true },
+				{ type = "bool", text = "uv.pursuit.canexitvehicle", desc = "uv.pursuit.canexitvehicle.desc", convar = "unitvehicle_canexitvehicle", sv = true },
 				{ type = "bool", text = "uv.pursuit.spottedfreezecam", desc = "uv.pursuit.spottedfreezecam.desc", convar = "unitvehicle_spottedfreezecam", sv = true, sp = true },
 				{ type = "bool", text = "uv.pursuit.randomplayerunits", desc = "uv.pursuit.randomplayerunits.desc", convar = "unitvehicle_randomplayerunits", sv = true },
 				{ type = "bool", text = "uv.pursuit.autohealth", desc = "uv.pursuit.autohealth.desc", convar = "unitvehicle_autohealth", sv = true },
@@ -486,14 +727,41 @@ UVMenu.Settings = function()
 				{ type = "label", text = "uv.settings.general", sv = true },
 				{ type = "slider", text = "uv.pb.maxnr", desc = "uv.pb.maxnr.desc", convar = "unitvehicle_pursuitbreaker_maxpb", min = 0, max = 10, sv = true },
 				{ type = "combo", text = "uv.tool.spawncondition", desc = "uv.tool.spawncondition.pb.desc", convar = "unitvehicle_pursuitbreaker_spawncondition", sv = true, content = {
-						{ "uv.tool.spawncondition.never", 0 },
-						{ "uv.tool.spawncondition.driving", 1 },
-						{ "uv.tool.spawncondition.always", 2 },
+						{ "uv.tool.spawncondition.never", 1 },
+						{ "uv.tool.spawncondition.driving", 2 },
+						{ "uv.tool.spawncondition.always", 3 },
 					},
 				},
 				{ type = "slider", text = "uv.pb.cooldown", desc = "uv.pb.cooldown.desc", convar = "unitvehicle_pursuitbreaker_pbcooldown", min = 10, max = 600, sv = true },
 			},
+			{ TabName = "uv.rs", Icon = "unitvehicles/icons/repairshop.png", sv = true,
+				{ type = "label", text = "uv.settings.general", sv = true },
+				{ type = "slider", text = "uv.rs.maxnr", desc = "uv.rs.maxnr.desc", convar = "unitvehicle_repairshop_maxrs", min = 0, max = 10, sv = true },
+				{ type = "combo", text = "uv.tool.spawncondition", desc = "uv.tool.spawncondition.rs.desc", convar = "unitvehicle_repairshop_spawncondition", sv = true, content = {
+						{ "uv.tool.spawncondition.never", 1 },
+						{ "uv.tool.spawncondition.driving", 2 },
+						{ "uv.tool.spawncondition.always", 3 },
+					},
+				},
+			},
 			{ TabName = "uv.ai.title", Icon = "unitvehicles/icons/cops_icon.png", sv = true,
+				{ type = "label", text = "uv.aidifficulty", sv = true },
+				{ type = "combo", text = "uv.aidifficulty.racer", desc = "uv.aidifficulty.racer.desc", convar = "unitvehicle_racedifficulty", sv = true, content = {
+						{ "uv.difficulty.1", 0 } ,
+						{ "uv.difficulty.2", 0.5 } ,
+						{ "uv.difficulty.3", 1 } ,
+					},
+				},
+				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_racercatchup", showprefix = true, sv = true },
+				
+				{ type = "combo", text = "uv.aidifficulty.unit", desc = "uv.aidifficulty.unit.desc", convar = "unitvehicle_unitdifficulty", sv = true, content = {
+						{ "uv.difficulty.1", 0 } ,
+						{ "uv.difficulty.2", 0.5 } ,
+						{ "uv.difficulty.3", 1 } ,
+					},
+				},
+				{ type = "bool", text = "uv.aidifficulty.unit.rubberband", desc = "uv.aidifficulty.unit.rubberband.desc", convar = "unitvehicle_unitcatchup", showprefix = true, sv = true },
+
 				{ type = "label", text = "uv.ailogic", sv = true },
 				{ type = "bool", text = "uv.ailogic.optimizerespawn", desc = "uv.ailogic.optimizerespawn.desc", convar = "unitvehicle_optimizerespawn", sv = true },
 				{ type = "bool", text = "uv.ailogic.wrecking", desc = "uv.ailogic.wrecking.desc", convar = "unitvehicle_canwreck", sv = true },
@@ -511,14 +779,8 @@ UVMenu.Settings = function()
 				{ type = "label", text = "uv.ainav", sv = true },
 				{ type = "bool", text = "uv.ainav.pathfind", desc = "uv.ainav.pathfind.desc", convar = "unitvehicle_pathfinding", sv = true },
 				{ type = "bool", text = "uv.ainav.dvpriority", desc = "uv.ainav.dvpriority.desc", convar = "unitvehicle_dvwaypointspriority", sv = true },
-				
-				{ type = "label", text = "uv.chatter", sv = true },
-				{ type = "bool", text = "uv.chatter.enable", desc = "uv.chatter.enable.desc", convar = "unitvehicle_chatter", sv = true },
-				{ type = "bool", text = "uv.chatter.text", desc = "uv.chatter.text.desc", convar = "unitvehicle_chattertext", sv = true },
-				
-				{ type = "label", text = "uv.response", sv = true },
-				{ type = "bool", text = "uv.response.enable", desc = "uv.response.enable.desc", convar = "unitvehicle_callresponse", sv = true },
-				{ type = "slider", text = "uv.response.speedlimit", desc = "uv.response.speedlimit.desc", convar = "unitvehicle_speedlimit", min = 0, max = 100, decimals = 0, sv = true },
+				{ type = "bool", text = "uv.ainav.dvnavoptimized", desc = "uv.ainav.dvnavoptimized.desc", convar = "unitvehicle_dvnavioptimized", sv = true },
+				{ type = "bool", text = "uv.ainav.dvdistancebased", desc = "uv.ainav.dvdistancebased.desc", convar = "unitvehicle_dvwaypointsdistancebased", sv = true },
 			},
 			{ TabName = "uv.addons", Icon = "unitvehicles/icons/generic_cart.png", sv = true,
 				unpack(addonTabRows)
@@ -588,7 +850,7 @@ UVMenu.FAQ = function()
 			{ TabName = "uv.faq.intro", Icon = "unitvehicles/icons_settings/info.png",
 				{ type = "info", text = UVGetFAQText("Intro") },
 				{ type = "info", text = UVGetFAQText("Requirements") },
-				{ type = "info", text = UVGetFAQText("Github") },
+				-- { type = "info", text = UVGetFAQText("Github") },
 				{ type = "info", text = UVGetFAQText("ConVars") },
 				{ type = "info", text = UVGetFAQText("Roadmap") },
 			},
@@ -598,6 +860,7 @@ UVMenu.FAQ = function()
 				{ type = "info", text = UVGetFAQText("Racing.SpawnAI"), sv = true },
 				{ type = "info", text = UVGetFAQText("Racing.Create"), sv = true },
 				{ type = "info", text = UVGetFAQText("Racing.Create.Speedlimit"), sv = true },
+				{ type = "info", text = UVGetFAQText("Racing.Create.PathNode"), sv = true },
 				
 				{ type = "info", text = UVGetFAQText("Racing.Joining") },
 				{ type = "info", text = UVGetFAQText("Racing.Resetting") },
@@ -606,11 +869,13 @@ UVMenu.FAQ = function()
 			{ TabName = "uv.faq.pursuits", Icon = "unitvehicles/icons/milestone_911.png",
 				{ type = "info", text = UVGetFAQText("Pursuit.Starting"), sv = true },
 				{ type = "info", text = UVGetFAQText("Pursuit.CreateUnits"), sv = true },
+				{ type = "info", text = UVGetFAQText("Pursuit.PursuitSettings"), sv = true },
 				{ type = "info", text = UVGetFAQText("Pursuit.Roadblocks"), sv = true },
 				{ type = "info", text = UVGetFAQText("Pursuit.Pursuitbreaker"), sv = true },
 				
 				{ type = "info", text = UVGetFAQText("Pursuit.JoinAsUnit") },
 				{ type = "info", text = UVGetFAQText("Pursuit.Respawn") },
+				{ type = "info", text = UVGetFAQText("Pursuit.Infractions") },
 			},
 
 			{ TabName = "uv.faq.other", Icon = "unitvehicles/icons_settings/info.png",
@@ -619,6 +884,7 @@ UVMenu.FAQ = function()
 				{ type = "info", text = UVGetFAQText("Other.CreateTraffic"), sv = true },
 				{ type = "info", text = UVGetFAQText("Other.RenameAI"), sv = true },
 				{ type = "info", text = UVGetFAQText("Other.DataFolder"), sv = true },
+				{ type = "info", text = UVGetFAQText("Other.AddonCreation"), sv = true },
 			},
 
 			{ TabName = "uv.back", playsfx = "clickback", Prompts = { "uv.prompt.return" }, func = function()
@@ -708,21 +974,28 @@ end
 UVMenu.RaceManagerSettings = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = " ",
-		Width  = UV.ScaleW(900),
+		Width  = UV.ScaleW(1300),
 		Height = UV.ScaleH(600),
 		DynamicHeight = true,
 		Description = true,
 		UnfocusClose = true,
 		Tabs = {
 			{ TabName = "uv.rm.options",
+				{ type = "label", text = "uv.aidifficulty" },
+				{ type = "combo", text = "uv.aidifficulty.racer", desc = "uv.aidifficulty.racer.desc", convar = "unitvehicle_racedifficulty", sv = true, content = {
+						{ "uv.difficulty.1", 0 } ,
+						{ "uv.difficulty.2", 0.5 } ,
+						{ "uv.difficulty.3", 1 } ,
+					},
+				},
+				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_racercatchup", showprefix = true, sv = true },
+				{ type = "label", text = "uv.settings.general" },
 				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },
 				{ type = "slider", text = "uv.rm.options.dnftimer", desc = "uv.rm.options.dnftimer.desc", convar = "unitvehicle_racednftimer", min = 0, max = 90, decimals = 0, sv = true },
 				{ type = "bool", text = "uv.rm.options.visiblecheckpoints", desc = "uv.rm.options.visiblecheckpoints.desc", convar = "unitvehicle_racevisiblecheckpoints", sv = true },
-				{ type = "label", text = "uv.pursuit" },
 				{ type = "slider", text = "uv.rm.options.pursuitstart", desc = "uv.rm.options.pursuitstart.desc", convar = "unitvehicle_racepursuitstart", min = 0, max = 90, decimals = 0, sv = true },
 				{ type = "bool", text = "uv.rm.options.pursuitclear", desc = "uv.rm.options.pursuitclear.desc", convar = "unitvehicle_racepursuitstop", sv = true },
 				{ type = "bool", text = "uv.rm.options.pursuitclear.ai", desc = "uv.rm.options.pursuitclear.ai.desc", convar = "unitvehicle_racepursuitstop_despawn", parentconvar = "unitvehicle_racepursuitstop", sv = true },
-				{ type = "label", text = "uv.ai.title" },
 				{ type = "bool", text = "uv.rm.options.clearai", desc = "uv.rm.options.clearai.desc", convar = "unitvehicle_raceclearai", sv = true },
 				{ type = "button", text = "uv.back", sv = true, playsfx = "clickback", prompts = {"uv.prompt.return"},
 					func = function(self2) UVMenu.OpenMenu(UVMenu.RaceManager) end
@@ -801,14 +1074,54 @@ UVMenu.RaceManagerTrackSelect = function()
 	local raceEntries = {}
 
 	for _, fname in ipairs(files) do
-		local rec = ParseRaceFile("unitvehicles/races/" .. game.GetMap() .. "/" .. fname)
+		local pathBase = "unitvehicles/races/" .. game.GetMap() .. "/"
+		local rec = ParseRaceFile(pathBase .. fname)
+
 		if rec then
+			local descLines = {
+				string.format(UVString("uv.rm.author"), rec.author),
+				string.format(UVString("uv.rm.checkpoints"), #rec.checkpoints),
+				string.format(UVString("uv.rm.startslots"), #rec.spawns)
+			}
+
+			-- Attempt to read matching JSON file
+			local jsonName = string.Replace(fname, ".txt", ".json")
+			if file.Exists(pathBase .. jsonName, "DATA") then
+				local jsonData = util.JSONToTable(file.Read(pathBase .. jsonName, "DATA") or "")
+
+				if jsonData then
+					-- Count props (duplicator saves entities inside an array-style table)
+					local propCount = 0
+
+					if jsonData.Entities and istable(jsonData.Entities) then
+						for _, ent in pairs(jsonData.Entities) do
+							if istable(ent) and ent.Class then
+								-- Optional: only count actual props
+								if string.StartWith(ent.Class, "prop_") then
+									propCount = propCount + 1
+								end
+							end
+						end
+					end
+
+					if propCount > 0 then
+						table.insert(descLines, string.format(UVString("uv.rm.hasprops"), propCount))
+					end
+
+					-- Count path nodes
+					if jsonData.Nodes and istable(jsonData.Nodes) then
+						local nodeCount = table.Count(jsonData.Nodes)
+						if nodeCount > 0 then
+							table.insert(descLines, string.format(UVString("uv.rm.hasnodes"), nodeCount))
+						end
+					end
+				end
+			end
+
 			table.insert(raceEntries, {
 				type = "button",
 				text = rec.name,
-				desc = string.format( UVString( "uv.rm.author" ), rec.author ) .. "\n"  .. 
-				string.format( UVString( "uv.rm.checkpoints" ), #rec.checkpoints ) .. "\n" .. 
-				string.format( UVString( "uv.rm.startslots" ), #rec.spawns ),
+				desc = table.concat(descLines, "\n"),
 				playsfx = "clickopen",
 				prompts = {"uv.prompt.load"},
 				func = function()
@@ -816,13 +1129,13 @@ UVMenu.RaceManagerTrackSelect = function()
 					UVMenu.CloseCurrentMenu(true)
 					timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
 						UVMenu.OpenMenu(UVMenu.RaceManager)
-						UVMenu.PlaySFX("menuopen") -- This shouldn't be necessary but ah well
+						UVMenu.PlaySFX("menuopen")
 					end)
 				end
 			})
 		end
 	end
-	
+
 	local entriesWithBack = {}
 	for _, entry in ipairs(raceEntries) do
 		table.insert(entriesWithBack, entry)
@@ -1119,7 +1432,7 @@ local function BuildPatchNoteTabs()
         table.insert(tabs, {
             TabName = version,
             { type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"}, func = function() UVMenu.OpenMenu(UVMenu.Main) end },
-            { type = "label", text = FormatPatchDate(note.Date) },
+            { type = "label", text = FormatPatchDate(note.Date, true) },
 			
 			{ type = "image", image = "unitvehicles/icons_settings/pnotes/" .. version .. ".png" },
             { type = "info", text = note.Text },
@@ -1176,7 +1489,13 @@ UVMenu.HeatManager = function()
 
     -- General settings tab
     table.insert(tabs, {
-        TabName = "uv.settings.general",
+        TabName = "uv.settings.general",	
+		{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_unit_vehiclebase", sv = true, content = {
+				{ "uv.base.hl2", 1 } ,
+				{ "uv.base.simfphys", 2 } ,
+				{ "uv.base.glide", 3 } ,
+			},
+		},
 		{ type = "bool", text = "uv.hm.timedhl", desc = "uv.hm.timedhl.desc", convar = "unitvehicle_unit_timetillnextheatenabled", sv = true },
 		{ type = "slider", text = "uv.hm.minhl", desc = "uv.hm.minhl.desc", convar = "unitvehicle_unit_minheat", min = 1, max = MAX_HEAT_LEVEL, decimals = 0, sv = true },
 		{ type = "slider", text = "uv.hm.maxhl", desc = "uv.hm.maxhl.desc", convar = "unitvehicle_unit_maxheat", min = 1, max = MAX_HEAT_LEVEL, decimals = 0, func = function() UVMenu.OpenMenu(UVMenu.HeatManager, true) end, sv = true },
@@ -1213,6 +1532,7 @@ UVMenu.HeatManager = function()
 		{ type = "bool", text = "uv.ptech.repairkit", desc = "uv.hm.pt.spawnwith.desc", convar = "unitvehicle_unit_pursuittech_repairkit", requireparentconvar = "unitvehicle_unit_pursuittech", sv = true },
 		{ type = "bool", text = "uv.ptech.shockram", desc = "uv.hm.pt.spawnwith.desc", convar = "unitvehicle_unit_pursuittech_shockram", requireparentconvar = "unitvehicle_unit_pursuittech", sv = true },
 		{ type = "bool", text = "uv.ptech.gpsdart", desc = "uv.hm.pt.spawnwith.desc", convar = "unitvehicle_unit_pursuittech_gpsdart", requireparentconvar = "unitvehicle_unit_pursuittech", sv = true },
+		{ type = "bool", text = "uv.ptech.grappler", desc = "uv.hm.pt.spawnwith.desc", convar = "unitvehicle_unit_pursuittech_grappler", requireparentconvar = "unitvehicle_unit_pursuittech", sv = true },
 		
 		{ type = "label", text = "uv.hm.disablebounty" },
 		{ type = "slider", text = "uv.unit.patrol", desc = "uv.hm.disablebounty.desc", convar = "unitvehicle_unit_bountypatrol", min = 1, max = 9999999, decimals = 0, sv = true },
@@ -1266,7 +1586,9 @@ UVMenu.HeatManager = function()
 		local units = { "Patrol", "Support", "Pursuit", "Interceptor", "Special", "Commander", "Rhino" }
 		for _, unit in ipairs(units) do
 			local lower = string.lower(unit)
-			table.insert(heatTab, { type = "unitselect", text = "uv.unit." .. lower, convar = "unitvehicle_unit_units" .. lower .. i, chanceconvar = true, sv = true })
+			table.insert(heatTab, { type = "unitselect", text = "uv.unit." .. lower, convar = "unitvehicle_unit_units" .. lower .. i, sv = true })
+			table.insert(heatTab, { type = "slider", text = "uv.hm.units.spawnchance", desc = "uv.hm.units.spawnchance.desc", convar = "unitvehicle_unit_units" .. lower .. i .. "_chance", min = 0, max = 100, decimals = 0, sv = true })
+			table.insert(heatTab, { type = "slider", text = "uv.hm.units.limit", desc = "uv.hm.units.limit.desc", convar = "unitvehicle_unit_units" .. lower .. i .. "_limit", min = -1, max = 20, decimals = 0, sv = true })
 		end
 
 		table.insert(tabs, heatTab)
@@ -1290,3 +1612,274 @@ UVMenu.HeatManager = function()
         Tabs = tabs
     })
 end
+
+------- [ First-Time Setup ] -------
+UVMenu.FirstTimeSetup = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(1200),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.title", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.desc" },
+				{ type = "button", text = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"}, func = function(self2) 
+					if LocalPlayer():IsAdmin() and LocalPlayer():IsSuperAdmin() then
+						UVMenu.OpenMenu(UVMenu.FirstTimeSetupPreset, true)
+					else
+						UVMenu.OpenMenu(UVMenu.FirstTimeSetupRacing, true)
+					end
+				end},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupPreset = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(900),
+		Height = UV.ScaleH(600),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.preset.title", Icon = "unitvehicles/icons/milestone_911.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.preset.desc" },
+				{ type = "info", text = "uv.ft.preset.desc2" },
+				{ type = "presets", preset = "units", importonly = true, func = function(self2, name, preset)
+					UVUnitManagerLoadPresetV2(name, preset)
+					UVMenu.PlaySFX("confirm")
+					UVMenu.CloseCurrentMenu(true)
+					timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
+						UVMenu.PlaySFX("menuopen") -- This shouldn't be necessary but ah well
+						UVMenu.OpenMenu(UVMenu.FirstTimeSetupBases, true)
+					end)
+				end },
+				
+				{ type = "button", text = "uv.ft.skip", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupBases, true) end
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupBases = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(800),
+		Height = UV.ScaleH(900),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.bases", Icon = "unitvehicles/icons/race_events.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.bases.desc" },
+				{ type = "combo", text = "uv.ft.bases.units", desc = "uv.tool.base.desc", convar = "unitvehicle_unit_vehiclebase", sv = true, content = {
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
+					},
+				},
+				{ type = "combo", text = "uv.ft.bases.airacer", desc = "uv.tool.base.desc", convar = "unitvehicle_racer_vehiclebase", sv = true, content = {
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
+					},
+				},
+				{ type = "combo", text = "uv.ft.bases.traffic", desc = "uv.tool.base.desc", convar = "unitvehicle_traffic_vehiclebase", sv = true, content = {
+						{ "uv.base.hl2", 1 } ,
+						{ "uv.base.simfphys", 2 } ,
+						{ "uv.base.glide", 3 } ,
+					},
+				},
+				{ type = "buttonlr", text = "uv.ft.prev", text2 = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupPreset, true) end,
+					func2 = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupGeneral, true) end,
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupGeneral = function()
+	local mainHUDList, backupHUDList = BuildHUDComboLists()
+
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1300),
+		Height = UV.ScaleH(900),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.settings.general", Icon = "unitvehicles/icons_settings/options.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.general.desc" },
+				
+				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
+				{ type = "bool", text = "uv.audio.uvtrax.enable", desc = "uv.audio.uvtrax.desc", convar = "unitvehicle_racingmusic" },
+				{ type = "combo", text = "uv.audio.uvtrax.profile", desc = "uv.audio.uvtrax.profile.desc", convar = "unitvehicle_racetheme", requireparentconvar = "unitvehicle_racingmusic" },
+				{ type = "bool", text = "uv.response.enable", desc = "uv.response.enable.desc", convar = "unitvehicle_callresponse", sv = true },
+				
+				{ type = "infosimple", text = " " },
+				{ type = "buttonlr", text = "uv.ft.prev", text2 = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupBases, true) end,
+					func2 = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupRacing, true) end,
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupRacing = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1300),
+		Height = UV.ScaleH(900),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.rm.options", Icon = "unitvehicles/icons/race_events.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.racing.desc" },
+				{ type = "info", text = "uv.ft.racing.desc2" },
+				{ type = "label", text = "uv.rm.options" },
+				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },
+				{ type = "slider", text = "uv.rm.options.dnftimer", desc = "uv.rm.options.dnftimer.desc", convar = "unitvehicle_racednftimer", min = 0, max = 90, decimals = 0, sv = true },
+				{ type = "label", text = "uv.pursuit" },
+				{ type = "slider", text = "uv.rm.options.pursuitstart", desc = "uv.rm.options.pursuitstart.desc", convar = "unitvehicle_racepursuitstart", min = 0, max = 90, decimals = 0, sv = true },
+				{ type = "bool", text = "uv.rm.options.pursuitclear", desc = "uv.rm.options.pursuitclear.desc", convar = "unitvehicle_racepursuitstop", sv = true },
+				{ type = "bool", text = "uv.rm.options.pursuitclear.ai", desc = "uv.rm.options.pursuitclear.ai.desc", convar = "unitvehicle_racepursuitstop_despawn", parentconvar = "unitvehicle_racepursuitstop", sv = true },
+				{ type = "label", text = "uv.ai.title" },
+				{ type = "bool", text = "uv.rm.options.clearai", desc = "uv.rm.options.clearai.desc", convar = "unitvehicle_raceclearai", sv = true },
+				
+				{ type = "infosimple", text = " " },
+				{ type = "buttonlr", text = "uv.ft.prev", text2 = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupGeneral, true) end,
+					func2 = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupRacingAI, true) end,
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupRacingAI = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1300),
+		Height = UV.ScaleH(700),
+		DynamicHeight = false,
+		Description = true,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.racing.ai.title", Icon = "unitvehicles/icons/race_events.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.racing.ai.desc" },
+				{ type = "info", text = "uv.ft.racing.ai.desc2" },
+
+				{ type = "bool", text = "uv.airacer.override", desc = "uv.airacer.override.desc", convar = "unitvehicle_racer_assignracers", sv = true },
+				{ type = "vehicleoverride", text = "uv.airacer.overridelist", desc = "uv.airacer.overridelist.desc", convar = "unitvehicle_racer_racers", sv = true, parentconvar = "unitvehicle_racer_assignracers" },
+				
+				{ type = "infosimple", text = " " },
+				{ type = "buttonlr", text = "uv.ft.prev", text2 = "uv.ft.next", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupRacing, true) end,
+					func2 = function(self2) UVMenu.OpenMenu(UVMenu.FirstTimeSetupDone, true) end,
+				},
+			}
+		}
+	})
+end
+
+UVMenu.FirstTimeSetupDone = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(800),
+		Height = UV.ScaleH(450),
+		DynamicHeight = false,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.ft.end.title", Icon = "unitvehicles/icons/milestone_outrun_pursuits_won.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.ft.end.desc" },
+				{ type = "info", text = "uv.ft.end.desc2" },
+				
+				{ type = "buttonlr", text = "uv.tweakinmenu.open", text2 = "uv.ft.finish", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2)
+						UVMenu.OpenMenu(UVMenu.Main)
+						net.Start("UVUpdateSettings")
+						net.WriteTable({ ["unitvehicle_uvmenu_firstsetup"] = "0" })
+						net.SendToServer()
+					end,
+					func2 = function(self2)
+						UVMenu.CloseCurrentMenu()
+						net.Start("UVUpdateSettings")
+						net.WriteTable({ ["unitvehicle_uvmenu_firstsetup"] = "0" })
+						net.SendToServer()
+					end
+				},
+			}
+		}
+	})
+end
+
+
+------- [ DV Warning ] -------
+UVMenu.DVWarning = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(900),
+		Height = UV.ScaleH(800),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.hm.presets.warning", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.system.dvnowp" },
+				{ type = "info", text = "uv.system.dvnowp2" },
+				{ type = "button", text = "uv.system.close", playsfx = "clickback", prompts = {"uv.prompt.confirm"}, func = function(self2) UVMenu.CloseCurrentMenu(true) end },
+				{ type = "button", text = "uv.system.dontshowagain", playsfx = "clickback", prompts = {"uv.prompt.confirm"}, func = function(self2) UVMenu.OpenMenu(UVMenu.DVWarningDontShowAgain, true) end },
+			}
+		}
+	})
+end
+
+UVMenu.DVWarningDontShowAgain = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(900),
+		Height = UV.ScaleH(800),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.hm.presets.warning", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.system.dontshowagain.finalwarn" },
+				{ type = "timer", text = "uv.results.autoclose", duration = 10, func = 
+					function(self2)
+						UVMenu.CloseCurrentMenu(true)
+						__DV_WARNING_NOSHOW = true
+					end
+				},
+			}
+		}
+	})
+end
+
+net.Receive("UV_OpenDVWarning", function()
+	if not LocalPlayer():IsSuperAdmin() then return end
+	if __DV_COOLDOWN and __DV_COOLDOWN > os.time() or __DV_WARNING_NOSHOW then return end
+
+	__DV_COOLDOWN = os.time() + 60
+    UVMenu.OpenMenu(UVMenu.DVWarning, true)
+end)

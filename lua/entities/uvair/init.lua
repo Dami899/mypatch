@@ -3,7 +3,6 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 local CanWreck = GetConVar("unitvehicle_canwreck")
 local Chatter = GetConVar("unitvehicle_chatter")
-local ChatterText = GetConVar("unitvehicle_chattertext")
 local PursuitTech = GetConVar("unitvehicle_unit_pursuittech")
 local Barrels = GetConVar("unitvehicle_unit_helicopterbarrels")
 local SpikeStrips = GetConVar("unitvehicle_unit_helicopterspikestrip")
@@ -145,7 +144,7 @@ function ENT:Initialize()
 	end
 		
 	timer.Simple((math.random(60,180)), function() 
-		if IsValid(self) then --Fuel is randomized 
+		if IsValid(self) and not self.Downed then --Fuel is randomized 
 			if Chatter:GetBool() and not (self.crashing or self.disengaging) then
 				if IsValid(self:GetTarget()) then
 					UVChatterLowOnFuel(self)
@@ -370,7 +369,7 @@ function ENT:PhysicsUpdate()
 	local isValidTarget = IsValid(target)
 
 	local p = self:GetPos()
-	if math.abs(p.x)>16000 or math.abs(p.y)>16000 or math.abs(p.z)>16000 then
+	if not InfMap and (math.abs(p.x)>16000 or math.abs(p.y)>16000 or math.abs(p.z)>16000) then
 		if self.disengaging then
 			self:Remove()
 		end
@@ -386,7 +385,14 @@ function ENT:PhysicsUpdate()
 		self:ApplyHeight("up")
 		self:SelfRotate()
 		
-		timer.Simple(30, function() if IsValid(self) then self:Remove() end end)
+		if not self.disengagingtimer then
+			self.disengagingtimer = CurTime()
+			timer.Simple(30, function() 
+				if IsValid(self) and not self.Downed then 
+					self:Remove() 
+				end 
+			end)
+		end
 		
 		self.LastUpdate = CurTime()
 		self.CloseToTarget = false
@@ -447,7 +453,7 @@ function ENT:PhysicsUpdate()
 				end
 			end
 			if isValidTarget and Chatter:GetBool() and not (self.crashing or self.disengaging) and target:GetVelocity():LengthSqr() > 100000 and self:IsSeeTarget() and MathAggressive ~= 1 then
-				UVChatterCloseToEnemy(self)
+				UVChatterCloseToEnemy(self, target)
 			end
 		end
 				
@@ -778,6 +784,7 @@ function ENT:OnTakeDamage(dmg)
 end
 
 function ENT:StartCrush()
+	self.disengaging = nil
 	self.Downed = true
 	
 	local r = self:GetAngles().r
@@ -911,11 +918,16 @@ function ENT:Explode()
 		self.crashing = true
 		UVBounty = (UVBounty+bountyplus)
 		UVComboBounty = UVComboBounty + 1
+		if #UVWantedTableVehicle > 0 then
+			for _, v in pairs(UVWantedTableVehicle) do
+				UVAddInfraction(v, 'homicide')
+			end
+		end
 	end
 end
 
 function ENT:StartTouch(prop)
-	if self.damagecooldown or self.engaging or self.crashing or self.disengaging then return end
+	if self.damagecooldown or self.engaging or self.crashing then return end
 
 	self.damagecooldown = true
 
@@ -926,7 +938,7 @@ function ENT:StartTouch(prop)
 			self.damaged = true
 			self:SetHealth(self:Health()/2)
 			ParticleEffectAttach("smoke_burning_engine_01", PATTACH_ABSORIGIN_FOLLOW, self, 0)
-			if Chatter:GetBool() and not ChatterText:GetBool() then
+			if Chatter:GetBool() then
 				UVSoundChatter(self, self.voice, "hit")
 			end
 		else

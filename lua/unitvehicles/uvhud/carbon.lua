@@ -1,5 +1,32 @@
 UV.RegisterHUD( "carbon", "NFS: Carbon", true )
 
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_carbon_race_raceramount", 8, true, false)
+local maxracernrcv = GetConVar("uvhud_carbon_race_raceramount"):GetString()
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.carbon = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "NFS: Carbon" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_carbon_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
+
 UV_UI.racing.carbon = UV_UI.racing.carbon or {}
 UV_UI.pursuit.carbon = UV_UI.pursuit.carbon or {}
 
@@ -1040,7 +1067,7 @@ UV_UI.racing.carbon.events = {
 		if not IsValid(my_vehicle) then return end
 
 		-- Pull cached diffs from general racing HUD
-		local cached = UV_UI.general.racing.SplitDiffCache and UV_UI.general.racing.SplitDiffCache[my_vehicle]
+		local cached = UV_UI.racing.general.SplitDiffCache and UV_UI.racing.general.SplitDiffCache[my_vehicle]
 		local aheadDiff, behindDiff = "N/A", "N/A"
 
 		if cached then
@@ -1071,6 +1098,17 @@ UV_UI.racing.carbon.events = {
 			ringColor = noticol,
 			flyUp = true,
 		})
+	end,
+
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			UV_UI.racing.carbon.events.CenterNotification({
+				text = UVString("uv.race.wrongway"),
+				noIcon = true,
+				immediate = true,
+				flyUp = true
+			})
+		end
 	end,
 }
 
@@ -1324,6 +1362,9 @@ UV_UI.pursuit.carbon.events = {
             end
         end)
 
+		local tipstring = params.faction == "Racer" and UV.Tips.Racer or UV.Tips.Units
+		local randomTipText = tipstring[math.random(1, #tipstring)]
+		
         ResultPanel.Paint = function(self, w, h)
             local timeremaining = math.ceil(timetotal - (CurTime() - timestart))
             local lang = UVString
@@ -1417,6 +1458,10 @@ UV_UI.pursuit.carbon.events = {
             draw.SimpleTextOutlined( roadblocksdodged, "UVCarbonLeaderboardFont", w*0.74, h2 + h*0.16, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
             draw.SimpleTextOutlined( spikestripsdodged, "UVCarbonLeaderboardFont", w*0.74, h1 + h*0.24, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 1.25, Color(0, 0, 0))
 
+			-- Tip
+			local tiptext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ) ) .. "</font></color>"
+			markup.Parse(tiptext, w * 0.4835):Draw(w * 0.2565, h2 + h*0.24, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+
             -- Time remaining and closing
 			local conttext = "<color=255,255,255><font=UVCarbonLeaderboardFont>" .. UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue")) .. "</font></color>"
 			local mk = markup.Parse(conttext)
@@ -1503,6 +1548,7 @@ UV_UI.pursuit.carbon.events = {
         local params = {
             dataTable = escapedtable,
             titleText = UVString("uv.results.escapedfrom"),
+			faction = "Racer",
         }
         UV_UI.pursuit.carbon.events.ShowDebrief(params)
     end,
@@ -1513,6 +1559,7 @@ UV_UI.pursuit.carbon.events = {
             titleText = UVString("uv.results.bustedby.carbon"),
             titleVar = UVString( bustedtable["Unit"] ),
 			spawnAsUnit = true,
+			faction = "Racer",
         }
         UV_UI.pursuit.carbon.events.ShowDebrief(params)
     end,
@@ -1542,12 +1589,19 @@ UV_UI.pursuit.carbon.events = {
 			immediate = true,
 		})
 	end,
-	onFined = function( finenr )
+	onFined = function( finenr, finesdue )
 		UV_UI.racing.carbon.events.CenterNotification({
 			text = string.format( UVString("uv.hud.fine.fined"), finenr),
 			noIcon = true,
 			immediate = true,
 		})
+		timer.Simple(3, function()
+			UV_UI.racing.carbon.events.CenterNotification({
+				text = string.format( UVString("uv.hud.fine.cost"), finesdue),
+				noIcon = true,
+				immediate = true,
+			})
+		end)
 	end,
 }
 
@@ -1602,7 +1656,7 @@ local function carbon_racing_main( ... )
 
     -- Racer List
     local alt = math.floor(CurTime() / 5) % 2 == 1 -- toggles every 5 seconds
-    for i = 1, math.Clamp(racer_count, 1, 16), 1 do
+    for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_carbon_race_raceramount"):GetString()), 1 do
         if racer_count == 1 then
             return
         end

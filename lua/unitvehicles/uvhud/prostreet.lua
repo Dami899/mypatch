@@ -1,5 +1,32 @@
 UV.RegisterHUD( "prostreet", "NFS: ProStreet" )
 
+-- [[ Convars ]] --
+-- Racing
+CreateClientConVar("uvhud_prostreet_race_raceramount", 8, true, false)
+local maxracernrcv = GetConVar("uvhud_prostreet_race_raceramount"):GetString()
+
+UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
+UVMenu.CustomizeHUD.prostreet = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(760),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{ TabName = "uv.ui.custhud",
+				{ type = "label", text = "NFS: ProStreet" },
+				{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"},
+						func = function(self2) UVMenu.OpenMenu(UVMenu.Settings) end
+				},
+				{ type = "infosimple", text = "uv.ui.custhud.race" },
+				{ type = "slider", text = "uv.ui.custhud.raceramount", desc = "uv.ui.custhud.raceramount.desc", convar = "uvhud_prostreet_race_raceramount", min = 4, max = 18, decimals = 0 },
+			},
+		}
+	})
+end
+
 UV_UI.racing.prostreet = UV_UI.racing.prostreet or {}
 
 local function prostreet_racing_main( ... )
@@ -45,7 +72,7 @@ local function prostreet_racing_main( ... )
     -- Racer List
     local alt = math.floor(CurTime() / 5) % 2 == 1 -- toggles every 5 seconds
     local boxyes = false
-    for i = 1, math.Clamp(racer_count, 1, 20), 1 do
+    for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_prostreet_race_raceramount"):GetString()), 1 do
         --if racer_count == 1 then return end
         local entry = string_array[i]
         
@@ -54,7 +81,7 @@ local function prostreet_racing_main( ... )
         local mode = entry[3]
         local diff = entry[4]
         local racercount = i * w * 0.0135
-        local racercountbox = i * w * 0.0135 * math.Clamp(racer_count, 1, 20)
+        local racercountbox = i * w * 0.0135 * math.Clamp(racer_count, 1, GetConVar("uvhud_prostreet_race_raceramount"):GetString())
         
         local Strings = {
             ["Time"] = "%s",
@@ -636,7 +663,7 @@ UV_UI.racing.prostreet.events = {
 		if not IsValid(my_vehicle) then return end
 
 		-- Pull cached diffs from general racing HUD
-		local cached = UV_UI.general.racing.SplitDiffCache and UV_UI.general.racing.SplitDiffCache[my_vehicle]
+		local cached = UV_UI.racing.general.SplitDiffCache and UV_UI.racing.general.SplitDiffCache[my_vehicle]
 		local aheadDiff, behindDiff = "N/A", "N/A"
 
 		if cached then
@@ -842,7 +869,15 @@ UV_UI.racing.prostreet.events = {
 			draw.SimpleTextOutlined( text.value, "UVFont5ShadowBig", cx, cy, Color(text.color.r, text.color.g, text.color.b, text.alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0,text.alpha) )
 			cam.PopModelMatrix()
 		end)
-	end
+	end,
 
-
+	onWrongWay = function(timestamp, isWrongWay)
+		if isWrongWay then
+			UV_UI.racing.prostreet.events.CenterNotification({
+				text = UVString("uv.race.wrongway"),
+				-- colorUpper = Color(200, 75, 75),
+				immediate = true,
+			})
+		end
+	end,
 }

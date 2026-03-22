@@ -1,5 +1,92 @@
 UV = UV or {}
 
+UV.Tips = UV.Tips or {}
+
+UV.Tips.Racer = {
+	-- General
+	"uv.tip.repairshop",
+	
+	-- General Pursuit Tech
+	"uv.tip.pt.emp1",
+	"uv.tip.pt.emp2",
+	"uv.tip.pt.esf1",
+	"uv.tip.pt.esf2",
+	"uv.tip.pt.repairkit1",
+	"uv.tip.pt.spikes1",
+	"uv.tip.pt.spikes2",
+	"uv.tip.pt.jammer",
+	"uv.tip.drafting",
+	
+	-- Racer-specific Pursuit Tech
+	"uv.tip.racer.pt.jammer1",
+	"uv.tip.racer.pt.jammer2",
+	"uv.tip.racer.pt.shockwave1",
+	"uv.tip.racer.pt.stunmine1",
+	"uv.tip.racer.pt.powerplay1",
+	"uv.tip.racer.pt.juggernaut1",
+	"uv.tip.racer.pt.ghost1",
+
+	"uv.tip.racer.pt.killswitch1",
+	"uv.tip.racer.pt.shockram1",
+	"uv.tip.racer.pt.gpsdart1",
+	"uv.tip.racer.pt.grappler1",
+
+	-- General Racer-specific
+	"uv.tip.racer.cooldown",
+	"uv.tip.racer.aitactics1",
+	"uv.tip.racer.aitactics2",
+	"uv.tip.racer.pb",
+	"uv.tip.racer.comunits1",
+	"uv.tip.racer.comunits2",
+	"uv.tip.racer.comunits3",
+	"uv.tip.racer.airunits1",
+	"uv.tip.racer.leastagro",
+	"uv.tip.racer.roadblocks1",
+	"uv.tip.racer.roadblocks2",
+	"uv.tip.racer.boxedin",
+	"uv.tip.racer.upgradedunits",
+	"uv.tip.racer.stuck",
+	"uv.tip.racer.disorient",
+	"uv.tip.racer.rhinounits",
+}
+
+UV.Tips.Units = {
+	-- General
+	"uv.tip.repairshop",
+	
+	-- General Pursuit Tech
+	"uv.tip.pt.emp1",
+	"uv.tip.pt.emp2",
+	"uv.tip.pt.esf1",
+	"uv.tip.pt.esf2",
+	"uv.tip.pt.repairkit1",
+	"uv.tip.pt.spikes1",
+	"uv.tip.pt.spikes2",
+	"uv.tip.pt.jammer",
+	"uv.tip.drafting",
+	
+	-- Unit-specific Pursuit Tech
+	"uv.tip.unit.pt.killswitch1",
+	"uv.tip.unit.pt.killswitch2",
+	"uv.tip.unit.pt.shockram1",
+	"uv.tip.unit.pt.gpsdart1",
+	"uv.tip.unit.pt.grappler1",
+
+	"uv.tip.unit.pt.shockwave1",
+	"uv.tip.unit.pt.juggernaut1",
+	"uv.tip.unit.pt.ghost1",
+
+	-- General Unit-specific
+	"uv.tip.unit.pit",
+	"uv.tip.unit.teamwork",
+	"uv.tip.unit.roadblocks",
+	"uv.tip.unit.loneunit",
+	"uv.tip.unit.comunit",
+	"uv.tip.unit.nocooldown",
+	"uv.tip.unit.respawn",
+	"uv.tip.unit.pbnote",
+}
+
 UVColors = {
     -- Original HUD
     ["Original_LocalPlayer"] = Color(255, 217, 0),
@@ -73,7 +160,21 @@ UVMaterials = {
     ["BACKGROUND"] = Material("unitvehicles/hud/NFSMW_BACKGROUND.png"),
     ["BACKGROUND_BIG"] = Material("unitvehicles/hud/NFSMW_BACKGROUND_BIG.png"),
     ["BACKGROUND_BIGGER"] = Material("unitvehicles/hud/NFSMW_BACKGROUND_BIGGER.png"),
+	
+    ["SCANNER_BG"] = Material("unitvehicles/hud/RADAR_BACKING.png"),
+    ["SCANNER_MIDDLE"] = Material("unitvehicles/hud/RADAR_ICON.png"),
+    ["SCANNER_ARROW"] = Material("unitvehicles/hud/RADAR_DIRECTIONARROW.png"),
+	
+    ["SCANNER_LEDS_BG"] = Material("unitvehicles/hud/RADAR_LEDS.png"),
+    ["SCANNER_LEDS_BG_INV"] = Material("unitvehicles/hud/RADAR_LEDS_INV.png"),
     
+    ["SCANNER_LEDS"] = Material("unitvehicles/hud/RADAR_LEDS_COLOR.png"),
+    ["SCANNER_LEDS_INV"] = Material("unitvehicles/hud/RADAR_LEDS_COLOR_INV.png"),
+    
+    ["INFRACTIONS_BG"] = Material("unitvehicles/hud/outter_ring_infractions.png"),
+    ["INFRACTIONS_BG_RING"] = Material("unitvehicles/hud/outter_ring.png"),
+    ["INFRACTIONS_ICON"] = Material("unitvehicles/hud/generic_infraction.png"),
+	
     -- Carbon
     ["TAKEDOWN_CIRCLE_CARBON"] = Material("unitvehicles/icons_carbon/FULL_CIRCLE.png"),
     ["TAKEDOWN_RING_CARBON"] = Material("unitvehicles/icons_carbon/FULL_CIRCLE_RING.png"),
@@ -105,6 +206,18 @@ UVMaterials = {
     ["EOC_FRAME_CARBON"] = Material("unitvehicles/hud_carbon/PC_HELP_FRAME_LONG.png"),
     
     ["BG_BIG_CARBON"] = Material("unitvehicles/hud_carbon/NFSC_BG_BIG.png"),
+
+	-- [Carbon] UI
+
+	["RPM_8000"] = Material("unitvehicles/speedometers/carbon00/HUD_RPM_8000.png", "mips smooth"),
+	["RPM_10000"] = Material("unitvehicles/speedometers/carbon00/HUD_RPM_10000.png", "mips smooth"),
+	["HUD_BACKGROUND_BACKING"] = Material("unitvehicles/speedometers/carbon00/HUD_MAIN_SPEED_BACKING.png", "mips smooth"),
+	["HUD_GEAR"] = Material("unitvehicles/speedometers/carbon/HUD_GEAR.png", "mips smooth"),
+	["NOS_ICON"] = Material("unitvehicles/speedometers/carbon/NOS_ICON.png", "mips smooth"),
+	["SPEEDBREAKER_ICON"] = Material("unitvehicles/speedometers/carbon/SPEEDBREAKER_ICON.png", "mips smooth"),
+	["RPM_BACKING"] = Material("unitvehicles/speedometers/carbon00/HUD_RPM_METER_BACKING.png", "mips smooth"),
+	["RPM_COLOR"] = Material("unitvehicles/speedometers/carbon00/HUD_RPM_METER_COLOR.png", "mips smooth"),
+	["SHIFT_ICON_NORMAL"] = Material("unitvehicles/speedometers/carbon00/HUD_SHIFT_ICON_NORMAL.png", "mips smooth"),
     
     -- Undercover
     ["ARREST_BG_UC"] = Material("unitvehicles/hud_undercover/BUSTED_HEADER.png"),
@@ -242,11 +355,11 @@ if CLIENT then
 	end
 
 	function UV.ScaleW(px)
-		return math.Round(px * (math.min(UV_GetW(), UV.BaseW) / UV.BaseW))
+		return math.Round(px * (UV_GetW() / UV.BaseW))
 	end
 
 	function UV.ScaleH(px)
-		return math.Round(px * (math.min(UV_GetH(), UV.BaseH) / UV.BaseH))
+		return math.Round(px * (UV_GetH() / UV.BaseH))
 	end
 
 	function UV.Scale(px)
@@ -254,73 +367,100 @@ if CLIENT then
 	end
 
 	-- Original HUD & General
-	surface.CreateFont("UVFont", { font = "Arial", size = UV.ScaleH(50), weight = 500, italic = true, extended = true })
-	surface.CreateFont("UVFont-Shadow", { font = "Arial", size = UV.ScaleH(50), weight = 500, italic = true, shadow = true, extended = true })
-	surface.CreateFont("UVFont-Smaller", { font = "Arial", size = UV.ScaleH(46), weight = 500, italic = true, extended = true })
-	surface.CreateFont("UVFont-Bolder", { font = "Arial", size = UV.ScaleH(46), weight = 1000, italic = false, shadow = true, extended = true })
-	surface.CreateFont("UVFont2", { font = "Arial", size = UV.ScaleH(50), weight = 500, extended = true })
-	surface.CreateFont("UVFont2-Smaller", { font = "Arial", size = UV.ScaleH(40), weight = 500, extended = true })
-	surface.CreateFont("UVFont3", { font = "Arial", size = UV.ScaleH(50), weight = 500, shadow = true, extended = true })
-	surface.CreateFont("UVFont3Big", { font = "Arial", size = UV.ScaleH(92), weight = 500, extended = true })
-	surface.CreateFont("UVFont3Bigger", { font = "Arial", size = UV.ScaleH(130), weight = 500, extended = true })
-	surface.CreateFont("UVFont4", { font = "Arial", size = UV.ScaleH(25), weight = 1100, shadow = true, extended = true })
+	hook.Add( "UV-OnResolutionChange", "UV.UpdateFonts", function()
+		surface.CreateFont("UVFont", { font = "Arial", size = UV.ScaleH(50), weight = 500, italic = true, extended = true })
+		surface.CreateFont("UVFont-Shadow", { font = "Arial", size = UV.ScaleH(50), weight = 500, italic = true, shadow = true, extended = true })
+		surface.CreateFont("UVFont-Smaller", { font = "Arial", size = UV.ScaleH(46), weight = 500, italic = true, extended = true })
+		surface.CreateFont("UVFont-Bolder", { font = "Arial", size = UV.ScaleH(46), weight = 1000, italic = false, shadow = true, extended = true })
+		surface.CreateFont("UVFont2", { font = "Arial", size = UV.ScaleH(50), weight = 500, extended = true })
+		surface.CreateFont("UVFont2-Smaller", { font = "Arial", size = UV.ScaleH(40), weight = 500, extended = true })
+		surface.CreateFont("UVFont3", { font = "Arial", size = UV.ScaleH(50), weight = 500, shadow = true, extended = true })
+		surface.CreateFont("UVFont3Big", { font = "Arial", size = UV.ScaleH(92), weight = 500, extended = true })
+		surface.CreateFont("UVFont3Bigger", { font = "Arial", size = UV.ScaleH(130), weight = 500, extended = true })
+		surface.CreateFont("UVFont4", { font = "Arial", size = UV.ScaleH(25), weight = 1100, shadow = true, extended = true })
+		surface.CreateFont("UVFont7", { font = "VCR OSD Mono", size = UV.ScaleH(110), weight = 500, shadow = true, })
+		surface.CreateFont("UVFont7Smaller", { font = "VCR OSD Mono", size = UV.ScaleH(64), weight = 500, shadow = true, })
+		surface.CreateFont("UVFont7Tiny", { font = "VCR OSD Mono", size = UV.ScaleH(48), weight = 500, shadow = true, })
+	
+		-- CTU
+		surface.CreateFont("UVFont4BiggerItalic", { font = "Arial", size = UV.ScaleH(27), weight = 1100, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVFont4BiggerItalic2", { font = "Arial", size = UV.ScaleH(32), weight = 1100, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVFont4BiggerItalic3", { font = "Arial", size = UV.ScaleH(70), weight = 1100, shadow = true, extended = true, italic = true })
+	
+		-- Carbon Fonts
+		surface.CreateFont("UVCarbonFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(46), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonFont-Larger", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(64), shadow = true, weight = 1000, extended = true, bold = true })
+		surface.CreateFont("UVCarbonFont-Smaller", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(38), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonMonoFont", { font = "Carbon Mono", size = UV.ScaleH(46), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonMonoFont-Smaller", { font = "Carbon Mono", size = UV.ScaleH(38), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonMonoFont7", { font = "Carbon Mono ", size = UV.ScaleH(100), shadow = true, weight = 0, extended = true })
+		surface.CreateFont("UVCarbonMonoFont7Smaller", { font = "Carbon Mono ", size = UV.ScaleH(64), shadow = true, weight = 0, extended = true })
+	
+		-- Undercover Fonts
+		surface.CreateFont("UVUndercoverAccentFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(36), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVUndercoverLeaderboardFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(32), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVUndercoverWhiteFont", { font = "Aquarius Six", size = UV.ScaleH(51), shadow = true, weight = 1, extended = true })
+		surface.CreateFont("UVCarbonLeaderboardFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(25), shadow = true, weight = 1000, extended = true })
+	
+		-- Most Wanted Fonts
+		surface.CreateFont("UVFont5", { font = "EurostileBold", size = UV.ScaleH(46), weight = 500, extended = true })
+		surface.CreateFont("UVFont5UI", { font = "EurostileBold", size = UV.ScaleH(38), weight = 500, extended = true })
+		surface.CreateFont("UVFont5UI-BottomBar", { font = "EurostileBold", size = UV.ScaleH(44), weight = 500, extended = true })
+		surface.CreateFont("UVFont5WeightShadow", { font = "EurostileBold", size = UV.ScaleH(46), weight = 500, shadow = true, extended = true })
+		surface.CreateFont("UVFont5Shadow", { font = "EurostileBold", size = UV.ScaleH(32), weight = 350, shadow = true, extended = true })
+		surface.CreateFont("UVFont5ShadowLarge", { font = "EurostileBold", size = UV.ScaleH(64), weight = 500, shadow = true, extended = true })
+		surface.CreateFont("UVFont5ShadowBig", { font = "EurostileBold", size = UV.ScaleH(108), weight = 500, shadow = true, extended = true })
+		surface.CreateFont("UVMostWantedLeaderboardFont", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVMostWantedLeaderboardFont2", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVMWFont7", { font = "DS-Digital", size = UV.ScaleH(110), weight = 500, shadow = false, extended = false })
+		surface.CreateFont("UVMWFont7Smaller", { font = "DS-Digital", size = UV.ScaleH(64), weight = 500, shadow = false, extended = false })
+		surface.CreateFont("UVMWFont7Tiny", { font = "DS-Digital", size = UV.ScaleH(48), weight = 500, shadow = false, extended = false })
+	
+		-- World Fonts
+		surface.CreateFont("UVWorldFont1", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(16), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont2", { font = "Reg-B-I", size = UV.ScaleH(43), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont3", { font = "Reg-B-I", size = UV.ScaleH(27), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont4", { font = "Reg-B-I", size = UV.ScaleH(38), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont5", { font = "Reg-B-I", size = UV.ScaleH(162), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont6", { font = "Reg-B-I", size = UV.ScaleH(24), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont7", { font = "Reg-B-I", size = UV.ScaleH(19), shadow = false, weight = 1000, extended = true })
+	
+		-- World Fonts Backup (for specific languages)
+		surface.CreateFont("UVWorldFont1-Alt", { font = "Arial", size = UV.ScaleH(16), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont2-Alt", { font = "Arial", size = UV.ScaleH(40), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont3-Alt", { font = "Arial", size = UV.ScaleH(26), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont4-Alt", { font = "Arial", size = UV.ScaleH(38), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont5-Alt", { font = "Arial", size = UV.ScaleH(151), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont6-Alt", { font = "Arial", size = UV.ScaleH(24), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont7-Alt", { font = "Arial", size = UV.ScaleH(19), shadow = false, weight = 1000, italic = true, extended = true })
+	
+		-- Settings Fonts
+		surface.CreateFont("UVSettingsFont", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVSettingsFont-Italic", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVSettingsFontBig", { font = "EurostileBold", size = UV.ScaleH(35), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVSettingsFontBig-Italic", { font = "EurostileBold", size = UV.ScaleH(35), weight = 1000, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVSettingsFontSmall", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVSettingsFontSmall-Italic", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVSettingsFontSmall-Bold", { font = "EurostileBold", size = UV.ScaleH(22), weight = 1000, shadow = true, extended = true })
+	
+		-- Keybind Fonts
+		surface.CreateFont("UVKeybindFont", { font = "Destiny Keys", size = UV.ScaleH(25), weight = 500, extended = true })
+		surface.CreateFont("UVKeybindFontBig", { font = "Destiny Keys", size = UV.ScaleH(35), weight = 500, extended = true })
+		surface.CreateFont("UVKeybindFontSmall", { font = "Destiny Keys", size = UV.ScaleH(17.5), weight = 500, extended = true })	
+	end )
 
-	-- CTU
-	surface.CreateFont("UVFont4BiggerItalic", { font = "Arial", size = UV.ScaleH(27), weight = 1100, shadow = true, extended = true, italic = true })
-	surface.CreateFont("UVFont4BiggerItalic2", { font = "Arial", size = UV.ScaleH(32), weight = 1100, shadow = true, extended = true, italic = true })
-	surface.CreateFont("UVFont4BiggerItalic3", { font = "Arial", size = UV.ScaleH(70), weight = 1100, shadow = true, extended = true, italic = true })
+	local screenW = ScrW()
+	local screenH = ScrH()
 
-	-- Carbon Fonts
-	surface.CreateFont("UVCarbonFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(46), shadow = true, weight = 1000, extended = true })
-	surface.CreateFont("UVCarbonFont-Smaller", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(38), shadow = true, weight = 1000, extended = true })
-
-	-- Undercover Fonts
-	surface.CreateFont("UVUndercoverAccentFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(36), shadow = true, weight = 1000, extended = true })
-	surface.CreateFont("UVUndercoverLeaderboardFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(32), shadow = true, weight = 1000, extended = true })
-	surface.CreateFont("UVUndercoverWhiteFont", { font = "Aquarius Six", size = UV.ScaleH(51), shadow = true, weight = 1, extended = true })
-	surface.CreateFont("UVCarbonLeaderboardFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(25), shadow = true, weight = 1000, extended = true })
-
-	-- Most Wanted Fonts
-	surface.CreateFont("UVFont5", { font = "EurostileBold", size = UV.ScaleH(46), weight = 500, extended = true })
-	surface.CreateFont("UVFont5UI", { font = "EurostileBold", size = UV.ScaleH(38), weight = 500, extended = true })
-	surface.CreateFont("UVFont5UI-BottomBar", { font = "EurostileBold", size = UV.ScaleH(44), weight = 500, extended = true })
-	surface.CreateFont("UVFont5WeightShadow", { font = "EurostileBold", size = UV.ScaleH(46), weight = 500, shadow = true, extended = true })
-	surface.CreateFont("UVFont5Shadow", { font = "EurostileBold", size = UV.ScaleH(32), weight = 350, shadow = true, extended = true })
-	surface.CreateFont("UVFont5ShadowBig", { font = "EurostileBold", size = UV.ScaleH(108), weight = 500, shadow = true, extended = true })
-	surface.CreateFont("UVMostWantedLeaderboardFont", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true })
-	surface.CreateFont("UVMostWantedLeaderboardFont2", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true })
-
-	-- World Fonts
-	surface.CreateFont("UVWorldFont1", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(16), shadow = false, weight = 1000, extended = true })
-	surface.CreateFont("UVWorldFont2", { font = "Reg-B-I", size = UV.ScaleH(43), shadow = false, weight = 1000, extended = true })
-	surface.CreateFont("UVWorldFont3", { font = "Reg-B-I", size = UV.ScaleH(27), shadow = false, weight = 1000, extended = true })
-	surface.CreateFont("UVWorldFont4", { font = "Reg-B-I", size = UV.ScaleH(38), shadow = false, weight = 1000, extended = true })
-	surface.CreateFont("UVWorldFont5", { font = "Reg-B-I", size = UV.ScaleH(162), shadow = false, weight = 1000, extended = true })
-	surface.CreateFont("UVWorldFont6", { font = "Reg-B-I", size = UV.ScaleH(24), shadow = false, weight = 1000, extended = true })
-	surface.CreateFont("UVWorldFont7", { font = "Reg-B-I", size = UV.ScaleH(19), shadow = false, weight = 1000, extended = true })
-
-	-- World Fonts Backup (for specific languages)
-	surface.CreateFont("UVWorldFont1-Alt", { font = "Arial", size = UV.ScaleH(16), shadow = false, weight = 1000, italic = true, extended = true })
-	surface.CreateFont("UVWorldFont2-Alt", { font = "Arial", size = UV.ScaleH(40), shadow = false, weight = 1000, italic = true, extended = true })
-	surface.CreateFont("UVWorldFont3-Alt", { font = "Arial", size = UV.ScaleH(26), shadow = false, weight = 1000, italic = true, extended = true })
-	surface.CreateFont("UVWorldFont4-Alt", { font = "Arial", size = UV.ScaleH(38), shadow = false, weight = 1000, italic = true, extended = true })
-	surface.CreateFont("UVWorldFont5-Alt", { font = "Arial", size = UV.ScaleH(151), shadow = false, weight = 1000, italic = true, extended = true })
-	surface.CreateFont("UVWorldFont6-Alt", { font = "Arial", size = UV.ScaleH(24), shadow = false, weight = 1000, italic = true, extended = true })
-	surface.CreateFont("UVWorldFont7-Alt", { font = "Arial", size = UV.ScaleH(19), shadow = false, weight = 1000, italic = true, extended = true })
-
-	-- Settings Fonts
-	surface.CreateFont("UVSettingsFont", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true })
-	surface.CreateFont("UVSettingsFont-Italic", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true, italic = true })
-	surface.CreateFont("UVSettingsFontBig", { font = "EurostileBold", size = UV.ScaleH(35), weight = 1000, shadow = true, extended = true })
-	surface.CreateFont("UVSettingsFontBig-Italic", { font = "EurostileBold", size = UV.ScaleH(35), weight = 1000, shadow = true, extended = true, italic = true })
-	surface.CreateFont("UVSettingsFontSmall", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true })
-	surface.CreateFont("UVSettingsFontSmall-Italic", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true, italic = true })
-	surface.CreateFont("UVSettingsFontSmall-Bold", { font = "EurostileBold", size = UV.ScaleH(22), weight = 1000, shadow = true, extended = true })
-
-	-- Keybind Fonts
-	surface.CreateFont("UVKeybindFont", { font = "Destiny Keys", size = UV.ScaleH(25), weight = 500, extended = true })
-	surface.CreateFont("UVKeybindFontBig", { font = "Destiny Keys", size = UV.ScaleH(35), weight = 500, extended = true })
-	surface.CreateFont("UVKeybindFontSmall", { font = "Destiny Keys", size = UV.ScaleH(17.5), weight = 500, extended = true })
+    hook.Add( "Initialize", "UV.UpdateResolution", function()
+		hook.Run( "UV-OnResolutionChange", ScrW(), ScrH() )
+	end ) timer.Create( "UV.CheckResolutionTimer", 2, 0, function()
+		if ScrW() ~= screenW or ScrH() ~= screenH then
+			screenW = ScrW()
+			screenH = ScrH()
+			hook.Run( "UV-OnResolutionChange", screenW, screenH )
+		end
+	end )
 
     local isUVFrozen = false
     local effectDuration = 0
@@ -541,11 +681,12 @@ if CLIENT then
 		["SPACE"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["DEL"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["BACKSPACE"] = "<color=51,51,51><color=255,255,255></color></color>",
-		["TAB"] = "<color=51,51,51><color=255,255,255></color></color>",
+		["TAB"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["ENTER"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["SHIFT"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["RSHIFT"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["CTRL"] = "<color=51,51,51><color=255,255,255></color></color>",
+		["RCTRL"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["ALT"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["RALT"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["UPARROW"] = "<color=51,51,51><color=255,255,255></color></color>",
@@ -572,6 +713,10 @@ if CLIENT then
 		["/"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["SEMICOLON"] = "<color=51,51,51><color=255,255,255></color></color>",
 		["="] = "<color=51,51,51><color=255,255,255></color></color>",
+		["\\"] = "<color=51,51,51><color=255,255,255></color></color>",
+		["."] = "<color=51,51,51><color=255,255,255></color></color>",
+		-- ["."] = "<color=51,51,51><color=255,255,255></color></color>",
+		["CAPSLOCK"] = "<color=51,51,51><color=255,255,255></color></color>",
 	}
 
 	-- Unified Xbox controller glyphs
@@ -837,6 +982,11 @@ if CLIENT then
 			return "<color=255,255,0>" .. UVString(locstring) .. "</color>"
 		end)
 
+		-- [ncstring:phrase] -- Without colour
+		str = str:gsub("%[ncstring:([^%]]+)%]", function(locstring)
+			return UVString(locstring)
+		end)
+
 		-- [glyph:phrase]
 		str = str:gsub("%[glyph:([^%]]+)%]", function(glyph)
 			return UVKeybindIcon(glyph, glyphsize)
@@ -854,6 +1004,195 @@ if CLIENT then
 	str = str:gsub("\n#%s*(.-)\n", "\n<font=UVSettingsFontBig>%1</font>\n")
 	return str
 end
+
+	UVHUDTimedBars = UVHUDTimedBars or {}
+	UVHUDActiveBar = UVHUDActiveBar or nil
+	
+	function UVHUD_AddTimedBar(id, duration, labelToken, priority, label2, args, reversedTexts)
+		local now = CurTime()
+
+		UVHUDTimedBars[id] = {
+			id = id,
+			label = labelToken,
+			label2 = label2,
+			priority = priority or 0,
+
+			startTime = now,
+			endTime = now + duration,
+
+			closeTime = nil,
+			hidden = false,
+			args = args,
+			reversedTexts = reversedTexts or false
+		}
+	end
+	
+	function UVHUD_CloseTimedBar(id)
+		local bar = UVHUDTimedBars[id]
+		if not bar then return end
+
+		if not bar.closeTime then
+			bar.closeTime = CurTime()
+		end
+	end
+	
+	function UVHUD_GetTopBar()
+		local best = nil
+
+		for _, bar in pairs(UVHUDTimedBars) do
+
+			if not bar.closeTime then
+				if not best or bar.priority > best.priority then
+					best = bar
+				end
+			end
+		end
+
+		return best
+	end
+
+	function UVHUD_TimedBar(bar)
+		local w, h = ScrW(), ScrH()
+		
+		local now = CurTime()
+		local realTime = RealTime()
+		
+		local startTime = bar.startTime
+		local endTime = bar.endTime
+		local labelToken = bar.label
+		local label2Token = bar.label2
+		local closingTime = bar.closeTime
+		local reverseTexts = bar.reversedTexts
+		
+		local animTime = now - startTime
+
+		-- Phase durations
+		local delay = 0.1
+		local expandDuration = 0.25
+		local whiteFadeInDuration = 0.025
+		local blackFadeOutDuration = 1
+
+		local expandStart = delay
+		local whiteStart = expandStart + expandDuration
+		local blackStart = whiteStart + whiteFadeInDuration
+		local endAnim = blackStart + blackFadeOutDuration
+
+		-- Compute bar width
+		local currentWidth
+
+		if closingTime then
+			local retractDuration = 0.25
+			local p = math.Clamp((now - closingTime) / retractDuration, 0, 1)
+
+			currentWidth = Lerp(p, w, 0)
+		else
+			local barProgress = 0
+			if animTime >= expandStart then
+				barProgress = math.Clamp((animTime - expandStart) / expandDuration, 0, 1)
+			end
+
+			currentWidth = Lerp(barProgress, 0, w)
+		end
+
+		local barHeight = h * (label2Token == "" and 0.05 or 0.075)
+		local barX = (w - currentWidth) / 2
+		local barY = h - barHeight
+
+		-- Compute bar color
+		local colorVal = 0
+		if animTime >= whiteStart and animTime < blackStart then
+			-- black → white
+			local p = (animTime - whiteStart) / whiteFadeInDuration
+			colorVal = Lerp(math.Clamp(p, 0, 1), 0, 255)
+		elseif animTime >= blackStart then
+			-- white → black
+			local p = (animTime - blackStart) / blackFadeOutDuration
+			colorVal = Lerp(math.Clamp(p, 0, 1), 255, 0)
+		end
+		
+		if not closingTime and now >= endTime then
+			UVHUD_CloseTimedBar(bar.id)
+		end
+
+		-- Only draw when HUD is enabled
+		if GetConVar("cl_drawhud"):GetBool() then
+			-- Draw bar
+			surface.SetMaterial(UVMaterials["RESPAWN_BG"])
+			surface.SetDrawColor(Color(colorVal, colorVal, colorVal, 255))
+			surface.DrawTexturedRect(barX, barY, currentWidth, barHeight)
+
+			-- Display text only after bar is white or fading
+			if animTime >= whiteStart then
+				-- local timeLeft = math.max(0, math.floor(endTime - now + 0.999))
+				
+				local timeLeft = math.max(0, endTime - now)  -- numeric
+				local timeLeftStr
+
+				-- Choose decimal precision
+				if timeLeft > 10 then
+					timeLeftStr = string.format("%.0f", timeLeft)  -- 0 decimals
+				else
+					timeLeftStr = string.format("%.1f", timeLeft)  -- 1 decimal
+				end
+
+				-- Blink red depending on time left
+				local blink = 255 * math.abs(math.sin(realTime * 4))
+				local blink2 = 255 * math.abs(math.sin(realTime * 6))
+				local blink3 = 255 * math.abs(math.sin(realTime * 8))
+				local redblink = 255
+
+				if not noblink then
+					if timeLeft >= 10 then
+						redblink = redblink
+					elseif timeLeft >= 5 then
+						redblink = blink
+					elseif timeLeft >= 3 then
+						redblink = blink2
+					else
+						redblink = blink3
+					end
+				end
+
+				-- Draw Text
+				local text1, text2 = UVString(labelToken), timeLeftStr
+				local textAlpha = 255
+		
+				local formatStr = UVString(labelToken)
+
+				if bar.args then
+					text1 = string.format(formatStr, unpack(bar.args), timeLeftStr)
+				else
+					text1 = string.format(formatStr, timeLeftStr)
+				end
+
+				if closingTime then
+					local fadeDur = 0.1
+					local t = math.Clamp((now - closingTime) / fadeDur, 0, 1)
+					textAlpha = 1 - t
+				end
+
+				if label2Token then
+					local ytextpos = h * 0.925
+
+					if label2Token == "" then
+						ytextpos = h * 0.955
+					end
+
+					text2 = UVString(label2Token)
+				end
+
+				surface.SetAlphaMultiplier(textAlpha)
+				if reverseTexts then
+					markup.Parse( "<font=UVSettingsFontBig>" .. text2 .. "</font>", w ):Draw(w * 0.5, h * 0.925, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+					markup.Parse( "<font=UVSettingsFontBig>" .. text1 .. "</font>", w ):Draw(w * 0.5, h * 0.96, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				else
+					markup.Parse( "<font=UVSettingsFontBig>" .. text1 .. "</font>", w ):Draw(w * 0.5, h * 0.925, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+					markup.Parse( "<font=UVSettingsFontBig>" .. text2 .. "</font>", w ):Draw(w * 0.5, h * 0.96, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				end
+				surface.SetAlphaMultiplier(1)
+			end
+		end
+	end
 
 end
 
@@ -1434,6 +1773,18 @@ for _, f in ipairs(files) do
     AddCSLuaFile(path .. f)
     if CLIENT then
         include(path .. f)
+    end
+end
+
+local path2 = "unitvehicles/uvspeedometers/"
+local files2 = file.Find(path2 .. "*.lua", "LUA")
+
+table.sort(files2)
+
+for _, f in ipairs(files2) do
+    AddCSLuaFile(path2 .. f)
+    if CLIENT then
+        include(path2 .. f)
     end
 end
 

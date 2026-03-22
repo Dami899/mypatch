@@ -16,12 +16,12 @@ local SpikeStripDuration = GetConVar("unitvehicle_spikestripduration")
 local Pathfinding = GetConVar("unitvehicle_pathfinding")
 local VCModELSPriority = GetConVar("unitvehicle_vcmodelspriority")
 local CallResponse = GetConVar("unitvehicle_callresponse")
-local ChatterText = GetConVar("unitvehicle_chattertext")
 local Headlights = GetConVar("unitvehicle_enableheadlights")
 local SpawnMainUnits = GetConVar("unitvehicle_spawnmainunits")
 local RepairCooldown = GetConVar("unitvehicle_repaircooldown")
 local RepairRange = GetConVar("unitvehicle_repairrange")
 local RacerTags = GetConVar("unitvehicle_racertags")
+local RacerPursuitTech = GetConVar("unitvehicle_racerpursuittech")
 
 --unit convars
 local UVUHelicopterBusting = GetConVar("unitvehicle_unit_helicopterbusting")
@@ -39,6 +39,9 @@ NETWORK_STRINGS = {
 
 	"UVWeaponJuggernautEnable",
 	"UVWeaponJuggernautDisable",
+
+	"UVWeaponGrapplerEnable",
+	"UVWeaponGrapplerDisable",
 	
 	"UVWeaponJammerEnable",
 	"UVWeaponJammerDisable",
@@ -50,6 +53,12 @@ NETWORK_STRINGS = {
 	"UVHUDRefilledPT",
 	"UVHUDRepairCommander",
 	"uvrepairsimfphys",
+	"UVRepairShopAdjust",
+	"UVRepairShopRetrieve",
+	"UVRepairShopCreate",
+	"UVRepairShopRefresh",
+	"UVRepairShopLoad",
+	"UVRepairShopLoadAll",
 	
 	-- Pursuit Table
 	"UVGet_PursuitTable",
@@ -58,7 +67,6 @@ NETWORK_STRINGS = {
 	-- Chatter / Sounds
 	"UV_Chatter",
 	"UV_Sound",
-	"UV_Text",
 	
 	-- Settings
 	"UVGetSettings_Local",
@@ -142,6 +150,9 @@ NETWORK_STRINGS = {
 	-- Heat level
 	"UVHUDHeatLevelIncrease",
 	"UVHUDTimeTillNextHeat",
+
+	-- Infractions
+	"UVInfractions",
 	
 	-- Pursuit breakers
 	"UVHUDPursuitBreakers",
@@ -196,7 +207,16 @@ NETWORK_STRINGS = {
 	"UVRace_TrackReady",
 	"UVRace_RacersList",
 	"UVRace_HideRacersList",
+	"UVRace_ToolMode",
 	
+	"UVRace_NodeAdd",
+	"UVRace_NodeRemove",
+	"UVRace_NodeLinks",
+	"UVRace_NodeSelect",
+	"UVRace_NodeSettings",
+	"UVRace_UpdateNodeSettings",
+	"UVRace_ClearAllNodes",
+
 	-- Race
 	"uvrace_begin",
 	"uvrace_start",
@@ -205,8 +225,6 @@ NETWORK_STRINGS = {
 	"uvrace_notification",
 	"uvrace_decline",
 	"uvrace_sendmessage",
-	"uvrace_resetcountdown",
-	"uvrace_resetfailed",
 	"uvrace_replace",
 	"uvrace_disqualify",
 	"uvrace_checkpointcomplete",
@@ -223,12 +241,20 @@ NETWORK_STRINGS = {
 	"UVSpottedFreeze",
 	"UVSpottedUnfreeze",
 
+	-- Resetting
+	"uvresetcountdown",
+	"uvresetfailed",
+	"uvresetpenalty",
+
 	-- Headlights
 	"UVToggleHeadlights",
 	
 	-- Glide Nodes
 	"RequestGlideVehicles",
 	"GlideVehiclesTable",
+	
+	-- DV Warning
+	"UV_OpenDVWarning",
 }
 
 for _, v in pairs( NETWORK_STRINGS ) do
@@ -347,7 +373,6 @@ concommand.Add("uv_resetallsettings", function(ply)
 	Pathfinding:Revert()
 	VCModELSPriority:Revert()
 	CallResponse:Revert()
-	ChatterText:Revert()
 	Headlights:Revert()
 	SpawnMainUnits:Revert()
 	RepairCooldown:Revert()
@@ -376,6 +401,15 @@ function UV_StartPursuit(ply, skipCountdown)
 
 		-- Random police unit announcement
 		UVChatterPursuitStartAcknowledge(Entity(1))
+
+		timer.Simple(5, function()
+			if not UVTargeting then return end
+			local _, v = next( UVWantedTableVehicle )
+			if v then
+				UVChatterDispatchCallVehicleDescription( Entity(1), v )
+				UVSoundChatter(Entity(1), nil, "heat" .. UVHeatLevel, nil, "DISPATCH")
+			end
+		end)	
 		return
 	end
 
@@ -418,6 +452,15 @@ function UV_StartPursuit(ply, skipCountdown)
 
 			-- Random police unit announcement
 			UVChatterPursuitStartAcknowledge(Entity(1))
+
+			timer.Simple(5, function()
+				if not UVTargeting then return end
+				local _, v = next( UVWantedTableVehicle )
+				if v then
+					UVChatterDispatchCallVehicleDescription( Entity(1), v )
+					UVSoundChatter(Entity(1), nil, "heat" .. UVHeatLevel, nil, "DISPATCH")
+				end
+			end)	
 		end
 	end)
 end
@@ -608,7 +651,7 @@ function HandleVehicleSpawning(Patrolling)
 
 	if not SpawnMainUnits:GetBool() then return end
 
-	local canSpawnRoadblock = next(ents.FindByClass("npc_uv*")) ~= nil and uvRoadblockDeployable and #UVLoadedRoadblocks < UVRBMax:GetInt() 
+	local canSpawnRoadblock = next(ents.FindByClass("npc_uv*")) ~= nil and uvRoadblockDeployable and table.Count(UVLoadedRoadblocks) < UVRBMax:GetInt() 
 	local canSpawnHelicopter = #ents.FindByClass("uvair") < 1 and uvHelicopterDeployable and CurTime() - UVHeliCooldown > 120
 
 	local pool = {
@@ -963,6 +1006,10 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 
 			local object = coldata.HitEntity
 
+			if car.grappleron and object.UVWanted then --Grappler
+				UVGrapple(car, object)
+			end
+
 			if car.juggernauton and not object:IsWorld() then --Juggernaut
 				local ourOldVel = coldata.OurOldVelocity
 				local ourOldAngVel = coldata.OurOldAngularVelocity
@@ -1021,11 +1068,10 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 				local enemyDriver = UVGetDriver(enemyVehicle)
 				local power
 				local damage
-				local pursuit_tech = car.PursuitTech[slot]
 				if car.UnitVehicle then
 					power = UVUnitPTESFPower:GetInt()
 					damage = UVUnitPTESFDamage:GetFloat()
-					if pursuit_tech and pursuit_tech.Upgraded then
+					if UVIsPTUpgraded(car) then
 						power = power * 2
 						damage = damage * 2
 					end
@@ -1051,16 +1097,7 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 
 				if object.UnitVehicle or (object.UVWanted and not AutoHealth:GetBool()) or not (object.UnitVehicle and object.UVWanted) then
 					damage = (table.HasValue(UVCommanders, object) and UVPTESFCommanderDamage:GetFloat()) or damage
-					if object.IsSimfphyscar then
-						local MaxHealth = object:GetMaxHealth()
-						local damage = MaxHealth * damage--0.4
-						object:ApplyDamage( damage, DMG_GENERIC )
-					elseif object.IsGlideVehicle then
-						object:SetEngineHealth( object:GetEngineHealth() - damage )--0.4
-						object:UpdateHealthOutputs()
-					elseif object:GetClass() == "prop_vehicle_jeep" then
-						
-					end
+					UVDamage(object, damage)
 				end
 
 				-- if IsValid(UVGetDriver(enemyVehicle))
@@ -1167,16 +1204,7 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 					if (not UVTargeting and UVPassConVarFilter(object) or UVTargeting and object.UVWanted) then
 						UVRamVehicle(car)
 					end
-					if object.UVWanted and not car.tagged then
-						car.tagged = true
-						UVTags = UVTags + 1
-						if car.rhino and not car.rhinohit then
-							car.rhinohit = true
-							if Chatter:GetBool() and UVTargeting and not NPC:IsPlayer() and not car.roadblocking and not car.disperse then
-								UVSoundChatter(NPC, NPC.voice, "rhinohit", 1)
-							end
-						end
-					end
+
 					local ourOldVel = coldata.OurOldVelocity:Length()
 					local ourNewVel = coldata.OurNewVelocity:Length()
 					local resultVel = ourOldVel
@@ -1188,6 +1216,22 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 					local dot = coldata.OurOldVelocity:GetNormalized():Dot(coldata.HitNormal)
 					dot = math.abs(dot) / 2
 					local dmg = resultVel * dot
+
+					if not car.taggedinfraction and coldata.TheirOldVelocity:Length() > ourOldVel and UVAddInfraction(object, 'rampolice', true) then
+						car.taggedinfraction = true
+					end
+
+					if object.UVWanted and not car.tagged then
+						car.tagged = true
+						UVTags = UVTags + 1
+						if car.rhino and not car.rhinohit then
+							car.rhinohit = true
+							if Chatter:GetBool() and UVTargeting and not NPC:IsPlayer() and not car.roadblocking and not car.disperse then
+								UVSoundChatter(NPC, NPC.voice, "rhinohit", 1)
+							end
+						end
+					end
+
 					if dmg >= 100 and object.UVWanted then
 						if Chatter:GetBool() then
 							if coldata.TheirOldVelocity:Length() > ourOldVel then
@@ -1237,29 +1281,15 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 					end
 				end
 			end
-			if not object.UnitVehicle then --CALL HANDLER
-				if not object:IsWorld() then
-					local ctimeout = 1
-					if object:IsVehicle() then --Hit And Run
-						if CurTime() > UVPreInfractionCountCooldown + ctimeout then
-							UVPreInfractionCount = UVPreInfractionCount + 2
-							UVPreInfractionCountCooldown = CurTime()
-							if UVPreInfractionCount >= 10 then
-								if UVPassConVarFilter(car) and isfunction(UVCallInitiate) then
-									UVCallInitiate(car, 3)
-								end
-							end
-						end
-					else --Damage to Property
-						if CurTime() > UVPreInfractionCountCooldown + ctimeout then
-							UVPreInfractionCount = object.PursuitBreaker and UVPreInfractionCount + 10 or UVPreInfractionCount + 1
-							UVPreInfractionCountCooldown = CurTime()
-							if UVPreInfractionCount >= 10 then
-								if UVPassConVarFilter(car) and isfunction(UVCallInitiate) then
-									UVCallInitiate(car, 2)
-								end
-							end
-						end
+			if not object.UnitVehicle and not object:IsWorld() then --CALL HANDLER
+				if object:IsVehicle() then --Hit And Run
+					if not object.taggedinfraction and UVAddInfraction(car, 'ram') then
+						object.taggedinfraction = true
+					end
+				elseif not object:IsPlayer() and not object:IsNPC() then --Damage to Property
+					if object.PursuitBreaker then UVCallInitiate(car, 'property') end
+					if not object.taggedinfraction and UVAddInfraction(car, 'property') then
+						object.taggedinfraction = true
 					end
 				end
 			end
@@ -1288,6 +1318,10 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 			end
 			return
 		end	
+	end
+
+	if car.grappleron and object.UVWanted then --Grappler
+		UVGrapple(car, object)
 	end
 
 	if car.juggernauton and not object:IsWorld() then --Juggernaut
@@ -1345,11 +1379,10 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 		local power
 		local damage
 
-		local pursuit_tech = car.PursuitTech[slot]
 		if car.UnitVehicle then
 			power = UVUnitPTESFPower:GetInt()
 			damage = UVUnitPTESFDamage:GetFloat()
-			if pursuit_tech and pursuit_tech.Upgraded then
+			if UVIsPTUpgraded(car) then
 				power = power * 2
 				damage = damage * 2
 			end
@@ -1375,16 +1408,7 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 
 		if object.UnitVehicle or (object.UVWanted and not AutoHealth:GetBool()) or not (object.UnitVehicle and object.UVWanted) then
 			damage = (table.HasValue(UVCommanders, object) and UVPTESFCommanderDamage:GetFloat()) or damage
-			if object.IsSimfphyscar then
-				local MaxHealth = object:GetMaxHealth()
-				local damage = MaxHealth*damage
-				object:ApplyDamage( damage, DMG_GENERIC )
-			elseif object.IsGlideVehicle then
-				object:SetEngineHealth( object:GetEngineHealth() - damage )
-				object:UpdateHealthOutputs()
-			elseif object:GetClass() == "prop_vehicle_jeep" then
-				
-			end
+			UVDamage(object, damage)
 		end
 
 		-- if isfunction(enemyVehicle.GetDriver) and IsValid(UVGetDriver(enemyVehicle)) and UVGetDriver(enemyVehicle):IsPlayer() then 
@@ -1487,16 +1511,7 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 			if (not UVTargeting and UVPassConVarFilter(object) or UVTargeting and object.UVWanted) then
 				UVRamVehicle(car)
 			end
-			if object.UVWanted and not car.tagged then
-				car.tagged = true
-				UVTags = UVTags + 1
-				if car.rhino and not car.rhinohit then
-					car.rhinohit = true
-					if Chatter:GetBool() and UVTargeting and not NPC:IsPlayer() and not car.roadblocking and not car.disperse then
-						UVSoundChatter(NPC, NPC.voice, "rhinohit", 1)
-					end
-				end
-			end
+
 			local ourOldVel = coldata.OurOldVelocity:Length()
 			local ourNewVel = coldata.OurNewVelocity:Length()
 			local resultVel = ourOldVel
@@ -1509,6 +1524,22 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 			local dot = coldata.OurOldVelocity:GetNormalized():Dot(coldata.HitNormal)
 			dot = math.abs(dot) / 2
 			local dmg = resultVel * dot
+
+			if not car.taggedinfraction and coldata.TheirOldVelocity:Length() > ourOldVel and UVAddInfraction(object, 'rampolice', true) then
+				car.taggedinfraction = true
+			end
+
+			if object.UVWanted and not car.tagged then
+				car.tagged = true
+				UVTags = UVTags + 1
+				if car.rhino and not car.rhinohit then
+					car.rhinohit = true
+					if Chatter:GetBool() and UVTargeting and not NPC:IsPlayer() and not car.roadblocking and not car.disperse then
+						UVSoundChatter(NPC, NPC.voice, "rhinohit", 1)
+					end
+				end
+			end
+
 			if dmg >= 100 and object.UVWanted then
 				if Chatter:GetBool() then
 					if coldata.TheirOldVelocity:Length() > ourOldVel then
@@ -1558,40 +1589,17 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 		end
 	end
 
-	if not object.UnitVehicle then --CALL HANDLER
-		if not object:IsWorld() then
-			local ctimeout = 1
-			if object:IsVehicle() then --Hit And Run
-				if CurTime() > UVPreInfractionCountCooldown + ctimeout then
-					UVPreInfractionCount = UVPreInfractionCount + 2
-					UVPreInfractionCountCooldown = CurTime()
-					if UVPreInfractionCount >= 10 then
-						if UVPassConVarFilter(car) and isfunction(UVCallInitiate) then
-							UVCallInitiate(car, 3)
-						end
-					end
-				end
-			else --Damage to Property
-				if CurTime() > UVPreInfractionCountCooldown + ctimeout then
-					UVPreInfractionCount = object.PursuitBreaker and UVPreInfractionCount + 10 or UVPreInfractionCount + 1
-					UVPreInfractionCountCooldown = CurTime()
-					if UVPreInfractionCount >= 10 then
-						if UVPassConVarFilter(car) and isfunction(UVCallInitiate) then
-							UVCallInitiate(car, 2)
-						end
-					end
-				end
+	if not object.UnitVehicle and not object:IsWorld() then --CALL HANDLER
+		if object:IsVehicle() then --Hit And Run
+			if not object.taggedinfraction and UVAddInfraction(car, 'ram') then
+				object.taggedinfraction = true
+			end
+		elseif not object:IsPlayer() and not object:IsNPC() then --Damage to Property
+			if object.PursuitBreaker then UVCallInitiate(car, 'property') end
+			if not object.taggedinfraction and UVAddInfraction(car, 'property') then
+				object.taggedinfraction = true
 			end
 		end
-	end
-end)
-
-hook.Add( "simfphysOnDestroyed", "UVExplosionSimfphys", function(car, gib) 
-	if not car.UnitVehicle or car.wrecked then return end
-	if car.UnitVehicle:IsNPC() then
-		car.UnitVehicle:Wreck()
-	else
-		UVPlayerWreck(car)
 	end
 end)
 
@@ -1661,6 +1669,10 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			end
 		end
 
+		if car.grappleron and object.UVWanted then --Grappler
+			UVGrapple(car, object)
+		end
+
 		if car.juggernauton and not object:IsWorld() then --Juggernaut
 			local ourOldAngVel = coldata.OurOldAngularVelocity
 			local objectPhys = object:GetPhysicsObject()
@@ -1714,11 +1726,10 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			local enemyDriver = UVGetDriver(enemyVehicle)
 			local power
 			local damage
-			local pursuit_tech = car.PursuitTech[slot]
 			if car.UnitVehicle then
 				power = UVUnitPTESFPower:GetInt()
 				damage = UVUnitPTESFDamage:GetFloat()
-				if pursuit_tech and pursuit_tech.Upgraded then
+				if UVIsPTUpgraded(car) then
 					power = power * 2
 					damage = damage * 2
 				end
@@ -1740,16 +1751,7 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			end
 			if object.UnitVehicle or (object.UVWanted and not AutoHealth:GetBool()) or not (object.UnitVehicle and object.UVWanted) then
 				damage = (table.HasValue(UVCommanders, object) and UVPTESFCommanderDamage:GetFloat()) or damage
-				if object.IsSimfphyscar then
-					local MaxHealth = object:GetMaxHealth()
-					local damage = MaxHealth*damage
-					object:ApplyDamage( damage, DMG_GENERIC )
-				elseif object.IsGlideVehicle then
-					object:SetEngineHealth( object:GetEngineHealth() - damage )
-					object:UpdateHealthOutputs()
-				elseif object:GetClass() == "prop_vehicle_jeep" then
-					
-				end
+				UVDamage(object, damage)
 			end
 
 			-- local attacker = UVGetDriver(car)
@@ -1832,6 +1834,11 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 				if (not UVTargeting and UVPassConVarFilter(object) or UVTargeting and object.UVWanted) then
 					UVRamVehicle(car)
 				end
+
+				if not car.taggedinfraction and coldata.TheirOldVelocity:Length() > ourOldVel and UVAddInfraction(object, 'rampolice', true) then
+					car.taggedinfraction = true
+				end
+				
 				if object.UVWanted and not car.tagged then
 					car.tagged = true
 					UVTags = UVTags + 1
@@ -1842,6 +1849,7 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 						end
 					end
 				end
+
 				if dmg >= 100 and object.UVWanted then
 					if Chatter:GetBool() then
 						if coldata.TheirOldVelocity:Length() > ourOldVel then
@@ -1888,30 +1896,96 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			end
 		end
 		if not object.UnitVehicle and not object:IsWorld() then --CALL HANDLER
-			local ctimeout = 1
 			if object:IsVehicle() then --Hit And Run
-				if CurTime() > UVPreInfractionCountCooldown + ctimeout then
-					UVPreInfractionCount = UVPreInfractionCount + 2
-					UVPreInfractionCountCooldown = CurTime()
-					if UVPreInfractionCount >= 10 then
-						if UVPassConVarFilter(car) and isfunction(UVCallInitiate) then
-							UVCallInitiate(car, 3)
-						end
-					end
+				if not object.taggedinfraction and UVAddInfraction(car, 'ram') then
+					object.taggedinfraction = true
 				end
-			else --Damage to Property
-				if CurTime() > UVPreInfractionCountCooldown + ctimeout then
-					UVPreInfractionCount = object.PursuitBreaker and UVPreInfractionCount + 10 or UVPreInfractionCount + 1
-					UVPreInfractionCountCooldown = CurTime()
-					if UVPreInfractionCount >= 10 then
-						if UVPassConVarFilter(car) and isfunction(UVCallInitiate) then
-							UVCallInitiate(car, 2)
-						end
-					end
+			elseif not object:IsPlayer() and not object:IsNPC() then --Damage to Property
+				if object.PursuitBreaker then UVCallInitiate(car, 'property') end
+				if not object.taggedinfraction and UVAddInfraction(car, 'property') then
+					object.taggedinfraction = true
 				end
 			end
 		end
 	end)
+end)
+
+--Vehicle Explosion
+hook.Add( "EntityRemoved", "UVExplosionGlide", function( vehicle, fullUpdate )
+	if ( fullUpdate ) then return end
+
+	if vehicle.IsGlideVehicle and vehicle:GetChassisHealth() < 1 then
+		if vehicle.UnitVehicle and not vehicle.wrecked then
+			if vehicle.UnitVehicle:IsNPC() then
+				vehicle.UnitVehicle:Wreck()
+			else
+				UVPlayerWreck(vehicle)
+			end
+		end
+
+		local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
+
+		if occupied then
+			if #UVWantedTableVehicle > 0 then
+				for _, v in pairs(UVWantedTableVehicle) do
+					UVAddInfraction(v, 'homicide')
+				end
+			end
+		end
+	end
+end )
+
+hook.Add( "simfphysOnDestroyed", "UVExplosionSimfphys", function(vehicle, gib) 
+	if vehicle.UnitVehicle and not vehicle.wrecked then
+		if vehicle.UnitVehicle:IsNPC() then
+			vehicle.UnitVehicle:Wreck()
+		else
+			UVPlayerWreck(vehicle)
+		end
+	end
+
+	local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
+
+	if occupied then
+		if #UVWantedTableVehicle > 0 then
+			for _, v in pairs(UVWantedTableVehicle) do
+				UVAddInfraction(v, 'homicide')
+			end
+		end
+	end
+end)
+
+hook.Add("VC_engineExploded", "UVExplosionVCMod", function(vehicle, silent)
+	if vehicle.UnitVehicle and not vehicle.wrecked then
+		if vehicle.UnitVehicle:IsNPC() then
+			vehicle.UnitVehicle:Wreck()
+		else
+			UVPlayerWreck(vehicle)
+		end
+	end
+
+	local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
+
+	if occupied then
+		if #UVWantedTableVehicle > 0 then
+			for _, v in pairs(UVWantedTableVehicle) do
+				UVAddInfraction(v, 'homicide')
+			end
+		end
+	end
+end)
+
+--Run Over
+hook.Add("PlayerDeath", "UVRunOverDeathPlayer", function(victim, inflictor, attacker)
+    if IsValid(inflictor) and inflictor:IsVehicle() then
+        UVAddInfraction(inflictor, 'homicide')
+    end
+end)
+
+hook.Add("OnNPCKilled", "UVRunOverDeathPlayerNPC", function( npc, attacker, inflictor )
+	if IsValid(inflictor) and inflictor:IsVehicle() then
+        UVAddInfraction(inflictor, 'homicide')
+    end
 end)
 
 function UVRamVehicle(vehicle)
@@ -1966,41 +2040,6 @@ function UVAddToWantedListVehicle(vehicle)
 			end
 		end
 
-		if AutoHealth:GetBool() then
-			if vcmod_main and vehicle:GetClass() == "prop_vehicle_jeep" then
-				vehicle:VC_repairFull_Admin()
-				if not vehicle:VC_hasGodMode() then
-					vehicle:VC_setGodMode(true)
-				end
-			end
-			if vehicle.IsSimfphyscar then
-				vehicle.simfphysoldhealth = vehicle:GetMaxHealth()
-				vehicle:SetBulletProofTires(true)
-				vehicle:SetMaxHealth(math.huge)
-				vehicle:SetCurHealth(math.huge)
-				vehicle:SetOnFire( false )
-				vehicle:SetOnSmoke( false )
-				net.Start( "simfphys_lightsfixall" )
-				net.WriteEntity( vehicle )
-				net.Broadcast()
-				
-				net.Start( "uvrepairsimfphys" )
-				net.WriteEntity( vehicle )
-				net.Broadcast()
-			end
-			if vehicle.IsGlideVehicle then
-				vehicle:SetChassisHealth(math.huge)
-				vehicle:SetEngineHealth(math.huge)
-				vehicle:UpdateHealthOutputs()
-				vehicle.FallOnCollision = nil
-				for k, v in pairs(vehicle.wheels) do
-					if v.params then
-						v.params.isBulletProof = true
-					end
-				end
-			end
-		end
-
 		vehicle:CallOnRemove( "UVWantedVehicleRemoved", function(ent)
 			if table.HasValue(UVWantedTableVehicle, ent) then
 				table.RemoveByValue(UVWantedTableVehicle, ent)
@@ -2031,6 +2070,681 @@ function UVAddToWantedListDriver(driver)
 		net.Start( "UVHUDWanted" )
 		net.Send(driver)
 	end
+end
+
+function UVApplyAutoHealth(vehicle)
+	if not AutoHealth:GetBool() then return end
+	if vcmod_main and vehicle:GetClass() == "prop_vehicle_jeep" then
+		vehicle:VC_repairFull_Admin()
+		if not vehicle:VC_hasGodMode() then
+			vehicle:VC_setGodMode(true)
+		end
+	end
+	if vehicle.IsSimfphyscar then
+		vehicle.simfphysoldhealth = vehicle:GetMaxHealth()
+		vehicle:SetBulletProofTires(true)
+		vehicle:SetMaxHealth(math.huge)
+		vehicle:SetCurHealth(math.huge)
+		vehicle:SetOnFire( false )
+		vehicle:SetOnSmoke( false )
+		net.Start( "simfphys_lightsfixall" )
+		net.WriteEntity( vehicle )
+		net.Broadcast()
+		
+		net.Start( "uvrepairsimfphys" )
+		net.WriteEntity( vehicle )
+		net.Broadcast()
+	end
+	if vehicle.IsGlideVehicle then
+		vehicle:SetChassisHealth(math.huge)
+		vehicle:SetEngineHealth(math.huge)
+		vehicle:UpdateHealthOutputs()
+		vehicle.FallOnCollision = nil
+		for k, v in pairs(vehicle.wheels) do
+			if v.params then
+				v.params.isBulletProof = true
+			end
+		end
+	end
+end
+
+function UVGiveRacerPursuitTech(vehicle)
+	if not RacerPursuitTech:GetBool() then return end
+
+	local pttable = {
+		"EMP",
+		"ESF",
+		"Power Play",
+		"Repair Kit",
+		"Spikestrip",
+		"Juggernaut",
+		"Ghost",
+		"Jammer",
+		"Shockwave",
+		"Stunmine",
+	}
+
+	if not vehicle.PursuitTech then
+		vehicle.PursuitTech = {}
+		
+		for i=1, 2, 1 do
+			local selected_pt = pttable[math.random(#pttable)]
+			table.remove(pttable, table.KeyFromValue(pttable, selected_pt))
+			
+			local sanitized_pt = string.lower(string.gsub(selected_pt, " ", ""))
+			local sel_k, sel_v
+			
+			for k,v in pairs(vehicle.PursuitTech) do
+				if v.Tech == selected_pt then
+					sel_k, sel_v = k, v
+					vehicle.PursuitTech[k] = nil
+					break
+				end
+			end
+			
+			local ammo_count = GetConVar("uvpursuittech_" .. sanitized_pt .. "_maxammo"):GetInt()
+			ammo_count = ammo_count > 0 and ammo_count or math.huge
+			
+			vehicle.PursuitTech[i] = {
+				Tech = selected_pt,
+				Ammo = ammo_count,
+				Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown"):GetInt(),
+				LastUsed = -math.huge,
+			}
+		end
+		
+		table.insert(UVRVWithPursuitTech, vehicle)
+		
+		vehicle:CallOnRemove( "UVRVWithPursuitTechRemoved", function(car)
+			if table.HasValue(UVRVWithPursuitTech, car) then
+				table.RemoveByValue(UVRVWithPursuitTech, car)
+			end
+		end)
+
+		timer.Simple(1, function()
+			for i=1,2 do
+				UVReplicatePT( vehicle, i )
+			end
+		end)
+	end
+end
+
+local MUTATOR_FUNCTIONS = {
+	['Multiply'] = function( baseValue, multiplier, info ) 
+		return math.Clamp( baseValue * ( multiplier * ( multiplier == 1 and 1 or info.Modifier ) ), info.Min or 0, info.Max or math.huge )
+	end,
+	['Static'] = function( baseValue, multiplier, info ) 
+		return multiplier <= info.Max and baseValue or info.Modifier
+	end,
+	['ModifierComparison'] = function( baseValue, multiplier, info ) 
+		return baseValue * ( multiplier > info.Modifier and info.Max or info.Min )
+	end
+}
+
+local POLICE_VEHICLE_BASE_PERFORMANCE_SETS = {
+	['Simfphys'] = {
+		['Efficiency'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxTraction'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['BrakePower'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		}
+	},
+	['Glide'] = {
+		['BrakePower'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		-- Note: The cornering accuracy of the AI on Glide heavily depends on SteerConeMaxAngle, this also applies for units
+		-- originally i only kept SteerConeChangeRate for Infmap use, comment out again if not plausible -aux
+		-- ['SteerConeChangeRate'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['IsCatchup'] = true,
+		-- 	['Info'] = {
+		-- 		['Type'] = "Multiply",
+		-- 		['Modifier'] = 1.25,
+		-- 		['Min'] = 0,
+		-- 		['Max'] = math.huge
+		-- 	}
+		-- },
+		-- ['SteerConeMaxSpeed'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['IsUnit'] = true,
+		-- 	['Info'] = {
+		-- 		['Type'] = "Multiply",
+		-- 		['Modifier'] = 1,
+		-- 		['Min'] = 0,
+		-- 		['Max'] = math.huge
+		-- 	}
+		-- },
+		['SteerConeMaxAngle'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1.25,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxRPM'] = {
+			['DataType'] = "NetworkVar",
+			['IsCatchup'] = true,
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 0.75,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxRPMTorque'] = {
+			--['IsUnit'] = true,
+			['IsCatchup'] = true,
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 0.75,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MinRPMTorque'] = {
+			--['IsUnit'] = true,
+			['IsCatchup'] = true,
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 0.75,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['ForwardTractionMax'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 2,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMax'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMaxAng'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMin'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SuspensionLength'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 0.75
+			}
+		},
+		['SpringStrength'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 1.25
+			}
+		},
+		['SpringDamper'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 1.5
+			}
+		},
+		-- ['PowerDistribution'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['IsUnit'] = true,
+		-- 	['IsCatchup'] = true,
+		-- 	['Info'] = {
+		-- 		['Type'] = "Static",
+		-- 		['Modifier'] = 0.1,
+		-- 		['Min'] = 1,
+		-- 		['Max'] = 1.2,
+		-- 	}
+		-- },
+	},
+	['prop_vehicle_jeep'] = {
+
+	}
+}
+
+local RACER_VEHICLE_BASE_PERFORMANCE_SETS = {
+	['Simfphys'] = {
+		['Efficiency'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxTraction'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['BrakePower'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		}
+	},
+	['Glide'] = {
+		['BrakePower'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		-- Note: The cornering accuracy of the AI on Glide heavily depends on SteerConeMaxAngle, this also applies for units
+		-- originally i only kept SteerConeChangeRate for Infmap use, comment out again if not plausible -aux
+		['SteerConeChangeRate'] = {
+			['DataType'] = "NetworkVar",
+			['IsCatchup'] = true,
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1.25,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		-- ['SteerConeMaxSpeed'] = {
+		-- 	['DataType'] = "NetworkVar",
+		-- 	['IsUnit'] = true,
+		-- 	['Info'] = {
+		-- 		['Type'] = "Multiply",
+		-- 		['Modifier'] = 1,
+		-- 		['Min'] = 0,
+		-- 		['Max'] = math.huge
+		-- 	}
+		-- },
+		['SteerConeMaxAngle'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1.25,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxRPM'] = {
+			['DataType'] = "NetworkVar",
+			['IsCatchup'] = true,
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 0.75,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MaxRPMTorque'] = {
+			--['IsUnit'] = true,
+			['IsCatchup'] = true,
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 0.75,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['MinRPMTorque'] = {
+			--['IsUnit'] = true,
+			['IsCatchup'] = true,
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 0.75,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['ForwardTractionMax'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 2,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMax'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMaxAng'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SideTractionMin'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "Multiply",
+				['Modifier'] = 1,
+				['Min'] = 0,
+				['Max'] = math.huge
+			}
+		},
+		['SuspensionLength'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 0.75
+			}
+		},
+		['SpringStrength'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 1.25
+			}
+		},
+		['SpringDamper'] = {
+			['DataType'] = "NetworkVar",
+			['Info'] = {
+				['Type'] = "ModifierComparison",
+				['Modifier'] = 1,
+				['Min'] = 1,
+				['Max'] = 1.5
+			}
+		},
+		['PowerDistribution'] = {
+			['DataType'] = "NetworkVar",
+			['IsCatchup'] = true,
+			['Info'] = {
+				['Type'] = "Static",
+				['Modifier'] = 0.1,
+				['Min'] = 1,
+				['Max'] = 1.2,
+			}
+		},
+	},
+	['prop_vehicle_jeep'] = {
+
+	}
+}
+
+
+function UVSetVehiclePerformanceMultiplier( vehicle, mult, catchup )
+	mult = tonumber(mult) or 1
+
+	local isSimfphysVehicle = vehicle.IsSimfphyscar
+	local isGlideVehicle = vehicle.IsGlideVehicle
+
+	local performanceSets = vehicle.UnitVehicle and POLICE_VEHICLE_BASE_PERFORMANCE_SETS or RACER_VEHICLE_BASE_PERFORMANCE_SETS
+	local needle = nil
+
+	if vehicle.IsSimfphyscar then
+		needle = performanceSets['Simfphys']
+	elseif vehicle.IsGlideVehicle then
+		needle = performanceSets['Glide']
+	else
+		needle = performanceSets['prop_vehicle_jeep']
+	end
+
+	if not vehicle.__UVOriginalPerformance then vehicle.__UVOriginalPerformance = {} end
+
+	for stat, data in pairs( needle ) do
+		local multiplier = mult
+		if mult > 1 then
+			if data.IsCatchup and not catchup then multiplier = 1 end
+		end
+		if data.DataType == "NetworkVar" then
+			local getFunc = vehicle['Get'..stat]
+			local setFunc = vehicle['Set'..stat]
+
+			if isfunction( getFunc ) and isfunction( setFunc ) then
+				if not vehicle.__UVOriginalPerformance[stat] then vehicle.__UVOriginalPerformance[stat] = getFunc() end
+				setFunc( vehicle, MUTATOR_FUNCTIONS[data.Info.Type](
+					vehicle.__UVOriginalPerformance[stat], 
+					multiplier, 
+					data.Info
+				) )
+			end
+		end
+	end
+
+	if isGlideVehicle then
+		vehicle:UpdateWheelParameters()
+		vehicle:UpdatePowerDistribution()
+	end
+end
+
+function UVIsSeenByUnit(vehicle)
+	local units = ents.FindByClass("npc_uv*")
+	local airUnits = ents.FindByClass("uvair")
+
+	table.Add( units, airUnits )
+	table.Add( units, playerUnits )
+	
+	for _, w in pairs(units) do
+		if w:GetClass() ~= 'uvair' then
+			if UVVisualOnTarget(w, vehicle) then
+				UVAddToWantedListVehicle(vehicle)
+				if not UVTargeting and IsValid(w.e) then
+					UVTargeting = true
+				end
+				return true
+			end
+		else
+			if UVVisualOnTarget(w, vehicle) then
+				UVAddToWantedListVehicle(vehicle)
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+--[[
+	/// INFRACTIONS LIST ///
+	'speed' = Speeding (reach 10+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
+	'veryspeed' = Excessive Speeding (reach 50+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
+	'reckless' = Reckless Driving (reach 100+ MPH over the limit set by the closest DV waypoint or unitvehicle_speedlimit, whichever is lower)
+	'assault' = Ramming a Police Vehicle (hit a Unit)
+	'ram' = Hit & Run (hit a Traffic)
+	'property' = Damage to Property (hit a non-vehicle entity)
+	'resist' = Resisting Arrest (enter cooldown)
+	'offroad' = Driving off Roadway (drive on a non-road surface)
+	'streetrace' = Street Racing (commit an infraction while in a race event)
+	'resource' = Overuse of Resources (trigger the backup timer)
+	'endanger' = Public Endangerment (use a Pursuit Tech/cause a Traffic vehicle to swerve out of your way)
+	'homicide' = Vehicular Homicide (cause a vehicle to explode/run over a pedestrian)
+
+	*you must be seen by the Unit or be reported by a witness for an infraction to be counted, except for Resisting Arrest and Overuse of Resources
+	*infractions can be repeated and counted for calculating fines, but only inform the client if they have commited a NEW one
+]]
+
+--[[
+	Fine Due = INFRACTION_FINE * UVHeatLevel
+]]
+UVINFRACTION_FINE = {
+	['speed'] = 150,
+	['veryspeed'] = 350,
+	['reckless'] = 1000,
+	['rampolice'] = 350,
+	['ram'] = 300,
+	['property'] = 100,
+	['resist'] = 300,
+	['offroad'] = 50,
+	['streetrace'] = 5000,
+	['resource'] = 100,
+	['endanger'] = 200,
+	['homicide'] = 10000,
+}
+
+local PRE_INFRACTION_COUNT = {
+	['speed'] = 1,
+	['veryspeed'] = 2,
+	['reckless'] = 3,
+	['rampolice'] = 4,
+	['ram'] = 3,
+	['property'] = 1,
+	['resist'] = 2,
+	['offroad'] = 1,
+	['streetrace'] = 5,
+	['resource'] = 1,
+	['endanger'] = 2,
+	['homicide'] = 10,
+}
+
+local function updatepreinfraction(vehicle, infraction)
+	local ctimeout = 3
+
+	if CurTime() > UVPreInfractionCountCooldown + ctimeout then
+		UVPreInfractionCount = UVPreInfractionCount + (PRE_INFRACTION_COUNT[infraction] or 1)
+
+		if UVPreInfractionCount >= 10 and UVPassConVarFilter(vehicle) and isfunction(UVCallInitiate) then
+			UVCallInitiate(vehicle, infraction)
+		end
+
+		UVPreInfractionCountCooldown = CurTime()
+	end
+end
+
+local function updateinfraction(vehicle, infraction)
+    if vehicle.Infractions[infraction] then
+        vehicle.Infractions[infraction] = vehicle.Infractions[infraction] + 1
+    else
+        vehicle.Infractions[infraction] = 1
+		
+		local number = table.Count(vehicle.Infractions)
+		local driver = UVGetDriver(vehicle)
+
+		if driver and driver:IsPlayer() then
+			net.Start('UVInfractions')
+				net.WriteString(infraction)
+				net.WriteInt(number, 5)
+			net.Send(driver)
+		end
+    end
+
+	if not vehicle.FinesDue then
+		vehicle.FinesDue = 0
+	end
+
+	for k, v in pairs(vehicle.Infractions) do
+		vehicle.FinesDue = vehicle.FinesDue + (UVINFRACTION_FINE[k] or 0) * (UVHeatLevel / 10)
+	end
+end
+
+function UVAddInfraction(vehicle, infraction, reported)
+	if not infraction or not IsValid(vehicle) or not UVPassConVarFilter(vehicle) then return end
+	
+	if not reported and not UVIsSeenByUnit(vehicle) then --Pre Infraction system
+		updatepreinfraction(vehicle, infraction)
+		return
+	end
+
+	if not vehicle.Infractions then vehicle.Infractions = {} end
+
+	if infraction == 'reckless' then
+		updateinfraction(vehicle, 'speed')
+		updateinfraction(vehicle, 'veryspeed')
+    elseif infraction == 'veryspeed' then
+        updateinfraction(vehicle, 'speed')
+    end
+
+	updateinfraction(vehicle, infraction)
+
+	if not vehicle.streetraceinfraction and UVRaceTable and UVRaceTable['Participants'] and UVRaceTable['Participants'][vehicle] then
+        vehicle.streetraceinfraction = true
+        updateinfraction(vehicle, 'streetrace')
+    end
+
+	return true
+end
+
+function UVGetIfSomeoneDriving()
+	for k, v in pairs(player.GetAll()) do
+		if IsValid(v) and v:InVehicle() then
+			return true
+		end
+	end
+	return false
 end
 
 function UVAddToPlayerUnitListVehicle(vehicle, ply)
@@ -2196,6 +2910,8 @@ function UVBustEnemy(self, enemy, finearrest)
 
 	enemy.uvbusted = true
 	enemy.UVBustingProgress = 0
+	enemy.UVBustingPenaltyMult = enemy.UVBustingPenaltyMult or 1
+	
 	-- if UVRaceTable['Participants'] then
 	-- 	if UVRaceTable['Participants'][enemy] then
 	-- 		UVRaceTable['Participants'][enemy].Busted = true
@@ -2230,6 +2946,7 @@ function UVBustEnemy(self, enemy, finearrest)
 	end
 	local timeacknowledge = 5
 	local enemyDriver = UVGetDriver(enemy)
+	local finesdue = enemy.FinesDue or 0
 	
 	if UVTargeting or self.UVAir or finearrest then --Arrest
 		if enemy:IsVehicle() then
@@ -2343,10 +3060,13 @@ function UVBustEnemy(self, enemy, finearrest)
 			bustedtable["Deploys"] = UVDeploys
 			bustedtable["Roadblocks"] = UVRoadblocksDodged
 			bustedtable["Spikestrips"] = UVSpikestripsDodged
+			local infractionstable = enemy.Infractions or {}
 			timer.Create('MakeArrest'..driver:EntIndex(), 3, 1, function()
 				if not finearrest then
 					net.Start( "UVHUDBustedDebrief" )
 					net.WriteTable(bustedtable)
+					net.WriteTable(infractionstable)
+					net.WriteInt(finesdue, 32)
 					net.Send(driver)
 				end
 				driver:KillSilent()
@@ -2409,6 +3129,7 @@ function UVBustEnemy(self, enemy, finearrest)
 				-- driver:PrintMessage( HUD_PRINTCENTER, "You have been fined! You have 10 seconds to drive away.")
 				net.Start( "UVFined" )
 				net.WriteUInt( enemy.UVFinedCount, 3 )
+				net.WriteInt(finesdue, 32)
 				net.Send(driver)
 			end)
 			driver:EmitSound("ui/pursuit/fined.wav", 0, 100, 0.5)
@@ -2419,6 +3140,18 @@ function UVBustEnemy(self, enemy, finearrest)
 			enemy.uvbusted = nil
 		end)
 	end
+
+	if #UVWantedTableVehicle == 0 and next(UVPlayerUnitTableVehicle) ~= nil then
+		for k, car in pairs(UVPlayerUnitTableVehicle) do
+			UVSetELS(false, car)
+			UVSetELSSound(false, car)
+		end
+	end
+
+	--Clear record
+	enemy.FinesDue = 0
+	enemy.Infractions = {}
+
 end
 
 function UVDelayRoadblock()
@@ -2701,6 +3434,10 @@ function UVCheckIfBeingBusted(enemy)
 
 	UVBustSpeed = UVBustSpeed or 5
 	
+	if enemy.hasreset then
+		UVBustSpeed = UVBustSpeed * (enemy.UVBustingPenaltyMult or 1)
+	end
+	
 	if not enemy.uvbusted and btimeout and btimeout > 0 and enemy:GetVelocity():LengthSqr() < UVBustSpeed and not UVEnemyEscaping and next(UVUnitsChasing) ~= nil and
 	(closestdistancetounit < 250000 or closestunit.CloseToTarget) and 
 	(IsValid(closestunit.e) or (isfunction(closestunit.GetTarget)) and IsValid(closestunit:GetTarget())) then
@@ -2738,28 +3475,9 @@ function UVCheckIfBeingBusted(enemy)
 			enemy.UVBustingLastProgress = CurTime()
 			enemy.UVBustingLastProgress2 = enemy.UVBustingProgress
 		end
-		enemy.UVBustingProgress = enemy.UVBustingLastProgress2 + (CurTime() - enemy.UVBustingLastProgress)
+		enemy.UVBustingProgress = enemy.UVBustingLastProgress2 + (CurTime() - enemy.UVBustingLastProgress) * (enemy.UVBustingPenaltyMult or 1)
 		if enemy.UVBustingProgress >= (btimeout-1) and not enemy.nearbust then
 			enemy.nearbust = true
-			-- if enemy.PursuitTech == "Shockwave" then --SHOCKWAVE
-			-- 	if not enemy.shockwavecooldown then
-			-- 		UVAIRacerDeployWeapon(enemy)
-			-- 	end
-			-- end
-			
-			-- if Chatter:GetBool() and IsValid(closestunit) and UVTargeting then
-			-- 	local randomno = math.random(1,2)
-			-- 	local airUnits = ents.FindByClass("uvair")
-			-- 	if next(airUnits) ~= nil and randomno == 1 then
-			-- 		local random_entry = math.random(#airUnits)	
-			-- 		local unit = airUnits[random_entry]
-			-- 		UVResetChatterQueue()
-			-- 		UVSoundChatter(unit, unit.voice, "arrest", 2)
-			-- 	else
-			-- 		UVResetChatterQueue()
-			-- 		UVSoundChatter(closestunit, closestunit.voice, "arrest", 2)
-			-- 	end
-			-- end
 		end
 		
 		if enemy.PursuitTech and not (enemy:GetDriver() and enemy:GetDriver():IsPlayer()) and enemy.randomptuse < enemy.UVBustingProgress then
@@ -2775,6 +3493,13 @@ function UVCheckIfBeingBusted(enemy)
 				enemy.uvbustingincrease = false
 				enemy.UVBustingLastProgress = CurTime()
 				enemy.UVBustingLastProgress2 = enemy.UVBustingProgress
+				if enemy.nearbust then
+					if not enemy.UVHighestBustingProgress then
+						enemy.UVHighestBustingProgress = enemy.UVBustingProgress
+					elseif enemy.UVBustingProgress > enemy.UVHighestBustingProgress then
+						enemy.UVHighestBustingProgress = enemy.UVBustingProgress
+					end
+				end
 			end
 			if (enemy.UVBustingProgress <= 0 or enemy.uvbusted) and not enemy.UVHUDBustingDelayed then
 				enemy.UVHUDBusting = nil
@@ -2810,8 +3535,14 @@ function UVCheckIfBeingBusted(enemy)
 					end
 				end
 				if IsValid(enemyDriver) then
+					if enemy.UVHighestBustingProgress then
+						net.Start( "UVHUDStopBustingTimeLeft" )
+							net.WriteFloat(enemy.UVHighestBustingProgress)
+						net.Send(enemyDriver)
+					end
 					enemyDriver:EmitSound("ui/pursuit/busting_whoosh_high.wav", 0, 100, 0.5)
 				end
+				enemy.UVHighestBustingProgress = nil
 				if enemy.nearbust then
 					enemy.nearbust = nil
 				end
@@ -2953,17 +3684,27 @@ function UVCheckIfWrecked(enemy)
 	end
 end
 
-function UVCheckIfHiding(enemy)
-	if enemy:GetVelocity():LengthSqr() < 10000 then
-		if enemy.IsGlideVehicle then
-			return enemy:GetEngineState() == 0
-		elseif enemy.IsSimfphyscar then
-			return enemy:EngineActive() == false
+function UVCheckIfHiding()
+	if next(UVWantedTableVehicle) == nil then return false end
+
+	local hiding = false
+
+	for k, enemy in pairs(UVWantedTableVehicle) do
+		if enemy:GetVelocity():LengthSqr() < 10000 then
+			if enemy.IsGlideVehicle then
+				hiding = enemy:GetEngineState() == 0
+			elseif enemy.IsSimfphyscar then
+				hiding = enemy:EngineActive() == false
+			else
+				hiding = true
+			end
 		else
-			return true
+			hiding = false
 		end
+		if not hiding then break end
 	end
-	return
+	
+	return hiding
 end
 
 function UVVisualOnTarget(unit, target)
@@ -2971,7 +3712,7 @@ function UVVisualOnTarget(unit, target)
 		return
 	end
 	if unit.wrecked then return end
-	local tr = util.TraceLine({start = unit:WorldSpaceCenter(), endpos = target:WorldSpaceCenter(), mask = MASK_OPAQUE, filter = {unit, target}}).Fraction==1
+	local tr = util.TraceLine({start = unit:WorldSpaceCenter(), endpos = target:WorldSpaceCenter(), mask = (InfMap and MASK_ALL or MASK_OPAQUE), filter = {unit, target, 'glide_wheel', UVUnitVehicles}}).Fraction==1
 	return tobool(tr)
 end
 
@@ -3091,6 +3832,7 @@ function UVPlayerWreck(vehicle)
 			timer.Remove("uvcombotime")
 		end)
 	end
+
 	vehicle.wrecked = true
 	local despawntime = 60
 	table.insert(UVWreckedVehicles, vehicle)
@@ -3106,7 +3848,10 @@ function UVPlayerWreck(vehicle)
 	
 	if not UVResourcePointsRefreshing and UVResourcePoints > 1 and not UVOneCommanderActive then
 		UVResourcePoints = (UVResourcePoints - 1)
-	end	
+	end
+
+	UVSetELS(false, vehicle)
+	UVSetELSSound(false, vehicle)
 	
 	net.Start("UVHUDRemoveUV")
 	net.WriteInt(vehicle:EntIndex(), 32)
@@ -3205,8 +3950,46 @@ end
 -- 	return false
 -- end
 
+function UVNavigateDVWaypointOptimized( self, vectors )
+	if not dvd or not dvd.Waypoints or next( dvd.Waypoints ) == nil then
+		self.NavigateBlind = true
+		return
+	end
+
+	if UVEnemyEscaping then
+		vectors = dvd.Waypoints[math.random( #dvd.Waypoints )].Target
+	end
+
+	local startPos = self.v:WorldSpaceCenter()
+	local endPos = isvector( vectors ) and vectors or (istable( vectors ) and vectors[1] or startPos)
+	local maxWaypoints = 4
+	local minStepSq = 625 
+	local route = {}
+	local lastAdded = nil
+	local viewOrigin = startPos
+
+	for i = 0, maxWaypoints - 1 do
+		local t = ( maxWaypoints > 1 ) and ( i / (maxWaypoints - 1) ) or 0
+		local samplePos = startPos + ( endPos - startPos ) * t
+		local wp = dvd.GetNearestWaypoint( samplePos )
+		if wp and wp.Target then
+			local v = wp.Target
+			if ( lastAdded == nil or v:DistToSqr( lastAdded ) > minStepSq ) then
+				table.insert( route, v )
+				lastAdded = v
+				viewOrigin = v
+			end
+		end
+	end
+	if next( route ) == nil then
+		return
+	end
+
+	self.tableroutetoenemy = route
+	return self.tableroutetoenemy
+end
+
 function UVNavigateDVWaypoint(self, vectors)
-	
 	if UVEnemyEscaping then
 		vectors = dvd.Waypoints[math.random(#dvd.Waypoints)].Target
 	end
@@ -3214,41 +3997,53 @@ function UVNavigateDVWaypoint(self, vectors)
 	local FromSelfToEnemy = dvd.GetRouteVector(self.v:GetPos(), vectors)
 	local FromEnemyToSelf = dvd.GetRouteVector(vectors, self.v:GetPos())
 	
-	if not FromSelfToEnemy or not FromEnemyToSelf then
+	if not FromSelfToEnemy and not FromEnemyToSelf then
 		self.NavigateBlind = true
 		return --Unable to get route
 	end
-	
-	if #FromEnemyToSelf >= #FromSelfToEnemy then --Get the shortest route
-		for k, v in pairs(FromSelfToEnemy) do
+
+	local options = {
+		[true] = FromSelfToEnemy and table.Reverse( FromSelfToEnemy ),
+		[false] = FromEnemyToSelf,
+	}
+
+	local selfToEnemy = FromSelfToEnemy and #FromSelfToEnemy or math.huge
+	local enemyToSelf = FromEnemyToSelf and #FromEnemyToSelf or math.huge
+
+	operationStack = options[selfToEnemy <= enemyToSelf]
+
+	-- if FromSelfToEnemy and FromEnemyToSelf then
+	-- 	print("operationStack", #FromSelfToEnemy <= #FromEnemyToSelf)
+	-- 	operationStack = options[(#FromSelfToEnemy <= #FromEnemyToSelf)]
+	-- else
+	-- 	operationStack = options[ FromSelfToEnemy and true or false ]
+	-- end
+
+	if operationStack then
+		self.tableroutetoenemy = {}
+
+		local maxNewWaypoints = 30
+		local added = 0
+
+		for _, v in ipairs( operationStack ) do
+			if added >= maxNewWaypoints then break end
+
 			local targetVec = v["Target"]
 			local found = false
-			for _, existingVec in ipairs(self.tableroutetoenemy) do
-				if existingVec == targetVec then
+
+			for _, existingVec in pairs( self.tableroutetoenemy ) do
+				if existingVec[1] == targetVec[1] and existingVec[2] == targetVec[2] and existingVec[3] == targetVec[3] then
 					found = true
 					break
 				end
 			end
+
 			if not found then
-				table.insert(self.tableroutetoenemy, targetVec)
+				table.insert( self.tableroutetoenemy, targetVec )
+				added = added + 1
 			end
 		end
-		return self.tableroutetoenemy
-	else
-		local FromEnemyToSelfReversed = table.Reverse(FromEnemyToSelf)
-		for k, v in pairs(FromEnemyToSelfReversed) do
-			local targetVec = v["Target"]
-			local found = false
-			for _, existingVec in ipairs(self.tableroutetoenemy) do
-				if existingVec == targetVec then
-					found = true
-					break
-				end
-			end
-			if not found then
-				table.insert(self.tableroutetoenemy, targetVec)
-			end
-		end
+
 		return self.tableroutetoenemy
 	end
 end

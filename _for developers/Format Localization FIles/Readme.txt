@@ -10,4 +10,5 @@ This tool automatically restructures the .properties localization files present 
 4) Confirm and done!
 
 ---> Important Notes <---
-1) Non-translated strings, or missing strings have a prefix and are commented out.
+1) A copy of the English file will be created and stored in "_for developers/Localization Backup". If strings in English differ from this backup, those strings will be replaced in all languages.
+2) Non-translated strings, or missing strings have a prefix and are commented out.

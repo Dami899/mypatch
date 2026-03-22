@@ -1,6 +1,8 @@
 AddCSLuaFile()
 
 if SERVER then
+
+	local PRELOADED_ROADBLOCKS = {}
 	
 	local function UVSetPhysicsCollisions( ent, collisions )
 		
@@ -67,11 +69,9 @@ if SERVER then
 		
 	end
 	
-	function UVLoadRoadblock(jsonfile, manual)
-		local JSONData = file.Read( "unitvehicles/roadblocks/"..game.GetMap().."/"..jsonfile, "DATA" )
-		if not JSONData then return end
-		
-		local rbdata = util.JSONToTable(JSONData, true) --Load Roadblock
+	function UVSpawnRoadblock(id, manual)
+		local rbdata = PRELOADED_ROADBLOCKS[id]
+		if not rbdata then return end
 		
 		local location = rbdata.Location or rbdata.Maxs
 		local angles = rbdata.Angle or angle_zero
@@ -108,7 +108,7 @@ if SERVER then
 			
 			timer.Simple(10, function()
 				local Index = gib:EntIndex()
-				timer.Create("uvroadblockmarkedfordeletion"..Index, 1, 0, function() 
+				timer.Create("uvroadblockmarkedfordeletion"..Index, 1, 0, function()
 					if IsValid(gib) then
 						local closestsuspect
 						local closestdistancetosuspect
@@ -126,18 +126,15 @@ if SERVER then
 							gib:Remove()
 							timer.Remove("uvroadblockmarkedfordeletion"..Index)
 							UVRoadblocksDodged = UVRoadblocksDodged + 1
-							if table.HasValue(UVLoadedRoadblocks, jsonfile) then
-								table.RemoveByValue(UVLoadedRoadblocks, jsonfile)
-							end
-							if table.HasValue(UVLoadedRoadblocksLoc, location) then
-								table.RemoveByValue(UVLoadedRoadblocksLoc, location)
-							end
+							UVLoadedRoadblocks[id] = nil
+							UVLoadedRoadblocksLoc[id] = nil
 						end
 					end
 				end) 
 			end)
-			table.insert(UVLoadedRoadblocks, jsonfile)
-			table.insert(UVLoadedRoadblocksLoc, location)
+
+			UVLoadedRoadblocks[id] = true
+			UVLoadedRoadblocksLoc[id] = location
 		end
 		
 		--local entities, constraints = duplicator.Paste( nil, rbdata.Entities, rbdata.Constraints )
@@ -149,7 +146,6 @@ if SERVER then
             local entPos = ent.Pos or ent.Maxs
             local entAng = ent.Angle or Angle( 0, 0, 0 )
             local entModel = ent.Model
-           -- print(entClass, entPos, entAng, entModel)
 
             local gib = ents.Create( entClass )
             if not IsValid( gib ) then continue end
@@ -191,14 +187,6 @@ if SERVER then
         end
 
         for _, constraint in pairs( rbdata.Constraints ) do
-            -- local constraintType = constraint.Type
-            -- local ent1 = constraint.Ent1
-            -- local ent2 = constraint.Ent2
-            -- local constraintData = constraint.Data or {}
-            -- local newConstraint = constraint.Create(constraintType, ent1, ent2, constraintData)
-            -- if not newConstraint then continue end
-            -- table.insert(constraints, newConstraint)
-
             local Ent = duplicator.CreateConstraintFromTable( constraint, entities, nil )
             if IsValid( Ent ) then
                 table.insert( constraints, Ent )
@@ -237,62 +225,46 @@ if SERVER then
 	end
 	
 	function UVAutoLoadRoadblock()
-		local roadblocks = file.Find( "unitvehicles/roadblocks/"..game.GetMap().."/*.json", "DATA" )
-		
-		if not roadblocks then return end
-		if next(roadblocks) == nil then return end
-		
-		local availableroadblocks = {}
-		for k, v in pairs(roadblocks) do
-			if not table.HasValue(UVLoadedRoadblocks, v) then
-				table.insert(availableroadblocks, v)
-			end
-		end
-		
-		if next(availableroadblocks) == nil then return end
-		table.Shuffle(availableroadblocks)
-		
-		for k, jsonfile in pairs(availableroadblocks) do
-			local JSONData = file.Read( "unitvehicles/roadblocks/"..game.GetMap().."/"..jsonfile, "DATA" )
+		if next(UVWantedTableVehicle) == nil then return end
+		if next(PRELOADED_ROADBLOCKS) == nil then return end
 
-			if JSONData then
-				
-				local rbdata = util.JSONToTable(JSONData, true) --Load Roadblock
-				
-				local location = rbdata.Location or rbdata.Maxs
-				
-				-- local ply = Entity(1)
-				-- local enemylocation
-				-- local suspect = ply
-				-- if next(UVWantedTableVehicle) ~= nil then
-				-- 	local suspects = UVWantedTableVehicle
-				-- 	local random_entry = math.random(#suspects)	
-				-- 	suspect = UVGetRaceLeader() or suspects[random_entry]
-				-- 	enemylocation = (suspect:GetPos()+(vector_up * 50))
-				-- else
-				-- 	enemylocation = (suspect:GetPos()+(vector_up * 50))
-				-- end
-				if next(UVWantedTableVehicle) == nil then return end
+		local randomSuspect = math.random( #UVWantedTableVehicle )
+		local suspect = UVGetRaceLeader() or UVWantedTableVehicle[randomSuspect]
+		local suspectVelocity = suspect:GetVelocity()
+		local suspectPos = suspect:GetPos()
+		local suspectLocation = suspectPos + ( vector_up * 50 )
 
-				local suspects = UVWantedTableVehicle
-				local random_entry = math.random(#suspects)
-				local suspect = UVGetRaceLeader() or suspects[random_entry]
-
-				if not IsValid(suspect) then return end
-
-				local enemylocation = (suspect:GetPos()+(vector_up * 50))
-
-				local suspectvelocity = suspect:GetVelocity()
-				local distance = enemylocation - location
-				local vect = distance:GetNormalized()
-				local evectdot = vect:Dot(suspectvelocity)
-				if not (distance:LengthSqr() < 25000000 or distance:LengthSqr() > 100000000 or evectdot > 0) then
-					return UVLoadRoadblock(jsonfile)
-				end
+		for id, rbdata in pairs( PRELOADED_ROADBLOCKS ) do
+			local location = rbdata.Location or rbdata.Maxs
+			local enemylocation = suspectLocation
+			local distance = enemylocation - location
+			local vect = distance:GetNormalized()
+			local evectdot = vect:Dot(suspectVelocity)
+			local distSqr = distance:LengthSqr()
+			if not (distSqr < 25000000 or distSqr > 100000000 or evectdot > 0) and not UVLoadedRoadblocks[id] then
+				return UVSpawnRoadblock( id )	
 			end
 		end
 		
 	end
+
+	function UVPreloadRoadblocks()
+		PRELOADED_ROADBLOCKS = {}
+
+		local mapName = game.GetMap()
+		local roadblocks = file.Find( "unitvehicles/roadblocks/"..mapName.."/*.json", "DATA" )
+
+		if not roadblocks then return end
+		if next(roadblocks) == nil then return end
+
+		for _, jsonfile in ipairs(roadblocks) do
+			local json  = file.Read( "unitvehicles/roadblocks/"..mapName.."/"..jsonfile, "DATA" )
+			local rbdata = util.JSONToTable( json or "", true )
+			if rbdata then table.insert( PRELOADED_ROADBLOCKS, rbdata ) print("Preloaded roadblock: "..jsonfile) end
+		end
+	end
+
+	UVPreloadRoadblocks()
 	
 else
 	
