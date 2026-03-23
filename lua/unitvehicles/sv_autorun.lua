@@ -970,19 +970,7 @@ end
 
 hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Override Glide collisions for the time being 
 	if not Glide then return end
-	
-	local RealTime = RealTime
-	local DamageInfo = DamageInfo
-	local GetWorld = game.GetWorld
-	
-	local Clamp = math.Clamp
-	local RandomInt = math.random
-	local PlaySoundSet = Glide.PlaySoundSet
-	
-	local cvarCollision = GetConVar( "glide_physics_damage_multiplier" )
-	local cvarWorldCollision = GetConVar( "glide_world_physics_damage_multiplier" )
-	
-	local cvarCollision = GetConVar( "glide_physics_damage_multiplier" )
+
 	if ( glidevehicle.IsGlideVehicle ) then
 		local oldphysCollide = glidevehicle.PhysicsCollide
 		glidevehicle.PhysicsCollide = function( car, coldata, ent )
@@ -1912,6 +1900,316 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			end
 		end
 	end)
+end)
+
+hook.Add("OnEntityCreated", "UVCollisionLVS", function(lvsvehicle)
+	if not LVS then return end
+
+	if ( lvsvehicle.LVS ) then
+		lvsvehicle.CalcThrottle = function( car, ply )
+			local FullThrottle = ply:GetInfoNum( "unitvehicle_lvsalwaysfullthrottle", 0 )
+
+			local KeyThrottle = ply:lvsKeyDown( "CAR_THROTTLE" )
+			local KeyBrakes = ply:lvsKeyDown( "CAR_BRAKE" )
+
+			if car:GetReverse() and not car:IsManualTransmission() then
+				KeyThrottle = ply:lvsKeyDown( "CAR_BRAKE" )
+				KeyBrakes = ply:lvsKeyDown( "CAR_THROTTLE" )
+			end
+		
+			local ThrottleValue = (FullThrottle == 1 or ply:lvsKeyDown( "CAR_THROTTLE_MOD" )) and car:GetMaxThrottle() or 0.5
+			local Throttle = KeyThrottle and ThrottleValue or 0
+		
+			if not car:IsLegalInput() then
+				car:LerpThrottle( 0 )
+				car:LerpBrake( (KeyThrottle or KeyBrakes) and 1 or 0 )
+			
+				return
+			end
+		
+			car:LerpThrottle( Throttle )
+			car:LerpBrake( KeyBrakes and 1 or 0 )
+		end
+		
+		local oldphysCollide = lvsvehicle.PhysicsCollide
+		lvsvehicle.PhysicsCollide = function( car, coldata, ent )
+			oldphysCollide(car, coldata, ent)
+
+			if coldata.HitEntity.PursuitBreakerActive then
+				local driver = car.UnitVehicle or car.TrafficVehicle
+                    
+				if driver then
+					if driver:IsNPC() then
+						driver:Wreck()
+					else
+						UVPlayerWreck(car)
+					end
+					return
+				end	
+			end
+
+			if car.DecentVehicle or car.TrafficVehicle then
+				UVRamVehicle(car)
+			end
+
+			local object = coldata.HitEntity
+
+			if car.grappleron and object.UVWanted then --Grappler
+				UVGrapple(car, object)
+			end
+
+			if car.juggernauton and not object:IsWorld() then --Juggernaut
+				local ourOldVel = coldata.OurOldVelocity
+				local ourOldAngVel = coldata.OurOldAngularVelocity
+				local objectPhys = object:GetPhysicsObject()
+				local Phys = car:GetPhysicsObject()
+				local force = car:GetVelocity():LengthSqr()
+
+				local carPos = car:WorldSpaceCenter()
+				local vectorDifference = object:WorldSpaceCenter() - carPos
+				local angle = vectorDifference:Angle()
+
+				objectPhys:ApplyForceCenter(angle:Forward()*force)
+
+				--Preserve momentum
+        		Phys:SetVelocity(ourOldVel)
+				Phys:SetAngleVelocityInstantaneous(ourOldAngVel)
+
+				local sounds = {
+					"gadgets/juggernaut/impact_hard1.wav",
+					"gadgets/juggernaut/impact_hard2.wav",
+					"gadgets/juggernaut/impact_hard3.wav",
+					"gadgets/juggernaut/impact_medium1.wav",
+					"gadgets/juggernaut/impact_medium2.wav",
+					"gadgets/juggernaut/impact_medium3.wav",
+					"gadgets/juggernaut/impact_soft1.wav",
+					"gadgets/juggernaut/impact_soft2.wav",
+					"gadgets/juggernaut/impact_soft3.wav",
+				}
+				
+				if not car.juggernauthit then
+					car.juggernauthit = true
+					car:EmitSound(sounds[math.random(1, #sounds)])
+					timer.Simple(1, function()
+						if IsValid(car) then
+							car.juggernauthit = nil
+						end
+					end)
+				end
+			end
+
+			if car.esfon and object:IsVehicle() and not (object.UnitVehicle and car.UnitVehicle) then --ESF
+
+				if not object.UnitVehicle and not car.UnitVehicle then
+					if not RacerFriendlyFire:GetBool() then return end
+				end
+
+				local enemyVehicle = object
+				local enemyCallsign
+
+				if object.UnitVehicle then
+					enemyCallsign = object.UnitVehicle.callsign or "Unit "..object:EntIndex()
+				else
+					enemyCallsign = object.racer or "Racer "..enemyVehicle:EntIndex()
+				end
+
+				local enemyDriver = UVGetDriver(enemyVehicle)
+				local power
+				local damage
+				if car.UnitVehicle then
+					power = UVUnitPTESFPower:GetInt()
+					damage = UVUnitPTESFDamage:GetFloat()
+					if UVIsPTUpgraded(car) then
+						power = power * 2
+						damage = damage * 2
+					end
+				else
+					power = UVPTESFPower:GetInt()
+					damage = UVPTESFDamage:GetFloat()
+				end
+
+				local carPos = car:WorldSpaceCenter()
+				local enemyVehiclePhys = enemyVehicle:GetPhysicsObject()
+				local vectorDifference = enemyVehicle:WorldSpaceCenter() - carPos
+				local angle = vectorDifference:Angle()
+				local force = power * (1 - (vectorDifference:Length()/1000))
+
+				enemyVehiclePhys:ApplyForceCenter(angle:Forward()*force)
+				UVRamVehicle(enemyVehicle)
+
+				if enemyDriver then
+					if enemyDriver:IsPlayer() then
+						enemyCallsign = enemyDriver:GetName()
+					end
+				end
+
+				if object.UnitVehicle or (object.UVWanted and not AutoHealth:GetBool()) or not (object.UnitVehicle and object.UVWanted) then
+					damage = (table.HasValue(UVCommanders, object) and UVPTESFCommanderDamage:GetFloat()) or damage
+					UVDamage(object, damage)
+				end
+
+				ReportPTEvent( car, enemyVehicle, 'ESF', 'Hit' )
+
+				local e = EffectData()
+				e:SetEntity(enemyVehicle)
+				util.Effect("entity_remove", e)
+				enemyVehicle:EmitSound("gadgets/esf/impact.wav")
+				car.uvesfhit = true
+				UVDeactivateESF(car)
+				if car.UnitVehicle then
+					UVChatterESFHit(car.UnitVehicle)
+				end
+
+			end
+			if car.UVWanted then --SUSPECT
+				if object:IsWorld() or object.DecentVehicle or object.TrafficVehicle then --Crashed into world
+					local ourOldVel = coldata.OurOldVelocity:Length()
+					local ourNewVel = coldata.OurNewVelocity:Length()
+					local resultVel = ourOldVel
+					if ourOldVel > ourNewVel then --slowed
+						resultVel = ourOldVel - ourNewVel
+					else --sped up
+						resultVel = ourNewVel - ourOldVel
+					end
+					local dot = coldata.OurOldVelocity:GetNormalized():Dot(coldata.HitNormal)
+					dot = math.abs(dot) / 2
+					local dmg = resultVel * dot
+					if dmg >= 100 and not UVEnemyEscaping and UVTargeting then
+						if object:IsWorld() then
+							if Chatter:GetBool() and UVTargeting and next(ents.FindByClass("npc_uv*")) ~= nil then
+								local units = ents.FindByClass("npc_uv*")
+								local random_entry = math.random(#units)	
+								local unit = units[random_entry]
+								if IsValid(unit.e) and car == unit.e then
+									UVChatterEnemyCrashed(unit) 
+								end
+							end
+						elseif object.DecentVehicle or object.TrafficVehicle then
+							if Chatter:GetBool() and UVTargeting and next(ents.FindByClass("npc_uv*")) ~= nil then
+								local units = ents.FindByClass("npc_uv*")
+								local random_entry = math.random(#units)	
+								local unit = units[random_entry]
+								if IsValid(unit.e) and car == unit.e then
+									if object.Sockets and next(object.Sockets) ~= nil then
+										UVChatterHitTrafficSemi(unit)
+									else
+										UVChatterHitTraffic(unit)
+									end
+								end
+							end
+						end
+					end
+				end
+				if object.UVRoadblock and not object.UVRoadblock.RoadBlockHit then --Crashed into roadblock
+					object.UVRoadblock.RoadBlockHit = true
+					if Chatter:GetBool() and UVTargeting and next(ents.FindByClass("npc_uv*")) ~= nil then
+						local units = ents.FindByClass("npc_uv*")
+						local random_entry = math.random(#units)	
+						local unit = units[random_entry]
+						if IsValid(unit.e) and car == unit.e then
+							UVChatterRoadblockHit(unit) 
+						end
+					end
+				end
+			elseif car.UnitVehicle then --UNIT NPC
+				local driver = UVGetDriver(car)
+				local NPC = ((IsValid(driver) and driver) or car.UnitVehicle)--car.UnitVehicle
+				if NPC and (NPC:IsNPC() or NPC:IsPlayer()) then
+					if (not UVTargeting and UVPassConVarFilter(object) or UVTargeting and object.UVWanted) then
+						UVRamVehicle(car)
+					end
+
+					local ourOldVel = coldata.OurOldVelocity:Length()
+					local ourNewVel = coldata.OurNewVelocity:Length()
+					local resultVel = ourOldVel
+					if ourOldVel > ourNewVel then --slowed
+						resultVel = ourOldVel - ourNewVel
+					else --sped up
+						resultVel = ourNewVel - ourOldVel
+					end
+					local dot = coldata.OurOldVelocity:GetNormalized():Dot(coldata.HitNormal)
+					dot = math.abs(dot) / 2
+					local dmg = resultVel * dot
+
+					if not car.taggedinfraction and coldata.TheirOldVelocity:Length() > ourOldVel and UVAddInfraction(object, 'rampolice', true) then
+						car.taggedinfraction = true
+					end
+
+					if object.UVWanted and not car.tagged then
+						car.tagged = true
+						UVTags = UVTags + 1
+						if car.rhino and not car.rhinohit then
+							car.rhinohit = true
+							if Chatter:GetBool() and UVTargeting and not NPC:IsPlayer() and not car.roadblocking and not car.disperse then
+								UVSoundChatter(NPC, NPC.voice, "rhinohit", 1)
+							end
+						end
+					end
+
+					if dmg >= 100 and object.UVWanted then
+						if Chatter:GetBool() then
+							if coldata.TheirOldVelocity:Length() > ourOldVel then
+								if not NPC:IsPlayer() then
+									UVChatterRammed(NPC)
+								end
+								UVDeactivateKillSwitch(car)
+							else
+								if not NPC:IsPlayer() then
+									UVChatterRammedEnemy(NPC)
+								end
+							end
+						end
+						if not NPC.ramming and not NPC:IsPlayer() then
+							NPC.ramming = true
+							NPC:SetHorn(true)
+						end
+						timer.Simple(math.random(1,5), function()
+							if NPC and not NPC:IsPlayer() then
+								if NPC.ramming then
+									NPC.ramming = nil
+									NPC:SetHorn(false)
+									NPC:ChangeELSSiren()
+								end
+							end
+						end)
+					end
+				end
+				if (NPC and NPC:IsPlayer()) and not UVTargeting and not UVEnemyEscaped and not UVEnemyBusted and table.HasValue(UVPotentialSuspects, object) then
+					UVTargeting = true
+				end
+			elseif car.TrafficVehicle then --TRAFFIC
+				local ourOldVel = coldata.OurOldVelocity:Length()
+				local ourNewVel = coldata.OurNewVelocity:Length()
+				local resultVel = ourOldVel
+				if ourOldVel > ourNewVel then --slowed
+					resultVel = ourOldVel - ourNewVel
+				else --sped up
+					resultVel = ourNewVel - ourOldVel
+				end
+				local dot = coldata.OurOldVelocity:GetNormalized():Dot(coldata.HitNormal)
+				dot = math.abs(dot) / 2
+				local dmg = resultVel * dot
+				if dmg >= 100 then
+					if IsValid(car.TrafficVehicle) then
+						car.TrafficVehicle.emergencystop = true
+					end
+				end
+			end
+			if not object.UnitVehicle and not object:IsWorld() then --CALL HANDLER
+				if object:IsVehicle() then --Hit And Run
+					if not object.taggedinfraction and UVAddInfraction(car, 'ram') then
+						object.taggedinfraction = true
+					end
+				elseif not object:IsPlayer() and not object:IsNPC() then --Damage to Property
+					if object.PursuitBreaker then UVCallInitiate(car, 'property') end
+					if not object.taggedinfraction and UVAddInfraction(car, 'property') then
+						object.taggedinfraction = true
+					end
+				end
+			end
+		end
+	end
+	
 end)
 
 --Vehicle Explosion

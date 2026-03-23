@@ -2529,7 +2529,8 @@ else -- CLIENT Settings | HUD/Options
 	UVSubtitles = CreateClientConVar("unitvehicle_subtitles", 1, true, false, "Unit Vehicles: If set to 1, display subtitles when Cop Chatter is active. Only works for Default Chatter, and only in English.")
 	UVVehicleNameTakedown = CreateClientConVar("unitvehicle_vehiclenametakedown", 0, true, false, "Unit Vehicles: If set to 1, Unit takedowns use the vehicle name instead of the unit name.")
 	UVDisplayUnits = CreateClientConVar("unitvehicle_unitstype", 0, true, false, "Unit Vehicles: If set to 0 (or an invalid value), displays units in meters. If set to 1, displays units in feet. If set to 2, displays units in yards.")
-	
+	LVSAlwaysFullThrottle = CreateConVar( "unitvehicle_lvsalwaysfullthrottle", 0, {FCVAR_ARCHIVE, FCVAR_USERINFO}, "LVS Always Full Throttle." )
+
 	RacerTags = CreateClientConVar("unitvehicle_racertags", 1, true, false, "Unit Vehicles: If set to 1, Racers and Commander Units will have name tags above their vehicles.")
 
 	UVControllerMode = CreateClientConVar("unitvehicle_controllermode", 0, true, false, "Unit Vehicles: If set to 1, certain actions in the UV Menu are swapped to work with more controller-friendly alternatives, such as JUMP instead of MOUSE1.")

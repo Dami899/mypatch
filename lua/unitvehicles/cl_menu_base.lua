@@ -118,6 +118,13 @@ if cffunctions then -- Glide // Circular Functions
 	})
 end
 
+if LVS then -- Glide // Circular Functions
+	UVAddon({
+		{ type = "label", text = "LVS", sv = true },
+		{ type = "bool", text = "uv.lvs.alwaysfullthrottle", desc = "uv.lvs.alwaysfullthrottle.desc", convar = "unitvehicle_lvsalwaysfullthrottle" },
+	})
+end
+
 UVMenuSound({
     name = "MW",
     displayname = "NFS Most Wanted",

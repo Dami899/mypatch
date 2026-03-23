@@ -262,6 +262,12 @@ if SERVER then
 
             vehicle:SetEngineHealth( vehicle:GetEngineHealth() - damage )
             vehicle:UpdateHealthOutputs()
+
+        elseif vehicle.LVS then
+
+            local MaxHealth = vehicle.MaxHealth or 100
+            local damage = MaxHealth*damage
+            vehicle:SetHP( vehicle:GetHP() - damage )
             
         elseif vehicle:GetClass() == "prop_vehicle_jeep" then
             if VC then
