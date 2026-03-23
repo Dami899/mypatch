@@ -2953,35 +2953,33 @@ function UVBustEnemy(self, enemy, finearrest)
 	local finesdue = enemy.FinesDue or 0
 	
 	if UVTargeting or self.UVAir or finearrest then --Arrest
-		if enemy:IsVehicle() then
-			local e = UVGetVehicleMakeAndModel(enemy)
-			if Chatter:GetBool() then
-				if finearrest then
-					net.Start( "UVFineArrest" )
-					net.Send(enemyDriver)
-					timeacknowledge = UVChatterFineArrest(self) or 5
-				else
-					timeacknowledge = UVChatterArrest(self) or 5
-				end
-			end
-			if next(UVPlayerUnitTablePlayers) ~= nil then
-				UVRelaySoundToClients("ui/pursuit/busted.wav", false)
-			end
-			if IsValid(enemyDriver) and enemyDriver:IsPlayer() then
-				net.Start('UVBusted')
-				net.WriteTable({
-					['Racer'] = enemyDriver:GetName(),
-					['Cop'] = self.callsign
-				})
-				net.Broadcast()
+		local e = UVGetVehicleMakeAndModel(enemy)
+		if Chatter:GetBool() then
+			if finearrest then
+				net.Start( "UVFineArrest" )
+				net.Send(enemyDriver)
+				timeacknowledge = UVChatterFineArrest(self) or 5
 			else
-				net.Start('UVBusted')
-				net.WriteTable({
-					['Racer'] = enemy.racer or "Racer "..enemy:EntIndex(),
-					['Cop'] = self.callsign
-				})
-				net.Broadcast()
+				timeacknowledge = UVChatterArrest(self) or 5
 			end
+		end
+		if next(UVPlayerUnitTablePlayers) ~= nil then
+			UVRelaySoundToClients("ui/pursuit/busted.wav", false)
+		end
+		if IsValid(enemyDriver) and enemyDriver:IsPlayer() then
+			net.Start('UVBusted')
+			net.WriteTable({
+				['Racer'] = enemyDriver:GetName(),
+				['Cop'] = self.callsign
+			})
+			net.Broadcast()
+		else
+			net.Start('UVBusted')
+			net.WriteTable({
+				['Racer'] = enemy.racer or "Racer "..enemy:EntIndex(),
+				['Cop'] = self.callsign
+			})
+			net.Broadcast()
 		end
 		local v = EffectData()
 		v:SetEntity(enemy)
@@ -3022,6 +3020,18 @@ function UVBustEnemy(self, enemy, finearrest)
 			wreck:SetLightsEnabled(false)
 			wreck.emson = false
 			wreck:SetEMSEnabled( false )
+		elseif enemy.LVS then
+			local wreck = enemy
+			timer.Simple(despawntime, function()
+				if IsValid(wreck) then
+					SafeRemoveEntity(wreck)
+				end
+			end)
+			for _, v in pairs(wreck:GetWheels()) do
+				v:LockRotation()
+			end
+			wreck:StopEngine()
+			wreck:SetHandbrake(true)
 		elseif enemy:GetClass() == "prop_vehicle_jeep" then
 			local wreck = enemy
 			wreck:StartEngine(false)

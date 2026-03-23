@@ -1139,6 +1139,11 @@ if SERVER then
 		if (IsValid(vehicle_entity) and vehicle_entity.uvraceparticipant) or veh.uvraceparticipant then return false end
 	end)
 
+	--LVS: Disable vehicle engine
+	hook.Add( "LVS.IsEngineStartAllowed", "UVLVSIsEngineStartAllowed", function( v )
+		if v.uvbusted then return false end
+	end)
+
 	--Non-collision damage to prop_vehicle_jeep UVs
 	hook.Add( "EntityTakeDamage", "UVDamage", function( target, dmginfo )
 		if VC then return end
@@ -1650,6 +1655,7 @@ if SERVER then
 					local is_vehicle =
 						closestsuspect.IsSimfphyscar or
 						closestsuspect.IsGlideVehicle or
+						closestsuspect.LVS or
 						closestsuspect:GetClass() == "prop_vehicle_jeep"
 
 					if is_vehicle then

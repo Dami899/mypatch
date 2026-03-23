@@ -343,14 +343,18 @@ if SERVER then
 					self.v:PlayerSteerVehicle(self, steerinput < 0 and -steerinput or 0, steerinput > 0 and steerinput or 0)
 				end
 			elseif not IsValid(self.v:GetDriver()) and --The vehicle is normal vehicle.
-			isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
-			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle and not self.v.LVS then
+			(isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
+			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle) or self.v.LVS then
 				self.v.GetDriver = self.v.OldGetDriver or self.v.GetDriver
 				--self.v:StartEngine(false) --Reset states.
 				--self:UVHandbrakeOn()
 				self.v:SetThrottle(0)
-				if self.v.uvbusted then
-					self.v:SetSteering(steerinput, 0)
+				if self.v.wrecked then
+					if self.v.LVS then
+						self.v:SetSteer(steerinput * self.v:GetMaxSteerAngle())
+					else
+						self.v:SetSteering(steerinput, 0)
+					end
 				end
 			elseif self.v.IsGlideVehicle then
 				self.v:TurnOff()

@@ -63,14 +63,18 @@ if SERVER then
 					self.v:PlayerSteerVehicle(self, steerinput < 0 and -steerinput or 0, steerinput > 0 and steerinput or 0)
 				end
 			elseif not IsValid(self.v:GetDriver()) and --The vehicle is normal vehicle.
-			isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
-			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle then
+			(isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
+			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle) or self.v.LVS then
 				self.v.GetDriver = self.v.OldGetDriver or self.v.GetDriver
 				--self.v:StartEngine(false) --Reset states.
 				--self:UVHandbrakeOn()
 				self.v:SetThrottle(0)
 				if self.v.wrecked then
-					self.v:SetSteering(steerinput, 0)
+					if self.v.LVS then
+						self.v:SetSteer(steerinput * self.v:GetMaxSteerAngle())
+					else
+						self.v:SetSteering(steerinput, 0)
+					end
 				end
 			elseif self.v.IsGlideVehicle then
 				self.v:TurnOff()
@@ -792,9 +796,8 @@ if SERVER then
 					end
 				end
 			elseif v.LVS then
-				if not v:IsInitialized() then print("OW1") return end
+				if not v:IsInitialized() then return end
 				if IsValid(v:GetDriver()) then return end
-				print("OW2")
 				self.v = v
 				v.uvclasstospawnon = self:GetClass()
 				v.TrafficVehicle = self
@@ -807,7 +810,6 @@ if SERVER then
 				if v:GetClass() == 'prop_vehicle_prisoner_pod' then continue end
 				if v.TrafficVehicle and v.TrafficVehicle:IsNPC() then continue end
 				if v.LVS then
-					print("OW3")
 					if not v:IsInitialized() then continue end
 					if IsValid(v:GetDriver()) then continue end
 					self.v = v

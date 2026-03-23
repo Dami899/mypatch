@@ -3530,7 +3530,7 @@ local function GetVehicleData( ent )
 		for i = 0, (table.Count( ent:GetMaterials() ) - 1) do
 			Memory.SubMaterials[i] = ent:GetSubMaterial( i )
 		end
-	elseif ent.IsGlideVehicle then
+	elseif ent.IsGlideVehicle or ent.LVS then
 		local pos = ent:GetPos()
 		duplicator.SetLocalPos( pos )
 
@@ -4051,6 +4051,8 @@ function UVMoveToGridSlot( vehicle, aienabled )
 	local ang = spawn:GetAngles()
 	
 	local Ent
+
+	print(Memory.VehicleBase)
 	
 	if Memory.VehicleBase == "gmod_sent_vehicle_fphysics_base" then
 		local vname = Memory.SpawnName
@@ -4306,7 +4308,7 @@ function UVMoveToGridSlot( vehicle, aienabled )
 			end
 		end)
 		
-	elseif Memory.VehicleBase == "base_glide_car" or Memory.VehicleBase == "base_glide_motorcycle" or Memory.VehicleBase == "base_glide_boat" or Memory.VehicleBase == "base_glide_aircraft" or Memory.VehicleBase == "base_glide_heli" or Memory.VehicleBase == "base_glide_plane" then
+	elseif Memory.VehicleBase == "base_glide_car" or Memory.VehicleBase == "base_glide_motorcycle" or Memory.VehicleBase == "base_glide_boat" or Memory.VehicleBase == "base_glide_aircraft" or Memory.VehicleBase == "base_glide_heli" or Memory.VehicleBase == "base_glide_plane" or Memory.VehicleBase == "lvs_base_wheeldrive" then
 		local SpawnCenter = pos + (vector_up * (InfMap and 2 or 25))
 		SpawnCenter.z = SpawnCenter.z - Memory.Mins.z
 		
@@ -4690,6 +4692,8 @@ function UVMoveToGridSlot( vehicle, aienabled )
 					end
 				elseif Ent:GetClass() == "prop_vehicle_jeep" then
 					ply:EnterVehicle(Ent)
+				elseif Ent.LVS then
+					ply:EnterVehicle(Ent:GetDriverSeat())
 				end
 			end
 		end
