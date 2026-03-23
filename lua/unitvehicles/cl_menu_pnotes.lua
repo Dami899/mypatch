@@ -8,7 +8,22 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
-["v1.3.1"] = {
+["v1.5.0"] = {
+Date = { year = 2026, month = 3, day = 27 },
+Text = [[
+**New Features**
+- Added *LVS* support
+      |-- 
+      |-- 
+      |-- 
+      |-- 
+
+**Changes**
+
+]],
+},
+
+["v1.4.0"] = {
 Date = { year = 2026, month = 3, day = 20 },
 Text = [[
 **New Features**
