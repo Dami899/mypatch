@@ -104,6 +104,13 @@ function UVSetELS(on, vehicle)
 		else
 			vehicle.SirenSound:Stop()	
 		end
+    elseif vehicle.LVS then
+        if on and isfunction(vehicle.StartSiren) then
+            vehicle:StartSiren(false, true)
+        elseif not on and isfunction(vehicle.StopSiren) then
+            vehicle:StopSiren()
+            vehicle:SetSirenMode(-1)
+        end
 	elseif vehicle.IsSimfphyscar then
 		local v_list = list.Get( "simfphys_lights" )[vehicle.LightsTable]
 		if not v_list then vehicle.DontHaveEMS = true return end
@@ -178,6 +185,13 @@ function UVSetELSSound(on, vehicle)
 			vehicle.SirenSound:Play()
 		else
 			vehicle.SirenSound:Stop()
+		end
+	elseif vehicle.LVS then
+		if on and isfunction(vehicle.StartSiren) then
+			vehicle:StartSiren(false, true)
+		elseif not on and isfunction(vehicle.StopSiren) then
+			vehicle:StopSiren()
+			vehicle:SetSirenMode(-1)
 		end
 	elseif vehicle.IsSimfphyscar then
 		if vehicle.ems then
@@ -1655,6 +1669,8 @@ if SERVER then
                 car:SetHP(math.huge)
                 vehEngine:SetHP(math.huge)
             end
+
+            is_repaired = true
         end
         
         local driver = UVGetDriver(car)
@@ -1786,6 +1802,8 @@ if SERVER then
                                 enemyVehicle:TurnOff()
                             elseif enemyVehicle:GetClass() == "prop_vehicle_jeep" then
                                 enemyVehicle:StartEngine(false)
+                            elseif enemyVehicle.LVS then
+                                enemyVehicle:StopEngine()
                             end
                             -- if isfunction(enemyVehicle.GetDriver) and IsValid(UVGetDriver(enemyVehicle)) and UVGetDriver(enemyVehicle):IsPlayer() then 
                             --     UVGetDriver(enemyVehicle):PrintMessage( HUD_PRINTCENTER, "YOU HAVE BEEN KILLSWITCHED!")
@@ -1808,6 +1826,8 @@ if SERVER then
                                         enemyVehicle:TurnOn()
                                     elseif enemyVehicle:GetClass() == "prop_vehicle_jeep" then
                                         enemyVehicle:StartEngine(true)
+                                    elseif enemyVehicle.LVS then
+                                        enemyVehicle:StartEngine()
                                     end
                                     -- if isfunction(enemyVehicle.GetDriver) and IsValid(UVGetDriver(enemyVehicle)) and UVGetDriver(enemyVehicle):IsPlayer() then 
                                     --     UVGetDriver(enemyVehicle):PrintMessage( HUD_PRINTCENTER, "Engine restarted!")

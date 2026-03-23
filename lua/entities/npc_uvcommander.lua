@@ -68,8 +68,9 @@ if SERVER then
 		if Chatter:GetBool() and IsValid(self.v) and not self.wrecked and not UVTargeting then
 			UVChatterOnRemove(self)
 		end
+		local isValid = IsValid(self.v)
 		--By undoing, driving, diving in water, or getting stuck, and the vehicle is remaining.
-		if IsValid(self.v) and self.v:IsVehicle() then
+		if isValid then
 			self.v.UVCommander = nil
 			self.v.UnitVehicle = nil
 			local steerinput = (math.random(-100, 100)) / 100
@@ -221,11 +222,13 @@ if SERVER then
 	
 	--Validate the given enemy.
 	function ENT:Validate(v)
+		if not v then return false end
+
 		local valid = 
 		IsValid(v) and --Has existence
 		IsValid(v:GetPhysicsObject()) and --Has physics
 		not v.UnitVehicle and
-		(v:IsVehicle() and not GetConVar("ai_ignoreplayers"):GetBool()) 
+		(not GetConVar("ai_ignoreplayers"):GetBool())
 		if not valid then return false end
 		
 		return UVPassConVarFilter(v)

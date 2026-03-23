@@ -1141,7 +1141,7 @@ if SERVER then
 
 	--LVS: Disable vehicle engine
 	hook.Add( "LVS.IsEngineStartAllowed", "UVLVSIsEngineStartAllowed", function( v )
-		if v.uvbusted then return false end
+		if v.uvbusted or v.uvenginedisabledbyuv then return false end
 	end)
 
 	--Non-collision damage to prop_vehicle_jeep UVs

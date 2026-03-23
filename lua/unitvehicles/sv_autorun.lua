@@ -1042,7 +1042,7 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 				end
 			end
 
-			if car.esfon and object:IsVehicle() and not (object.UnitVehicle and car.UnitVehicle) then --ESF
+			if car.esfon and (object:IsVehicle() or object.LVS) and not (object.UnitVehicle and car.UnitVehicle) then --ESF
 
 				if not object.UnitVehicle and not car.UnitVehicle then
 					if not RacerFriendlyFire:GetBool() then return end
@@ -1356,7 +1356,7 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 		end
 	end
 
-	if car.esfon and object:IsVehicle() and not (object.UnitVehicle and car.UnitVehicle) then --ESF
+	if car.esfon and (object:IsVehicle() or object.LVS) and not (object.UnitVehicle and car.UnitVehicle) then --ESF
 		if not object.UnitVehicle and not car.UnitVehicle then
 			if not RacerFriendlyFire:GetBool() then return end
 		end
@@ -1704,7 +1704,7 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			end
 		end
 
-		if car.esfon and object:IsVehicle() and not (object.UnitVehicle and car.UnitVehicle) then --ESF
+		if car.esfon and (object:IsVehicle() or object.LVS) and not (object.UnitVehicle and car.UnitVehicle) then --ESF
 			if not object.UnitVehicle and not car.UnitVehicle then
 				if not RacerFriendlyFire:GetBool() then return end
 			end
@@ -1998,7 +1998,7 @@ hook.Add("OnEntityCreated", "UVCollisionLVS", function(lvsvehicle)
 				end
 			end
 
-			if car.esfon and object:IsVehicle() and not (object.UnitVehicle and car.UnitVehicle) then --ESF
+			if car.esfon and (object:IsVehicle() or object.LVS) and not (object.UnitVehicle and car.UnitVehicle) then --ESF
 
 				if not object.UnitVehicle and not car.UnitVehicle then
 					if not RacerFriendlyFire:GetBool() then return end
