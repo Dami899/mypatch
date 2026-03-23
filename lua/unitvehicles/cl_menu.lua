@@ -474,6 +474,7 @@ UVMenu.Main = function()
 						{ "uv.base.hl2", 1 } ,
 						{ "uv.base.simfphys", 2 } ,
 						{ "uv.base.glide", 3 } ,
+						{ "uv.base.lvs", 4 } ,
 					},
 				},
 				{ type = "combo", text = "uv.tool.spawncondition", desc = "uv.tool.spawncondition.desc", convar = "unitvehicle_racer_spawncondition", sv = true, content = {
@@ -496,6 +497,7 @@ UVMenu.Main = function()
 						{ "uv.base.hl2", 1 } ,
 						{ "uv.base.simfphys", 2 } ,
 						{ "uv.base.glide", 3 } ,
+						{ "uv.base.lvs", 4 } ,
 					},
 				},
 				{ type = "combo", text = "uv.tool.spawncondition", desc = "uv.tool.spawncondition.desc", convar = "unitvehicle_traffic_spawncondition", sv = true, content = {
@@ -1494,6 +1496,7 @@ UVMenu.HeatManager = function()
 				{ "uv.base.hl2", 1 } ,
 				{ "uv.base.simfphys", 2 } ,
 				{ "uv.base.glide", 3 } ,
+				{ "uv.base.lvs", 4 } ,
 			},
 		},
 		{ type = "bool", text = "uv.hm.timedhl", desc = "uv.hm.timedhl.desc", convar = "unitvehicle_unit_timetillnextheatenabled", sv = true },

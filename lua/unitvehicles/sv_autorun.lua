@@ -253,6 +253,10 @@ NETWORK_STRINGS = {
 	"RequestGlideVehicles",
 	"GlideVehiclesTable",
 	
+	-- LVS Nodes
+	"RequestLVSVehicles",
+	"LVSVehiclesTable",
+	
 	-- DV Warning
 	"UV_OpenDVWarning",
 }
@@ -939,13 +943,13 @@ function UVPassConVarFilter(v)
 		return false 
 	end
 
-	if v.IsSimfphyscar then
+	if v.IsSimfphyscar or v.LVS then
 		if not v:IsInitialized() then return false end
 	end
 	
 	local innocent = IsValid(v.DecentVehicle) or IsValid(v.TrafficVehicle) or IsValid(v.UnitVehicle)
 	
-	if (v:GetClass() == "prop_vehicle_jeep" or v.IsSimfphyscar or v.IsGlideVehicle) then
+	if (v:GetClass() == "prop_vehicle_jeep" or v.IsSimfphyscar or v.IsGlideVehicle or v.LVS) then
 		return (IsValid(v.MadVehicle) or (UVGetDriver(v) and UVGetDriver(v):IsPlayer()) or IsValid(v.RacerVehicle)) and not innocent or IsValid(v.UVWanted)
 	end
 	
@@ -4268,5 +4272,35 @@ net.Receive("RequestGlideVehicles", function(len, ply)
 	-- Send the *entire* table in a single message
 	net.Start("GlideVehiclesTable")
 	net.WriteTable(glideVehicles)
+	net.Send(ply)
+end)
+
+net.Receive("RequestLVSVehicles", function(len, ply)
+	if not ply:IsSuperAdmin() then return end
+
+	-- Simple cooldown
+	if not LVSRequestCooldown or CurTime() - LVSRequestCooldown > 1 then
+		LVSRequestCooldown = CurTime()
+	else
+		return
+	end
+
+	local lvsVehicles = {}	
+
+	-- Collect all LVS vehicles into categories
+	for className, scripted in pairs(scripted_ents.GetList() or {}) do
+		if scripted.Base == "lvs_base_wheeldrive" and istable(scripted.t) then	
+			local cat = scripted.t.Category or "Default"
+			lvsVehicles[cat] = lvsVehicles[cat] or {}
+			table.insert(lvsVehicles[cat], {
+				name  = scripted.t.PrintName or className,
+				class = className
+			})
+		end
+	end
+
+	-- Send the *entire* table in a single message
+	net.Start("LVSVehiclesTable")
+	net.WriteTable(lvsVehicles)
 	net.Send(ply)
 end)

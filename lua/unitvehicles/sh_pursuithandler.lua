@@ -89,7 +89,7 @@ end
 function UVGetDriver(vehicle)
 	if not IsValid(vehicle) then return nil end
 
-	if vehicle.IsSimfphyscar or vehicle:GetClass() == "prop_vehicle_jeep" then
+	if vehicle.IsSimfphyscar or vehicle:GetClass() == "prop_vehicle_jeep" or vehicle.LVS then
 		return vehicle:GetDriver()
 	elseif vehicle.IsGlideVehicle then
 		if not vehicle.seats or next(vehicle.seats) == nil then return nil end
@@ -1459,7 +1459,7 @@ if SERVER then
 
 		if next(UVVehicleInitializing) ~= nil then
 			for k, car in pairs(UVVehicleInitializing) do
-				if IsValid(car) and ((isfunction(car.IsInitialized) and car:IsInitialized()) or car.IsGlideVehicle or car:GetClass() == "prop_vehicle_jeep") then
+				if IsValid(car) and ((isfunction(car.IsInitialized) and car:IsInitialized()) or car.IsGlideVehicle or (car.LVS and car:IsInitialized()) or car:GetClass() == "prop_vehicle_jeep") then
 					if car.uvclasstospawnon == "npc_uvpatrol" then
 						car.playerbounty = UVUBountyPatrol:GetInt()
 					elseif car.uvclasstospawnon == "npc_uvsupport" then
@@ -1519,6 +1519,8 @@ if SERVER then
 							end
 						elseif car:GetClass() == "prop_vehicle_jeep" then
 							car.UnitVehicle:EnterVehicle(car)
+						elseif car.LVS then
+							car.UnitVehicle:EnterVehicle(car:GetDriverSeat())
 						end
 					end
 					table.RemoveByValue(UVVehicleInitializing, car)

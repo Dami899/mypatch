@@ -682,7 +682,264 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 
 	local appliedUnitsStrings = string.Explode( " ", appliedunits )
 	
-	if vehiclebase == 3 then --Glide
+	if vehiclebase == 4 then --LVS
+		local createdEntities = {}
+
+		local saved_vehicles = file.Find("unitvehicles/lvs/units/*.json", "DATA")
+		
+		for k, v in pairs(saved_vehicles) do
+			local match
+			-- if (playercontrolled and playercontrolled.unit) then
+			-- 	match = playercontrolled.unit == v
+			-- else
+				for _, string in pairs(appliedUnitsStrings) do
+					if string == v then
+						match = true
+						break
+					end
+				end
+			if match then
+				table.insert(availableunits, v)
+			end
+		end
+		
+		if next(availableunits) == nil then
+			if not string.match(appliedunits, "^%s*$") then
+				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Unit that is NOT in the database. Unit name(s) to cross-check: "..appliedunits..". Ensure that you have selected the correct vehicle base inside Heat Level Manager settings!")
+			end
+			return
+		end
+		
+		availableunit = availableunits[math.random(1, #availableunits)]
+		
+		if commanderrespawn then
+			availableunit = commanderrespawn
+			uvnextclasstospawn = "npc_uvcommander"
+		end
+		
+		local JSONData = file.Read( "unitvehicles/lvs/units/"..availableunit, "DATA" )
+		
+		MEMORY = util.JSONToTable(JSONData, true)
+
+		local pos = uvspawnpoint+Vector( 0, 0, 50 )
+		local ang = uvspawnpointangles
+		ang.yaw = UVTargeting and rhinoattack and not posspecified and ang.yaw or ang.yaw + 180 --Points the other way when spawning based on player
+		
+		--duplicator.SetLocalPos( pos )
+		--duplicator.SetLocalAng( ang )
+		
+		-- local Ents = duplicator.Paste( nil, MEMORY.Entities, MEMORY.Constraints )
+		-- --print(type(Ents), "a", PrintTable(Ents))
+		-- local Ent = Ents[next(Ents)]
+
+		local entCount = 0
+
+		for _, _ in pairs(MEMORY.Entities) do
+			entCount = entCount + 1
+		end
+
+		for k, v in pairs(MEMORY.Entities) do
+			local e = ents.Create( v.Class )
+			if not IsValid( e ) then continue end
+
+			duplicator.DoGeneric( e, v )
+
+			e:SetPos( pos )
+			e:SetAngles( ang )
+
+			table.Merge( e:GetTable(), v )
+
+			e:Spawn()
+			e:Activate()
+
+			if ( e.RestoreNetworkVars ) then
+				e:RestoreNetworkVars( v.DT )
+			end
+
+			if ( e.OnDuplicated ) then
+				e:OnDuplicated( v )
+			end
+
+			createdEntities[k] = e
+
+			if createdEntities[k] then
+				createdEntities[k].BoneMods = table.Copy( v.BoneMods )
+				createdEntities[k].EntityMods = table.Copy( v.EntityMods )
+				createdEntities[k].PhysicsObjects = table.Copy( v.PhysicsObjects )
+			end
+		end
+
+		for k, v in pairs( createdEntities ) do
+			duplicator.ApplyEntityModifiers( NULL, v )
+			duplicator.ApplyBoneModifiers( NULL, v )
+
+			-- if ( v.PostEntityPaste ) then
+			-- 	v:PostEntityPaste( NULL, nil, Ent, createdEntities )
+			-- end
+		end
+
+		local createdConstraints = {}
+
+		for k, v in pairs( MEMORY.Constraints ) do
+			local Ent = UVCreateConstraintsFromTable( v, createdEntities )
+			
+			if IsValid( Ent ) then
+				table.insert( createdConstraints, Ent )
+			end
+		end
+
+		--table.Merge( Ent:GetTable(), MEMORY.Entities[next(MEMORY.Entities)] )
+		
+		-- duplicator.SetLocalPos( vector_origin )
+		-- duplicator.SetLocalAng( angle_zero )
+
+		-- local Ent = duplicator.CreateEntityFromTable( nil, MEMORY.Entities )
+		-- print(Ent, "b")
+		local Ent = nil
+		if next(createdEntities) ~= nil then
+			for _, v in pairs(createdEntities) do
+				if v.LVS then
+					Ent = v
+					break
+				end
+			end
+		end
+
+		if not IsValid(Ent) then PrintMessage( HUD_PRINTTALK, "The vehicle '"..availableunit.."' is missing! Ensure that you have selected the correct vehicle base inside Heat Level Manager settings!") return end
+
+		if MEMORY.SubMaterials then
+			if istable( MEMORY.SubMaterials ) then
+				for i = 0, table.Count( MEMORY.SubMaterials ) do
+					Ent:SetSubMaterial( i, MEMORY.SubMaterials[i] )
+				end
+			end
+			
+			local groups = string.Explode( ",", MEMORY.BodyGroups)
+			for i = 1, table.Count( groups ) do
+				Ent:SetBodygroup(i, tonumber(groups[i]) )
+			end
+			
+			Ent:SetSkin( MEMORY.Skin )
+			
+			local c = string.Explode( ",", MEMORY.Color )
+			local Color =  Color( tonumber(c[1]), tonumber(c[2]), tonumber(c[3]), tonumber(c[4]) )
+			
+			local dot = Color.r * Color.g * Color.b * Color.a
+			Ent.OldColor = dot
+			Ent:SetColor( Color )
+			
+			local data = {
+				Color = Color,
+				RenderMode = 0,
+				RenderFX = 0
+			}
+			duplicator.StoreEntityModifier( Ent, "colour", data )
+		end
+		
+		Ent.uvclasstospawnon = uvnextclasstospawn
+		
+		if rhinoattack then
+			Ent.uvclasstospawnon = "npc_uvspecial"
+			Ent.rhino = true
+		elseif Ent.uvclasstospawnon ~= "npc_uvpatrol" and Ent.uvclasstospawnon ~= "npc_uvsupport" then
+			
+			if UVUPursuitTech:GetBool() then
+				Ent.PursuitTech = {}
+				
+				local pool = {}
+				
+				if UVUPursuitTech_ESF:GetBool() then
+					table.insert(pool, "ESF")
+				end
+				if UVUPursuitTech_EMP:GetBool() then
+					table.insert(pool, "EMP")
+				end
+				if UVUPursuitTech_Spikestrip:GetBool() then
+					table.insert(pool, "Spikestrip")
+				end
+				if UVUPursuitTech_Killswitch:GetBool() then
+					table.insert(pool, "Killswitch")
+				end
+				if UVUPursuitTech_RepairKit:GetBool() and Ent.uvclasstospawnon ~= "npc_uvcommander" then
+					table.insert(pool, "Repair Kit")
+				end
+				if UVUPursuitTech_ShockRam:GetBool() then
+					table.insert(pool, "Shock Ram")
+				end
+				if UVUPursuitTech_GPSDart:GetBool() then
+					table.insert(pool, "GPS Dart")
+				end
+				if UVUPursuitTech_Grappler:GetBool() then
+					table.insert(pool, "Grappler")
+				end
+				
+				for i=1,2,1 do
+					if #pool > 0 then
+						local selected_pt = pool[math.random(1, #pool)]
+						local sanitized_pt = string.lower(string.gsub(selected_pt, " ", ""))
+						
+						local ammo_count = GetConVar("uvpursuittech_" .. sanitized_pt .. "_maxammo_unit"):GetInt()
+						ammo_count = ammo_count > 0 and ammo_count or math.huge
+						
+						Ent.PursuitTech[i] = {
+							Tech = selected_pt,
+							Ammo = ammo_count,
+							Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown_unit"):GetInt(),
+							LastUsed = -math.huge,
+						}
+						
+						for i, v in pairs(pool) do
+							if v == selected_pt then
+								table.remove(pool, i)
+							end
+						end
+						--UVReplicatePT( Ent, i )
+					end
+				end
+			end
+		end
+		
+		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
+			UVOneCommanderDeployed = true
+			table.insert(UVCommanders, Ent)
+			Ent.unitscript = availableunit
+			Ent.uvlasthealth = UVCommanderLastHealth
+			Ent.uvlastenginehealth = UVCommanderLastEngineHealth
+		end
+		
+		Ent:CallOnRemove( "UVGlideVehicleRemoved", function(car)
+			if table.HasValue(UVCommanders, car) then
+				table.RemoveByValue(UVCommanders, car)
+			end
+		end)
+		
+		if posspecified then
+			Ent.roadblocking = true
+		end
+		if disperse then
+			Ent.disperse = true
+		end
+		
+		if playercontrolled then
+			timer.Simple(0.5, function()
+				Ent.UnitVehicle = ply
+				Ent.callsign = ply:GetName()
+				UVAddToPlayerUnitListVehicle(Ent)
+				table.insert(UVVehicleInitializing, Ent)
+			end)
+		else
+			table.insert(UVVehicleInitializing, Ent)
+		end
+		
+		if Ent.PursuitTech then
+			timer.Simple(1, function()
+				for i=1,2 do
+					UVReplicatePT( Ent, i )
+				end
+			end)
+		end
+		
+	elseif vehiclebase == 3 then --Glide
 		local createdEntities = {}
 
 		local saved_vehicles = file.Find("unitvehicles/glide/units/*.json", "DATA")
@@ -1647,7 +1904,7 @@ function UVAutoSpawnTraffic()
 		-- Pick a random vehicle from the override list
 		local class_name = OverrideVehicles[math.random(1, #OverrideVehicles)]
 
-		if vehiclebase == 3 then
+		if vehiclebase == 3 or vehiclebase == 4 then
 			-- Glide
 			local Ent = ents.Create(class_name)
 			if IsValid(Ent) then
@@ -1709,8 +1966,8 @@ function UVAutoSpawnTraffic()
 		return -- skip the rest of the function
 	end
 	
-	if vehiclebase == 3 then --Glide
-		local saved_vehicles = file.Find("unitvehicles/glide/traffic/*.json", "DATA")
+	if vehiclebase == 4 then --LVS
+		local saved_vehicles = file.Find("unitvehicles/lvs/traffic/*.json", "DATA")
 		
 		for k, v in pairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
@@ -1728,7 +1985,7 @@ function UVAutoSpawnTraffic()
 		
 		availabletraffic = saved_vehicles[math.random(1, #saved_vehicles)]
 		
-		local JSONData = file.Read( "unitvehicles/glide/traffic/"..availabletraffic, "DATA" )
+		local JSONData = file.Read( "unitvehicles/lvs/traffic/"..availabletraffic, "DATA" )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 		
@@ -1835,70 +2092,134 @@ function UVAutoSpawnTraffic()
 		for k, v in pairs( createdEntities ) do
 			duplicator.ApplyEntityModifiers( NULL, v )
 			duplicator.ApplyBoneModifiers( NULL, v )
-
-			--if ( v.PostEntityPaste ) then
-			--	v:PostEntityPaste( NULL, nil, Ent, createdEntities )
-			--end
 		end
-		-- local Ent = ents.Create( entArray.Class )
-		-- duplicator.DoGeneric( Ent, entArray )
+	elseif vehiclebase == 3 or vehiclebase == 4 then --LVS
+		local saved_vehicles = file.Find("unitvehicles/lvs/traffic/*.json", "DATA")
 		
-		-- Ent:SetPos( pos )
-		-- Ent:SetAngles( ang )
+		for k, v in pairs(saved_vehicles) do
+			table.insert(availabletraffic, v)
+		end
+		
+		if saved_vehicles == nil or next(saved_vehicles) == nil then
+			if not UVNoTrafficNotify then
+				UVNoTrafficNotify = true
+				PrintMessage( HUD_PRINTTALK, "There's currently no Traffic to spawn. Use the Traffic Manager tool to add Traffic!")
+			end
+			return
+		end
 
-		-- Ent:Spawn()
-		-- Ent:Activate()
+		UVNoTrafficNotify = nil
+		
+		availabletraffic = saved_vehicles[math.random(1, #saved_vehicles)]
+		
+		local JSONData = file.Read( "unitvehicles/lvs/traffic/"..availabletraffic, "DATA" )
+		
+		MEMORY = util.JSONToTable(JSONData, true)
+		
+		-- local pos = uvspawnpoint+Vector( 0, 0, 50 )
+		-- local ang = uvspawnpointangles
 
-		-- table.Merge( Ent:GetTable(), MEMORY.Entities[next(MEMORY.Entities)] )
+		--local pos, ang = LocalToWorld( MEMORY.Pos, MEMORY.Angle, uvspawnpoint+Vector( 0, 0, 50 ), uvspawnpointangles )
 		
-		-- if not IsValid(Ent) then PrintMessage( HUD_PRINTTALK, "The vehicle '"..availabletraffic.."' is missing!") return end
-		
-		-- if MEMORY.SubMaterials then
-		-- 	if istable( MEMORY.SubMaterials ) then
-		-- 		for i = 0, table.Count( MEMORY.SubMaterials ) do
-		-- 			Ent:SetSubMaterial( i, MEMORY.SubMaterials[i] )
-		-- 		end
-		-- 	end
-			
-		-- 	local groups = string.Explode( ",", MEMORY.BodyGroups)
-		-- 	for i = 1, table.Count( groups ) do
-		-- 		Ent:SetBodygroup(i, tonumber(groups[i]) )
-		-- 	end
-			
-		-- 	Ent:SetSkin( MEMORY.Skin )
-			
-		-- 	local c = string.Explode( ",", MEMORY.Color )
-		-- 	local Color =  Color( tonumber(c[1]), tonumber(c[2]), tonumber(c[3]), tonumber(c[4]) )
-			
-		-- 	local dot = Color.r * Color.g * Color.b * Color.a
-		-- 	Ent.OldColor = dot
+		--ang.yaw = ang.yaw + 180 --Points the other way when spawning based on player
+	
+		--local entArray = MEMORY.Entities[next(MEMORY.Entities)]
 
-		-- 	if MEMORY.SaveColor then
-		-- 		Ent:SetColor( Color )
-		-- 	else
-		-- 		if isfunction(Ent.GetSpawnColor) then
-		-- 			Color = Ent:GetSpawnColor()
-		-- 			Ent:SetColor( Color )
-		-- 		else
-		-- 			Color.r = math.random(0, 255)
-		-- 			Color.g = math.random(0, 255)
-		-- 			Color.b = math.random(0, 255)
-		-- 			Ent:SetColor( Color )
-		-- 		end
-		-- 	end
-			
-		-- 	local data = {
-		-- 		Color = Color,
-		-- 		RenderMode = 0,
-		-- 		RenderFX = 0
-		-- 	}
-		-- 	duplicator.StoreEntityModifier( Ent, "colour", data )
-		-- end
-		
-		-- Ent.uvclasstospawnon = uvnextclasstospawn
-		
-		-- table.insert(UVVehicleInitializing, Ent)
-		
+		local createdEntities = {}
+
+		local entCount = 0
+
+		for _, _ in pairs(MEMORY.Entities) do
+			entCount = entCount + 1
+		end
+
+		for id, v in pairs(MEMORY.Entities) do
+			local Ent = ents.Create( v.Class )
+			if not IsValid( Ent ) then continue end
+
+			local pos, ang = LocalToWorld( v.Pos, ( (entCount > 1 and v.Angle) or Angle(0,0,0) ), uvspawnpoint + Vector( 0, 0, 50 ), uvspawnpointangles + Angle(0,180,0) ) -- rotate entities 180 degrees to face the right way of dv
+
+			duplicator.DoGeneric( Ent, v )
+
+			Ent:SetPos( pos )
+			Ent:SetAngles( ang )
+
+			table.Merge( Ent:GetTable(), v )
+
+			Ent:Spawn()
+			Ent:Activate()
+
+			if ( Ent.RestoreNetworkVars ) then
+				Ent:RestoreNetworkVars( v.DT )
+			end
+
+			if ( Ent.OnDuplicated ) then
+				Ent:OnDuplicated( v )
+			end
+
+			createdEntities[id] = Ent
+
+			if createdEntities[id] then
+				createdEntities[id].BoneMods = table.Copy( v.BoneMods )
+				createdEntities[id].EntityMods = table.Copy( v.EntityMods )
+				createdEntities[id].PhysicsObjects = table.Copy( v.PhysicsObjects )
+			end
+
+			if MEMORY.SubMaterials then
+				if istable( MEMORY.SubMaterials ) then
+					for i = 0, table.Count( MEMORY.SubMaterials ) do
+						createdEntities[id]:SetSubMaterial( i, MEMORY.SubMaterials[i] )
+					end
+				end
+				
+				local groups = string.Explode( ",", MEMORY.BodyGroups)
+				for i = 1, table.Count( groups ) do
+					createdEntities[id]:SetBodygroup(i, tonumber(groups[i]) )
+				end
+				
+				createdEntities[id]:SetSkin( MEMORY.Skin )
+				
+				local c = string.Explode( ",", MEMORY.Color )
+				local Color =  Color( tonumber(c[1]), tonumber(c[2]), tonumber(c[3]), tonumber(c[4]) )
+				
+				local dot = Color.r * Color.g * Color.b * Color.a
+				Ent.OldColor = dot
+	
+				if MEMORY.SaveColor then
+					createdEntities[id]:SetColor( Color )
+				else
+					if isfunction(Ent.GetSpawnColor) then
+						Color = createdEntities[id]:GetSpawnColor()
+						createdEntities[id]:SetColor( Color )
+					else
+						Color.r = math.random(0, 255)
+						Color.g = math.random(0, 255)
+						Color.b = math.random(0, 255)
+						createdEntities[id]:SetColor( Color )
+					end
+				end
+				
+				local data = {
+					Color = Color,
+					RenderMode = 0,
+					RenderFX = 0
+				}
+				duplicator.StoreEntityModifier( createdEntities[id], "colour", data )
+			end
+
+			createdEntities[id].uvclasstospawnon = uvnextclasstospawn
+
+			table.insert(UVVehicleInitializing, createdEntities[id])
+		end
+
+		for _, v in pairs(MEMORY.Constraints) do
+			local constraintEntity = UVCreateConstraintsFromTable( v, createdEntities )
+		end
+
+		for k, v in pairs( createdEntities ) do
+			duplicator.ApplyEntityModifiers( NULL, v )
+			duplicator.ApplyBoneModifiers( NULL, v )
+		end
 	elseif vehiclebase == 2 then --simfphys
 		
 		local saved_vehicles = file.Find("unitvehicles/simfphys/traffic/*.txt", "DATA")
@@ -2358,7 +2679,7 @@ function UVAutoSpawnRacer()
 		-- Pick a random vehicle from the override list
 		local class_name = OverrideVehicles[math.random(1, #OverrideVehicles)]
 
-		if vehiclebase == 3 then
+		if vehiclebase == 3 or vehiclebase == 4 then
 			-- Glide
 			local Ent = ents.Create(class_name)
 			if IsValid(Ent) then
@@ -2423,7 +2744,142 @@ function UVAutoSpawnRacer()
 	local AssignedRacers = string.Trim( GetConVar( 'unitvehicle_racer_racers' ):GetString() )
 	local AssignedRacersStrings = string.Explode( " ", AssignedRacers )
 	
-	if vehiclebase == 3 then --Glide
+	if vehiclebase == 4 then --LVS
+		local saved_vehicles = file.Find("unitvehicles/lvs/racers/*.json", "DATA")
+
+		if saved_vehicles == nil or next(saved_vehicles) == nil then
+			if not UVNoRacerNotify then
+				UVNoRacerNotify = true
+				PrintMessage( HUD_PRINTTALK, "There are no Racers to spawn. Use the Racer Manager tool to add Racers!")
+			end
+			return
+		end
+		UVNoRacerNotify = nil
+		
+		if UVRAssignRacers:GetBool() then
+			for k, v in pairs(saved_vehicles) do
+				local match
+				for _, string in pairs(AssignedRacersStrings) do
+					if string == v then
+						match = true
+						break
+					end
+				end
+				if match then
+					table.insert(availableracers, v)
+				end
+			end
+
+			if next(availableracers) == nil then
+				PrintMessage( HUD_PRINTTALK, "Unit Manager attempted to spawn a Racer that is NOT in the database. Ensure that you have selected the correct vehicle base inside AI Racer Manager settings!")
+				return
+			end
+
+			availableracer = availableracers[math.random(1, #availableracers)]
+		else
+			availableracer = saved_vehicles[math.random(1, #saved_vehicles)]
+		end
+		
+		local JSONData = file.Read( "unitvehicles/lvs/racers/"..availableracer, "DATA" )
+		
+		MEMORY = util.JSONToTable(JSONData, true)
+
+		local createdEntities = {}
+
+		local entCount = 0
+
+		for _, _ in pairs(MEMORY.Entities) do
+			entCount = entCount + 1
+		end
+
+		for id, v in pairs(MEMORY.Entities) do
+			local Ent = ents.Create( v.Class )
+			if not IsValid( Ent ) then continue end
+
+			local pos, ang = LocalToWorld( v.Pos, ( (entCount > 1 and v.Angle) or Angle(0,0,0) ), uvspawnpoint + Vector( 0, 0, 50 ), uvspawnpointangles + Angle(0,180,0) ) -- rotate entities 180 degrees to face the right way of dv
+
+			duplicator.DoGeneric( Ent, v )
+
+			Ent:SetPos( pos )
+			Ent:SetAngles( ang )
+
+			table.Merge( Ent:GetTable(), v )
+
+			Ent:Spawn()
+			Ent:Activate()
+
+			if ( Ent.RestoreNetworkVars ) then
+				Ent:RestoreNetworkVars( v.DT )
+			end
+
+			if ( Ent.OnDuplicated ) then
+				Ent:OnDuplicated( v )
+			end
+
+			createdEntities[id] = Ent
+
+			if createdEntities[id] then
+				createdEntities[id].BoneMods = table.Copy( v.BoneMods )
+				createdEntities[id].EntityMods = table.Copy( v.EntityMods )
+				createdEntities[id].PhysicsObjects = table.Copy( v.PhysicsObjects )
+			end
+
+			if MEMORY.SubMaterials then
+				if istable( MEMORY.SubMaterials ) then
+					for i = 0, table.Count( MEMORY.SubMaterials ) do
+						createdEntities[id]:SetSubMaterial( i, MEMORY.SubMaterials[i] )
+					end
+				end
+				
+				local groups = string.Explode( ",", MEMORY.BodyGroups)
+				for i = 1, table.Count( groups ) do
+					createdEntities[id]:SetBodygroup(i, tonumber(groups[i]) )
+				end
+				
+				createdEntities[id]:SetSkin( MEMORY.Skin )
+				
+				local c = string.Explode( ",", MEMORY.Color )
+				local Color =  Color( tonumber(c[1]), tonumber(c[2]), tonumber(c[3]), tonumber(c[4]) )
+				
+				local dot = Color.r * Color.g * Color.b * Color.a
+				Ent.OldColor = dot
+	
+				if MEMORY.SaveColor then
+					createdEntities[id]:SetColor( Color )
+				else
+					if isfunction(Ent.GetSpawnColor) then
+						Color = createdEntities[id]:GetSpawnColor()
+						createdEntities[id]:SetColor( Color )
+					else
+						Color.r = math.random(0, 255)
+						Color.g = math.random(0, 255)
+						Color.b = math.random(0, 255)
+						createdEntities[id]:SetColor( Color )
+					end
+				end
+				
+				local data = {
+					Color = Color,
+					RenderMode = 0,
+					RenderFX = 0
+				}
+				duplicator.StoreEntityModifier( createdEntities[id], "colour", data )
+			end
+
+			createdEntities[id].uvclasstospawnon = uvnextclasstospawn
+
+			table.insert(UVVehicleInitializing, createdEntities[id])
+		end
+
+		for _, v in pairs(MEMORY.Constraints) do
+			local constraintEntity = UVCreateConstraintsFromTable( v, createdEntities )
+		end
+
+		for k, v in pairs( createdEntities ) do
+			duplicator.ApplyEntityModifiers( NULL, v )
+			duplicator.ApplyBoneModifiers( NULL, v )
+		end
+	elseif vehiclebase == 3 then --Glide
 		local saved_vehicles = file.Find("unitvehicles/glide/racers/*.json", "DATA")
 
 		if saved_vehicles == nil or next(saved_vehicles) == nil then

@@ -50,8 +50,9 @@ if SERVER then
 		if Chatter:GetBool() and IsValid(self.v) and not self.wrecked and not UVTargeting then
 			UVChatterOnRemove(self)
 		end
+		local isValid = IsValid(self.v)
 		--By undoing, driving, diving in water, or getting stuck, and the vehicle is remaining.
-		if IsValid(self.v) and self.v:IsVehicle() then
+		if isValid then
 			self.v.UVPatrol = nil
 			self.v.UnitVehicle = nil
 			local steerinput = (math.random(-100, 100)) / 100
@@ -83,14 +84,18 @@ if SERVER then
 					self.v:PlayerSteerVehicle(self, steerinput < 0 and -steerinput or 0, steerinput > 0 and steerinput or 0)
 				end
 			elseif not IsValid(self.v:GetDriver()) and --The vehicle is normal vehicle.
-			isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
-			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle then
+			(isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
+			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle) or self.v.LVS then
 				self.v.GetDriver = self.v.OldGetDriver or self.v.GetDriver
 				--self.v:StartEngine(false) --Reset states.
 				--self:UVHandbrakeOn()
 				self.v:SetThrottle(0)
 				if self.v.wrecked then
-					self.v:SetSteering(steerinput, 0)
+					if self.v.LVS then
+						self.v:SetSteer(steerinput * self.v:GetMaxSteerAngle())
+					else
+						self.v:SetSteering(steerinput, 0)
+					end
 				end
 			elseif self.v.IsGlideVehicle then
 				self.v:TurnOff()
@@ -147,7 +152,7 @@ if SERVER then
 	--Find an enemy around.
 	function ENT:TargetEnemy()
 		if UVEnemyBusted or UVEnemyEscaped then return end
-		local t = ents.FindInSphere(self.v:WorldSpaceCenter(), 2500)
+		local t = UVWantedTableVehicle
 		local distance, nearest = math.huge, nil --The nearest enemy is the target.
 		for k, v in pairs(t) do
 			if self:Validate(v) and ((SpeedLimit:GetFloat() > 0 and v:GetVelocity():LengthSqr() > (self.Speeding+30976)) or self.v.rammed or v.UVWanted or v.uvraceparticipant) and self:StraightToTarget(v) then --Target conditions
@@ -163,7 +168,7 @@ if SERVER then
 	end
 	
 	function ENT:TargetEnemyAdvanced()
-		local t = ents.FindInSphere(self.v:WorldSpaceCenter(), math.huge)
+		local t = UVWantedTableVehicle
 		local distance, nearest = math.huge, nil --The nearest enemy is the target.
 		for k, v in pairs(t) do
 			if self:Validate(v) then --Target conditions
@@ -199,11 +204,13 @@ if SERVER then
 	
 	--Validate the given enemy.
 	function ENT:Validate(v)
+		if not v then return false end
+
 		local valid = 
 		IsValid(v) and --Has existence
 		IsValid(v:GetPhysicsObject()) and --Has physics
 		not v.UnitVehicle and
-		(v:IsVehicle() and not GetConVar("ai_ignoreplayers"):GetBool()) 
+		(not GetConVar("ai_ignoreplayers"):GetBool()) 
 		if not valid then return false end
 		
 		return UVPassConVarFilter(v)
@@ -360,9 +367,14 @@ if SERVER then
 			self.v.PressedKeys["Space"] = true
 			self.v.PressedKeys["joystick_throttle"] = 0
 			self.v.PressedKeys["joystick_brake"] = 0
-		elseif isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and isfunction(self.v.SetHandbrake) and not self.v.IsGlideVehicle then
+		elseif (isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and isfunction(self.v.SetHandbrake) and not self.v.IsGlideVehicle) or self.v.LVS then
 			self.v:SetThrottle(0)
-			self.v:SetSteering(0, 0)
+			if self.v.LVS then
+				self.v:SetSteer(0)
+				self.v:SetReverse(false)
+			else
+				self.v:SetSteering(0, 0)
+			end
 			self.v:SetHandbrake(true)
 		elseif self.v.IsGlideVehicle then
 			self.v:TriggerInput("Handbrake", 1)
@@ -477,15 +489,21 @@ if SERVER then
 			right:Rotate(Angle(0, (self.v.VehicleData.LocalAngForward.y-90), 0))
 			leftstart:Rotate(Angle(0, (self.v.VehicleData.LocalAngForward.y-90), 0))
 			rightstart:Rotate(Angle(0, (self.v.VehicleData.LocalAngForward.y-90), 0))
-		elseif self.v.IsGlideVehicle then
+		elseif self.v.IsGlideVehicle or self.v.LVS then
 			left:Rotate(Angle(0, -90, 0))
 			right:Rotate(Angle(0, -90, 0))
 			leftstart:Rotate(Angle(0, -90, 0))
 			rightstart:Rotate(Angle(0, -90, 0))
 		end
-		
-		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC})
-		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+(vector_up * 50)), mask = MASK_NPCWORLDSTATIC})
+
+		local trleft_start = self.v:LocalToWorld(leftstart)
+		local trleft_end = self.v:LocalToWorld(left) + (vector_up * 50)
+		local trright_start = self.v:LocalToWorld(rightstart)
+		local trright_end = self.v:LocalToWorld(right) + (vector_up * 50)
+
+		local trleft = util.TraceLine({start = trleft_start, endpos = trleft_end, mask = MASK_NPCWORLDSTATIC})
+		local trright = util.TraceLine({start = trright_start, endpos = trright_end, mask = MASK_NPCWORLDSTATIC})
+
 		if trleft.HitTexture == "TOOLS/TOOLSSKYBOX" then return false end
 		if trright.HitTexture == "TOOLS/TOOLSSKYBOX" then return false end
 		local Fraction = trleft.Fraction ~= 1 or trright.Fraction ~= 1
@@ -1007,10 +1025,20 @@ if SERVER then
 				steer = steer * 2 --Attempt to make steering more sensitive.
 				self.v:TriggerInput("Steer", steer)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
-				print("OK")
+				local lvsReverse = false
+				if throttle < 0 and self.v.LVS then
+					local velo = self.v:GetVelocity()
+					local norm = velo:GetNormalized()
+					local dot = forward:Dot(norm)
+
+					lvsReverse = dot < 0 or selfvelocity < 10000
+					throttle = math.abs(throttle)
+				end
+
+				if self.v.LVS then self.v:SetReverse( lvsReverse ) end
 				self.v:SetThrottle(throttle)
 				if self.v.LVS then
-					self.v:SteerTo(steer, self.v:GetMaxSteerAngle())
+					self.v:SetSteer(steer * self.v:GetMaxSteerAngle())
 				else
 					self.v:SetSteering(steer, 0)
 				end
@@ -1096,12 +1124,13 @@ if SERVER then
 	end
 	
 	function ENT:Think()
-		--if not IsValid(self.v) then return end
+		if not IsValid(self.v) then return end
 		--UVChatterArrest(self)
 		-- if UVTargeting then return end
 		self:SetPos(self.v:GetPos() + (vector_up * 50))
 		self:SetAngles(self.v:GetPhysicsObject():GetAngles()+Angle(0,180,0))
-		local vehiclePhys = self.v:GetPhysicsObject()
+		local vehiclePhys = self.__vehiclePhysicsObject or self.v:GetPhysicsObject()
+		self.__vehiclePhysicsObject = vehiclePhys
 		local vehicleAnglesZ = IsValid(vehiclePhys) and vehiclePhys:GetAngles().z or 0
 		local vehicleVelSqr = self.v:GetVelocity():LengthSqr()
 
@@ -1377,7 +1406,8 @@ if SERVER then
 			local enemyvelocity = self.e:GetVelocity():LengthSqr()
 
 			-- pursuit tactic
-			local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
+			local forward = self.__vehicleForward or (self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward())
+			self.__vehicleForward = forward
 
 			local enemyVel = self.e:GetVelocity()
 			local enemyVelLenSqr = enemyVel:LengthSqr()
@@ -1959,8 +1989,23 @@ if SERVER then
 				self.v.PressedKeys["joystick_brake"] = throttle * -1
 				self.v:PlayerSteerVehicle(self, steer < 0 and -steer or 0, steer > 0 and steer or 0)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
+				local lvsReverse = false
+				if throttle < 0 and self.v.LVS then
+					local velo = self.v:GetVelocity()
+					local norm = velo:GetNormalized()
+					local dot = forward:Dot(norm)
+
+					lvsReverse = dot < 0 or selfvelocity < 10000
+					throttle = math.abs(throttle)
+				end
+
+				if self.v.LVS then self.v:SetReverse( lvsReverse ) end
 				self.v:SetThrottle(throttle)
-				self.v:SetSteering(steer, 0)
+				if self.v.LVS then
+					self.v:SetSteer(steer * self.v:GetMaxSteerAngle())
+				else
+					self.v:SetSteering(steer, 0)
+				end
 			elseif self.v.IsGlideVehicle then
 				if cffunctions then
 					CFtoggleNitrous( self.v, self.usenitrous )
@@ -2127,6 +2172,15 @@ if SERVER then
 						end
 					end
 				end
+			elseif v.LVS then
+				if not v:IsInitialized() then return end
+				if IsValid(v:GetDriver()) then return end
+				self.v = v
+				v.uvclasstospawnon = self:GetClass()
+				v.UVPatrol = self
+				v.UnitVehicle = self
+				v:DisableManualTransmission()
+				v:StartEngine()
 			end
 		else
 			local distance = DetectionRange:GetFloat()
@@ -2238,7 +2292,7 @@ if SERVER then
 
 		local collisionmin, collisionmax = self.v:GetCollisionBounds()
 		if isvector(collisionmin) and isvector(collisionmax) then
-			if self.v.IsSimfphyscar or self.v.IsGlideVehicle then
+			if self.v.IsSimfphyscar or self.v.IsGlideVehicle or self.v.LVS then
 				self.v.width = ((collisionmax.y)-(collisionmin.y))
 				self.v.length = ((collisionmax.x)-(collisionmin.x))
 			else
