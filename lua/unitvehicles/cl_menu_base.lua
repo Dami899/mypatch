@@ -118,6 +118,13 @@ if cffunctions then -- Glide // Circular Functions
 	})
 end
 
+if LVS then -- Glide // Circular Functions
+	UVAddon({
+		{ type = "label", text = "LVS", sv = true },
+		{ type = "bool", text = "uv.lvs.alwaysfullthrottle", desc = "uv.lvs.alwaysfullthrottle.desc", convar = "unitvehicle_lvsalwaysfullthrottle" },
+	})
+end
+
 UVMenuSound({
     name = "MW",
     displayname = "NFS Most Wanted",
@@ -2140,6 +2147,8 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		
 		local glideNode
 		local glideDataRequested = false
+		local lvsNode
+		local lvsDataRequested = false
 		local racerconvar = GetConVar(st.convar)
 
 		local function ParseConvar()
@@ -2281,6 +2290,13 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			classToNode = {}
 			selectedRacers = ParseConvar()
 
+			-- LVS
+			local lvsVehicles = list.Get("LVSVehicles") or {}
+			if next(lvsVehicles) then
+				local lvsNode = vehicleTree:AddNode("[LVS]")
+				AddVehicleNodes(lvsNode, lvsVehicles)
+			end
+
 			-- HL2 Jeeps
 			local baseVehicles = list.Get("Vehicles") or {}
 			local baseCategories = {}
@@ -2314,6 +2330,11 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			glideNode = vehicleTree:AddNode("Glide - Select to load")
 			glideNode:SetExpanded(false)
 			glideDataRequested = false
+
+			-- LVS placeholder
+			lvsNode = vehicleTree:AddNode("LVS - Select to load")
+			lvsNode:SetExpanded(false)
+			lvsDataRequested = false
 		end
 
 		BuildVehicleTree()
@@ -2324,6 +2345,15 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			glideDataRequested = true
 
 			net.Start("RequestGlideVehicles")
+			net.SendToServer()
+		end
+
+		-- Request server data when LVS node is selected
+		function lvsNode:OnNodeSelected()
+			if lvsDataRequested then return end
+			lvsDataRequested = true
+
+			net.Start("RequestLVSVehicles")
 			net.SendToServer()
 		end
 
@@ -2358,6 +2388,32 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			end
 		end)
 
+		-- Receive LVS vehicle data
+		net.Receive("LVSVehiclesTable", function()
+			local lvsVehicles = net.ReadTable()
+			local lvsCategories = list.Get("LVSVehicles") or {}
+
+			if IsValid(lvsNode) then
+				lvsNode:SetText("[LVS]")
+			end
+
+			-- Always show Default first
+			if lvsVehicles["Default"] then
+				local defaultNode = lvsNode:AddNode("Default")
+				AddVehicleNodes(defaultNode, lvsVehicles["Default"])
+			end
+			
+
+			-- Populate LVS categories
+			for catID, catData in pairs(lvsVehicles) do
+				local vehicles = lvsVehicles[catID] or {}
+				if #vehicles > 0 then
+					local catNode = lvsNode:AddNode(catData.name or catID)
+					AddVehicleNodes(catNode, vehicles)
+				end
+			end
+		end)
+
 		-- /// End of Vehicle Override Code /// --
 		
 		p.OnMousePressed = function(self, mouse)
@@ -2381,6 +2437,10 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 				
 				glideDataRequested = true
 				net.Start("RequestGlideVehicles")
+				net.SendToServer()
+
+				lvsDataRequested = true
+				net.Start("RequestLVSVehicles")
 				net.SendToServer()
 
 				UVMenu.PlaySFX("confirm")
@@ -3169,7 +3229,8 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		local vehicleBases = {
 			{ id = 1, name = "HL2",      path = "unitvehicles/prop_vehicle_jeep/units/", type = "txt"  },
 			{ id = 2, name = "Simfphys", path = "unitvehicles/simfphys/units/",           type = "txt"  },
-			{ id = 3, name = "Glide",    path = "unitvehicles/glide/units/",               type = "json" }
+			{ id = 3, name = "Glide",    path = "unitvehicles/glide/units/",               type = "json" },
+			{ id = 4, name = "LVS",      path = "unitvehicles/lvs/units/",                 type = "json" }
 		}
 		
 		local activeFilterBaseId = 0 -- 0 = show all
@@ -3467,6 +3528,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		addFilterButton("HL2", 1)
 		addFilterButton("Simfphys", 2)
 		addFilterButton("Glide", 3)
+		addFilterButton("LVS", 4)
 
 		timer.Simple(0, function()
 			if IsValid(panel) then

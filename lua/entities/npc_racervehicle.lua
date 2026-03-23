@@ -343,14 +343,18 @@ if SERVER then
 					self.v:PlayerSteerVehicle(self, steerinput < 0 and -steerinput or 0, steerinput > 0 and steerinput or 0)
 				end
 			elseif not IsValid(self.v:GetDriver()) and --The vehicle is normal vehicle.
-			isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
-			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle then
+			(isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
+			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle) or self.v.LVS then
 				self.v.GetDriver = self.v.OldGetDriver or self.v.GetDriver
 				--self.v:StartEngine(false) --Reset states.
 				--self:UVHandbrakeOn()
 				self.v:SetThrottle(0)
-				if self.v.uvbusted then
-					self.v:SetSteering(steerinput, 0)
+				if self.v.wrecked then
+					if self.v.LVS then
+						self.v:SetSteer(steerinput * self.v:GetMaxSteerAngle())
+					else
+						self.v:SetSteering(steerinput, 0)
+					end
 				end
 			elseif self.v.IsGlideVehicle then
 				self.v:TurnOff()
@@ -453,7 +457,7 @@ if SERVER then
 			right:Rotate(Angle(0, (self.v.VehicleData.LocalAngForward.y-90), 0))
 			leftstart:Rotate(Angle(0, (self.v.VehicleData.LocalAngForward.y-90), 0))
 			rightstart:Rotate(Angle(0, (self.v.VehicleData.LocalAngForward.y-90), 0))
-		elseif self.v.IsGlideVehicle then
+		elseif self.v.IsGlideVehicle or self.v.LVS then
 			left:Rotate(Angle(0, -90, 0))
 			right:Rotate(Angle(0, -90, 0))
 			leftstart:Rotate(Angle(0, -90, 0))
@@ -898,8 +902,23 @@ if SERVER then
 				self.v:TriggerInput("Brake", throttle * -1)
 				self.v:TriggerInput("Steer", steer * 1)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
+				local lvsReverse = false
+				if throttle < 0 and self.v.LVS then
+					local velo = self.v:GetVelocity()
+					local norm = velo:GetNormalized()
+					local dot = forward:Dot(norm)
+
+					lvsReverse = dot < 0 or selfvelocity < 10000
+					throttle = math.abs(throttle)
+				end
+
+				if self.v.LVS then self.v:SetReverse( lvsReverse ) end
 				self.v:SetThrottle(throttle)
-				self.v:SetSteering(steer, 0)
+				if self.v.LVS then
+					self.v:SetSteer(steer * self.v:GetMaxSteerAngle())
+				else
+					self.v:SetSteering(steer, 0)
+				end
 			end
 
 			if totalPathLen > 0 and pathDistFromStart >= totalPathLen - 80 then
@@ -1084,8 +1103,23 @@ if SERVER then
 
 				self.v:TriggerInput("Steer", steer)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
+				local lvsReverse = false
+				if throttle < 0 and self.v.LVS then
+					local velo = self.v:GetVelocity()
+					local norm = velo:GetNormalized()
+					local dot = forward:Dot(norm)
+
+					lvsReverse = dot < 0 or selfvelocity < 10000
+					throttle = math.abs(throttle)
+				end
+
+				if self.v.LVS then self.v:SetReverse( lvsReverse ) end
 				self.v:SetThrottle(throttle)
-				self.v:SetSteering(steer, 0)
+				if self.v.LVS then
+					self.v:SetSteer(steer * self.v:GetMaxSteerAngle())
+				else
+					self.v:SetSteering(steer, 0)
+				end
 			end
 			
 			-- DV Waypoint advancement (like node transition)
@@ -1220,6 +1254,7 @@ if SERVER then
 	end
 
 	function ENT:Think()
+		if not IsValid(self.v) then self:Remove() return end
 		--if UVTargeting then return end
 		self:SetPos(self.v:GetPos() + (vector_up * 50))
 		self:SetAngles(self.v:GetPhysicsObject():GetAngles()+Angle(0,180,0))
@@ -1357,12 +1392,32 @@ if SERVER then
 						v.FallOnCollision = nil
 					end
 				end
+			elseif v.LVS then
+				print('ran')
+				if not v:IsInitialized() then return end
+				if IsValid(v:GetDriver()) then return end
+				print("ok")
+				self.v = v
+				v.uvclasstospawnon = self:GetClass()
+				v.RacerVehicle = self
+				v:DisableManualTransmission()
+				v:StartEngine()
 			end
 		else
 			local distance = DetectionRange:GetFloat()
 			for k, v in pairs(ents.FindInSphere(self:GetPos(), distance)) do
 				if v:GetClass() == 'prop_vehicle_prisoner_pod' then continue end
 				if v.RacerVehicle and v.RacerVehicle:IsNPC() then continue end
+				if v.LVS then
+					if not v:IsInitialized() then continue end
+					if IsValid(v:GetDriver()) then continue end
+					self.v = v
+					v.uvclasstospawnon = self:GetClass()
+					v.RacerVehicle = self
+					v:DisableManualTransmission()
+					v:StartEngine()
+					break
+				end
 				if v:IsVehicle() then
 					if v.IsScar then --If it's a SCAR.
 						if not v:HasDriver() then --If driver's seat is empty.

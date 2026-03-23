@@ -89,7 +89,7 @@ end
 function UVGetDriver(vehicle)
 	if not IsValid(vehicle) then return nil end
 
-	if vehicle.IsSimfphyscar or vehicle:GetClass() == "prop_vehicle_jeep" then
+	if vehicle.IsSimfphyscar or vehicle:GetClass() == "prop_vehicle_jeep" or vehicle.LVS then
 		return vehicle:GetDriver()
 	elseif vehicle.IsGlideVehicle then
 		if not vehicle.seats or next(vehicle.seats) == nil then return nil end
@@ -1139,6 +1139,11 @@ if SERVER then
 		if (IsValid(vehicle_entity) and vehicle_entity.uvraceparticipant) or veh.uvraceparticipant then return false end
 	end)
 
+	--LVS: Disable vehicle engine
+	hook.Add( "LVS.IsEngineStartAllowed", "UVLVSIsEngineStartAllowed", function( v )
+		if v.uvbusted or v.uvenginedisabledbyuv then return false end
+	end)
+
 	--Non-collision damage to prop_vehicle_jeep UVs
 	hook.Add( "EntityTakeDamage", "UVDamage", function( target, dmginfo )
 		if VC then return end
@@ -1459,7 +1464,7 @@ if SERVER then
 
 		if next(UVVehicleInitializing) ~= nil then
 			for k, car in pairs(UVVehicleInitializing) do
-				if IsValid(car) and ((isfunction(car.IsInitialized) and car:IsInitialized()) or car.IsGlideVehicle or car:GetClass() == "prop_vehicle_jeep") then
+				if IsValid(car) and ((isfunction(car.IsInitialized) and car:IsInitialized()) or car.IsGlideVehicle or (car.LVS and car:IsInitialized()) or car:GetClass() == "prop_vehicle_jeep") then
 					if car.uvclasstospawnon == "npc_uvpatrol" then
 						car.playerbounty = UVUBountyPatrol:GetInt()
 					elseif car.uvclasstospawnon == "npc_uvsupport" then
@@ -1519,6 +1524,8 @@ if SERVER then
 							end
 						elseif car:GetClass() == "prop_vehicle_jeep" then
 							car.UnitVehicle:EnterVehicle(car)
+						elseif car.LVS then
+							car.UnitVehicle:EnterVehicle(car:GetDriverSeat())
 						end
 					end
 					table.RemoveByValue(UVVehicleInitializing, car)
@@ -1648,6 +1655,7 @@ if SERVER then
 					local is_vehicle =
 						closestsuspect.IsSimfphyscar or
 						closestsuspect.IsGlideVehicle or
+						closestsuspect.LVS or
 						closestsuspect:GetClass() == "prop_vehicle_jeep"
 
 					if is_vehicle then
@@ -2521,7 +2529,8 @@ else -- CLIENT Settings | HUD/Options
 	UVSubtitles = CreateClientConVar("unitvehicle_subtitles", 1, true, false, "Unit Vehicles: If set to 1, display subtitles when Cop Chatter is active. Only works for Default Chatter, and only in English.")
 	UVVehicleNameTakedown = CreateClientConVar("unitvehicle_vehiclenametakedown", 0, true, false, "Unit Vehicles: If set to 1, Unit takedowns use the vehicle name instead of the unit name.")
 	UVDisplayUnits = CreateClientConVar("unitvehicle_unitstype", 0, true, false, "Unit Vehicles: If set to 0 (or an invalid value), displays units in meters. If set to 1, displays units in feet. If set to 2, displays units in yards.")
-	
+	LVSAlwaysFullThrottle = CreateConVar( "unitvehicle_lvsalwaysfullthrottle", 0, {FCVAR_ARCHIVE, FCVAR_USERINFO}, "LVS Always Full Throttle." )
+
 	RacerTags = CreateClientConVar("unitvehicle_racertags", 1, true, false, "Unit Vehicles: If set to 1, Racers and Commander Units will have name tags above their vehicles.")
 
 	UVControllerMode = CreateClientConVar("unitvehicle_controllermode", 0, true, false, "Unit Vehicles: If set to 1, certain actions in the UV Menu are swapped to work with more controller-friendly alternatives, such as JUMP instead of MOUSE1.")

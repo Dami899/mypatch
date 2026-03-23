@@ -251,7 +251,8 @@ end
 
 local function IsSupportedVehicle(ent)
     if not IsValid(ent) then return false end
-    return (ent.IsGlideVehicle or ent.IsSimfphyscar or ent:GetClass() == "prop_vehicle_jeep")
+    print(ent.LVS)
+    return (ent.IsGlideVehicle or ent.IsSimfphyscar or ent:GetClass() == "prop_vehicle_jeep" or ent.LVS)
 end
 
 local function VehicleIsOccupied(ent)
@@ -373,7 +374,7 @@ if CLIENT then
             PT_Replacement_Strings[displayName] = info.name or displayName
         end
 
-        if IsValid(ent) and ent:IsVehicle() and tr.HitPos:DistToSqr(ply:GetPos()) < 50000 then
+        if IsValid(ent) and (ent:IsVehicle() or ent.LVS) and tr.HitPos:DistToSqr(ply:GetPos()) < 50000 then
             local pos = ent:GetPos() + Vector(0,0,80)
             local ang = Angle(0, EyeAngles().y - 90, 90)
             local tech1, tech2 = " ", " "

@@ -104,6 +104,13 @@ function UVSetELS(on, vehicle)
 		else
 			vehicle.SirenSound:Stop()	
 		end
+    elseif vehicle.LVS then
+        if on and isfunction(vehicle.StartSiren) then
+            vehicle:StartSiren(false, true)
+        elseif not on and isfunction(vehicle.StopSiren) then
+            vehicle:StopSiren()
+            vehicle:SetSirenMode(-1)
+        end
 	elseif vehicle.IsSimfphyscar then
 		local v_list = list.Get( "simfphys_lights" )[vehicle.LightsTable]
 		if not v_list then vehicle.DontHaveEMS = true return end
@@ -179,6 +186,13 @@ function UVSetELSSound(on, vehicle)
 		else
 			vehicle.SirenSound:Stop()
 		end
+	elseif vehicle.LVS then
+		if on and isfunction(vehicle.StartSiren) then
+			vehicle:StartSiren(false, true)
+		elseif not on and isfunction(vehicle.StopSiren) then
+			vehicle:StopSiren()
+			vehicle:SetSirenMode(-1)
+		end
 	elseif vehicle.IsSimfphyscar then
 		if vehicle.ems then
 			if on and not vehicle.ems:IsPlaying() and not vehicle.honking then
@@ -249,7 +263,6 @@ if SERVER then
 
     function UVDamage(vehicle, damage) --damage in fraction of max health (0.1 = 10% of max health)
         if not IsValid(vehicle) then return end
-
         if vehicle.UVWanted and GetConVar("unitvehicle_autohealth"):GetBool() then return end
 
         if vehicle.IsSimfphyscar then
@@ -262,7 +275,19 @@ if SERVER then
 
             vehicle:SetEngineHealth( vehicle:GetEngineHealth() - damage )
             vehicle:UpdateHealthOutputs()
+
+        elseif vehicle.LVS then
+
+            local vehEngine = vehicle:GetEngine()
+            local MaxHealth = vehEngine:GetMaxHP() or 50
+            local damage = MaxHealth*damage
+            vehEngine:SetHP( vehEngine:GetHP() - damage )
             
+            if vehEngine:GetHP() <= 0 then
+                vehEngine:SetDestroyed(true)
+                vehEngine:OnDestroyed()
+            end
+
         elseif vehicle:GetClass() == "prop_vehicle_jeep" then
             if VC then
                 local damage = Vehicle:VC_getHealthMax()*damage
@@ -410,6 +435,29 @@ if SERVER then
 					CFRefillNitrous(vehicle)
 				end
 			end
+            if vehicle.LVS then
+                local repaired = false
+                local vehEngine = vehicle:GetEngine()
+
+                for _, wheel in ipairs(vehicle:GetWheels()) do
+                    if wheel:IsTireDestroyed() then
+                        repaired = true 
+                        wheel:RepairTire()
+                        timer.Remove("uvspiked"..wheel:EntIndex())
+                    end
+                end
+
+                if not ptrefilled and not repaired and vehEngine:GetHP() == vehEngine:GetMaxHP() and vehicle:GetHP() == vehicle:GetMaxHP() then return end
+                vehEngine:SetHP( vehEngine:GetMaxHP() )
+                vehicle:SetHP( vehicle:GetMaxHP() )
+
+                if not vehicle.UnitVehicle and (AutoHealth:GetBool() or (vehicle.RacerVehicle and vehicle.RacerVehicle:IsNPC() and AutoHealthRacer:GetBool())) then
+                    vehicle:SetHP(math.huge)
+                    vehicle.MaxHealth = math.huge
+                    vehEngine:SetHP(math.huge)
+                    vehEngine:SetMaxHP(math.huge)
+                end
+            end
 		end
 	
 		if UVGetDriver(vehicle) then
@@ -725,6 +773,12 @@ if SERVER then
             vehicle:SetPos( (ground_trace.Hit and (ground_trace.HitPos + (Vector(0,0,1) * 50))) or pos )
             vehicle:SetAngles( ang )
             vehicle:SetVelocity(Vector(0,0,0))
+
+            if vehicle.LVS then
+                for _, wheel in ipairs(vehicle:GetWheels()) do
+                    wheel:SetPos(vehicle:GetPos())
+                end
+            end
             
             timer.Simple(.5, function()
                 physObj:EnableMotion(true)
@@ -1595,6 +1649,29 @@ if SERVER then
 
             is_repaired = true
         end
+        if car.LVS then
+            local repaired = false
+            local vehEngine = car:GetEngine()
+
+            for _, wheel in ipairs(car:GetWheels()) do
+                if wheel:IsTireDestroyed() then
+                    repaired = true 
+                    wheel:RepairTire()
+                    timer.Remove("uvspiked"..wheel:EntIndex())
+                end
+            end
+
+            if not repaired and vehEngine:GetHP() == vehEngine:GetMaxHP() and car:GetHP() == car:GetMaxHP() then return end
+            vehEngine:SetHP( vehEngine:GetMaxHP() )
+            car:SetHP( car:GetMaxHP() )
+            car:EmitSound('ui/pursuit/repair.wav')
+            if not car.UnitVehicle and (AutoHealth:GetBool() or (car.RacerVehicle and car.RacerVehicle:IsNPC() and AutoHealthRacer:GetBool())) then
+                car:SetHP(math.huge)
+                vehEngine:SetHP(math.huge)
+            end
+
+            is_repaired = true
+        end
         
         local driver = UVGetDriver(car)
         
@@ -1725,6 +1802,8 @@ if SERVER then
                                 enemyVehicle:TurnOff()
                             elseif enemyVehicle:GetClass() == "prop_vehicle_jeep" then
                                 enemyVehicle:StartEngine(false)
+                            elseif enemyVehicle.LVS then
+                                enemyVehicle:StopEngine()
                             end
                             -- if isfunction(enemyVehicle.GetDriver) and IsValid(UVGetDriver(enemyVehicle)) and UVGetDriver(enemyVehicle):IsPlayer() then 
                             --     UVGetDriver(enemyVehicle):PrintMessage( HUD_PRINTCENTER, "YOU HAVE BEEN KILLSWITCHED!")
@@ -1747,6 +1826,8 @@ if SERVER then
                                         enemyVehicle:TurnOn()
                                     elseif enemyVehicle:GetClass() == "prop_vehicle_jeep" then
                                         enemyVehicle:StartEngine(true)
+                                    elseif enemyVehicle.LVS then
+                                        enemyVehicle:StartEngine()
                                     end
                                     -- if isfunction(enemyVehicle.GetDriver) and IsValid(UVGetDriver(enemyVehicle)) and UVGetDriver(enemyVehicle):IsPlayer() then 
                                     --     UVGetDriver(enemyVehicle):PrintMessage( HUD_PRINTCENTER, "Engine restarted!")

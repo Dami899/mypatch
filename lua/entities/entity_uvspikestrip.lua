@@ -44,6 +44,10 @@ if SERVER then
 						end
 					end
 				end
+			elseif self.racerdeployed.LVS then
+				for _, wheel in ipairs(self.racerdeployed:GetWheels()) do
+					constraint.NoCollide(wheel,self,0,0)
+				end
 			end
 		else
 			for _, ent in ents.Iterator() do
@@ -57,6 +61,10 @@ if SERVER then
 									constraint.NoCollide(Wheel,self,0,0)
 								end
 							end
+						end
+					elseif ent.LVS and ent.GetWheels then
+						for _, wheel in ipairs(ent:GetWheels()) do
+							constraint.NoCollide(wheel,self,0,0)
 						end
 					end
 				end
@@ -106,10 +114,48 @@ if SERVER then
 
 			timer.Create("uvspiked"..ent:EntIndex(), GetConVar("unitvehicle_spikestripduration"):GetFloat(), 1, function() 
 				if ent.bursted and IsValid(ent) and IsValid(car) and GetConVar("unitvehicle_spikestripduration"):GetFloat() > 0 then
-					if car.wrecked then return end
+					if car.wrecked or car.uvbusted then return end
 					ent:EmitSound("gadgets/spikestrip/tirereinflatesound.wav")
 					ent.bursted = false
 					ent:Repair()
+					timer.Remove("uvspiked"..ent:EntIndex())
+				end
+			end)
+		elseif ent:GetClass() == "lvs_wheeldrive_wheel" then
+			car = ent:GetBase()
+			self:GetPhysicsObject():Sleep()
+			if ent:IsTireDestroyed() then return end
+			UVRamVehicle(car)
+
+			if car.UnitVehicle then
+				damage = UVPTSpikestripDamage:GetFloat()
+				if table.HasValue(UVCommanders, car) then
+					damage = UVPTSpikestripCommanderDamage:GetFloat()
+				end
+			else
+				damage = UVUnitPTSpikeStripDamage:GetFloat()
+			end
+
+			local wheels = car:GetWheels()
+
+			if istable(wheels) then
+				damage = damage / table.Count(wheels)
+			end
+
+			ent:DestroyTire()
+			constraint.NoCollide(ent,self,0,0)
+
+			timer.Simple(1, function()
+				if IsValid(self) then
+					self:UVSpikeStripHit(car)
+				end
+			end)
+
+			timer.Create("uvspiked"..ent:EntIndex(), GetConVar("unitvehicle_spikestripduration"):GetFloat(), 1, function() 
+				if IsValid(ent) and IsValid(car) and ent:IsTireDestroyed() and GetConVar("unitvehicle_spikestripduration"):GetFloat() > 0 then
+					if car.wrecked or car.uvbusted then return end
+					ent:EmitSound("gadgets/spikestrip/tirereinflatesound.wav")
+					ent:RepairTire()
 					timer.Remove("uvspiked"..ent:EntIndex())
 				end
 			end)
@@ -146,7 +192,7 @@ if SERVER then
 
 			timer.Simple(GetConVar("unitvehicle_spikestripduration"):GetFloat(), function() 
 				if IsValid(car) and IsValid(ent) and GetConVar("unitvehicle_spikestripduration"):GetFloat() > 0 then
-					if car.wrecked then return end
+					if car.wrecked or car.uvbusted then return end
 					ent:SetDamaged(false)
 					ent:EmitSound("gadgets/spikestrip/tirereinflatesound.wav")
 					if ent.GhostEnt then

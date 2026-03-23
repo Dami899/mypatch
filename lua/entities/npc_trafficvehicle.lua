@@ -32,7 +32,7 @@ if SERVER then
 	
 	function ENT:OnRemove()
 		--By undoing, driving, diving in water, or getting stuck, and the vehicle is remaining.
-		if IsValid(self.v) and self.v:IsVehicle() then
+		if IsValid(self.v) then
 			self.v.TrafficVehicle = nil
 			local steerinput = (math.random(-100, 100)) / 100
 			if self.v.IsScar then --If the vehicle is SCAR.
@@ -63,14 +63,18 @@ if SERVER then
 					self.v:PlayerSteerVehicle(self, steerinput < 0 and -steerinput or 0, steerinput > 0 and steerinput or 0)
 				end
 			elseif not IsValid(self.v:GetDriver()) and --The vehicle is normal vehicle.
-			isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
-			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle then
+			(isfunction(self.v.StartEngine) and isfunction(self.v.SetHandbrake) and 
+			isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and not self.v.IsGlideVehicle) or self.v.LVS then
 				self.v.GetDriver = self.v.OldGetDriver or self.v.GetDriver
 				--self.v:StartEngine(false) --Reset states.
 				--self:UVHandbrakeOn()
 				self.v:SetThrottle(0)
 				if self.v.wrecked then
-					self.v:SetSteering(steerinput, 0)
+					if self.v.LVS then
+						self.v:SetSteer(steerinput * self.v:GetMaxSteerAngle())
+					else
+						self.v:SetSteering(steerinput, 0)
+					end
 				end
 			elseif self.v.IsGlideVehicle then
 				self.v:TurnOff()
@@ -122,6 +126,9 @@ if SERVER then
 			return self.v:GetCurHealth() <= 0 or self.v:OnFire() or self.v.destroyed
 		elseif self.v.IsGlideVehicle then
 			return self.v:GetEngineHealth() <= 0 or self.v:GetIsEngineOnFire()
+		elseif self.v.LVS then
+			local vehEngine = self.v:GetEngine()
+			return (self.v:GetHP() <= 0 or self.v.ExplodedAlready) or (vehEngine and (vehEngine:GetHP() <= 0 or vehEngine:GetDestroyed()))
 		elseif isfunction(self.v.VC_GetHealth) then
 			local health = self.v:VC_GetHealth(false)
 			return isnumber(health) and health <= 0
@@ -176,6 +183,22 @@ if SERVER then
 				if wreck:GetVelocity():LengthSqr() > 250000 then
 					UVGlideDetachWheels(wreck)
 				end
+			elseif self.v.LVS then
+				local wreck = self.v
+				timer.Simple(despawntime, function()
+					if IsValid(wreck) then
+						SafeRemoveEntity(wreck)
+					end
+				end)
+				if wreck:GetVelocity():LengthSqr() > 250000 and WheelsDetaching:GetBool() then
+					for _, v in pairs(wreck:GetWheels()) do
+						if math.random(1,2) == 1 then
+							constraint.RemoveAll(v)
+						end
+					end
+				end
+				wreck:SetHP(0)
+				wreck:StopEngine()
 			elseif self.v.IsSimfphyscar then
 				local wreck = self.v
 				timer.Simple(despawntime, function()
@@ -277,6 +300,10 @@ if SERVER then
 		local Fraction = tr.Fraction ~= 1
 		local HitNormal = tr.HitNormal.z < 0.45 --Ignore small inclines
 
+		if debugoverlay then
+			debugoverlay.Line(pos, pos+(self.v:GetVelocity()*2), 0.1, Color(0, 255, 0), true)
+		end
+
 		return tobool(Fraction and HitNormal)
 	end
 
@@ -302,7 +329,7 @@ if SERVER then
 			right:Rotate(Angle(0, (self.v.VehicleData.LocalAngForward.y-90), 0))
 			leftstart:Rotate(Angle(0, (self.v.VehicleData.LocalAngForward.y-90), 0))
 			rightstart:Rotate(Angle(0, (self.v.VehicleData.LocalAngForward.y-90), 0))
-		elseif self.v.IsGlideVehicle then
+		elseif self.v.IsGlideVehicle or self.v.LVS then
 			left:Rotate(Angle(0, -90, 0))
 			right:Rotate(Angle(0, -90, 0))
 			leftstart:Rotate(Angle(0, -90, 0))
@@ -311,6 +338,11 @@ if SERVER then
 		
 		local trleft = util.TraceLine({start = self.v:LocalToWorld(leftstart), endpos = (self.v:LocalToWorld(left)+(vector_up * 50)), mask = MASK_ALL, filter = {self, self.v, 'glide_wheel'}})
 		local trright = util.TraceLine({start = self.v:LocalToWorld(rightstart), endpos = (self.v:LocalToWorld(right)+(vector_up * 50)), mask = MASK_ALL, filter = {self, self.v, 'glide_wheel'}})
+
+		if debugoverlay then
+			debugoverlay.Line(self.v:LocalToWorld(leftstart), self.v:LocalToWorld(left)+(vector_up * 50), 0.1, Color(0, 255, 0), true)
+			debugoverlay.Line(self.v:LocalToWorld(rightstart), self.v:LocalToWorld(right)+(vector_up * 50), 0.1, Color(255, 0, 0), true)
+		end
 
 		local Fraction = trleft.Fraction ~= 1 or trright.Fraction ~= 1
 		local HitNormal = trleft.HitNormal.z < 0.45 or trright.HitNormal.z < 0.45 --Ignore small inclines
@@ -544,8 +576,23 @@ if SERVER then
 				steer = steer * 2 --Attempt to make steering more sensitive.
 				self.v:TriggerInput("Steer", steer)
 			elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
+				local lvsReverse = false
+				if throttle < 0 and self.v.LVS then
+					local velo = self.v:GetVelocity()
+					local norm = velo:GetNormalized()
+					local dot = forward:Dot(norm)
+
+					lvsReverse = dot < 0 or selfvelocity < 10000
+					throttle = math.abs(throttle)
+				end
+
+				if self.v.LVS then self.v:SetReverse( lvsReverse ) end
 				self.v:SetThrottle(throttle)
-				self.v:SetSteering(steer, 0)
+				if self.v.LVS then
+					self.v:SetSteer(steer * self.v:GetMaxSteerAngle())
+				else
+					self.v:SetSteering(steer, 0)
+				end
 			end
 
 			--Resetting
@@ -614,6 +661,7 @@ if SERVER then
 	end
 	
 	function ENT:Think()
+		if not IsValid(self.v) then self:Remove() return end
 		--if not self.v.GetIsHonking then return end
 
 		self:SetPos(self.v:GetPos() + (vector_up * 50))
@@ -629,12 +677,12 @@ if SERVER then
 			self:Wreck()
 		end
 
-		if not IsValid(self.v) or --The tied vehicle goes NULL.
-		not self.v:IsVehicle() or --Somehow it become non-vehicle entity.
-		IsValid(self.v:GetDriver()) then --It has an driver.
-			self:Wreck()
-			return
-		end
+		-- if not IsValid(self.v) or --The tied vehicle goes NULL.
+		-- not self.v:IsVehicle() or --Somehow it become non-vehicle entity.
+		-- IsValid(self.v:GetDriver()) then --It has an driver.
+		-- 	self:Wreck()
+		-- 	return
+		-- end
 		
 		self:Patrol()
 	end
@@ -751,12 +799,30 @@ if SERVER then
 						end
 					end
 				end
+			elseif v.LVS then
+				if not v:IsInitialized() then return end
+				if IsValid(v:GetDriver()) then return end
+				self.v = v
+				v.uvclasstospawnon = self:GetClass()
+				v.TrafficVehicle = self
+				v:DisableManualTransmission()
+				v:StartEngine()
 			end
 		else
 			local distance = DetectionRange:GetFloat()
 			for k, v in pairs(ents.FindInSphere(self:GetPos(), distance)) do
 				if v:GetClass() == 'prop_vehicle_prisoner_pod' then continue end
 				if v.TrafficVehicle and v.TrafficVehicle:IsNPC() then continue end
+				if v.LVS then
+					if not v:IsInitialized() then continue end
+					if IsValid(v:GetDriver()) then continue end
+					self.v = v
+					v.uvclasstospawnon = self:GetClass()
+					v.TrafficVehicle = self
+					v:DisableManualTransmission()
+					v:StartEngine()
+					break
+				end
 				if v:IsVehicle() then
 					if v.IsScar then --If it's a SCAR.
 						if not v:HasDriver() then --If driver's seat is empty.

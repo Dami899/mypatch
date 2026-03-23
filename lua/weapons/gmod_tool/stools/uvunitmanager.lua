@@ -223,6 +223,9 @@ if CLIENT then
 					end
 					
 					file.Write("unitvehicles/prop_vehicle_jeep/units/"..Name..".txt", string.Implode("",shit) )
+				elseif UVTOOLMemory.VehicleBase == "LVS" then
+					local jsondata = util.TableToJSON(UVTOOLMemory)
+					file.Write("unitvehicles/lvs/units/"..Name..".json", jsondata )
 				end
 
 				if IsValid(UVUnitManagerTool.ScrollPanel) and UVUnitManagerTool.RefreshList then
@@ -230,7 +233,7 @@ if CLIENT then
 				end
 				UnitAdjust:Close()
 				
-				local file_ext = (((UVTOOLMemory.VehicleBase == 'base_glide_car' or UVTOOLMemory.VehicleBase == "base_glide_motorcycle") and "json") or "txt")
+				local file_ext = (((UVTOOLMemory.VehicleBase == 'base_glide_car' or UVTOOLMemory.VehicleBase == "base_glide_motorcycle" or UVTOOLMemory.VehicleBase == "LVS") and "json") or "txt")
 				
 				if AssignToHeatLevel then
 					if string.StartsWith(UnitClass, "1") then
@@ -428,6 +431,57 @@ if CLIENT then
 			highlight = not highlight
 		end
 	end
+
+	function UVUnitManagerGetSavesLVS( panel )
+		local saved_vehicles = file.Find("unitvehicles/lvs/units/*.json", "DATA")
+		local index = 0
+		local highlight = false
+		local offset = 22
+		
+		for k,v in pairs(saved_vehicles) do
+			local printname = v
+			
+			if not selecteditem then
+				selecteditem = printname
+			end
+			
+			local Button = vgui.Create( "DButton", panel )
+			Button:SetText( printname )
+			Button:SetTextColor( Color( 255, 255, 255 ) )
+			Button:SetPos( 0,index * offset)
+			Button:SetSize( 280, offset )
+			Button.highlight = highlight
+			Button.printname = printname
+			Button.Paint = function( self, w, h )
+				
+				local c_selected = Color( 128, 185, 128, 255 )
+				local c_normal = self.highlight and Color( 108, 111, 114, 200 ) or Color( 77, 80, 82, 200 )
+				local c_hovered = Color( 41, 128, 185, 255 )
+				local c_ = (selecteditem == self.printname) and c_selected or (self:IsHovered() and c_hovered or c_normal)
+				
+				draw.RoundedBox( 5, 1, 1, w - 2, h - 1, c_ )
+			end
+			Button.DoClick = function( self )
+				selecteditem = self.printname
+				if isstring(selecteditem) then
+					
+					SetClipboardText(selecteditem)
+					
+					local JSONData = file.Read( "unitvehicles/lvs/units/"..selecteditem, "DATA" )
+					if not JSONData then return end
+					
+					UVTOOLMemory = util.JSONToTable(JSONData, true)
+					
+					net.Start("UVUnitManagerGetUnitInfo")
+					net.WriteTable( UVTOOLMemory )
+					net.SendToServer()
+				end
+			end
+			
+			index = index + 1
+			highlight = not highlight
+		end
+	end
 	
 	function UVUnitManagerGetSavesJeep( panel )
 		local saved_vehicles = file.Find("unitvehicles/prop_vehicle_jeep/units/*.txt", "DATA")
@@ -573,10 +627,16 @@ if CLIENT then
 	function TOOL.BuildCPanel(CPanel)
 		local lang = language.GetPhrase
 
+		if not file.Exists( "unitvehicles/lvs", "DATA" ) then
+			file.CreateDir( "unitvehicles/lvs/units" )
+			print("Created a LVS data file for the Unit Vehicles!")
+		end
+
 		local vehicleBases = {
 			{ id = 1, name = "HL2",      path = "unitvehicles/prop_vehicle_jeep/units/", type = "txt"  },
 			{ id = 2, name = "Simfphys", path = "unitvehicles/simfphys/units/",           type = "txt"  },
-			{ id = 3, name = "Glide",    path = "unitvehicles/glide/units/",               type = "json" }
+			{ id = 3, name = "Glide",    path = "unitvehicles/glide/units/",               type = "json" },
+			{ id = 4, name = "LVS",      path = "unitvehicles/lvs/units/",               type = "json" },
 		}
 
 		local activeFilterBaseId = 0
@@ -584,21 +644,19 @@ if CLIENT then
 
 		CPanel:AddControl("Label", { Text = "#tool.uvunitmanager.settings.desc" })
 
-		local FilterBar = vgui.Create("DPanel")
-		FilterBar:Dock(TOP)
-		FilterBar:SetTall(24)
-		FilterBar:DockMargin(0, 0, 0, 0)
-		FilterBar.Paint = nil
+		local FilterBarScroll = vgui.Create("DHorizontalScroller")
+		FilterBarScroll:Dock(TOP)
+		FilterBarScroll:SetTall(32)
+		FilterBarScroll:SetOverlap(8)
+		FilterBarScroll:DockMargin(0, 0, 0, 0)
+		FilterBarScroll:GetCanvas():DockPadding(0, 4, 0, 4)
 
-		FilterBar.OnSizeChanged = function(self, w, h)
-			local btnWidth = w / 4 -- Nr. of filters
+		-- No paint needed for the scroll or its canvas
+		FilterBarScroll.Paint = nil
+		FilterBarScroll:GetCanvas().Paint = nil
 
-			for _, child in ipairs(self:GetChildren()) do
-				if IsValid(child) then
-					child:SetWide(btnWidth)
-				end
-			end
-		end
+		-- Provide an accessor so AddFilterButton can access this panel
+		local FilterBar = FilterBarScroll
 
 		CPanel:AddItem(FilterBar)
 
@@ -667,6 +725,7 @@ if CLIENT then
 		AddFilterButton("HL2", 1)
 		AddFilterButton("Simfphys", 2)
 		AddFilterButton("Glide", 3)
+		AddFilterButton("LVS", 4)
 
 		local function getAvailableUnits()
 			local entries = {}
@@ -853,14 +912,10 @@ function TOOL:RightClick(trace)
 	local ent = trace.Entity
 	local ply = self:GetOwner()
 	
-	if not istable(ply.UVTOOLMemory) then 
-		ply.UVTOOLMemory = {}
-	end
+	ply.UVTOOLMemory = {}
 	
-	if ent.IsSimfphyscar or ent.IsGlideVehicle or ent:GetClass() == "prop_vehicle_jeep" then
+	if ent.IsSimfphyscar or ent.IsGlideVehicle or ent:GetClass() == "prop_vehicle_jeep" or ent.LVS then
 		if not IsValid(ent) then 
-			table.Empty( ply.UVTOOLMemory )
-			
 			net.Start("UVUnitManagerGetUnitInfo")
 			net.WriteTable( ply.UVTOOLMemory )
 			net.Send( ply )
@@ -869,8 +924,9 @@ function TOOL:RightClick(trace)
 		end
 		
 		self:GetVehicleData( ent, ply )
-		
 	end
+
+	if table.IsEmpty(ply.UVTOOLMemory) then return false end
 	
 	net.Start("UVUnitManagerAdjustUnit")
 	net.Send(ply)
@@ -1173,7 +1229,83 @@ function TOOL:LeftClick( trace )
 		UVAddToPlayerUnitListVehicle(Ent)
 		
 		return true
+	
+	elseif ply.UVTOOLMemory.VehicleBase == "LVS" then
+		local SpawnCenter = trace.HitPos
+		SpawnCenter.z = SpawnCenter.z - ply.UVTOOLMemory.Mins.z
 		
+		duplicator.SetLocalPos( SpawnCenter+Vector( 0, 0, 50 ) )
+		duplicator.SetLocalAng( Angle( 0, ply:EyeAngles().yaw, 0 ) )
+		
+		local Ents = duplicator.Paste( self:GetOwner(), ply.UVTOOLMemory.Entities, ply.UVTOOLMemory.Constraints )
+
+		local Ent = Ents[ply.UVTOOLMemory.MainEnt]
+		-- if next(Ents) ~= nil then
+		-- 	for _, v in pairs(Ents) do
+		-- 		if v.LVS and not Ent then
+		-- 			Ent = v
+		-- 		end
+		-- 	end
+		-- end
+		
+		if not IsValid( Ent ) then 
+			PrintMessage( HUD_PRINTTALK, "The vehicle ".. ply.UVTOOLMemory.SpawnName .." dosen't seem to be installed!" )
+			return 
+		end
+
+
+
+		-- if ply.UVTOOLMemory.SubMaterials then
+		-- 	if istable( ply.UVTOOLMemory.SubMaterials ) then
+		-- 		for i = 0, table.Count( ply.UVTOOLMemory.SubMaterials ) do
+		-- 			Ent:SetSubMaterial( i, ply.UVTOOLMemory.SubMaterials[i] )
+		-- 		end
+		-- 	end
+
+		-- 	local groups = string.Explode( ",", ply.UVTOOLMemory.BodyGroups)
+		-- 	for i = 1, table.Count( groups ) do
+		-- 		Ent:SetBodygroup(i, tonumber(groups[i]) )
+		-- 	end
+
+		-- 	Ent:SetSkin( ply.UVTOOLMemory.Skin )
+
+		local c = string.Explode( ",", ply.UVTOOLMemory.Color )
+		local Color =  Color( tonumber(c[1]), tonumber(c[2]), tonumber(c[3]), tonumber(c[4]) )
+
+		local dot = Color.r * Color.g * Color.b * Color.a
+		Ent.OldColor = dot
+		Ent:SetColor( Color )
+
+		local data = {
+			Color = Color,
+			RenderMode = 0,
+			RenderFX = 0
+		}
+		duplicator.StoreEntityModifier( Ent, "colour", data )
+		
+		duplicator.SetLocalPos( vector_origin )
+		duplicator.SetLocalAng( angle_zero )
+		
+		undo.Create( "Duplicator" )
+		
+		for k, ent in pairs( Ents ) do
+			undo.AddEntity( ent )
+		end
+		
+		for k, ent in pairs( Ents )	do
+			self:GetOwner():AddCleanup( "duplicates", ent )
+		end
+		
+		undo.SetPlayer( self:GetOwner() )
+		undo.SetCustomUndoText( "Undone LVS Unit" )
+		
+		undo.Finish( "Undo (" .. tostring( table.Count( Ents ) ) ..  ")" )
+		
+		Ent.UnitVehicle = ply
+		Ent.callsign = ply:Nick()
+		UVAddToPlayerUnitListVehicle(Ent)
+
+		return true
 	elseif ply.UVTOOLMemory.VehicleBase == "prop_vehicle_jeep" then
 		local class = ply.UVTOOLMemory.SpawnName
 		local vehicles = list.Get("Vehicles")
@@ -1521,9 +1653,7 @@ end
 
 function TOOL:GetVehicleData( ent, ply )
 	if not IsValid(ent) then return end
-	if not istable(ply.UVTOOLMemory) then ply.UVTOOLMemory = {} end
-	
-	table.Empty( ply.UVTOOLMemory )
+	ply.UVTOOLMemory = {}
 	
 	if ent.IsSimfphyscar then
 		ply.UVTOOLMemory.VehicleBase = ent:GetClass()
@@ -1716,6 +1846,34 @@ function TOOL:GetVehicleData( ent, ply )
 		for i = 0, (table.Count( ent:GetMaterials() ) - 1) do
 			ply.UVTOOLMemory.SubMaterials[i] = ent:GetSubMaterial( i )
 		end
+	elseif ent.LVS then
+		local pos = ent:GetPos()
+		duplicator.SetLocalPos( pos )
+
+		ply.UVTOOLMemory = duplicator.Copy( ent )
+
+		duplicator.SetLocalPos( vector_origin )
+		duplicator.SetLocalAng( angle_zero )
+
+		ply.UVTOOLMemory.MainEnt = ent:EntIndex()
+		ply.UVTOOLMemory.Mins = Vector(ply.UVTOOLMemory.Mins.x,ply.UVTOOLMemory.Mins.y,0)
+
+		local needle = ply.UVTOOLMemory.Entities[ply.UVTOOLMemory.MainEnt]
+		needle.PhysicsObjects[0].Angle = Angle(0,180,0)
+		needle.Lights = nil
+
+		needle.MaxHealth = ent:GetMaxHP()
+		needle.CurHealth = needle.MaxHealth
+
+		needle.DT = nil
+
+		local c = ent:GetColor()
+		ply.UVTOOLMemory.Color = c.r..","..c.g..","..c.b..","..c.a
+
+		if ( not ply.UVTOOLMemory ) then return false end
+
+		ply.UVTOOLMemory.VehicleBase = "LVS"
+		ply.UVTOOLMemory.SpawnName = ent.PrintName
 	end
 	
 	if not IsValid( ply ) then return end

@@ -42,6 +42,11 @@ if SERVER then
 		print("Created a Default Vehicle Base data file for the Traffic Vehicles!")
 	end
 
+	if not file.Exists( "unitvehicles/lvs/traffic", "DATA" ) then
+		file.CreateDir( "unitvehicles/lvs/traffic" )
+		print("Created a LVS data file for the Traffic Vehicles!")
+	end
+
 end
 
 if CLIENT then
@@ -172,6 +177,9 @@ if CLIENT then
 					end
 					
 					file.Write("unitvehicles/prop_vehicle_jeep/traffic/"..Name..".txt", string.Implode("",shit) )
+				elseif UVTrafficTOOLMemory.VehicleBase == "LVS" then
+					local jsondata = util.TableToJSON(UVTrafficTOOLMemory)
+					file.Write("unitvehicles/lvs/traffic/"..Name..".json", jsondata )
 				end
 
 				if IsValid(UVTrafficManagerTool.ScrollPanel) and UVTrafficManagerTool.RefreshList then
@@ -198,7 +206,8 @@ if CLIENT then
 		local vehicleBases = {
 			{ id = 1, name = "HL2", path = "unitvehicles/prop_vehicle_jeep/traffic/", type = "txt"  },
 			{ id = 2, name = "Simfphys", path = "unitvehicles/simfphys/traffic/", type = "txt"  },
-			{ id = 3, name = "Glide", path = "unitvehicles/glide/traffic/", type = "json" }
+			{ id = 3, name = "Glide", path = "unitvehicles/glide/traffic/", type = "json" },
+			{ id = 4, name = "LVS", path = "unitvehicles/lvs/traffic/", type = "json" }
 		}
 
 		local activeFilterBaseId = 0
@@ -206,19 +215,17 @@ if CLIENT then
 
 		CPanel:AddControl("Label", { Text = "#tool.uvtrafficmanager.settings.desc" })
 
-		local FilterBar = vgui.Create("DPanel")
-		FilterBar:Dock(TOP)
-		FilterBar:SetTall(24)
-		FilterBar.Paint = nil
+		local FilterBarScroll = vgui.Create("DHorizontalScroller")
+		FilterBarScroll:Dock(TOP)
+		FilterBarScroll:SetTall(32)
+		FilterBarScroll:SetOverlap(8)
+		FilterBarScroll:DockMargin(0, 0, 0, 0)
+		FilterBarScroll:GetCanvas():DockPadding(0, 4, 0, 4)
 
-		FilterBar.OnSizeChanged = function(self, w)
-			local btnWidth = w / 4
-			for _, child in ipairs(self:GetChildren()) do
-				if IsValid(child) then
-					child:SetWide(btnWidth)
-				end
-			end
-		end
+		FilterBarScroll.Paint = nil
+		FilterBarScroll:GetCanvas().Paint = nil
+
+		local FilterBar = FilterBarScroll
 
 		CPanel:AddItem(FilterBar)
 
@@ -272,6 +279,7 @@ if CLIENT then
 		AddFilterButton("HL2", 1)
 		AddFilterButton("Simfphys", 2)
 		AddFilterButton("Glide", 3)
+		AddFilterButton("LVS", 4)
 
 		local FrameListPanel = vgui.Create("DPanel")
 		FrameListPanel:SetTall(220)
@@ -376,7 +384,7 @@ if CLIENT then
 					SetClipboardText(selecteditem)
 
 					if entry.base.type == "json" then
-						UVTOOLMemory = util.JSONToTable(
+						UVTrafficTOOLMemory = util.JSONToTable(
 							file.Read(entry.base.path .. selecteditem, "DATA"), true
 						)
 					else
@@ -387,17 +395,17 @@ if CLIENT then
 							decoded[k] = string.char(string.byte(v) - 20)
 						end
 
-						table.Empty(UVTOOLMemory)
+						table.Empty(UVTrafficTOOLMemory)
 						for _, v in ipairs(string.Explode("#", table.concat(decoded))) do
 							local name, variable = unpack(string.Explode("=", v))
 							if name and variable then
-								UVTOOLMemory[name] = variable
+								UVTrafficTOOLMemory[name] = variable
 							end
 						end
 					end
 
 					net.Start("UVTrafficManagerGetTrafficInfo")
-					net.WriteTable(UVTOOLMemory)
+					net.WriteTable(UVTrafficTOOLMemory)
 					net.SendToServer()
 				end
 			end
@@ -408,8 +416,6 @@ if CLIENT then
 				UVTrafficManagerTool.RefreshList()
 			end
 		end)
-
-		if not LocalPlayer():IsSuperAdmin() then return end
 
 		local RefreshBtn = vgui.Create("DButton")
 		RefreshBtn:SetText("#refresh")
@@ -431,7 +437,7 @@ if CLIENT then
 					if file.Exists(base.path .. selecteditem, "DATA") then
 						file.Delete(base.path .. selecteditem)
 						notification.AddLegacy(
-							string.format(language.GetPhrase("tool.uvunitmanager.deleted"), selecteditem),
+							string.format(language.GetPhrase("uv.tool.deleted"), selecteditem),
 							NOTIFY_UNDO, 5
 						)
 						surface.PlaySound("buttons/button15.wav")
@@ -469,7 +475,7 @@ function TOOL:RightClick(trace)
 		ply.UVTrafficTOOLMemory = {}
 	end
 	
-	if ent.IsSimfphyscar or ent.IsGlideVehicle or ent:GetClass() == "prop_vehicle_jeep" then
+	if ent.IsSimfphyscar or ent.IsGlideVehicle or ent:GetClass() == "prop_vehicle_jeep" or ent.LVS then
 		if not IsValid(ent) then 
 			table.Empty( ply.UVTrafficTOOLMemory )
 			
@@ -483,6 +489,8 @@ function TOOL:RightClick(trace)
 		self:GetVehicleData( ent, ply )
 		
 	end
+
+	if table.IsEmpty(ply.UVTrafficTOOLMemory) then return false end
 	
 	net.Start("UVTrafficManagerAdjustTraffic")
 	net.Send(ply)
@@ -662,7 +670,7 @@ function TOOL:LeftClick( trace )
 		return 
 	end
 	
-	if ply.UVTrafficTOOLMemory.VehicleBase == "base_glide_car" or ply.UVTrafficTOOLMemory.VehicleBase == "base_glide_motorcycle" then
+	if ply.UVTrafficTOOLMemory.VehicleBase == "base_glide_car" or ply.UVTrafficTOOLMemory.VehicleBase == "base_glide_motorcycle" or ply.UVTrafficTOOLMemory.VehicleBase == "LVS" then
 		local SpawnCenter = trace.HitPos
 		SpawnCenter.z = SpawnCenter.z - ply.UVTrafficTOOLMemory.Mins.z
 		
@@ -674,7 +682,7 @@ function TOOL:LeftClick( trace )
 		local Ent = nil
 		if next(Ents) ~= nil then
 			for _, v in pairs(Ents) do
-				if v.IsGlideVehicle and v.GetIsHonking then
+				if (v.IsGlideVehicle and v.GetIsHonking) or v.LVS then
 					Ent = v
 					break
 				end
@@ -707,6 +715,7 @@ function TOOL:LeftClick( trace )
 			Ent.OldColor = dot
 
 			if ply.UVTrafficTOOLMemory.SaveColor then
+				print("ok")
 				Ent:SetColor( Color )
 			else
 				if isfunction(Ent.GetSpawnColor) then
@@ -742,11 +751,11 @@ function TOOL:LeftClick( trace )
 		end
 		
 		undo.SetPlayer( self:GetOwner() )
-		undo.SetCustomUndoText( "Undone Glide Traffic" )
+		undo.SetCustomUndoText( "Undone LVS Traffic" )
 		
 		undo.Finish( "Undo (" .. tostring( table.Count( Ents ) ) ..  ")" )
 
-		if cffunctions then
+		if cffunctions and ply.UVTrafficTOOLMemory.VehicleBase ~= "LVS" then
 			Ent.NitrousPower = ply.UVTrafficTOOLMemory.NitrousPower
 			Ent.NitrousDepletionRate = ply.UVTrafficTOOLMemory.NitrousDepletionRate
 			Ent.NitrousRegenRate = ply.UVTrafficTOOLMemory.NitrousRegenRate
@@ -1142,9 +1151,7 @@ end
 
 function TOOL:GetVehicleData( ent, ply )
 	if not IsValid(ent) then return end
-	if not istable(ply.UVTrafficTOOLMemory) then ply.UVTrafficTOOLMemory = {} end
-	
-	table.Empty( ply.UVTrafficTOOLMemory )
+	ply.UVTrafficTOOLMemory = {}
 	
 	if ent.IsSimfphyscar then
 		ply.UVTrafficTOOLMemory.VehicleBase = ent:GetClass()
@@ -1259,19 +1266,11 @@ function TOOL:GetVehicleData( ent, ply )
 		
 		ply.UVTrafficTOOLMemory = duplicator.Copy( ent )
 
-		PrintTable(ply.UVTrafficTOOLMemory)
-		
 		duplicator.SetLocalPos( vector_origin )
 		duplicator.SetLocalAng( angle_zero )
 		
 		if ( not ply.UVTrafficTOOLMemory ) then return false end
 
-		for _, v in pairs(ply.UVTrafficTOOLMemory.Constraints) do
-			if v.OnDieFunctions then
-				v.OnDieFunctions = nil
-			end
-		end
-		
 		local Key = "VehicleBase"
 		ply.UVTrafficTOOLMemory[Key] = ent.Base
 		local Key2 = "SpawnName"
@@ -1283,10 +1282,7 @@ function TOOL:GetVehicleData( ent, ply )
 		-- 	v.PhysicsObjects[0].Angle = 0
 		-- end
 		
-		if not ent.Sockets or next(ent.Sockets) == nil then --Not a semi
-			ply.UVTrafficTOOLMemory.Entities[next(ply.UVTrafficTOOLMemory.Entities)].Angle = Angle(0,180,0)
-		end
-		-- ply.UVTrafficTOOLMemory.Entities[next(ply.UVTrafficTOOLMemory.Entities)].PhysicsObjects[0].Angle = Angle(0,180,0)
+		ply.UVTrafficTOOLMemory.Entities[next(ply.UVTrafficTOOLMemory.Entities)].Angle = Angle(0,180,0)
 
 		local c = ent:GetColor()
 		ply.UVTrafficTOOLMemory.Color = c.r..","..c.g..","..c.b..","..c.a
@@ -1305,26 +1301,56 @@ function TOOL:GetVehicleData( ent, ply )
 			ply.UVTrafficTOOLMemory.SubMaterials[i] = ent:GetSubMaterial( i )
 		end
 
-		if cffunctions then
-			ply.UVTrafficTOOLMemory.NitrousPower = ent.NitrousPower or 2
-			ply.UVTrafficTOOLMemory.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
-			ply.UVTrafficTOOLMemory.NitrousRegenRate = ent.NitrousRegenRate or 0.1
-			ply.UVTrafficTOOLMemory.NitrousRegenDelay = ent.NitrousRegenDelay or 2
-			ply.UVTrafficTOOLMemory.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1 
-			ply.UVTrafficTOOLMemory.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
-			ply.UVTrafficTOOLMemory.NitrousBurst = ent.NitrousBurst or false
-			ply.UVTrafficTOOLMemory.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
-			ply.UVTrafficTOOLMemory.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
-			ply.UVTrafficTOOLMemory.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
-			ply.UVTrafficTOOLMemory.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
-			ply.UVTrafficTOOLMemory.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
-			ply.UVTrafficTOOLMemory.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
-			ply.UVTrafficTOOLMemory.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
-			ply.UVTrafficTOOLMemory.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
-			ply.UVTrafficTOOLMemory.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
-			ply.UVTrafficTOOLMemory.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
+		for _, v in pairs(ply.UVTrafficTOOLMemory.Entities) do
+			if cffunctions then
+				v.NitrousPower = ent.NitrousPower or 2
+				v.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
+				v.NitrousRegenRate = ent.NitrousRegenRate or 0.1
+				v.NitrousRegenDelay = ent.NitrousRegenDelay or 2
+				v.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1
+				v.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
+				v.NitrousBurst = ent.NitrousBurst or false
+				v.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
+				v.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
+				v.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
+				v.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
+				v.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
+				v.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
+				v.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
+				v.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
+				v.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
+				v.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
+			end
 		end
 		
+	elseif ent.LVS then
+		local pos = ent:GetPos()
+		duplicator.SetLocalPos( pos )
+
+		ply.UVTrafficTOOLMemory = duplicator.Copy( ent )
+
+		duplicator.SetLocalPos( vector_origin )
+		duplicator.SetLocalAng( angle_zero )
+
+		ply.UVTrafficTOOLMemory.MainEnt = ent:EntIndex()
+		ply.UVTrafficTOOLMemory.Mins = Vector(ply.UVTrafficTOOLMemory.Mins.x,ply.UVTrafficTOOLMemory.Mins.y,0)
+
+		local needle = ply.UVTrafficTOOLMemory.Entities[ply.UVTrafficTOOLMemory.MainEnt]
+		needle.PhysicsObjects[0].Angle = Angle(0,180,0)
+		needle.Lights = nil
+
+		needle.MaxHealth = ent:GetMaxHP()
+		needle.CurHealth = needle.MaxHealth
+
+		needle.DT = nil
+
+		local c = ent:GetColor()
+		ply.UVTrafficTOOLMemory.Color = c.r..","..c.g..","..c.b..","..c.a
+
+		if ( not ply.UVTrafficTOOLMemory ) then return false end
+
+		ply.UVTrafficTOOLMemory.VehicleBase = "LVS"
+		ply.UVTrafficTOOLMemory.SpawnName = ent.PrintName
 	elseif ent:GetClass() == "prop_vehicle_jeep" then
 		ply.UVTrafficTOOLMemory.VehicleBase = ent:GetClass()
 		ply.UVTrafficTOOLMemory.SpawnName = ent:GetVehicleClass()
