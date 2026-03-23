@@ -1497,10 +1497,10 @@ Używając narzędzia [string:tool.uvpursuitbreaker.name]:
  |-- 3. Po zespawaniu, wciśnij [+attack2] na którykolwiek obiekt Spowalniacza
  |-- 4. Zmień ustawienia według uznania, następnie wciśnij [string:uv.tool.create]
 ]],
--- ["Pursuit.Infractions"] = [[ -- "Wykroczenia"
--- # -- What are infractions? Which ones exist?
+["Pursuit.Infractions"] = [[ -- "Wykroczenia"
+-- # -- Czym są wykroczenia? Jakie można popełnić?
 
--- There are 12 different infractions you can acquire during pursuits. They are:
+-- Istnieje 12 wykroczeń które można popełnić podczas Pościgów:
 
 -- [string:uv.infraction.speed]
       -- |-- [ncstring:uv.infraction.speed.desc]
@@ -1568,10 +1568,10 @@ Tak, i całkiem to proste:
 
 Dane związane z UV znajdziesz w folderze *data/unitvehicles*.
 ]],
---[[["Other.AddonCreation"] = [[
-# -- How do I create my own content/addon for Unit Vehicles?
+[[["Other.AddonCreation"] = [[
+# -- Jak mogę stworzyć własny dodatek/zawartość do Unit Vehicles?
 
-Check one of the pinned messages on the workshop page for the addon, inside of the Discussions tab.
+Sprawdź jedną z przypiętych wiadomości na stronie UV w warsztacie Steam, w zakładce dyskusje.
 ]]--,
 }
 
