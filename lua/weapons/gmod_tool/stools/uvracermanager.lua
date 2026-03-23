@@ -35,6 +35,11 @@ if SERVER then
 		print("Created a Default Vehicle Base data file for the Racer Vehicles!")
 	end
 
+	if not file.Exists( "unitvehicles/lvs/racers", "DATA" ) then
+		file.CreateDir( "unitvehicles/lvs/racers" )
+		print("Created a LVS data file for the Racer Vehicles!")
+	end
+
 end
 
 if CLIENT then
@@ -166,6 +171,9 @@ if CLIENT then
 					end
 					
 					file.Write("unitvehicles/prop_vehicle_jeep/racers/"..Name..".txt", string.Implode("",shit) )
+				elseif UVRacerTOOLMemory.VehicleBase == "LVS" then
+					local jsondata = util.TableToJSON(UVRacerTOOLMemory)
+					file.Write("unitvehicles/lvs/racers/"..Name..".json", jsondata )
 				end
 
 				if IsValid(UVRacerManagerTool.ScrollPanel) and UVRacerManagerTool.RefreshList then
@@ -190,7 +198,8 @@ if CLIENT then
 		local vehicleBases = {
 			{ id = 1, name = "HL2", path = "unitvehicles/prop_vehicle_jeep/racers/", type = "txt"  },
 			{ id = 2, name = "Simfphys", path = "unitvehicles/simfphys/racers/", type = "txt"  },
-			{ id = 3, name = "Glide", path = "unitvehicles/glide/racers/", type = "json" }
+			{ id = 3, name = "Glide", path = "unitvehicles/glide/racers/", type = "json" },
+			{ id = 4, name = "LVS", path = "unitvehicles/lvs/racers/", type = "json" }
 		}
 
 		local activeFilterBaseId = 0
@@ -198,19 +207,19 @@ if CLIENT then
 
 		CPanel:AddControl("Label", { Text = "#tool.uvracermanager.settings.desc" })
 
-		local FilterBar = vgui.Create("DPanel")
-		FilterBar:Dock(TOP)
-		FilterBar:SetTall(24)
-		FilterBar.Paint = nil
+		local FilterBarScroll = vgui.Create("DHorizontalScroller")
+		FilterBarScroll:Dock(TOP)
+		FilterBarScroll:SetTall(32)
+		FilterBarScroll:SetOverlap(8)
+		FilterBarScroll:DockMargin(0, 0, 0, 0)
+		FilterBarScroll:GetCanvas():DockPadding(0, 4, 0, 4)
 
-		FilterBar.OnSizeChanged = function(self, w)
-			local btnWidth = w / 4
-			for _, child in ipairs(self:GetChildren()) do
-				if IsValid(child) then
-					child:SetWide(btnWidth)
-				end
-			end
-		end
+		-- No paint needed for the scroll or its canvas
+		FilterBarScroll.Paint = nil
+		FilterBarScroll:GetCanvas().Paint = nil
+
+		-- Provide an accessor so AddFilterButton can access this panel
+		local FilterBar = FilterBarScroll
 
 		CPanel:AddItem(FilterBar)
 
@@ -264,6 +273,7 @@ if CLIENT then
 		AddFilterButton("HL2", 1)
 		AddFilterButton("Simfphys", 2)
 		AddFilterButton("Glide", 3)
+		AddFilterButton("LVS", 4)
 
 		local FrameListPanel = vgui.Create("DPanel")
 		FrameListPanel:SetTall(220)
@@ -456,14 +466,10 @@ function TOOL:RightClick(trace)
 	local ent = trace.Entity
 	local ply = self:GetOwner()
 	
-	if not istable(ply.UVRacerTOOLMemory) then 
-		ply.UVRacerTOOLMemory = {}
-	end
+	ply.UVRacerTOOLMemory = {}
 	
-	if ent.IsSimfphyscar or ent.IsGlideVehicle or ent:GetClass() == "prop_vehicle_jeep" then
+	if ent.IsSimfphyscar or ent.IsGlideVehicle or ent:GetClass() == "prop_vehicle_jeep" or ent.LVS then
 		if not IsValid(ent) then 
-			table.Empty( ply.UVRacerTOOLMemory )
-			
 			net.Start("UVRacerManagerGetRacerInfo")
 			net.WriteTable( ply.UVRacerTOOLMemory )
 			net.Send( ply )
@@ -472,8 +478,9 @@ function TOOL:RightClick(trace)
 		end
 		
 		self:GetVehicleData( ent, ply )
-		
 	end
+
+	if table.IsEmpty(ply.UVRacerTOOLMemory) then return false end
 	
 	net.Start("UVRacerManagerAdjustRacer")
 	net.Send(ply)
@@ -653,7 +660,7 @@ function TOOL:LeftClick( trace )
 		return 
 	end
 	
-	if ply.UVRacerTOOLMemory.VehicleBase == "base_glide_car" or ply.UVRacerTOOLMemory.VehicleBase == "base_glide_motorcycle" then
+	if ply.UVRacerTOOLMemory.VehicleBase == "base_glide_car" or ply.UVRacerTOOLMemory.VehicleBase == "base_glide_motorcycle" or ply.UVRacerTOOLMemory.VehicleBase == "LVS" then
 		local SpawnCenter = trace.HitPos
 		SpawnCenter.z = SpawnCenter.z - ply.UVRacerTOOLMemory.Mins.z
 		
@@ -665,7 +672,7 @@ function TOOL:LeftClick( trace )
 		local Ent = nil
 		if next(Ents) ~= nil then
 			for _, v in pairs(Ents) do
-				if v.IsGlideVehicle and v.GetIsHonking then
+				if (v.IsGlideVehicle and v.GetIsHonking) or v.LVS then
 					Ent = v
 					break
 				end
@@ -733,11 +740,11 @@ function TOOL:LeftClick( trace )
 		end
 		
 		undo.SetPlayer( self:GetOwner() )
-		undo.SetCustomUndoText( "Undone Glide Racer" )
+		undo.SetCustomUndoText( "Undone LVS Racer" )
 		
 		undo.Finish( "Undo (" .. tostring( table.Count( Ents ) ) ..  ")" )
 
-		if cffunctions then
+		if cffunctions and not ply.UVRacerTOOLMemory.VehicleBase == "LVS" then
 			Ent.NitrousPower = ply.UVRacerTOOLMemory.NitrousPower
 			Ent.NitrousDepletionRate = ply.UVRacerTOOLMemory.NitrousDepletionRate
 			Ent.NitrousRegenRate = ply.UVRacerTOOLMemory.NitrousRegenRate
@@ -1133,9 +1140,7 @@ end
 
 function TOOL:GetVehicleData( ent, ply )
 	if not IsValid(ent) then return end
-	if not istable(ply.UVRacerTOOLMemory) then ply.UVRacerTOOLMemory = {} end
-	
-	table.Empty( ply.UVRacerTOOLMemory )
+	ply.UVRacerTOOLMemory = {}
 	
 	if ent.IsSimfphyscar then
 		ply.UVRacerTOOLMemory.VehicleBase = ent:GetClass()
@@ -1249,35 +1254,19 @@ function TOOL:GetVehicleData( ent, ply )
 		duplicator.SetLocalPos( pos )
 		
 		ply.UVRacerTOOLMemory = duplicator.Copy( ent )
-
-		PrintTable(ply.UVRacerTOOLMemory)
 		
 		duplicator.SetLocalPos( vector_origin )
 		duplicator.SetLocalAng( angle_zero )
 		
 		if ( not ply.UVRacerTOOLMemory ) then return false end
-
-		for _, v in pairs(ply.UVRacerTOOLMemory.Constraints) do
-			if v.OnDieFunctions then
-				v.OnDieFunctions = nil
-			end
-		end
 		
 		local Key = "VehicleBase"
 		ply.UVRacerTOOLMemory[Key] = ent.Base
 		local Key2 = "SpawnName"
 		ply.UVRacerTOOLMemory[Key2] = ent:GetClass()
 		ply.UVRacerTOOLMemory.Mins = Vector(ply.UVRacerTOOLMemory.Mins.x,ply.UVRacerTOOLMemory.Mins.y,0)
-
-		-- for _,v in pairs(ply.UVRacerTOOLMemory.Entities) do
-		-- 	v.Angle = 0
-		-- 	v.PhysicsObjects[0].Angle = 0
-		-- end
 		
-		if not ent.Sockets or next(ent.Sockets) == nil then --Not a semi
-			ply.UVRacerTOOLMemory.Entities[next(ply.UVRacerTOOLMemory.Entities)].Angle = Angle(0,180,0)
-		end
-		-- ply.UVRacerTOOLMemory.Entities[next(ply.UVRacerTOOLMemory.Entities)].PhysicsObjects[0].Angle = Angle(0,180,0)
+		ply.UVRacerTOOLMemory.Entities[next(ply.UVRacerTOOLMemory.Entities)].Angle = Angle(0,180,0)
 
 		local c = ent:GetColor()
 		ply.UVRacerTOOLMemory.Color = c.r..","..c.g..","..c.b..","..c.a
@@ -1296,24 +1285,26 @@ function TOOL:GetVehicleData( ent, ply )
 			ply.UVRacerTOOLMemory.SubMaterials[i] = ent:GetSubMaterial( i )
 		end
 
-		if cffunctions then
-			ply.UVRacerTOOLMemory.NitrousPower = ent.NitrousPower or 2
-			ply.UVRacerTOOLMemory.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
-			ply.UVRacerTOOLMemory.NitrousRegenRate = ent.NitrousRegenRate or 0.1
-			ply.UVRacerTOOLMemory.NitrousRegenDelay = ent.NitrousRegenDelay or 2
-			ply.UVRacerTOOLMemory.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1 
-			ply.UVRacerTOOLMemory.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
-			ply.UVRacerTOOLMemory.NitrousBurst = ent.NitrousBurst or false
-			ply.UVRacerTOOLMemory.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
-			ply.UVRacerTOOLMemory.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
-			ply.UVRacerTOOLMemory.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
-			ply.UVRacerTOOLMemory.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
-			ply.UVRacerTOOLMemory.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
-			ply.UVRacerTOOLMemory.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
-			ply.UVRacerTOOLMemory.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
-			ply.UVRacerTOOLMemory.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
-			ply.UVRacerTOOLMemory.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
-			ply.UVRacerTOOLMemory.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
+		for _, v in pairs(ply.UVRacerTOOLMemory.Entities) do
+			if cffunctions then
+				v.NitrousPower = ent.NitrousPower or 2
+				v.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
+				v.NitrousRegenRate = ent.NitrousRegenRate or 0.1
+				v.NitrousRegenDelay = ent.NitrousRegenDelay or 2
+				v.NitrousPitchChangeFrequency = ent.NitrousPitchChangeFrequency or 1 
+				v.NitrousPitchMultiplier = ent.NitrousPitchMultiplier or 0.2
+				v.NitrousBurst = ent.NitrousBurst or false
+				v.NitrousColor = ent.NitrousColor or Color(35, 204, 255)
+				v.NitrousStartSound = ent.NitrousStartSound or "glide_nitrous/nitrous_burst.wav"
+				v.NitrousLoopingSound = ent.NitrousLoopingSound or "glide_nitrous/nitrous_burst.wav"
+				v.NitrousEndSound = ent.NitrousEndSound or "glide_nitrous/nitrous_activation_whine.wav"
+				v.NitrousEmptySound = ent.NitrousEmptySound or "glide_nitrous/nitrous_empty.wav"
+				v.NitrousReadyBurstSound = ent.NitrousReadyBurstSound or "glide_nitrous/nitrous_burst/ready/ready.wav"
+				v.NitrousStartBurstSound = ent.NitrousStartBurstSound or file.Find("sound/glide_nitrous/nitrous_burst/*", "GAME")
+				v.NitrousStartBurstAnnotationSound = ent.NitrousStartBurstAnnotationSound or file.Find("sound/glide_nitrous/nitrous_burst/annotation/*", "GAME")
+				v.CriticalDamageSound = ent.CriticalDamageSound or "glide_healthbar/criticaldamage.wav"
+				v.NitrousEnabled = ent:GetNWBool( 'NitrousEnabled' )
+			end
 		end
 		
 	elseif ent:GetClass() == "prop_vehicle_jeep" then
@@ -1342,6 +1333,34 @@ function TOOL:GetVehicleData( ent, ply )
 		for i = 0, (table.Count( ent:GetMaterials() ) - 1) do
 			ply.UVRacerTOOLMemory.SubMaterials[i] = ent:GetSubMaterial( i )
 		end
+	elseif ent.LVS then
+		local pos = ent:GetPos()
+		duplicator.SetLocalPos( pos )
+
+		ply.UVRacerTOOLMemory = duplicator.Copy( ent )
+
+		duplicator.SetLocalPos( vector_origin )
+		duplicator.SetLocalAng( angle_zero )
+
+		ply.UVRacerTOOLMemory.MainEnt = ent:EntIndex()
+		ply.UVRacerTOOLMemory.Mins = Vector(ply.UVRacerTOOLMemory.Mins.x,ply.UVRacerTOOLMemory.Mins.y,0)
+
+		local needle = ply.UVRacerTOOLMemory.Entities[ply.UVRacerTOOLMemory.MainEnt]
+		needle.PhysicsObjects[0].Angle = Angle(0,180,0)
+		needle.Lights = nil
+
+		needle.MaxHealth = ent:GetMaxHP()
+		needle.CurHealth = needle.MaxHealth
+
+		needle.DT = nil
+
+		local c = ent:GetColor()
+		ply.UVRacerTOOLMemory.Color = c.r..","..c.g..","..c.b..","..c.a
+
+		if ( not ply.UVRacerTOOLMemory ) then return false end
+
+		ply.UVRacerTOOLMemory.VehicleBase = "LVS"
+		ply.UVRacerTOOLMemory.SpawnName = ent.PrintName
 	end
 	
 	if not IsValid( ply ) then return end

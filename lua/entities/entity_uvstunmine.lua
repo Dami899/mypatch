@@ -31,6 +31,10 @@ if SERVER then
 						end
 					end
 				end
+			elseif self.racerdeployed.LVS then
+				for _, wheel in ipairs(self.racerdeployed:GetWheels()) do
+					constraint.NoCollide(wheel,self,0,0)
+				end
 			end
 		end
 	end
