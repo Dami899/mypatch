@@ -661,6 +661,7 @@ if SERVER then
 	end
 	
 	function ENT:Think()
+		if not IsValid(self.v) then self:Remove() return end
 		--if not self.v.GetIsHonking then return end
 
 		self:SetPos(self.v:GetPos() + (vector_up * 50))

@@ -1143,7 +1143,7 @@ if SERVER then
 	end
 	
 	function ENT:Think()
-		if not IsValid(self.v) then return end
+		if not IsValid(self.v) then SafeRemoveEntity(self) return end
 		--UVChatterArrest(self)
 		-- if UVTargeting then return end
 		self:SetPos(self.v:GetPos() + (vector_up * 50))

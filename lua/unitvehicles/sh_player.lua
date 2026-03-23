@@ -759,6 +759,12 @@ if SERVER then
             vehicle:SetPos( (ground_trace.Hit and (ground_trace.HitPos + (Vector(0,0,1) * 50))) or pos )
             vehicle:SetAngles( ang )
             vehicle:SetVelocity(Vector(0,0,0))
+
+            if vehicle.LVS then
+                for _, wheel in ipairs(vehicle:GetWheels()) do
+                    wheel:SetPos(vehicle:GetPos())
+                end
+            end
             
             timer.Simple(.5, function()
                 physObj:EnableMotion(true)

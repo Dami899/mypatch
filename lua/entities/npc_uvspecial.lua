@@ -1159,6 +1159,7 @@ if SERVER then
 	end
 	
 	function ENT:Think()
+		if not IsValid(self.v) then self:Remove() return end
 		-- if UVTargeting then return end
 		self:SetPos(self.v:GetPos() + (vector_up * 50))
 		self:SetAngles(self.v:GetPhysicsObject():GetAngles()+Angle(0,180,0))

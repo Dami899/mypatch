@@ -3553,6 +3553,13 @@ local function GetVehicleData( ent )
 			local color = ent:GetColor()
 			v.Color = color.r..","..color.g..","..color.b..","..color.a
 
+			if ent.LVS then
+				v.MaxHealth = ent:GetMaxHP()
+				v.CurHealth = v.MaxHealth
+
+				v.DT = nil
+			end
+
 			v.NitrousPower = ent.NitrousPower or 2
 			v.NitrousDepletionRate = ent.NitrousDepletionRate or 0.5
 			v.NitrousRegenRate = ent.NitrousRegenRate or 0.1
@@ -4053,8 +4060,6 @@ function UVMoveToGridSlot( vehicle, aienabled )
 	local ang = spawn:GetAngles()
 	
 	local Ent
-
-	print(Memory.VehicleBase)
 	
 	if Memory.VehicleBase == "gmod_sent_vehicle_fphysics_base" then
 		local vname = Memory.SpawnName
@@ -4675,12 +4680,13 @@ function UVMoveToGridSlot( vehicle, aienabled )
 	timer.Simple( 1, function()
 		if IsValid(Ent) then
 			Ent:GetPhysicsObject():EnableMotion( false )
-			if aienabled then 
+			if aienabled then
 				local uv = ents.Create(Ent.uvclasstospawnon)
 				uv.restrictedCustomization = true
 				uv:SetPos(Ent:GetPos())
 				uv.uvscripted = true
 				uv.vehicle = Ent
+				Ent.RacerVehicle = nil
 				uv:Spawn()
 				uv:Activate()
 				ply = uv
