@@ -1497,36 +1497,36 @@ Używając narzędzia [string:tool.uvpursuitbreaker.name]:
  |-- 3. Po zespawaniu, wciśnij [+attack2] na którykolwiek obiekt Spowalniacza
  |-- 4. Zmień ustawienia według uznania, następnie wciśnij [string:uv.tool.create]
 ]],
-["Pursuit.Infractions"] = [[ -- "Wykroczenia"
--- # -- Czym są wykroczenia? Jakie można popełnić?
+["Pursuit.Infractions"] = [[
+# -- Czym są wykroczenia? Jakie można popełnić?
 
--- Istnieje 12 wykroczeń które można popełnić podczas Pościgów:
+Istnieje 12 wykroczeń które można popełnić podczas Pościgów:
 
--- [string:uv.infraction.speed]
-      -- |-- [ncstring:uv.infraction.speed.desc]
--- [string:uv.infraction.veryspeed]
-      -- |-- [ncstring:uv.infraction.veryspeed.desc]
--- [string:uv.infraction.reckless]
-      -- |-- [ncstring:uv.infraction.reckless.desc]
--- [string:uv.infraction.rampolice]
-      -- |-- [ncstring:uv.infraction.rampolice.desc]
--- [string:uv.infraction.ram]
-      -- |-- [ncstring:uv.infraction.ram.desc]
--- [string:uv.infraction.property]
-      -- |-- [ncstring:uv.infraction.property.desc]
--- [string:uv.infraction.resist]
-      -- |-- [ncstring:uv.infraction.resist.desc]
--- [string:uv.infraction.offroad]
-      -- |-- [ncstring:uv.infraction.offroad.desc]
--- [string:uv.infraction.streetrace]
-      -- |-- [ncstring:uv.infraction.streetrace.desc]
--- [string:uv.infraction.resource]
-      -- |-- [ncstring:uv.infraction.resource.desc]
--- [string:uv.infraction.endanger]
-      -- |-- [ncstring:uv.infraction.endanger.desc]
--- [string:uv.infraction.homicide]
-      -- |-- [ncstring:uv.infraction.homicide.desc]
--- ]],
+[string:uv.infraction.speed]
+      |-- [ncstring:uv.infraction.speed.desc]
+[string:uv.infraction.veryspeed]
+      |-- [ncstring:uv.infraction.veryspeed.desc]
+[string:uv.infraction.reckless]
+      |-- [ncstring:uv.infraction.reckless.desc]
+[string:uv.infraction.rampolice]
+      |-- [ncstring:uv.infraction.rampolice.desc]
+[string:uv.infraction.ram]
+      |-- [ncstring:uv.infraction.ram.desc]
+[string:uv.infraction.property]
+      |-- [ncstring:uv.infraction.property.desc]
+[string:uv.infraction.resist]
+      |-- [ncstring:uv.infraction.resist.desc]
+[string:uv.infraction.offroad]
+      |-- [ncstring:uv.infraction.offroad.desc]
+[string:uv.infraction.streetrace]
+      |-- [ncstring:uv.infraction.streetrace.desc]
+[string:uv.infraction.resource]
+      |-- [ncstring:uv.infraction.resource.desc]
+[string:uv.infraction.endanger]
+      |-- [ncstring:uv.infraction.endanger.desc]
+[string:uv.infraction.homicide]
+      |-- [ncstring:uv.infraction.homicide.desc]
+]],
 
 ["Other.CreateTraffic"] = [[
 # -- Jak pojawić Ruch Drogowy?
@@ -1568,11 +1568,11 @@ Tak, i całkiem to proste:
 
 Dane związane z UV znajdziesz w folderze *data/unitvehicles*.
 ]],
-[[["Other.AddonCreation"] = [[
+["Other.AddonCreation"] = [[
 # -- Jak mogę stworzyć własny dodatek/zawartość do Unit Vehicles?
 
 Sprawdź jedną z przypiętych wiadomości na stronie UV w warsztacie Steam, w zakładce dyskusje.
-]]--,
+]],
 }
 
 -- 简体中文 (Chinese Simplified) zh-CN
