@@ -912,26 +912,21 @@ function TOOL:RightClick(trace)
 	local ent = trace.Entity
 	local ply = self:GetOwner()
 	
-	if not istable(ply.UVTOOLMemory) then 
-		ply.UVTOOLMemory = {}
-	end
+	ply.UVTOOLMemory = {}
 	
 	if ent.IsSimfphyscar or ent.IsGlideVehicle or ent:GetClass() == "prop_vehicle_jeep" or ent.LVS then
 		if not IsValid(ent) then 
-			table.Empty( ply.UVTOOLMemory )
-			
 			net.Start("UVUnitManagerGetUnitInfo")
 			net.WriteTable( ply.UVTOOLMemory )
 			net.Send( ply )
 			
 			return false
 		end
-
-		PrintTable(ent.BaseClass)
 		
 		self:GetVehicleData( ent, ply )
-		
 	end
+
+	if table.IsEmpty(ply.UVTOOLMemory) then return false end
 	
 	net.Start("UVUnitManagerAdjustUnit")
 	net.Send(ply)
@@ -1658,9 +1653,7 @@ end
 
 function TOOL:GetVehicleData( ent, ply )
 	if not IsValid(ent) then return end
-	if not istable(ply.UVTOOLMemory) then ply.UVTOOLMemory = {} end
-	
-	table.Empty( ply.UVTOOLMemory )
+	ply.UVTOOLMemory = {}
 	
 	if ent.IsSimfphyscar then
 		ply.UVTOOLMemory.VehicleBase = ent:GetClass()
@@ -1864,8 +1857,15 @@ function TOOL:GetVehicleData( ent, ply )
 
 		ply.UVTOOLMemory.MainEnt = ent:EntIndex()
 		ply.UVTOOLMemory.Mins = Vector(ply.UVTOOLMemory.Mins.x,ply.UVTOOLMemory.Mins.y,0)
-		ply.UVTOOLMemory.Entities[ply.UVTOOLMemory.MainEnt].PhysicsObjects[0].Angle = Angle(0,180,0)
-		ply.UVTOOLMemory.Entities[ply.UVTOOLMemory.MainEnt].Lights = nil
+
+		local needle = ply.UVTOOLMemory.Entities[ply.UVTOOLMemory.MainEnt]
+		needle.PhysicsObjects[0].Angle = Angle(0,180,0)
+		needle.Lights = nil
+
+		needle.MaxHealth = ent:GetMaxHP()
+		needle.CurHealth = needle.MaxHealth
+
+		needle.DT = nil
 
 		local c = ent:GetColor()
 		ply.UVTOOLMemory.Color = c.r..","..c.g..","..c.b..","..c.a

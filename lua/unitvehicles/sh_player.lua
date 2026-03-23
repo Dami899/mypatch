@@ -249,7 +249,6 @@ if SERVER then
 
     function UVDamage(vehicle, damage) --damage in fraction of max health (0.1 = 10% of max health)
         if not IsValid(vehicle) then return end
-
         if vehicle.UVWanted and GetConVar("unitvehicle_autohealth"):GetBool() then return end
 
         if vehicle.IsSimfphyscar then
@@ -265,10 +264,16 @@ if SERVER then
 
         elseif vehicle.LVS then
 
-            local MaxHealth = vehicle.MaxHealth or 100
+            local vehEngine = vehicle:GetEngine()
+            local MaxHealth = vehEngine:GetMaxHP() or 50
             local damage = MaxHealth*damage
-            vehicle:SetHP( vehicle:GetHP() - damage )
+            vehEngine:SetHP( vehEngine:GetHP() - damage )
             
+            if vehEngine:GetHP() <= 0 then
+                vehEngine:SetDestroyed(true)
+                vehEngine:OnDestroyed()
+            end
+
         elseif vehicle:GetClass() == "prop_vehicle_jeep" then
             if VC then
                 local damage = Vehicle:VC_getHealthMax()*damage
@@ -416,6 +421,29 @@ if SERVER then
 					CFRefillNitrous(vehicle)
 				end
 			end
+            if vehicle.LVS then
+                local repaired = false
+                local vehEngine = vehicle:GetEngine()
+
+                for _, wheel in ipairs(vehicle:GetWheels()) do
+                    if wheel:IsTireDestroyed() then
+                        repaired = true 
+                        wheel:RepairTire()
+                        timer.Remove("uvspiked"..wheel:EntIndex())
+                    end
+                end
+
+                if not ptrefilled and not repaired and vehEngine:GetHP() == vehEngine:GetMaxHP() and vehicle:GetHP() == vehicle:GetMaxHP() then return end
+                vehEngine:SetHP( vehEngine:GetMaxHP() )
+                vehicle:SetHP( vehicle:GetMaxHP() )
+
+                if not vehicle.UnitVehicle and (AutoHealth:GetBool() or (vehicle.RacerVehicle and vehicle.RacerVehicle:IsNPC() and AutoHealthRacer:GetBool())) then
+                    vehicle:SetHP(math.huge)
+                    vehicle.MaxHealth = math.huge
+                    vehEngine:SetHP(math.huge)
+                    vehEngine:SetMaxHP(math.huge)
+                end
+            end
 		end
 	
 		if UVGetDriver(vehicle) then
@@ -1600,6 +1628,27 @@ if SERVER then
             end
 
             is_repaired = true
+        end
+        if car.LVS then
+            local repaired = false
+            local vehEngine = car:GetEngine()
+
+            for _, wheel in ipairs(car:GetWheels()) do
+                if wheel:IsTireDestroyed() then
+                    repaired = true 
+                    wheel:RepairTire()
+                    timer.Remove("uvspiked"..wheel:EntIndex())
+                end
+            end
+
+            if not repaired and vehEngine:GetHP() == vehEngine:GetMaxHP() and car:GetHP() == car:GetMaxHP() then return end
+            vehEngine:SetHP( vehEngine:GetMaxHP() )
+            car:SetHP( car:GetMaxHP() )
+            car:EmitSound('ui/pursuit/repair.wav')
+            if not car.UnitVehicle and (AutoHealth:GetBool() or (car.RacerVehicle and car.RacerVehicle:IsNPC() and AutoHealthRacer:GetBool())) then
+                car:SetHP(math.huge)
+                vehEngine:SetHP(math.huge)
+            end
         end
         
         local driver = UVGetDriver(car)

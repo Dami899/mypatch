@@ -2403,11 +2403,9 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 				AddVehicleNodes(defaultNode, lvsVehicles["Default"])
 			end
 			
-			PrintTable(lvsCategories)
 
 			-- Populate LVS categories
 			for catID, catData in pairs(lvsVehicles) do
-				PrintTable(catData)
 				local vehicles = lvsVehicles[catID] or {}
 				if #vehicles > 0 then
 					local catNode = lvsNode:AddNode(catData.name or catID)

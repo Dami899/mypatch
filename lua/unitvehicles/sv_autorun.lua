@@ -2376,6 +2376,13 @@ end
 
 function UVApplyAutoHealth(vehicle)
 	if not AutoHealth:GetBool() then return end
+	if vehicle.LVS then
+		vehicle.MaxHealth = math.huge
+		vehicle:SetHP(math.huge)
+		vehicle:GetEngine():SetMaxHP(math.huge)
+		vehicle:GetEngine():SetHP(math.huge)
+		return
+	end
 	if vcmod_main and vehicle:GetClass() == "prop_vehicle_jeep" then
 		vehicle:VC_repairFull_Admin()
 		if not vehicle:VC_hasGodMode() then
@@ -3987,6 +3994,9 @@ function UVCheckIfWrecked(enemy)
 		return enemy:GetCurHealth() <= 0 or enemy:OnFire() or enemy.destroyed or enemy:WaterLevel() > 2
 	elseif enemy.IsGlideVehicle then
 		return enemy:GetEngineHealth() <= 0 or enemy:GetIsEngineOnFire()
+	elseif enemy.LVS then
+		local vehEngine = enemy:GetEngine()
+		return (enemy:GetHP() <= 0 or enemy.ExplodedAlready) or (vehEngine and (vehEngine:GetHP() <= 0 or vehEngine:GetDestroyed())) or enemy:WaterLevel() > 2
 	elseif vcmod_main and isfunction(enemy.VC_GetHealth) then
 		local health = enemy:VC_GetHealth(false)
 		return (isnumber(health) and health <= 0) or enemy:WaterLevel() > 2
@@ -4007,6 +4017,8 @@ function UVCheckIfHiding()
 				hiding = enemy:GetEngineState() == 0
 			elseif enemy.IsSimfphyscar then
 				hiding = enemy:EngineActive() == false
+			elseif enemy.LVS then
+				hiding = not enemy:GetEngineActive()
 			else
 				hiding = true
 			end

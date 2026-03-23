@@ -926,6 +926,8 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 				Ent.callsign = ply:GetName()
 				UVAddToPlayerUnitListVehicle(Ent)
 				table.insert(UVVehicleInitializing, Ent)
+				print(Ent.MaxHealth)
+				print(Ent:GetHP(), Ent:GetMaxHP(), Ent:GetEngine():GetHP(), Ent:GetEngine():GetMaxHP())
 			end)
 		else
 			table.insert(UVVehicleInitializing, Ent)

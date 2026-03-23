@@ -223,7 +223,8 @@ if SERVER then
 		elseif self.v.IsGlideVehicle then
 			return self.v:GetEngineHealth() <= 0 or self.v:GetIsEngineOnFire()
 		elseif self.v.LVS then
-			return self.v:GetHP() <= 0
+			local vehEngine = self.v:GetEngine()
+			return (self.v:GetHP() <= 0 or self.v.ExplodedAlready) or (vehEngine and (vehEngine:GetHP() <= 0 or vehEngine:GetDestroyed()))
 		elseif isfunction(self.v.VC_GetHealth) then
 			local health = self.v:VC_GetHealth(false)
 			return isnumber(health) and health <= 0

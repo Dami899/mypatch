@@ -39,7 +39,7 @@ if SERVER then
 		
 		local objects = ents.FindInSphere(self:WorldSpaceCenter(), 100)
 		for k, object in pairs(objects) do
-			if object ~= self.racerdeployed and (object:GetClass() == "prop_vehicle_jeep" or object.IsSimfphyscar or object.IsGlideVehicle) then
+			if object ~= self.racerdeployed and (object:GetClass() == "prop_vehicle_jeep" or object.IsSimfphyscar or object.IsGlideVehicle or object.LVS) then
 				if not (self.racerdeployed and not object.UnitVehicle and not RacerFriendlyFire:GetBool()) then
 					if object.esfon then
 						self:Remove()
@@ -60,7 +60,7 @@ if SERVER then
 	end
 	
 	function ENT:StartTouch( ent )
-		if ent:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
+		if ent:GetClass() == "gmod_sent_vehicle_fphysics_wheel" or ent.LVS then
 			local car = ent:GetBaseEnt()
 			if self.racerdeployed and not car.UnitVehicle then
 				if not RacerFriendlyFire:GetBool() then return end
