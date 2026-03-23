@@ -57,6 +57,10 @@ function ENT:GetRunningLights()
 		return self.v:GetNWBool "HeadlightsOn"
 	elseif self.v.IsSimfphyscar then
 		return self.SimfphysRunningLights
+	elseif self.v.LVS or self.v.LVS_GUNNER then
+        local lh = isfunction(self.v.GetLightsHandler) and self.v:GetLightsHandler()
+        return isfunction(self.v.HasFogLights) and self.v:HasFogLights()
+           and IsValid(lh) and lh:GetFogActive()
 	elseif vcmod_main
 	and isfunction(self.v.VC_getStates) then
 		local states = self.v:VC_getStates()
@@ -87,6 +91,14 @@ function ENT:GetLights(highbeams)
 		return self.v:GetNWBool "HeadlightsOn"
 	elseif self.v.IsSimfphyscar then
 		return Either(highbeams, self.v.LampsActivated, self.v.LightsActivated)
+	elseif self.v.LVS or self.v.LVS_GUNNER then
+        local lh = isfunction(self.v.GetLightsHandler) and self.v:GetLightsHandler()
+        if not (IsValid(lh) and lh:GetActive()) then return false end
+        if highbeams then
+            return isfunction(self.v.HasHighBeams) and self.v:HasHighBeams() and lh:GetHighActive()
+        else
+            return lh:GetActive()
+        end
 	elseif vcmod_main
 	and isfunction(self.v.VC_getStates) then
 		local states = self.v:VC_getStates()
@@ -139,6 +151,8 @@ function ENT:GetELS(v)
 		return vehicle.SirenIsOn
 	elseif vehicle.IsSimfphyscar then
 		return vehicle:GetEMSEnabled()
+	elseif vehicle.LVS or vehicle.LVS_GUNNER then
+        return isfunction(vehicle.GetSirenMode) and vehicle:GetSirenMode() >= 0
 	elseif Photon2
     and isfunction(vehicle.GetPhotonControllerFromAncestor) then
         local pc = self.v:GetPhotonControllerFromAncestor()
@@ -162,6 +176,8 @@ function ENT:GetELSSound(v)
 		return vehicle.SirenIsOn
 	elseif vehicle.IsSimfphyscar then
 		return vehicle.ems and vehicle.ems:IsPlaying()
+	elseif vehicle.LVS or vehicle.LVS_GUNNER then
+        return isfunction(vehicle.GetSirenMode) and vehicle:GetSirenMode() >= 0
 	elseif Photon2
     and isfunction(vehicle.GetPhotonControllerFromAncestor) then
         local pc = self.v:GetPhotonControllerFromAncestor()
@@ -188,6 +204,8 @@ function ENT:GetHorn(v)
 		return vehicle.Horn:IsPlaying()
 	elseif vehicle.IsSimfphyscar then
 		return vehicle.HornKeyIsDown
+	elseif vehicle.LVS or vehicle.LVS_GUNNER then
+        return IsValid(vehicle.HornSound) and vehicle.HornSound:IsPlaying()
 	elseif Photon2
     and isfunction(vehicle.GetPhotonControllerFromAncestor) then
         local pc = self.v:GetPhotonControllerFromAncestor()
@@ -242,6 +260,11 @@ function ENT:SetRunningLights(on)
 		self.v:SetFogLightsEnabled(not on)
 		numpad.Activate(self, KEY_V, false)
 		self.keystate = nil
+	elseif self.v.LVS or self.v.LVS_GUNNER then
+        local lh = isfunction(self.v.GetLightsHandler) and self.v:GetLightsHandler()
+        if IsValid(lh) and isfunction(self.v.HasFogLights) and self.v:HasFogLights() then
+            lh:SetFogActive(on)
+        end
 	elseif vcmod_main
 	and isfunction(self.v.VC_setRunningLights) then
 		self.v:VC_setRunningLights(on)
@@ -310,6 +333,13 @@ function ENT:SetLights(on, highbeams)
 		end
 		
 		self.keystate = nil
+	elseif self.v.LVS or self.v.LVS_GUNNER then
+        local lh = isfunction(self.v.GetLightsHandler) and self.v:GetLightsHandler()
+        if not IsValid(lh) then return end
+        lh:SetActive(on)
+        if highbeams and isfunction(self.v.HasHighBeams) and self.v:HasHighBeams() then
+            lh:SetHighActive(on)
+        end
 	elseif vcmod_main
 	and isfunction(self.v.VC_setHighBeams)
 	and isfunction(self.v.VC_setLowBeams) then
@@ -447,6 +477,15 @@ function ENT:SetELS(on)
 			self.v.ems = CreateSound(self.v, sounds[sirenNum])
 			self.v.ems:Play()
 		end
+	elseif self.v.LVS or self.v.LVS_GUNNER then
+        if on then
+            if isfunction(self.v.StartSiren) then
+                self.v:StartSiren(false, true)
+            end
+        elseif isfunction(self.v.SetSirenMode) and isfunction(self.v.StopSiren) then
+            self.v:SetSirenMode(-1)
+            self.v:StopSiren()
+        end
 	elseif Photon2
     and isfunction(self.v.GetPhotonControllerFromAncestor) then
         local pc = self.v:GetPhotonControllerFromAncestor()
@@ -498,6 +537,15 @@ function ENT:SetELSSound(on)
 				self.v.ems:Stop()
 			end
 		end
+	elseif self.v.LVS or self.v.LVS_GUNNER then
+        if on then
+            if isfunction(self.v.StartSiren) then
+                self.v:StartSiren(false, true)
+            end
+        elseif isfunction(self.v.SetSirenMode) and isfunction(self.v.StopSiren) then
+            self.v:SetSirenMode(-1)
+            self.v:StopSiren()
+        end
 	elseif Photon2
     and isfunction(self.v.GetPhotonControllerFromAncestor) then
         local pc = self.v:GetPhotonControllerFromAncestor()
@@ -584,6 +632,14 @@ function ENT:SetHorn(on)
 			self.v:StopSound(self.v.snd_horn)
 			self.v.honking = nil
 		end
+	elseif self.v.LVS or self.v.LVS_GUNNER then
+        if IsValid(self.v.HornSound) then
+            if on then
+                self.v.HornSound:Play()
+            else
+                self.v.HornSound:Stop()
+            end
+        end
 	elseif vcmod_main
 	and isfunction(self.v.VC_getStates)
 	and isfunction(self.v.VC_setStates) then
