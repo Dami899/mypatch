@@ -240,6 +240,8 @@ if SERVER then
 			return self.v:GetCurHealth() <= 0 or self.v:OnFire() or self.v.destroyed
 		elseif self.v.IsGlideVehicle then
 			return self.v:GetEngineHealth() <= 0 or self.v:GetIsEngineOnFire()
+		elseif self.v.LVS then
+			return self.v:GetHP() <= 0
 		elseif isfunction(self.v.VC_GetHealth) then
 			local health = self.v:VC_GetHealth(false)
 			return isnumber(health) and health <= 0
@@ -308,6 +310,22 @@ if SERVER then
 				if wreck:GetVelocity():LengthSqr() > 250000 then
 					UVGlideDetachWheels(wreck)
 				end
+			elseif self.v.LVS then
+				local wreck = self.v
+				timer.Simple(despawntime, function()
+					if IsValid(wreck) then
+						SafeRemoveEntity(wreck)
+					end
+				end)
+				if wreck:GetVelocity():LengthSqr() > 250000 and WheelsDetaching:GetBool() then
+					for _, v in pairs(wreck:GetWheels()) do
+						if math.random(1,2) == 1 then
+							constraint.RemoveAll(v)
+						end
+					end
+				end
+				wreck:SetHP(0)
+				wreck:StopEngine()
 			elseif self.v.IsSimfphyscar then
 				local wreck = self.v
 				timer.Simple(despawntime, function()
