@@ -12,14 +12,34 @@ UV.PNotes = {
 Date = { year = 2026, month = 3, day = 27 },
 Text = [[
 **New Features**
-- Added *LVS* support
-      |-- 
-      |-- 
-      |-- 
-      |-- 
+- Added support for the *LVS* vehicle base
 
 **Changes**
+- UV Menu: Updated the appearance on almost all elements
+- Updated the appearance of the Spawnmenu element on the following tools:
+      |-- [string:tool.uvpursuitbreaker.name]
+      |-- [string:tool.uvracermanager.name]
+      |-- [string:tool.uvrepairshop.name]
+      |-- [string:tool.uvroadblock.name]
+      |-- [string:tool.uvtrafficmanager.name]
+      |-- [string:tool.uvunitmanager.name]
+]],
+},
 
+["v1.4.2"] = {
+Date = { year = 2026, month = 3, day = 20 },
+Text = [[
+**Fixes**
+- Fixed an issue where Roadblocks and Pursuit Breakers were not created properly
+]],
+},
+
+["v1.4.1"] = {
+Date = { year = 2026, month = 3, day = 20 },
+Text = [[
+**Fixes**
+- Fixed an issue where the "Repair Kit" Pursuit Tech caused errors
+- Fixed an issue causing Pursuit Breakers to not clean up properly
 ]],
 },
 
@@ -106,6 +126,53 @@ And many more smaller undocumented fixes.
 ]],
 },
 
+["v1.2.5"] = {
+Date = { year = 2026, month = 2, day = 27 },
+Text = [[
+**Changes**
+- Added a toggle to no longer display the DV Waypoints warning
+      |-- Increased the cooldown for it too
+]],
+},
+
+["v1.2.4"] = {
+Date = { year = 2026, month = 2, day = 25 },
+Text = [[
+**Fixes**
+- Fixed that Simfphys and HL2 Jeep Units were not saving properly
+
+**Changes**
+- Updated localizations
+]],
+},
+
+["v1.2.3"] = {
+Date = { year = 2026, month = 2, day = 24 },
+Text = [[
+**Changes**
+- Added a cooldown for the DV Waypoints warning
+]],
+},
+
+["v1.2.2"] = {
+Date = { year = 2026, month = 2, day = 24 },
+Text = [[
+**Fixes**
+- Fixed that "Allow Vehicle Exit" was not visible in multiplayer
+
+**Changes**
+- Updated localizations
+]],
+},
+
+["v1.2.1"] = {
+Date = { year = 2026, month = 2, day = 24 },
+Text = [[
+**Fixes**
+- Fixed that AI Racers weren't following DV Waypoints when freeroaming
+]],
+},
+
 ["v1.2.0"] = {
 Date = { year = 2026, month = 2, day = 24 },
 Text = [[
@@ -140,6 +207,14 @@ Text = [[
 ]],
 },
 
+["v1.1.1"] = {
+Date = { year = 2026, month = 2, day = 7 },
+Text = [[
+**Fixes**
+- UV Menu: Fixed that colour was not defined correctly in the description tab.
+]],
+},
+
 ["v1.1.0"] = {
 Date = { year = 2026, month = 2, day = 3 },
 Text = [[
@@ -167,7 +242,7 @@ Text = [[
 ]],
 },
 
-["v1.0.1"] = {
+["v1.0.2"] = {
 Date = { year = 2026, month = 1, day = 30 },
 Text = [[
 This patch brings fixes for bugs reported by the community as well as other improvements/tweaks to the addon.
@@ -178,6 +253,14 @@ Keep 'em coming! We appreciate your reports and feedback!
 - Fixed that the "Creator: AI Racers" tool caused an error when trying to select a vehicle from the vehicle database.
 - Fixed Unit AI getting stuck idling after pursuits get concluded.
 - Slightly altered chatter behavior for more consistency.
+]],
+},
+
+["v1.0.1"] = {
+Date = { year = 2026, month = 1, day = 29 },
+Text = [[
+**Fixes**
+- Fixed an unlocalized Pursuit Tech notification causing errors
 ]],
 },
 

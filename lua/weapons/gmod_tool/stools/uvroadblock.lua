@@ -238,8 +238,8 @@ if CLIENT then
 		local Frame = vgui.Create("DPanel")
 		Frame:SetTall(320)
 		Frame.Paint = function(self, w, h)
-			draw.RoundedBox(5, 0, 0, w, h, Color(115,115,115))
-			draw.RoundedBox(5, 1, 1, w-2, h-2, Color(0,0,0))
+			draw.RoundedBox(5, 0, 0, w, h, Color(115,115,115,200))
+			draw.RoundedBox(5, 1, 1, w-2, h-2, Color(0,0,0,200))
 		end
 		CPanel:AddItem(Frame)
 
@@ -294,8 +294,7 @@ if CLIENT then
 						draw.RoundedBox(12, w * 0.0125, 0, w * 0.9875, h, hover)
 					end
 
-					draw.SimpleText(filename, "UVSettingsFontSmall",
-						w * 0.5, h * 0.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					draw.SimpleTextOutlined(filename, "UVSettingsFontSmall", w * 0.5, h * 0.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1.25, color_black)
 				end
 
 				btn.DoClick = function()

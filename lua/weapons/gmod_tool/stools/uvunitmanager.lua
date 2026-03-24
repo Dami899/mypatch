@@ -644,27 +644,37 @@ if CLIENT then
 
 		CPanel:AddControl("Label", { Text = "#tool.uvunitmanager.settings.desc" })
 
-		local FilterBarScroll = vgui.Create("DHorizontalScroller")
-		FilterBarScroll:Dock(TOP)
-		FilterBarScroll:SetTall(32)
-		FilterBarScroll:SetOverlap(8)
-		FilterBarScroll:DockMargin(0, 0, 0, 0)
-		FilterBarScroll:GetCanvas():DockPadding(0, 4, 0, 4)
+		local FilterBar = vgui.Create("DIconLayout")
+		FilterBar:Dock(TOP)
+		FilterBar:SetTall(60)
+		FilterBar:SetSpaceX(4)
+		FilterBar:SetSpaceY(4)
+		CPanel:AddItem(FilterBar)
+		FilterBar.Paint = function(self, w, h)
+			draw.RoundedBox(5, 0, 0, w, h, Color(115,115,115,200))
+			draw.RoundedBox(5, 1, 1, w-2, h-2, Color(0,0,0,200))
+		end
+		
+		FilterBar.OnSizeChanged = function(self, w)
+			local spacing = self:GetSpaceX()
+			local children = self:GetChildren()
 
-		-- No paint needed for the scroll or its canvas
-		FilterBarScroll.Paint = nil
-		FilterBarScroll:GetCanvas().Paint = nil
+			for i, child in ipairs(children) do
+				if not IsValid(child) then continue end
 
-		-- Provide an accessor so AddFilterButton can access this panel
-		local FilterBar = FilterBarScroll
+				if i == 1 then
+					child:SetWide(w)
+				else
+					child:SetWide((w - spacing) / 2)
+				end
+			end
+		end
 
 		CPanel:AddItem(FilterBar)
 
 		local function AddFilterButton(text, baseId)
 			local btn = vgui.Create("DButton", FilterBar)
-			btn:Dock(LEFT)
-			btn:DockMargin(0, 0, 0, 0)
-			btn:SetWide(80)
+			btn:SetTall(24)
 			btn:SetText(" ")
 
 			btn.Paint = function(self, w, h)
@@ -698,7 +708,7 @@ if CLIENT then
 					draw.RoundedBox(12, w * 0.0125, 0, w * 0.9875, h, hover)
 				end
 
-				draw.SimpleText( text, "UVSettingsFontSmall", w * 0.5, h * 0.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+				draw.SimpleTextOutlined(text, "UVSettingsFontSmall", w * 0.5, h * 0.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1.25, color_black)
 			end
 
 			btn.DoClick = function()
@@ -710,8 +720,8 @@ if CLIENT then
 		local FrameListPanel = vgui.Create("DPanel")
 		FrameListPanel:SetSize(280, 220)
 		FrameListPanel.Paint = function(self, w, h)
-			draw.RoundedBox(5, 0, 0, w, h, Color(115,115,115))
-			draw.RoundedBox(5, 1, 1, w-2, h-2, Color(0,0,0))
+			draw.RoundedBox(5, 0, 0, w, h, Color(115,115,115,200))
+			draw.RoundedBox(5, 1, 1, w-2, h-2, Color(0,0,0,200))
 		end
 		CPanel:AddItem(FrameListPanel)
 
@@ -721,11 +731,11 @@ if CLIENT then
 
 		UVUnitManagerTool.ScrollPanel = ScrollPanel
 
-		AddFilterButton("#all", 0)
-		AddFilterButton("HL2", 1)
-		AddFilterButton("Simfphys", 2)
-		AddFilterButton("Glide", 3)
-		AddFilterButton("LVS", 4)
+		AddFilterButton(UVString("all"), 0)
+		AddFilterButton(UVString("uv.base.hl2"), 1)
+		AddFilterButton(UVString("uv.base.simfphys"), 2)
+		AddFilterButton(UVString("uv.base.glide"), 3)
+		AddFilterButton(UVString("uv.base.lvs"), 4)
 
 		local function getAvailableUnits()
 			local entries = {}
@@ -806,7 +816,7 @@ if CLIENT then
 						draw.RoundedBox(12, w * 0.0125, 0, w * 0.9875, h, hover)
 					end
 
-					draw.SimpleText( entry.display, "UVSettingsFontSmall", w * 0.05, h * 0.5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER )
+					draw.SimpleTextOutlined(entry.display, "UVSettingsFontSmall", w * 0.05, h * 0.5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1.25, color_black)
 				end
 
 				btn.DoClick = function()
