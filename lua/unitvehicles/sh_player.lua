@@ -1953,7 +1953,7 @@ if SERVER then
 
         for k, object in pairs(objects) do
             if not object.UnitVehicle and not car.UnitVehicle and not RacerFriendlyFire:GetBool() then
-			elseif object ~= car and (not table.HasValue(carchildren, object) and not table.HasValue(carconstraints, object) and IsValid(object:GetPhysicsObject()) or object.UnitVehicle or object.UVWanted or object:GetClass() == "entity_uv*" or object.uvdeployed) then
+			elseif object ~= car and object:GetClass() ~= "lvs_wheeldrive_wheel" and (not table.HasValue(carchildren, object) and not table.HasValue(carconstraints, object) and IsValid(object:GetPhysicsObject()) or object.UnitVehicle or object.UVWanted or object:GetClass() == "entity_uv*" or object.uvdeployed) then
 
                 local objectphys = object:GetPhysicsObject()
                 local vectorDifference = object:WorldSpaceCenter() - carPos
@@ -1974,7 +1974,7 @@ if SERVER then
                     UVDamage(object, damage)
                     attachVictim = true
 
-                if attachVictim and object:IsVehicle() then
+                if attachVictim and (object:IsVehicle() or object.LVS) then
                     table.insert( affectedTargets, object )
                 end
             end
@@ -2150,7 +2150,7 @@ if SERVER then
         end
 
         for k, object in pairs(objects) do
-            if UVIsVehicleInCone( car, object, 90, 1000000 ) and object ~= car and (not table.HasValue(carchildren, object) and not table.HasValue(carconstraints, object) and IsValid(object:GetPhysicsObject()) or object.UVWanted or object:GetClass() == "entity_uv*" or object.uvdeployed) then
+            if UVIsVehicleInCone( car, object, 90, 1000000 ) and object ~= car and object:GetClass() ~= "lvs_wheeldrive_wheel" and (not table.HasValue(carchildren, object) and not table.HasValue(carconstraints, object) and IsValid(object:GetPhysicsObject()) or object.UVWanted or object:GetClass() == "entity_uv*" or object.uvdeployed) then
 
                 local objectphys = object:GetPhysicsObject()
                 local vectorDifference = object:WorldSpaceCenter() - carPos
@@ -2177,7 +2177,7 @@ if SERVER then
                     attachVictim = true
                 --end
 
-                if attachVictim and object:IsVehicle() then
+                if attachVictim and (object:IsVehicle() or object.LVS) then
                     -- local victimName = UVGetDriverName(object)
                     -- table.insert( args.Hit, victimName )
                     table.insert( affectedTargets, object )
@@ -2324,7 +2324,7 @@ if SERVER then
     function UVDeactivateGrappler(car)
         car.grappleron = nil
 
-        if car.wrecked then
+        if car.wrecked or UVJammerDeployed then
             if car.grappler and IsValid(car.grappler) then
                 car.grapplerconstraint:Remove()
                 car.grapplerconstraint = nil
