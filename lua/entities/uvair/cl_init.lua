@@ -71,6 +71,13 @@ function ENT:Initialize()
 		self.PortPos = Vector(-284.61,62.39,99.24)
 		self.StarboardPos = Vector(-284.61,-62.39,99.24)
 		self.SternPos = Vector(-402.28,0,106.04)
+	elseif self.Model == "models/NFSU_COPHELI/NFSU_COPHELI.mdl" then
+		self.SpotlightPos = Vector(85,0,25)
+		self.StrobePos = Vector(-295,0,140)
+		self.StrobePos2 = Vector(-28.07,0,17.35)
+		self.PortPos = Vector(-6.28,77.58,32.67)
+		self.StarboardPos = Vector(-6.28,-77.58,32.67)
+		self.SternPos = Vector(-298.67,-0.15,109.86)
 	end
 
 	self.RotorSoundPatch = "<chopper/mwheli.wav"

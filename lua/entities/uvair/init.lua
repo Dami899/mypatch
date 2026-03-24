@@ -54,7 +54,8 @@ function ENT:Initialize()
 		["NFS No Limits"] = "models/nfs_nlpolhel/nfs_nlpolhel.mdl",
 		["NFS Rivals, Payback & Heat"] = "models/nfs_paybackpolhel/nfs_paybackpolhel.mdl",
 		["NFS Unbound"] = "models/unboundheli/unboundheli.mdl",
-		["The Crew"] = "models/thecrewheli/thecrewheli.mdl"
+		["The Crew"] = "models/thecrewheli/thecrewheli.mdl",
+		["NFS Undercover PS2"] = "models/NFSU_COPHELI/NFSU_COPHELI.mdl"
 	}
 
 	self.Model = modeltable[UVUHelicopterModel:GetString()] or "models/uvair_default.mdl"
@@ -88,6 +89,8 @@ function ENT:Initialize()
 	elseif self.Model == "models/unboundheli/unboundheli.mdl" then
 		self.phys:SetMass(123078)
 	elseif self.Model == "models/thecrewheli/thecrewheli.mdl" then
+		self.phys:SetMass(5026)
+	elseif self.Model == "models/NFSU_COPHELI/NFSU_COPHELI.mdl" then
 		self.phys:SetMass(5026)
 	end
 	
