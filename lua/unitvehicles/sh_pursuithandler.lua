@@ -4046,7 +4046,7 @@ else -- CLIENT Settings | HUD/Options
 
 				for _, ent in pairs(UVHUDWantedSuspects) do
 					if not IsValid(ent) then continue end
-					if ent:IsVehicle() and UVGetDriver(ent) == LocalPlayer() then continue end
+					if UVGetDriver(ent) == LocalPlayer() then continue end
 					local dist = LocalPlayer():GetPos():Distance(ent:GetPos())
 					table.insert(renderQueue, { vehicle = ent, dist = dist })
 				end

@@ -4078,7 +4078,7 @@ function UVGetVehicleMakeAndModel(vehicle, category)
 			local name = t.Name
 			return name or "Vehicle"
 		end
-	elseif vehicle.IsGlideVehicle then
+	elseif vehicle.IsGlideVehicle or vehicle.LVS then
 		return vehicle.PrintName or "Vehicle"
 	elseif vehicle:GetClass() == "prop_vehicle_jeep" then
 		local c = vehicle:GetVehicleClass()

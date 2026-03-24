@@ -2026,26 +2026,13 @@ if SERVER then
             end
         end)
         
-        for k, unit in pairs(ents.FindByClass("npc_uv*")) do
+        for k, unit in pairs(UVUnitVehicles) do
             if unit.v then
                 UVDeactivateESF(unit.v)
                 UVDeactivateKillSwitch(unit.v)
                 UVDeactivateGrappler(unit.v)
-                constraint.RemoveConstraints( unit.v, "Rope" )
                 if car.empCleanup then 
                     car.empCleanup()
-                end
-            end
-        end
-        
-        for k, unitplayers in pairs(UVPlayerUnitTableVehicle) do
-            if IsValid(unitplayers) then
-                UVDeactivateESF(UVPlayerUnitTableVehicle)
-                UVDeactivateKillSwitch(UVPlayerUnitTableVehicle)
-                UVDeactivateGrappler(UVPlayerUnitTableVehicle)
-                constraint.RemoveConstraints( UVPlayerUnitTableVehicle, "Rope" )
-                if car.empCleanup then 
-                    car.empCleanup() 
                 end
             end
         end

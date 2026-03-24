@@ -64,7 +64,7 @@ if SERVER then
 	end
 	
 	function ENT:StartTouch( ent )
-		if ent:GetClass() == "gmod_sent_vehicle_fphysics_wheel" or ent.LVS then
+		if ent:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
 			local car = ent:GetBaseEnt()
 			if self.racerdeployed and not car.UnitVehicle then
 				if not RacerFriendlyFire:GetBool() then return end
@@ -79,7 +79,7 @@ if SERVER then
 			self:UVStunmineHit()
 			return
 		end
-		if ent:IsVehicle() then
+		if ent:IsVehicle() or ent.LVS then
 			if self.racerdeployed and not ent.UnitVehicle then
 				if not RacerFriendlyFire:GetBool() then return end
 			end
