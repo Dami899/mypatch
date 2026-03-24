@@ -677,13 +677,21 @@ if SERVER then
             vehicle:SetAngles( ang )
             vehicle:SetVelocity(Vector(0,0,0))
 
+            if vehicle.LVS then
+                for _, wheel in ipairs(vehicle:GetWheels()) do
+                    wheel:SetPos(vehicle:GetPos())
+                end
+            end
+
             if not commander then
                 UVRepair(vehicle, true)
             end
             
             timer.Simple(.5, function()
-                physObj:EnableMotion(true)
-                physObj:Wake()
+                if IsValid(physObj) then
+                    physObj:EnableMotion(true)
+                    physObj:Wake()
+                end
             end)
         end
 
