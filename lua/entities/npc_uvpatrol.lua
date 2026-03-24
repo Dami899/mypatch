@@ -1050,11 +1050,14 @@ if SERVER then
 					local norm = velo:GetNormalized()
 					local dot = forward:Dot(norm)
 
-					lvsReverse = dot < 0 or selfvelocity < 10000
-					throttle = math.abs(throttle)
+					lvsReverse = dot < 0 or selfvelocity < 50000
+					if lvsReverse then throttle = math.abs(throttle) end
 				end
 
-				if self.v.LVS then self.v:SetReverse( lvsReverse ) end
+				if self.v.LVS then 
+					self.v:SetReverse( lvsReverse )
+					self.v:LerpBrake( (lvsReverse or throttle > 0) and 0 or math.abs(throttle) )
+				end
 				self.v:SetThrottle(throttle)
 				if self.v.LVS then
 					self.v:SetSteer(steer * self.v:GetMaxSteerAngle())
@@ -2015,12 +2018,15 @@ if SERVER then
 					local velo = self.v:GetVelocity()
 					local norm = velo:GetNormalized()
 					local dot = forward:Dot(norm)
-
-					lvsReverse = dot < 0 or selfvelocity < 10000
-					throttle = math.abs(throttle)
+					
+					lvsReverse = dot < 0 or selfvelocity < 50000
+					if lvsReverse then throttle = math.abs(throttle) end
 				end
 
-				if self.v.LVS then self.v:SetReverse( lvsReverse ) end
+				if self.v.LVS then 
+					self.v:SetReverse( lvsReverse )
+					self.v:LerpBrake( (lvsReverse or throttle > 0) and 0 or math.abs(throttle) )
+				end
 				self.v:SetThrottle(throttle)
 				if self.v.LVS then
 					self.v:SetSteer(steer * self.v:GetMaxSteerAngle())
