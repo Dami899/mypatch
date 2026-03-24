@@ -47,10 +47,10 @@ if SERVER then
 		if table.HasValue(UVUnitsChasing, self) then
 			table.RemoveByValue(UVUnitsChasing, self)
 		end
-		if Chatter:GetBool() and IsValid(self.v) and not self.wrecked and not UVTargeting then
+		local isValid = IsValid(self.v)
+		if Chatter:GetBool() and isValid and not self.wrecked and not UVTargeting then
 			UVChatterOnRemove(self)
 		end
-		local isValid = IsValid(self.v)
 		--By undoing, driving, diving in water, or getting stuck, and the vehicle is remaining.
 		if isValid then
 			self.v.UVPursuit = nil
@@ -1250,7 +1250,7 @@ if SERVER then
 				else
 					UVOptimizeRespawn(self.v)
 				end
-				if Chatter:GetBool() and IsValid(self.v) and not UVEnemyEscaping and not self.invincible and not UVEnemyBusted then
+				if Chatter:GetBool() and not UVEnemyEscaping and not self.invincible and not UVEnemyBusted then
 					UVChatterLeftPursuit(self) 
 				end
 			end
@@ -1293,7 +1293,7 @@ if SERVER then
 					end
 					self.moving = CurTime()
 					self.toofar = nil
-					if Chatter:GetBool() and IsValid(self) then
+					if Chatter:GetBool() then
 						if self.v.roadblocking then
 							UVChatterRoadblockDeployed(self)
 						else
@@ -1320,12 +1320,14 @@ if SERVER then
 					UVLosing = CurTime()
 					self.idle = nil
 					timer.Simple(15, function() 
+						local selfValid = IsValid(self)
+						local enemyValid = IsValid(self.e)
 						UVTrafficStop = false
-						if UVCalm and IsValid(self.e) and not UVHUDBusting then
+						if UVCalm and enemyValid and not UVHUDBusting then
 							if UVTargeting then return end
 							UVRestoreResourcePoints()
 							UVTargeting = true
-							if IsValid(self) then
+							if selfValid then
 								UVChatterPursuitStartRanAway(self)
 							end
 							UVLosing = CurTime()
@@ -1358,11 +1360,11 @@ if SERVER then
 						UVCalm = true
 					end
 					if not self.v.rammed then
-						if Chatter:GetBool() and IsValid(self.v) then
+						if Chatter:GetBool() then
 							UVChatterTrafficStopSpeeding(self)
 						end
 					else
-						if Chatter:GetBool() and IsValid(self.v) then
+						if Chatter:GetBool() then
 							UVChatterTrafficStopRammed(self) 
 						end
 					end
@@ -1998,7 +2000,7 @@ if SERVER then
 			--First encounter with enemy
 			if not self.metwithenemy and edistSqr < 25000000 and straightToEnemy then
 				self.metwithenemy = true
-				if Chatter:GetBool() and IsValid(self.v) and UVTargeting and not UVEnemyEscaping and not self.v.roadblocking and not self.v.disperse then
+				if Chatter:GetBool() and UVTargeting and not UVEnemyEscaping and not self.v.roadblocking and not self.v.disperse then
 					UVChatterOnScene(self) 
 				end
 			end
@@ -2029,12 +2031,12 @@ if SERVER then
 					if MathAggressive == 1 then
 						if not self.aggressive and UVTargeting then
 							self.aggressive = true
-							if Chatter:GetBool() and IsValid(self.v) and straightToEnemy and not UVCalm then
+							if Chatter:GetBool() and straightToEnemy and not UVCalm then
 								UVChatterAggressive(self) 
 							end
 						else
 							self.aggressive = nil
-							if Chatter:GetBool() and IsValid(self.v) and straightToEnemy and not UVCalm then
+							if Chatter:GetBool() and straightToEnemy and not UVCalm then
 								UVChatterPassive(self) 
 							end
 						end
@@ -2043,7 +2045,7 @@ if SERVER then
 							UVChatterRequestBackup(self)
 						end
 					elseif MathAggressive == 3 then
-						if Chatter:GetBool() and IsValid(self.v) and not UVCalm then
+						if Chatter:GetBool() and not UVCalm then
 							UVChatterRequestSitrep(self)
 						end
 					else
@@ -2063,7 +2065,7 @@ if SERVER then
 					if MathSiren < 30 then
 						self:ChangeELSSiren()
 					end
-					if Chatter:GetBool() and IsValid(self.v) and enemyvelocity > 100000 and straightToEnemy and MathAggressive ~= 1 then
+					if Chatter:GetBool() and enemyvelocity > 100000 and straightToEnemy and MathAggressive ~= 1 then
 						UVChatterCloseToEnemy(self, self.e) 
 					end
 				end
@@ -2315,7 +2317,8 @@ if SERVER then
 					v:StartCar()
 				end
 			elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
-				if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
+				local driver = v:GetDriver()
+				if not IsValid(driver) then --Fortunately, Simfphys Vehicles can use GetDriver()
 					self.v = v
 					v.uvclasstospawnon = self:GetClass()
 					v.UVPursuit = self
@@ -2328,7 +2331,8 @@ if SERVER then
 					v:SetBulletProofTires(true)
 				end
 			elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
-				if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
+				local driver = v:GetDriver()
+				if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(driver) then
 					self.v = v
 					v.uvclasstospawnon = self:GetClass()
 					v.UVPursuit = self
@@ -2337,7 +2341,8 @@ if SERVER then
 					v:StartEngine(true)
 				end
 			elseif v.IsGlideVehicle then --Glide
-				if not IsValid(v:GetDriver()) then
+				local driver = v:GetDriver()
+				if not IsValid(driver) then
 					self.v = v
 					v.uvclasstospawnon = self:GetClass()
 					v.UVPursuit = self
@@ -2356,7 +2361,8 @@ if SERVER then
 				end
 			elseif v.LVS then
 				if not v:IsInitialized() then return end
-				if IsValid(v:GetDriver()) then return end
+				local driver = v:GetDriver()
+				if IsValid(driver) then return end
 				self.v = v
 				v.uvclasstospawnon = self:GetClass()
 				v.UVPursuit = self
@@ -2371,7 +2377,8 @@ if SERVER then
 				if v.UnitVehicle and v.UnitVehicle:IsNPC() then continue end
 				if v.LVS then
 					if not v:IsInitialized() then continue end
-					if IsValid(v:GetDriver()) then continue end
+					local driver = v:GetDriver()
+					if IsValid(driver) then continue end
 					self.v = v
 					v.UVPursuit = self
 					v.UnitVehicle = self
@@ -2391,7 +2398,8 @@ if SERVER then
 							v:StartCar()
 						end
 					elseif v.IsSimfphyscar and v:IsInitialized() then --If it's a Simfphys Vehicle.
-						if not IsValid(v:GetDriver()) then --Fortunately, Simfphys Vehicles can use GetDriver()
+						local driver = v:GetDriver()
+						if not IsValid(driver) then --Fortunately, Simfphys Vehicles can use GetDriver()
 							self.v = v
 							v.uvclasstospawnon = self:GetClass()
 							v.UVPursuit = self
@@ -2404,7 +2412,8 @@ if SERVER then
 							v:SetBulletProofTires(true)
 						end
 					elseif isfunction(v.EnableEngine) and isfunction(v.StartEngine) and not v.IsGlideVehicle then --Normal vehicles should use these functions. (SCAR and Simfphys cannot.)
-						if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(v:GetDriver()) then
+						local driver = v:GetDriver()
+						if isfunction(v.GetWheelCount) and v:GetWheelCount() and not IsValid(driver) then
 							self.v = v
 							v.uvclasstospawnon = self:GetClass()
 							v.UVPursuit = self
@@ -2413,7 +2422,8 @@ if SERVER then
 							v:StartEngine(true)
 						end
 					elseif v.IsGlideVehicle then --Glide
-						if not IsValid(v:GetDriver()) then
+						local driver = v:GetDriver()
+						if not IsValid(driver) then
 							self.v = v
 							v.uvclasstospawnon = self:GetClass()
 							v.UVPursuit = self
@@ -2435,7 +2445,8 @@ if SERVER then
 			end
 		end
 		
-		if not IsValid(self.v) or not IsValid(self.v:GetPhysicsObject()) then SafeRemoveEntity(self) return end --When there's no vehicle, remove Unit Vehicle.
+		local vehiclePhysics = IsValid(self.v) and self.v:GetPhysicsObject() or nil
+		if not IsValid(self.v) or not IsValid(vehiclePhysics) then SafeRemoveEntity(self) return end --When there's no vehicle, remove Unit Vehicle.
 		UVDeploys = UVDeploys + 1
 
 		if isfunction(self.v.UVVehicleInitialize) then --For vehicles that has a driver bodygroup
@@ -2468,7 +2479,7 @@ if SERVER then
 		end
 		if not UVTargeting then self.v:EmitSound( "doors/metal_stop1.wav" ) end
 		self.mass = math.Round(self.v:GetPhysicsObject():GetMass())
-		if Chatter:GetBool() and IsValid(self.v) and not UVTargeting then
+		if Chatter:GetBool() and not UVTargeting then
 			UVChatterInitialize(self) 
 		end
 		

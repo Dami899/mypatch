@@ -89,7 +89,7 @@ end
 function UVGetDriver(vehicle)
 	if not IsValid(vehicle) then return nil end
 
-	if vehicle.IsSimfphyscar or vehicle:GetClass() == "prop_vehicle_jeep" or vehicle.LVS then
+	if vehicle.IsSimfphyscar or vehicle:GetClass() == "prop_vehicle_jeep" then
 		return vehicle:GetDriver()
 	elseif vehicle.IsGlideVehicle then
 		if not vehicle.seats or next(vehicle.seats) == nil then return nil end
@@ -99,6 +99,11 @@ function UVGetDriver(vehicle)
 		if IsValid( seat ) then
 			local driver = seat:GetDriver()
 			return (IsValid(driver) and driver) or nil
+		end
+	elseif vehicle.LVS then
+		local driverSeat = vehicle:GetDriverSeat()
+		if IsValid(driverSeat) then
+			return driverSeat:GetDriver()
 		end
 	end
 
