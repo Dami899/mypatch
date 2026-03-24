@@ -2027,13 +2027,11 @@ if SERVER then
         end)
         
         for k, unit in pairs(UVUnitVehicles) do
-            if unit.v then
-                UVDeactivateESF(unit.v)
-                UVDeactivateKillSwitch(unit.v)
-                UVDeactivateGrappler(unit.v)
-                if car.empCleanup then 
-                    car.empCleanup()
-                end
+            UVDeactivateESF(unit)
+            UVDeactivateKillSwitch(unit)
+            UVDeactivateGrappler(unit)
+            if unit.empCleanup then 
+                unit.empCleanup()
             end
         end
         
