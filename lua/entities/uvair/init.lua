@@ -91,7 +91,7 @@ function ENT:Initialize()
 	elseif self.Model == "models/thecrewheli/thecrewheli.mdl" then
 		self.phys:SetMass(5026)
 	elseif self.Model == "models/NFSU_COPHELI/NFSU_COPHELI.mdl" then
-		self.phys:SetMass(5026)
+		self.phys:SetMass(24242)
 	end
 	
 	self.bountytimer = CurTime()

@@ -1683,6 +1683,14 @@ if SERVER then
 							throttle = 1
 						end
 					end
+				elseif self.v.LVS then
+					if obstaclesNearby then
+						if not self.v:GetReverse() then
+							throttle = -1
+						else
+							throttle = 1
+						end
+					end
 				end --Slow down
 			elseif (distSqr > 250000 or distSqr < 250000 and not straightToEnemy) and self.stuck then --No eyes on the target
 				if right.z > 0 then steer = -1 else steer = 1 end
@@ -2164,6 +2172,12 @@ if SERVER then
 					end
 				elseif self.v.IsGlideVehicle then
 					if self.v:GetGear() >= 1 then
+						throttle = -1
+					else
+						throttle = 1
+					end
+				elseif self.v.LVS then
+					if not self.v:GetReverse() then
 						throttle = -1
 					else
 						throttle = 1
