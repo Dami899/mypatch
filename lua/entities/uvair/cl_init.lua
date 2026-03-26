@@ -36,6 +36,13 @@ function ENT:Initialize()
 		self.PortPos = Vector(-390.39,59.07,160.17)
 		self.StarboardPos = Vector(-390.39,-59.07,160.17)
 		self.SternPos = Vector(-390.09,0,129.25)
+	elseif self.Model == "models/nfsu_copheli/nfsu_copheli.mdl" then
+		self.SpotlightPos = Vector(91.49,0,21.35)
+		self.StrobePos = Vector(-298.54,0,139.51)
+		self.StrobePos2 = Vector(-27.36,0,17.58)
+		self.PortPos = Vector(-7.28,79.5,33.28)
+		self.StarboardPos = Vector(-7.28,-79.5,33.28)
+		self.SternPos = Vector(-293.06,0,73.26)
 	elseif self.Model == "models/nfs_hppolhel/nfs_hppolhel.mdl" then
 		self.SpotlightPos = Vector(124,0,21.9)
 		self.StrobePos = Vector(-357.5,0,182.5)
@@ -71,13 +78,6 @@ function ENT:Initialize()
 		self.PortPos = Vector(-284.61,62.39,99.24)
 		self.StarboardPos = Vector(-284.61,-62.39,99.24)
 		self.SternPos = Vector(-402.28,0,106.04)
-	elseif self.Model == "models/NFSU_COPHELI/NFSU_COPHELI.mdl" then
-		self.SpotlightPos = Vector(85,0,25)
-		self.StrobePos = Vector(-295,0,140)
-		self.StrobePos2 = Vector(-28.07,0,17.35)
-		self.PortPos = Vector(-6.28,77.58,32.67)
-		self.StarboardPos = Vector(-6.28,-77.58,32.67)
-		self.SternPos = Vector(-298.67,-0.15,109.86)
 	end
 
 	self.RotorSoundPatch = "<chopper/mwheli.wav"

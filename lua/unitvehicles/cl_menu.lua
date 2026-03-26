@@ -1516,6 +1516,7 @@ UVMenu.HeatManager = function()
 				{ "NFS Hot Pursuit 2", "NFS Hot Pursuit 2" },
 				{ "NFS Most Wanted", "NFS Most Wanted" },
 				{ "NFS Undercover", "NFS Undercover" },
+				{ "NFS Undercover PS2", "NFS Undercover PS2"},
 				{ "NFS Hot Pursuit 2010", "NFS Hot Pursuit 2010" },
 				{ "NFS No Limits", "NFS No Limits" },
 				{ "NFS Rivals, Payback & Heat", "NFS Rivals, Payback & Heat" },
