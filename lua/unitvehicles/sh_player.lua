@@ -532,6 +532,7 @@ if SERVER then
 
     function UVOptimizeRespawn( vehicle, rhino, commander, suspectwaypoint )
         if UVOptimizeRespawnDelayed and not suspectwaypoint then return end
+        if UVJammerDeployed then return end
 
         UVOptimizeRespawnDelayed = true
         timer.Simple(1, function()
