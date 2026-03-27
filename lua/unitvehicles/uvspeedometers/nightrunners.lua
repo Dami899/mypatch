@@ -227,7 +227,7 @@ local function nightrunners_speedometer( ... )
 
 	surface.SetMaterial(UVMaterials["TACHO1_NR_NEEDLE"])
 	surface.SetDrawColor(rpm == 0 and Color(mainNeedleColor.r / 3, mainNeedleColor.g / 3, mainNeedleColor.b / 3, 210) or mainNeedleColor)
-	surface.DrawTexturedRectRotated( RPM_XPOS, speedopos.y - (h * 0.183), needleScaleFactor, needleScaleFactor, angle )
+	surface.DrawTexturedRectRotated( RPM_XPOS, speedopos.y - (h * 0.182), needleScaleFactor, needleScaleFactor, angle )
 
     -- tacho needle
     local maxspeed = 250
@@ -280,7 +280,7 @@ local function nightrunners_speedometer( ... )
 
     -- fuel gauge
     local maxfuel = 100
-    local quantity = rpm == 0 and 0 or (sideGaugeSecFunc:GetBool() and (nitrousenabled and maxfuel * nitrous or maxfuel) or maxfuel)
+    local quantity = rpm == 0 and 0 or (sideGaugeSecFunc:GetBool() and (nitrousenabled and maxfuel * nitrous or maxfuel) or math.Clamp(health * 100, 0, 100))
     local fuel_needle = {
 		idle = -189,
 		max = -255,
@@ -299,6 +299,11 @@ local function nightrunners_speedometer( ... )
 
     DrawIcon(UVMaterials["TACHO1_NR_NEEDLE_GLOW"], FUEL_XPOS - (w * 0.02), speedopos.y - (h * 0.001), 0.18, Color(colorValues.fuelneedles.r, colorValues.fuelneedles.g, colorValues.fuelneedles.b, rpm == 0 and 0 or 63))
     DrawIcon(UVMaterials["TACHO1_NR_SMALL_NEEDLE_GLASS"], FUEL_XPOS - (w * 0.02), speedopos.y - (h * 0.001), 0.25, switchedOffLightColor)
+
+    if not sideGaugeSecFunc:GetBool() and fuelFrac <= 0.2 and rpm ~= 0 then
+        DrawIcon(UVMaterials["DASH_NR_LIGHT"], FUEL_XPOS + (w * 0.003), speedopos.y - (h * 0.011), 0.014, rpm == 0 and switchedOffLightColor or color_white)
+        DrawIcon(UVMaterials['TACHO1_NR_NEEDLE_GLOW'], FUEL_XPOS + (w * 0.003), speedopos.y - (h * 0.011), 0.1, Color(255,0,0,150))
+    end
 
     -- Odometer
     Glide.currentVehicle.__ODO = Glide.currentVehicle.__ODO or math.random(0, 999999)

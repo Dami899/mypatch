@@ -789,10 +789,25 @@ if SERVER then
                     wheel:SetPos(vehicle:GetPos())
                 end
             end
-            
+
+            vehicle:SetCollisionGroup(20)
+
+            vehicle.__ogrendermode = vehicle:GetRenderMode()
+            vehicle:SetRenderMode(RENDERMODE_TRANSALPHA) --Required for transparency
+
+            local c = vehicle:GetColor()
+            vehicle:SetColor(Color(c.r, c.g, c.b, 100))
+
             timer.Simple(.5, function()
                 physObj:EnableMotion(true)
                 physObj:Wake()
+            end)
+
+            timer.Simple(5, function()
+                if not IsValid(vehicle) then return end
+                vehicle:SetRenderMode(vehicle.__ogrendermode)
+                vehicle:SetColor(Color(c.r, c.g, c.b, 255))
+                vehicle:SetCollisionGroup(0)
             end)
         end
         

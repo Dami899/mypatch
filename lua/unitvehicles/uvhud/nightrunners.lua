@@ -108,6 +108,15 @@ local function nightrunners_racing_main( ... )
 			end
 		end
 	end
+
+	-- Wipe out notice
+	local NoticeDisplay = UV_UI.racing.nightrunners.states.NoticeDisplay
+	if NoticeDisplay.Active then
+		NoticeDisplay.__t = NoticeDisplay.__t + RealFrameTime()
+		if NoticeDisplay.__t >= NoticeDisplay.Duration then NoticeDisplay.Active = false NoticeDisplay.__t = 0 end
+
+		draw.SimpleText( NoticeDisplay.Text, "UVNightRunnersFontNonItalic", UV_UI.X(w * 0.5), h * 0.35, Color( 255, 255, 255, 255 * (NoticeDisplay.__t / 1.5)), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1.5 )
+	end
 end
 
 UV_UI.racing.nightrunners.main = nightrunners_racing_main
@@ -127,6 +136,15 @@ UV_UI.racing.nightrunners.states = {
 		__t = 0,
 		__HIDDEN = false,
 	},
+	NoticeDisplay = {
+		Active = true,
+		StartTime = CurTime(),
+		Text = "",
+		Duration = 5,
+
+		-- private
+		__t = 0,
+	},
 	RaceResultDisplay = {
 		Active = true,
 		StartTime = CurTime(),
@@ -137,6 +155,11 @@ UV_UI.racing.nightrunners.states = {
 
 UV_UI.racing.nightrunners.events = {
 	CenterNotification = function( params )
+		local NoticeDisplay = UV_UI.racing.nightrunners.states.NoticeDisplay
+		NoticeDisplay.Text = params.text
+		NoticeDisplay.Active = true
+		NoticeDisplay.StartTime = CurTime()
+		NoticeDisplay.__t = 0
 	end,
 
     ShowResults = function(sortedRacers)
@@ -163,7 +186,7 @@ UV_UI.racing.nightrunners.events = {
 		local lang = UVString
 
 		function resultPanel:OnMouseWheeled(delta)
-			currentPage = math.Clamp( math.floor( currentPage + delta + 0.5 ), 1, maxPages )
+			currentPage = math.Clamp( math.floor( currentPage - delta - 0.5 ), 1, maxPages )
 			return true
 		end
 
@@ -252,6 +275,20 @@ UV_UI.racing.nightrunners.events = {
 	end,
 
 	onParticipantDisqualified = function(data)
+		local participant = data.Participant
+		local is_local_player = data.is_local_player
+		
+		local info = UVHUDRaceInfo.Participants[participant]
+		local name = info and info.Name or "Unknown"
+
+		if not info then return end
+
+		local disqtext = string.format("%s has been wiped out !", name)
+		if is_local_player then disqtext = UVString("uv.chase.wrecked") end
+
+		UV_UI.racing.nightrunners.events.CenterNotification({
+			text = disqtext,
+		})
 	end,
 
 	onLapSplit = function(participant, checkpoint, is_local_player, numParticipants)
