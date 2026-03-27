@@ -55,7 +55,7 @@ UVMenu.CustomizeSpeedo.nightrunners = function()
 				},
 				{ type = "slider", text = "uv.ui.xaxis", desc = "uv.ui.xaxis.desc", convar = "uvspeedo_nightrunners_x", min = 0, max = 1, decimals = 3 },
 				{ type = "slider", text = "uv.ui.yaxis", desc = "uv.ui.yaxis.desc", convar = "uvspeedo_nightrunners_y", min = 0, max = 1, decimals = 3 },
-                { type = "bool", text = "uv.speedo.shownitrous", desc = "uv.speedo.shownitrous.desc", convar = "uvspeedo_nightrunners_shownitrous" },
+                { type = "bool", text = "uv.speedo.shownitrous", desc = "uv.speedo.shownitrous.desc", convar = "uvspeedo_nightrunners_shownitrous", cond = function() return cffunctions end },
 				{ type = "coloralpha", text = "uv.speedo.face", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_nightrunners_col_maingauges" },
 				{ type = "coloralpha", text = "uv.speedo.needle", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_nightrunners_col_mainneedles" },
 				{ type = "coloralpha", text = "uv.speedo.tempface", desc = "uv.ui.menu.col.desc", convar = "uvspeedo_nightrunners_col_tempgauges" },

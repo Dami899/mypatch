@@ -11,10 +11,29 @@ UV.PNotes = {
 ["v1.5.0"] = {
 Date = { year = 2026, month = 3, day = 27 },
 Text = [[
+**Quick Information**
+Many patches had been added to UV since its launch that were undocumented here.
+
+Additionally, we've added smaller patches to the Update History section:
+      |-- v1.0.1
+      |-- v1.1.1
+      |-- v1.2.1
+      |-- v1.2.2
+      |-- v1.2.3
+      |-- v1.2.4
+      |-- v1.2.5
+      |-- v1.4.1
+
+Lastly, the previous update has changed version numbers for better consistency:
+      |-- v1.0.1  →  v1.0.2
+      |-- v1.3.1  →  v1.4.0
+
 **New Features**
-- Added support for the *LVS* vehicle base
+- Added full support for the *LVS* vehicle base
+- Added a new HUD Type and Speedometer, both based off of *NIGHT-RUNNERS™ PROLOGUE*
 
 **Changes**
+- UV Menu: Added every 
 - UV Menu: Updated the appearance on almost all elements
 - Updated the appearance of the Spawnmenu element on the following tools:
       |-- [string:tool.uvpursuitbreaker.name]
