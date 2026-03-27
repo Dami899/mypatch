@@ -2907,11 +2907,11 @@ else -- CLIENT stuff
 		local lang = UVString
 
 		if hudyes and UV_UI.racing.general then
-			UV_UI.racing.general.main( my_vehicle, my_array, string_array )
+			UV_UI.racing.general.main( my_vehicle, my_array, string_array, sorted_table )
 		end
 		
 		if hudyes and UV_UI.racing[hudtype] then
-			UV_UI.racing[hudtype].main( my_vehicle, my_array, string_array )
+			UV_UI.racing[hudtype].main( my_vehicle, my_array, string_array, sorted_table )
 		end
 	end)
 	

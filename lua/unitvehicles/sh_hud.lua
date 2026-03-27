@@ -318,6 +318,37 @@ UVMaterials = {
     ["HUD_CTU_ENDBOX"] = Material("unitvehicles/hud_ctu/Endbox.png"),
     ["HUD_CTU_FOCUSBAR"] = Material("unitvehicles/hud_ctu/FocusBar.png"),
     ["HUD_CTU_FOCUSBARBLACK"] = Material("unitvehicles/hud_ctu/FocusBarBlack.png"),
+
+	-- NIGHTRUNNERS
+	["OPP_NR_SIGNAL_0"] = Material("unitvehicles/icons_nightrunners/race_ui_signal_0.png", "smooth mips"),
+	["OPP_NR_SIGNAL_1"] = Material("unitvehicles/icons_nightrunners/race_ui_signal_1.png", "smooth mips"),
+	["OPP_NR_SIGNAL_2"] = Material("unitvehicles/icons_nightrunners/race_ui_signal_2.png", "smooth mips"),
+	["OPP_NR_SIGNAL_3"] = Material("unitvehicles/icons_nightrunners/race_ui_signal_3.png", "smooth mips"),
+	["OPP_NR_SIGNAL_4"] = Material("unitvehicles/icons_nightrunners/race_ui_signal_4.png", "smooth mips"),
+
+	['TACHO1_NR_BIG_BACKING'] = Material("unitvehicles/speedometers/nightrunners/big_backing.png", "smooth mips"),
+	['TACHO1_NR_BIG_BACKING_GLASS'] = Material("unitvehicles/speedometers/nightrunners/big_backing_glass.png", "smooth mips"),
+	['TACHO1_NR_RPM_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_RPM_GAUGE.png", "smooth mips"),
+	['TACHO1_NR_REDLINE'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_REDLINE.png", "smooth mips"),
+	['TACHO1_NR_SPEEDO_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/speedo_gauge.png", "smooth mips"),
+	['TACHO1_NR_TEMP_GAUGE_BACKING'] = Material("unitvehicles/speedometers/nightrunners/temp_gauge_backing.png", "smooth mips"),
+	['TACHO1_NR_TEMP_GAUGE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/temp_gauge_glass.png", "smooth mips"),
+	['TACHO1_NR_TEMP_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/temp_gauge.png", "smooth mips"),
+	['TACHO1_NR_FUEL_GAUGE_BACKING'] = Material("unitvehicles/speedometers/nightrunners/fuel_gauge_backing.png", "smooth mips"),
+	['TACHO1_NR_FUEL_GAUGE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/fuel_gauge_glass.png", "smooth mips"),
+	['TACHO1_NR_FUEL_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/fuel_gauge.png", "smooth mips"),
+	['TACHO1_NR_NEEDLE'] = Material("unitvehicles/speedometers/nightrunners/big_needle_2.png", "smooth mips"),
+	['TACHO1_NR_NEEDLE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/big_glass.png", "smooth mips"),
+	['TACHO1_NR_NEEDLE_GLOW'] = Material("unitvehicles/speedometers/nightrunners/big_needle_center_glow_2.png", "smooth mips"),
+	['TACHO1_NR_SMALL_NEEDLE'] = Material("unitvehicles/speedometers/nightrunners/small_needle_3.png", "smooth mips"),
+	['TACHO1_NR_SMALL_NEEDLE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/small_glass_2.png", "smooth mips"),
+	['TACHO1_NR_SHIFT_UP_ICON'] = Material("unitvehicles/speedometers/nightrunners/shift_up_icon.png", "smooth mips"),
+	['TACHO1_NR_SHIFT_DOWN_ICON'] = Material("unitvehicles/speedometers/nightrunners/shift_down_icon.png", "smooth mips"),
+	['TACHO1_NR_SHIFT_BG'] = Material("unitvehicles/speedometers/nightrunners/shift_bg.png", "smooth mips"),
+	['TACHO1_NR_ODOMETER'] = Material("unitvehicles/speedometers/nightrunners/tacho1_odometer.png", "smooth mips"),
+
+	['DASH_NR_ENGINE_OVERHEAT'] = Material("unitvehicles/speedometers/nightrunners/dash_engine_overheat.png", "smooth mips"),
+	['DASH_NR_LIGHT'] = Material("unitvehicles/speedometers/nightrunners/dash_light.png", "smooth mips"),
 }
 
 UV_UI_Events = {
@@ -433,7 +464,29 @@ if CLIENT then
 		surface.CreateFont("UVWorldFont5-Alt", { font = "Arial", size = UV.ScaleH(151), shadow = false, weight = 1000, italic = true, extended = true })
 		surface.CreateFont("UVWorldFont6-Alt", { font = "Arial", size = UV.ScaleH(24), shadow = false, weight = 1000, italic = true, extended = true })
 		surface.CreateFont("UVWorldFont7-Alt", { font = "Arial", size = UV.ScaleH(19), shadow = false, weight = 1000, italic = true, extended = true })
-	
+
+		-- NIGHTRUNNERS Fonts
+		surface.CreateFont("UVNightRunnersFont-Small", { font = "Karma Suture", size = UV.ScaleH(40), shadow = true, weight = 500, extended = true, italic = true })
+		surface.CreateFont("UVNightRunnersFont-Smaller", { font = "Karma Suture", size = UV.ScaleH(56), shadow = true, weight = 500, extended = true, italic = true })
+		surface.CreateFont("UVNightRunnersFont", { font = "Karma Suture", size = UV.ScaleH(64), shadow = true, weight = 500, extended = true, italic = true })
+		surface.CreateFont("UVNightRunnersFont-Bigger", { font = "Karma Suture", size = UV.ScaleH(72), shadow = true, weight = 500, extended = true, italic = true })
+		surface.CreateFont("UVNightRunnersFont-Big", { font = "Karma Suture", size = UV.ScaleH(108), shadow = true, weight = 500, extended = true, italic = true })
+
+		surface.CreateFont("UVNightRunnersLCDFont-Tiny1", { font = "LCDMono", size = UV.ScaleH(32), shadow = true, weight = 500, extended = true })
+    	surface.CreateFont("UVNightRunnersLCDFont-Tiny2NoShadow", { font = "LCDBold", size = UV.ScaleH(20), shadow = false, weight = 500, extended = true })
+    	surface.CreateFont("UVNightRunnersLCDFont-ThinTiny2", { font = "LCDBold", size = UV.ScaleH(11), shadow = false, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Small", { font = "LCDMono", size = UV.ScaleH(40), shadow = true, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Smaller", { font = "LCDMono", size = UV.ScaleH(56), shadow = true, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont", { font = "LCDMono", size = UV.ScaleH(64), shadow = true, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Bigger", { font = "LCDMono", size = UV.ScaleH(72), shadow = true, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Big", { font = "LCDMono", size = UV.ScaleH(108), shadow = true, weight = 500, extended = true })
+
+    	surface.CreateFont("UVNightRunnersFont-SmallNonItalic", { font = "Karma Suture", size = UV.ScaleH(40), shadow = true, weight = 500, extended = true, italic = false  })
+    	surface.CreateFont("UVNightRunnersFont-SmallerNonItalic", { font = "Karma Suture", size = UV.ScaleH(56), shadow = true, weight = 500, extended = true, italic = false })
+    	surface.CreateFont("UVNightRunnersFontNonItalic", { font = "Karma Suture", size = UV.ScaleH(64), shadow = true, weight = 500, extended = true, italic = false })
+    	surface.CreateFont("UVNightRunnersFont-BiggerNonItalic", { font = "Karma Suture", size = UV.ScaleH(72), shadow = true, weight = 500, extended = true, italic = false })
+    	surface.CreateFont("UVNightRunnersFont-BigNonItalic", { font = "Karma Suture", size = UV.ScaleH(108), shadow = true, weight = 500, extended = true, italic = false })
+			
 		-- Settings Fonts
 		surface.CreateFont("UVSettingsFont", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true })
 		surface.CreateFont("UVSettingsFont-Italic", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true, italic = true })
@@ -1216,6 +1269,20 @@ function UV_FormatRaceEndTime(seconds)
         local minutes = math.floor(seconds / 60)
         local secs = seconds % 60
         return string.format("%d:%05.2f", minutes, secs)
+    else
+        return "NIL"
+    end
+end
+
+function NightRunners_FormatRaceTime(seconds)
+    if not seconds then return nil end
+    if type(seconds) == "string" then
+        return seconds
+    elseif type(seconds) == "number" then
+        local minutes = math.floor(seconds / 60)
+        local secs = seconds % 60
+		minutes = (minutes < 10 and "0" .. minutes) or minutes
+        return string.format("%s:%05.2f", minutes, secs)
     else
         return "NIL"
     end

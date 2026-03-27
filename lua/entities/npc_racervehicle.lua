@@ -1393,10 +1393,8 @@ if SERVER then
 					end
 				end
 			elseif v.LVS then
-				print('ran')
 				if not v:IsInitialized() then return end
 				if IsValid(v:GetDriver()) then return end
-				print("ok")
 				self.v = v
 				v.uvclasstospawnon = self:GetClass()
 				v.RacerVehicle = self

@@ -2293,7 +2293,7 @@ function UVAutoSpawnTraffic()
 		
 		local SpawnAng = uvspawnpointangles
 		SpawnAng.pitch = 0
-		Spawnang.yaw = SpawnAng.yaw + 180
+		SpawnAng.yaw = SpawnAng.yaw + 180
 		SpawnAng.yaw = SpawnAng.yaw + (vehicle.SpawnAngleOffset and vehicle.SpawnAngleOffset or 0)
 		SpawnAng.roll = 0
 		
@@ -3100,7 +3100,7 @@ function UVAutoSpawnRacer()
 		
 		local SpawnAng = uvspawnpointangles
 		SpawnAng.pitch = 0
-		Spawnang.yaw = SpawnAng.yaw + 180
+		SpawnAng.yaw = SpawnAng.yaw + 180
 		SpawnAng.yaw = SpawnAng.yaw + (vehicle.SpawnAngleOffset and vehicle.SpawnAngleOffset or 0)
 		SpawnAng.roll = 0
 		

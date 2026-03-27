@@ -766,6 +766,7 @@ if SERVER then
         local delay = 0.1
                 
         if vehicle_class == "gmod_sent_vehicle_fphysics_base" then
+            UVSetVehiclePerformanceMultiplier(vehicle, 1)
             vehicle = UVTeleportSimfphysVehicle( vehicle, (ground_trace.Hit and ground_trace.HitPos) or pos, ang )
             delay = 0.9
         elseif vehicle.IsGlideVehicle then
