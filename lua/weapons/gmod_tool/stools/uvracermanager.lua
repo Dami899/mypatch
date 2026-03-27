@@ -1270,8 +1270,10 @@ function TOOL:GetVehicleData( ent, ply )
 		
 		if ( not ply.UVRacerTOOLMemory ) then return false end
 		
+		local baseon = scripted_ents.IsBasedOn(ent.Base, "base_glide_car") and "base_glide_car" or scripted_ents.IsBasedOn(ent.Base, "base_glide_motorcycle") and "base_glide_motorcycle"
+		
 		local Key = "VehicleBase"
-		ply.UVRacerTOOLMemory[Key] = ent.Base
+		ply.UVRacerTOOLMemory[Key] = baseon or ent.Base
 		local Key2 = "SpawnName"
 		ply.UVRacerTOOLMemory[Key2] = ent:GetClass()
 		ply.UVRacerTOOLMemory.Mins = Vector(ply.UVRacerTOOLMemory.Mins.x,ply.UVRacerTOOLMemory.Mins.y,0)

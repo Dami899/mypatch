@@ -50,12 +50,12 @@ function ENT:Initialize()
 		["NFS Hot Pursuit 2"] = "models/hp2heliai/hp2heliai.mdl",
 		["NFS Most Wanted"] = "models/nfs_mwpolhel/nfs_mwpolhel.mdl",
 		["NFS Undercover"] = "models/nfs_ucpolhel/nfs_ucpolhel.mdl",
+		["NFS Undercover PS2"] = "models/nfsu_copheli/nfsu_copheli.mdl",
 		["NFS Hot Pursuit 2010"] = "models/nfs_hppolhel/nfs_hppolhel.mdl",
 		["NFS No Limits"] = "models/nfs_nlpolhel/nfs_nlpolhel.mdl",
 		["NFS Rivals, Payback & Heat"] = "models/nfs_paybackpolhel/nfs_paybackpolhel.mdl",
 		["NFS Unbound"] = "models/unboundheli/unboundheli.mdl",
-		["The Crew"] = "models/thecrewheli/thecrewheli.mdl",
-		["NFS Undercover PS2"] = "models/NFSU_COPHELI/NFSU_COPHELI.mdl"
+		["The Crew"] = "models/thecrewheli/thecrewheli.mdl"
 	}
 
 	self.Model = modeltable[UVUHelicopterModel:GetString()] or "models/uvair_default.mdl"
