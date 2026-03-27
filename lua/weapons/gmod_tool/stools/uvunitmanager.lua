@@ -1782,9 +1782,11 @@ function TOOL:GetVehicleData( ent, ply )
 		duplicator.SetLocalAng( angle_zero )
 		
 		if ( not ply.UVTOOLMemory ) then return false end
+
+		local baseon = scripted_ents.IsBasedOn(ent.Base, "base_glide_car") and "base_glide_car" or scripted_ents.IsBasedOn(ent.Base, "base_glide_motorcycle") and "base_glide_motorcycle"
 		
 		local Key = "VehicleBase"
-		ply.UVTOOLMemory[Key] = ent.Base
+		ply.UVTOOLMemory[Key] = baseon or ent.Base
 		local Key2 = "SpawnName"
 		ply.UVTOOLMemory[Key2] = ent:GetClass()
 		ply.UVTOOLMemory.Mins = Vector(ply.UVTOOLMemory.Mins.x,ply.UVTOOLMemory.Mins.y,0)
