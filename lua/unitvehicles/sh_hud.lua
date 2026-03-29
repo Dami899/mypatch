@@ -326,29 +326,52 @@ UVMaterials = {
 	["OPP_NR_SIGNAL_3"] = Material("unitvehicles/icons_nightrunners/race_ui_signal_3.png", "smooth mips"),
 	["OPP_NR_SIGNAL_4"] = Material("unitvehicles/icons_nightrunners/race_ui_signal_4.png", "smooth mips"),
 
-	['TACHO1_NR_BIG_BACKING'] = Material("unitvehicles/speedometers/nightrunners/big_backing.png", "smooth mips"),
-	['TACHO1_NR_BIG_BACKING_GLASS'] = Material("unitvehicles/speedometers/nightrunners/big_backing_glass.png", "smooth mips"),
+	-- shared
+	['SHARED_DASH_NR_NEEDLE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/needle_glass.png", "smooth mips"),
+	['SHARED_DASH_NR_NEEDLE_GLOW'] = Material("unitvehicles/speedometers/nightrunners/big_needle_center_glow_2.png", "smooth mips"),
+	['SHARED_DASH_NR_ENGINE_OVERHEAT'] = Material("unitvehicles/speedometers/nightrunners/dash_engine_overheat.png", "smooth mips"),
+	['SHARED_DASH_NR_LIGHT'] = Material("unitvehicles/speedometers/nightrunners/dash_light.png", "smooth mips"),
+	['SHARED_DASH_NR_ODOMETER'] = Material("unitvehicles/speedometers/nightrunners/odometer.png", "smooth mips"),
+	['SHARED_DASH_NR_SHIFT_DOWN_ICON'] = Material("unitvehicles/speedometers/nightrunners/shift_down_icon.png", "smooth mips"),
+	['SHARED_DASH_NR_SHIFT_UP_ICON'] = Material("unitvehicles/speedometers/nightrunners/shift_up_icon.png", "smooth mips"),
+	['SHARED_DASH_NR_SHIFT_BG'] = Material("unitvehicles/speedometers/nightrunners/shift_bg.png", "smooth mips"),
+
+	-- tacho1
+	['TACHO1_NR_BIG_BACKING'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_BIG_BACKING.png", "smooth mips"),
+	['TACHO1_NR_BIG_BACKING_GLASS'] = Material("unitvehicles/speedometers/nightrunners/tacho1_big_backing_glass.png", "smooth mips"),
 	['TACHO1_NR_RPM_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_RPM_GAUGE.png", "smooth mips"),
 	['TACHO1_NR_REDLINE'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_REDLINE.png", "smooth mips"),
-	['TACHO1_NR_SPEEDO_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/speedo_gauge.png", "smooth mips"),
-	['TACHO1_NR_TEMP_GAUGE_BACKING'] = Material("unitvehicles/speedometers/nightrunners/temp_gauge_backing.png", "smooth mips"),
-	['TACHO1_NR_TEMP_GAUGE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/temp_gauge_glass.png", "smooth mips"),
-	['TACHO1_NR_TEMP_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/temp_gauge.png", "smooth mips"),
-	['TACHO1_NR_FUEL_GAUGE_BACKING'] = Material("unitvehicles/speedometers/nightrunners/fuel_gauge_backing.png", "smooth mips"),
-	['TACHO1_NR_FUEL_GAUGE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/fuel_gauge_glass.png", "smooth mips"),
-	['TACHO1_NR_FUEL_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/fuel_gauge.png", "smooth mips"),
-	['TACHO1_NR_NEEDLE'] = Material("unitvehicles/speedometers/nightrunners/big_needle_2.png", "smooth mips"),
-	['TACHO1_NR_NEEDLE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/big_glass.png", "smooth mips"),
-	['TACHO1_NR_NEEDLE_GLOW'] = Material("unitvehicles/speedometers/nightrunners/big_needle_center_glow_2.png", "smooth mips"),
-	['TACHO1_NR_SMALL_NEEDLE'] = Material("unitvehicles/speedometers/nightrunners/small_needle_3.png", "smooth mips"),
+	['TACHO1_NR_SPEEDO_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_SPEEDO_GAUGE.png", "smooth mips"),
+	['TACHO1_NR_TEMP_GAUGE_BACKING'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_TEMP_GAUGE_BACKING.png", "smooth mips"),
+	['TACHO1_NR_TEMP_GAUGE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_TEMP_GAUGE_GLASS.png", "smooth mips"),
+	['TACHO1_NR_TEMP_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_TEMP_GAUGE.png", "smooth mips"),
+	['TACHO1_NR_FUEL_GAUGE_BACKING'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_FUEL_GAUGE_BACKING.png", "smooth mips"),
+	['TACHO1_NR_FUEL_GAUGE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_FUEL_GAUGE_GLASS.png", "smooth mips"),
+	['TACHO1_NR_FUEL_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_FUEL_GAUGE.png", "smooth mips"),
+	['TACHO1_NR_NEEDLE'] = Material("unitvehicles/speedometers/nightrunners/tacho1_big_needle.png", "smooth mips"),
+	['TACHO1_NR_SMALL_NEEDLE'] = Material("unitvehicles/speedometers/nightrunners/TACHO1_SMALL_NEEDLE_3.png", "smooth mips"),
 	['TACHO1_NR_SMALL_NEEDLE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/small_glass_2.png", "smooth mips"),
-	['TACHO1_NR_SHIFT_UP_ICON'] = Material("unitvehicles/speedometers/nightrunners/shift_up_icon.png", "smooth mips"),
-	['TACHO1_NR_SHIFT_DOWN_ICON'] = Material("unitvehicles/speedometers/nightrunners/shift_down_icon.png", "smooth mips"),
-	['TACHO1_NR_SHIFT_BG'] = Material("unitvehicles/speedometers/nightrunners/shift_bg.png", "smooth mips"),
-	['TACHO1_NR_ODOMETER'] = Material("unitvehicles/speedometers/nightrunners/tacho1_odometer.png", "smooth mips"),
+	
+	-- tacho2
+	['TACHO2_NR_BIG_BACKING'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_BIG_BACKING.png", "smooth mips"),
+	['TACHO2_NR_BIG_BACKING_GLASS'] = Material("unitvehicles/speedometers/nightrunners/tacho2_big_backing_glass.png", "smooth mips"),
+	['TACHO2_NR_RPM_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_RPM_GAUGE.png", "smooth mips"),
+	['TACHO2_NR_REDLINE'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_REDLINE.png", "smooth mips"),
+	['TACHO2_NR_SPEEDO_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_SPEEDO_GAUGE.png", "smooth mips"),
+	['TACHO2_NR_BIG_NEEDLE'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_BIG_NEEDLE.png", "smooth mips"),
+	['TACHO2_NR_SMALL_NEEDLE'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_SMALL_NEEDLE.png", "smooth mips"),
+	['TACHO2_NR_SMALL_BACKING'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_SMALL_BACKING.png", "smooth mips"),
+	['TACHO2_NR_SMALL_BACKING_GLASS'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_SMALL_BACKING_GLASS.png", "smooth mips"),
+	['TACHO2_NR_FUEL_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_FUEL_GAUGE.png", "smooth mips"),
+	['TACHO2_NR_TEMP_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_TEMP_GAUGE.png", "smooth mips"),
 
-	['DASH_NR_ENGINE_OVERHEAT'] = Material("unitvehicles/speedometers/nightrunners/dash_engine_overheat.png", "smooth mips"),
-	['DASH_NR_LIGHT'] = Material("unitvehicles/speedometers/nightrunners/dash_light.png", "smooth mips"),
+	-- tacho3
+	['TACHO3_NR_SPEEDO_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO3_SPEEDO_GAUGE.png", "smooth mips"),
+	['TACHO3_NR_RPM_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO3_RPM_GAUGE.png", "smooth mips"),
+	['TACHO3_NR_BIG_NEEDLE'] = Material("unitvehicles/speedometers/nightrunners/TACHO3_BIG_NEEDLE.png", "smooth mips"),
+	-- ['TACHO2_NR_TEMP_GAUGE_BACKING'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_TEMP_GAUGE_BACKING.png", "smooth mips"),
+	-- ['TACHO2_NR_TEMP_GAUGE_GLASS'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_TEMP_GAUGE_GLASS.png", "smooth mips"),
+	-- ['TACHO2_NR_TEMP_GAUGE'] = Material("unitvehicles/speedometers/nightrunners/TACHO2_TEMP_GAUGE.png", "smooth mips"),
 }
 
 UV_UI_Events = {
@@ -471,7 +494,9 @@ if CLIENT then
 		surface.CreateFont("UVNightRunnersFont", { font = "Karma Suture", size = UV.ScaleH(64), shadow = true, weight = 500, extended = true, italic = true })
 		surface.CreateFont("UVNightRunnersFont-Bigger", { font = "Karma Suture", size = UV.ScaleH(72), shadow = true, weight = 500, extended = true, italic = true })
 		surface.CreateFont("UVNightRunnersFont-Big", { font = "Karma Suture", size = UV.ScaleH(108), shadow = true, weight = 500, extended = true, italic = true })
-
+		surface.CreateFont("UVNightRunnersLCDFont-Tiny1", { font = "LCDMono", size = UV.ScaleH(32), shadow = true, weight = 500, extended = true })
+    	surface.CreateFont("UVNightRunnersLCDFont-Tiny2NoShadow", { font = "LCDBold", size = UV.ScaleH(20), shadow = false, weight = 500, extended = true })
+    	surface.CreateFont("UVNightRunnersLCDFont-ThinTiny2", { font = "LCDBold", size = UV.ScaleH(11), shadow = false, weight = 500, extended = true })
 		surface.CreateFont("UVNightRunnersLCDFont-Tiny1", { font = "LCDMono", size = UV.ScaleH(32), shadow = true, weight = 500, extended = true })
     	surface.CreateFont("UVNightRunnersLCDFont-Tiny2NoShadow", { font = "LCDBold", size = UV.ScaleH(20), shadow = false, weight = 500, extended = true })
     	surface.CreateFont("UVNightRunnersLCDFont-ThinTiny2", { font = "LCDBold", size = UV.ScaleH(11), shadow = false, weight = 500, extended = true })
@@ -480,6 +505,9 @@ if CLIENT then
 		surface.CreateFont("UVNightRunnersLCDFont", { font = "LCDMono", size = UV.ScaleH(64), shadow = true, weight = 500, extended = true })
 		surface.CreateFont("UVNightRunnersLCDFont-Bigger", { font = "LCDMono", size = UV.ScaleH(72), shadow = true, weight = 500, extended = true })
 		surface.CreateFont("UVNightRunnersLCDFont-Big", { font = "LCDMono", size = UV.ScaleH(108), shadow = true, weight = 500, extended = true })
+		
+		surface.CreateFont("UVNightRunnersLCDFont-ODOMETERUNIT2", { font = "LCDBold", size = UV.ScaleH(9), shadow = false, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-ODOMETERVALUE2", { font = "LCDBold", size = UV.ScaleH(18), shadow = false, weight = 500, extended = true })
 
     	surface.CreateFont("UVNightRunnersFont-SmallNonItalic", { font = "Karma Suture", size = UV.ScaleH(40), shadow = true, weight = 500, extended = true, italic = false  })
     	surface.CreateFont("UVNightRunnersFont-SmallerNonItalic", { font = "Karma Suture", size = UV.ScaleH(56), shadow = true, weight = 500, extended = true, italic = false })
@@ -1352,7 +1380,12 @@ function DrawIcon(material, x, y, height_ratio, color, args)
         
         local desiredHeight = UV_GetH() * height_ratio
         local desiredWidth = desiredHeight * aspect
-        
+
+        if args and args.sizeOffsets then
+            desiredHeight = desiredHeight + ( UV_GetH() * (args.sizeOffsets.y or 0) )
+            desiredWidth = desiredWidth + ( UV_GetW() * (args.sizeOffsets.x or 0) )
+        end
+   
         -- Center coords for DrawTexturedRectRotated
         local centerX = x
         local centerY = y
@@ -1369,9 +1402,10 @@ function DrawIcon(material, x, y, height_ratio, color, args)
         if args and args.rotation then
             surface.DrawTexturedRectRotated(centerX, centerY, desiredWidth, desiredHeight, args.rotation)
         else
-            -- Adjust x,y for non-rotated draw (top-left corner)
-            local drawX = x - desiredWidth / 2
-            local drawY = y - desiredHeight / 2
+            local offsetX = args and args.sizeOffsets and args.sizeOffsets.x or 0
+            local offsetY = args and args.sizeOffsets and args.sizeOffsets.y or 0
+            local drawX = x - desiredWidth  / 2 + offsetX
+            local drawY = y - desiredHeight / 2 + offsetY
             surface.DrawTexturedRect(drawX, drawY, desiredWidth, desiredHeight)
         end
     end

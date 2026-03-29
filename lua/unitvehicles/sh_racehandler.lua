@@ -2548,7 +2548,7 @@ else -- CLIENT stuff
 			-- markup.Parse(text, w):Draw(w - (w * 0.25), h - 70, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM) -- DEBUGGING
 			
 			if hudyes then
-				UV_UI.speedometer[speedotype].main( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength, health, cfnitrousenabled, cfnitrousamount, cfsbenabled, cfsbamount )
+				UV_UI.speedometer[speedotype].main( speedval, speedname, gear, rpm, maxrpm, throttle, redlining, redlinestrength, health, cfnitrousenabled, cfnitrousamount, cfsbenabled, cfsbamount, kmh, mph )
 				
 				-- Draw weapon switch notification
 				if Glide.currentVehicle.weaponSwitchNotification then
