@@ -469,6 +469,16 @@ UVMenu.Main = function()
 				{ type = "button", text = "uv.hm.open", desc = "uv.hm.open.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.HeatManager, true) end, sv = true },
 			},
 			
+			-- { TabName = "Challenge Manager", Icon = "unitvehicles/icons/milestone_infractions.png", -- Challenge Manager
+				-- { type = "button", text = "Host Challenge", prompts = {"uv.prompt.open.menu"}, func = function(self2) 
+					-- UVMenu.OpenMenu(UVMenu.ChallengeManagerHost, true)
+				-- end},
+				-- { type = "button", text = "Create Challenge", prompts = {"uv.prompt.open.menu"}, func = function(self2) 
+					-- UVMenu.OpenMenu(UVMenu.ChallengeManagerCreate, true)
+				-- end},
+				-- { type = "infosimple", text = "Create or host your very own UV Challenges. Racing with certain goals, or Pursuits with certain Milestone goals.\n\nFind more information in the FAQ section." },
+			-- },
+			
 			{ TabName = "uv.airacer", Icon = "unitvehicles/icons/(9)T_UI_PlayerRacer_Large_Icon.png", sv = true, -- AI Racer Manager
 				{ type = "combo", text = "uv.tool.base.title", desc = "uv.tool.base.desc", convar = "unitvehicle_racer_vehiclebase", sv = true, content = {
 						{ "uv.base.hl2", 1 } ,
@@ -1888,3 +1898,93 @@ net.Receive("UV_OpenDVWarning", function()
 	__DV_COOLDOWN = os.time() + 60
     UVMenu.OpenMenu(UVMenu.DVWarning, true)
 end)
+
+
+------- [ Challenge Series ] ------- CONCEPT ONLY
+--[[
+local dummy = {
+	titles = {
+		[1] = "[Race] Highway 44",
+		[2] = "[Race] Lightning Sprint",
+		[3] = "[Race] Grand Prix Track",
+		[4] = "[Pursuit] Pursuit Length",
+		[5] = "[Pursuit] Total Infractions",
+	},
+	desc = {
+		[1] = "High-speed Circuit race with 3 laps.\n\nComplete within <color=100,255,100>3:20</color> to win.",
+		[2] = "High-speed point-to-point with obstacles.\n\nComplete within <color=100,255,100>1:22</color> to win.",
+		[3] = "Classic GP layout endurance race - 10 laps in total.\n\nFinish in <color=100,255,100>3rd or better</color> to win.",
+		[4] = "Remain in a Pursuit for over <color=100,255,100>4:00</color>, then escape to win.",
+		[5] = "Earn <color=100,255,100>7</color> different Infractions, then escape to win.",
+	},
+}
+
+UVMenu.ChallengeManagerHost = function()
+	local raceEntries = {}
+
+	for i, trackName in ipairs(dummy.titles) do
+		table.insert(raceEntries, {
+			type = "button",
+			text = trackName,
+			desc = dummy.desc[i],
+			playsfx = "clickback",
+			prompts = {"uv.prompt.return"},
+			func = function(self2)
+				UVMenu.OpenMenu(UVMenu.Main)
+			end
+		})
+	end
+	
+	local entriesWithBack = {}
+	for _, entry in ipairs(raceEntries) do
+		table.insert(entriesWithBack, entry)
+	end
+
+	table.insert(entriesWithBack, { type = "button", text = "uv.back", sv = true, playsfx = "clickback", prompts = {"uv.prompt.return"}, func = function(self2)
+			UVMenu.OpenMenu(UVMenu.Main)
+		end
+	})
+
+	UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(700),
+		Height = UV.ScaleH(900),
+		DynamicHeight = true,
+		Description = true,
+		UnfocusClose = true,
+		Tabs = {
+			{
+				TabName = "Select Challenge",
+				unpack(entriesWithBack)
+			}
+		}
+	})
+end
+
+UVMenu.ChallengeManagerCreate = function()
+    UVMenu.CurrentMenu = UVMenu:Open({
+        Name = UVString("uv.unitvehicles") .. " | " .. "Challenge Creator",
+        Width  = UV.ScaleW(1540),
+        Height = UV.ScaleH(760),
+        Description = true,
+        UnfocusClose = true,
+		Tabs = {
+			{ TabName = "Create Challenge",
+				{ type = "combo", text = "Challenge Type", desc = "Decide what kind of challenge it should be.\n\nPursuit Challenges are universal, while Race Challenges are map-specific.", convar = "unitvehicle_unitstype", content = {
+						{ "Pursuit Challenge", 0 },
+						{ "Race Challenge", 1 },
+					},
+				},
+				{ type = "slider", text = "Amount of Goals", desc = "How many goals should the Pursuit Challenge have?", convar = "unitvehicle_unitstype", min = 1, max = 6, decimals = 0 },
+				{ type = "combo", text = "Goal Type", desc = "Decide what the challenge goal should be.", convar = "unitvehicle_unitstype", content = {
+						{ "Pursuit Length (Above)", 0 },
+						{ "Pursuit Length (Below)", 0 },
+						{ "Infraction Amount", 1 },
+						{ "Unique Infractions", 1 },
+					},
+				},
+			}
+		}
+	})
+end
+]]--
