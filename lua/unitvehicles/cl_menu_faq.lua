@@ -1154,7 +1154,7 @@ Use the [string:tool.uvracemanager.name] tool:
  |-- Если ты вернулся один раз, тебе нужно подождать немного времени, чтобы сделать это снова
 ]],
 ["Pursuit.CreateUnits"] = [[
-# -- Я хочу создать Юнитво. Что мне нужно сделать?
+# -- Я хочу создать Юнитов. Что мне нужно сделать?
 
 Вот что тебе нужно сделать:
  |-- 1. Используй инструмент [string:tool.uvunitmanager.name]
@@ -1181,7 +1181,7 @@ Use the [string:tool.uvracemanager.name] tool:
 ["Pursuit.Pursuitbreaker"] = [[
 # -- Я хочу создать Погонеломы. Что мне нужно сделать?
 
-You use the [string:tool.uvpursuitbreaker.name] tool:
+Ты используешь инструмент [string:tool.uvpursuitbreaker.name]:
  |-- 1. Размести пропы и части, нужные для Погонелома
  |-- 2. Используя инструмент [string:tool.weld.name] (или любую другую альтернативу), свари все части вместе
  |-- 3. Как только всё сварено, нажми [+attack2] по любой части Погонелома
