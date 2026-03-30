@@ -9,12 +9,11 @@ UV = UV or {}
 
 UV.PNotes = {
 ["v1.5.0"] = {
-Date = { year = 2026, month = 3, day = 27 },
+Date = { year = 2026, month = 3, day = 30 },
 Text = [[
 **Quick Information**
-Many patches had been added to UV since its launch that were undocumented here.
-
-Additionally, we've added smaller patches to the Update History section:
+Many patches had been added to UV since its launch that were undocumented.
+We've taken the liberty on adding smaller patches to the Update History section:
       |-- v1.0.1
       |-- v1.1.1
       |-- v1.2.1
@@ -24,7 +23,7 @@ Additionally, we've added smaller patches to the Update History section:
       |-- v1.2.5
       |-- v1.4.1
 
-Lastly, the previous update has changed version numbers for better consistency:
+Lastly, some updates have had their version numbers altered for better consistency:
       |-- v1.0.1  →  v1.0.2
       |-- v1.3.1  →  v1.4.0
 
@@ -33,7 +32,6 @@ Lastly, the previous update has changed version numbers for better consistency:
 - Added a new HUD Type and Speedometer, both based off of *NIGHT-RUNNERS™ PROLOGUE*
 
 **Changes**
-- UV Menu: Added every 
 - UV Menu: Updated the appearance on almost all elements
 - Updated the appearance of the Spawnmenu element on the following tools:
       |-- [string:tool.uvpursuitbreaker.name]
