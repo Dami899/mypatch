@@ -44,10 +44,11 @@ Lastly, some updates have had their version numbers altered for better consisten
 },
 
 ["v1.4.2"] = {
-Date = { year = 2026, month = 3, day = 20 },
+Date = { year = 2026, month = 3, day = 21 },
 Text = [[
 **Fixes**
 - Fixed an issue where Roadblocks and Pursuit Breakers were not created properly
+- Fixed problems related to the traffic
 ]],
 },
 
