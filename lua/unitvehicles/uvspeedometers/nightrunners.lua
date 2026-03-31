@@ -1924,7 +1924,14 @@ local function nightrunners_speedometer( ... )
     
     data.posX = w * (GetConVar("uvspeedo_nightrunners_x"):GetFloat())
     data.posY = h * (GetConVar("uvspeedo_nightrunners_y"):GetFloat())
-    data.screenX = w
+
+    local screenXBase = math.min( w, h * ( UV.BaseW / UV.BaseH ) )
+    local targetAspect = UV.BaseW / UV.BaseH
+    local currentAspect = w / h
+    local narrowAspectFactor = math.Clamp( ( targetAspect - currentAspect ) / targetAspect, 0, 1 )
+    local spacingCompensation = 1 + narrowAspectFactor
+
+    data.screenX = screenXBase * spacingCompensation
     data.screenY = h
     data.speed = speed
     data.speedname = speedname
