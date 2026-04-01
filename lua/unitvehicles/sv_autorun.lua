@@ -22,6 +22,7 @@ local RepairCooldown = GetConVar("unitvehicle_repaircooldown")
 local RepairRange = GetConVar("unitvehicle_repairrange")
 local RacerTags = GetConVar("unitvehicle_racertags")
 local RacerPursuitTech = GetConVar("unitvehicle_racerpursuittech")
+local DisengageOnHeatChange = GetConVar("unitvehicle_disengageonheatchange")
 
 --unit convars
 local UVUHelicopterBusting = GetConVar("unitvehicle_unit_helicopterbusting")
@@ -593,6 +594,29 @@ function NumberToWords(num)
 	return words[num] or tostring(num)
 end
 
+function UVDisengageUnits()
+	for k, NPC in pairs(ents.FindByClass("npc_uv*")) do
+		if not NPC.v then continue end
+		if not NPC.v.unitscript or NPC.v.rhino then continue end
+		if NPC:GetClass() == "npc_uvcommander" then continue end
+
+		local UnitsPatrol = string.Trim( GetConVar( 'unitvehicle_unit_unitspatrol' .. UVHeatLevel ):GetString() )
+		local UnitsSupport = string.Trim( GetConVar( 'unitvehicle_unit_unitssupport' .. UVHeatLevel ):GetString() )
+		local UnitsPursuit = string.Trim( GetConVar( 'unitvehicle_unit_unitspursuit' .. UVHeatLevel ):GetString() )
+		local UnitsInterceptor = string.Trim( GetConVar( 'unitvehicle_unit_unitsinterceptor' .. UVHeatLevel ):GetString() )
+		local UnitsSpecial = string.Trim( GetConVar( 'unitvehicle_unit_unitsspecial' .. UVHeatLevel ):GetString() )
+		local UnitsRhino = string.Trim( GetConVar( 'unitvehicle_unit_unitsrhino' .. UVHeatLevel ):GetString() )
+		local UnitsCommander = string.Trim( GetConVar( 'unitvehicle_unit_unitscommander' .. UVHeatLevel ):GetString() )
+
+		local AssignedUnits = UnitsPatrol .. " " .. UnitsSupport .. " " .. UnitsPursuit .. " " .. UnitsInterceptor .. " " .. UnitsSpecial .. " " .. UnitsRhino .. " " .. UnitsCommander
+		if not AssignedUnits then return end
+
+		if not string.find(AssignedUnits, NPC.v.unitscript) and not NPC.v.disengaging then
+			NPC.v.disengaging = true
+		end
+	end
+end
+
 function ApplyHeatSettings(heatLevel)
 	heatLevel = math.Clamp(heatLevel or 1, 1, MaxHeatLevel:GetInt())
 	
@@ -606,6 +630,10 @@ function ApplyHeatSettings(heatLevel)
 	
 	uvRoadblockDeployable = GetConVar("unitvehicle_unit_roadblocks"..heatLevel):GetInt() == 1
 	uvHelicopterDeployable = GetConVar("unitvehicle_unit_helicopters"..heatLevel):GetInt() == 1
+
+	if DisengageOnHeatChange:GetBool() then
+		UVDisengageUnits()
+	end
 end
 
 local function CheckVehicleLimit()

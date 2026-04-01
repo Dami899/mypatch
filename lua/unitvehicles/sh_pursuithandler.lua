@@ -980,6 +980,7 @@ OptimizeRespawn = CreateConVar("unitvehicle_optimizerespawn", 1, {FCVAR_ARCHIVE,
 SpottedFreezeCam = CreateConVar("unitvehicle_spottedfreezecam", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, the game will freeze and the camera will point to the closest Unit when starting a pursuit (single-player only).")
 RandomPlayerUnits = CreateConVar("unitvehicle_randomplayerunits", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, player-controlled Units will be chosen randomly from the available units.")
 TractionControl = CreateConVar("unitvehicle_tractioncontrol", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units and Racer Vehicles will apply reduced throttle when wheel spinning.")
+DisengageOnHeatChange = CreateConVar("unitvehicle_disengageonheatchange", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, AI Units will fall back if their vehicle does not match any assigned vehicles when Heat Level changes.")
 CanExitVehicle = CreateConVar("unitvehicle_canexitvehicle", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, players can exit their vehicle during pursuits or races.")
 UnitDifficulty = CreateConVar( "unitvehicle_unitdifficulty", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Increases Unit AI difficulty." )
 UnitCatchup = CreateConVar( "unitvehicle_unitcatchup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit AI catch-up." )
