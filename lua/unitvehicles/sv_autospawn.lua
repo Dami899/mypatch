@@ -2094,8 +2094,8 @@ function UVAutoSpawnTraffic()
 			duplicator.ApplyEntityModifiers( NULL, v )
 			duplicator.ApplyBoneModifiers( NULL, v )
 		end
-	elseif vehiclebase == 3 or vehiclebase == 4 then --LVS
-		local saved_vehicles = file.Find("unitvehicles/lvs/traffic/*.json", "DATA")
+	elseif vehiclebase == 3 then --Glide
+		local saved_vehicles = file.Find("unitvehicles/glide/traffic/*.json", "DATA")
 		
 		for k, v in pairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
@@ -2113,7 +2113,7 @@ function UVAutoSpawnTraffic()
 		
 		availabletraffic = saved_vehicles[math.random(1, #saved_vehicles)]
 		
-		local JSONData = file.Read( "unitvehicles/lvs/traffic/"..availabletraffic, "DATA" )
+		local JSONData = file.Read( "unitvehicles/glide/traffic/"..availabletraffic, "DATA" )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 		
