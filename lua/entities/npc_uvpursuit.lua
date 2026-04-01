@@ -143,7 +143,7 @@ if SERVER then
 			
 		end
 		
-		if self.metwithenemy and not UVResourcePointsRefreshing and UVResourcePoints > 1 and not UVOneCommanderActive and not self.roadblocking then
+		if not self.v.disengaging and self.metwithenemy and not UVResourcePointsRefreshing and UVResourcePoints > 1 and not UVOneCommanderActive and not self.roadblocking then
 			UVResourcePoints = (UVResourcePoints - 1)
 		end	
 		
@@ -1248,7 +1248,7 @@ if SERVER then
 			end
 			if UVTargeting and closestdistancetosuspect > 100000000 and not straightToEnemy and 
 			not UVEnemyBusted and not UVEnemyEscaped and self.uvmarkedfordeletion then
-				if not OptimizeRespawn:GetBool() or (UVResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
+				if self.v.disengaging or not OptimizeRespawn:GetBool() or (UVResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
 					SafeRemoveEntity(self)
 				else
 					UVOptimizeRespawn(self.v)
@@ -2165,6 +2165,12 @@ if SERVER then
 						throttle = 1
 					end
 				end --Slow down when grappling
+			end
+
+			if self.v.disengaging then
+				if selfvelocity > 774400 then
+					throttle = 0
+				end
 			end
 			
 			--Set throttle/steering

@@ -787,7 +787,8 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.ailogic.autohealthracer", desc = "uv.ailogic.autohealthracer.desc", convar = "unitvehicle_autohealthracer", sv = true },
 				{ type = "bool", text = "uv.ailogic.customizeracer", desc = "uv.ailogic.customizeracer.desc", convar = "unitvehicle_customizeracer", sv = true },
 				{ type = "bool", text = "uv.ailogic.tractioncontrol", desc = "uv.ailogic.tractioncontrol.desc", convar = "unitvehicle_tractioncontrol", sv = true },
-				
+				{ type = "bool", text = "uv.ailogic.disengageonheatchange", desc = "uv.ailogic.disengageonheatchange.desc", convar = "unitvehicle_disengageonheatchange", sv = true },
+
 				{ type = "label", text = "uv.ainav", sv = true },
 				{ type = "bool", text = "uv.ainav.pathfind", desc = "uv.ainav.pathfind.desc", convar = "unitvehicle_pathfinding", sv = true },
 				{ type = "bool", text = "uv.ainav.dvpriority", desc = "uv.ainav.dvpriority.desc", convar = "unitvehicle_dvwaypointspriority", sv = true },

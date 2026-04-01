@@ -837,6 +837,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		end
 		
 		Ent.uvclasstospawnon = uvnextclasstospawn
+		Ent.unitscript = availableunit
 		
 		if rhinoattack then
 			Ent.uvclasstospawnon = "npc_uvspecial"
@@ -902,7 +903,6 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
-			Ent.unitscript = availableunit
 			Ent.uvlasthealth = UVCommanderLastHealth
 			Ent.uvlastenginehealth = UVCommanderLastEngineHealth
 		end
@@ -1120,6 +1120,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		end
 		
 		Ent.uvclasstospawnon = uvnextclasstospawn
+		Ent.unitscript = availableunit
 		
 		if rhinoattack then
 			Ent.uvclasstospawnon = "npc_uvspecial"
@@ -1185,7 +1186,6 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
-			Ent.unitscript = availableunit
 			Ent.uvlasthealth = UVCommanderLastHealth
 			Ent.uvlastenginehealth = UVCommanderLastEngineHealth
 		end
@@ -1479,6 +1479,8 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		
 		Ent.uvclasstospawnon = uvnextclasstospawn
+		Ent.unitscript = availableunit
+		
 		if rhinoattack then
 			Ent.uvclasstospawnon = "npc_uvspecial"
 			Ent.rhino = true
@@ -1544,7 +1546,6 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
-			Ent.unitscript = availableunit
 			Ent.uvlasthealth = UVCommanderLastHealth
 		end
 		
@@ -1713,6 +1714,8 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		end)
 		
 		Ent.uvclasstospawnon = uvnextclasstospawn
+		Ent.unitscript = availableunit
+		
 		if rhinoattack then
 			Ent.uvclasstospawnon = "npc_uvspecial"
 			Ent.rhino = true
@@ -1778,7 +1781,6 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
-			Ent.unitscript = availableunit
 			Ent.uvlasthealth = UVCommanderLastHealth
 		end
 		
