@@ -611,8 +611,14 @@ function UVDisengageUnits()
 		local AssignedUnits = UnitsPatrol .. " " .. UnitsSupport .. " " .. UnitsPursuit .. " " .. UnitsInterceptor .. " " .. UnitsSpecial .. " " .. UnitsRhino .. " " .. UnitsCommander
 		if not AssignedUnits then return end
 
-		if not string.find(AssignedUnits, NPC.v.unitscript) and not NPC.v.disengaging then
-			NPC.v.disengaging = true
+		if string.find(AssignedUnits, NPC.v.unitscript) then
+			if NPC.v.disengaging then
+				NPC.v.disengaging = nil
+			end
+		else
+			if not NPC.v.disengaging then
+				NPC.v.disengaging = true
+			end
 		end
 	end
 end
