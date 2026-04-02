@@ -544,6 +544,11 @@ UVMenu.Main = function()
 				-- end,
 			-- },
 			
+			{ TabName = "uv.debug", Icon = "unitvehicles/icons/generic_alert.png", playsfx = "clickopen", Prompts = { "uv.prompt.open.menu" }, developer = true, sv = true,
+			func = function() -- DEBUG
+				UVMenu.OpenMenu(UVMenu.DebugWarning, true)
+			end
+			},
 		}
 	})
 end
@@ -1900,6 +1905,255 @@ net.Receive("UV_OpenDVWarning", function()
     UVMenu.OpenMenu(UVMenu.DVWarning, true)
 end)
 
+------- [ DEBUG ] -------
+UVMenu.DebugWarning = function()
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = " ",
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(1200),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = false,
+		HideCloseButton = true,
+		Tabs = {
+			{ TabName = "uv.debug.warning", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true,
+				{ type = "infosimple", text = "uv.debug.warning.desc" },
+				{ type = "buttonlr", text = "uv.debug.cancel", text2 = "uv.debug.confirm", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2) UVMenu.OpenMenu(UVMenu.Main, true) end,
+					func2 = function(self2) UVMenu.OpenMenu(UVMenu.DebugMenu) end,
+				},
+			}
+		}
+	})
+end
+
+UVMenu.DebugMenu = function()
+	local mainHUDList, backupHUDList, speedometers = BuildHUDComboLists()
+	
+	local function UV_DebugBuildPursuitDebrief()
+		local unitname = {
+			"uv.unit.patrol",
+			"uv.unit.support",
+			"uv.unit.pursuit",
+			"uv.unit.interceptor",
+			"uv.unit.special",
+			"uv.unit.helicopter",
+			"uv.unit.rhino",
+			"uv.unit.commander",
+		}
+		
+		return {
+			Unit = unitname[math.random(#unitname)],
+			Deploys = math.random(1, 25),
+			Roadblocks = math.random(0, 12),
+			Spikestrips = math.random(0, 8),
+		}
+	end
+
+	local function UV_DebugBuildInfractions()
+		local infractions = {}
+
+		local possible = {
+			"speed",
+			"veryspeed",
+			"reckless",
+			"rampolice",
+			"ram",
+			"property",
+			"resist",
+			"offroad",
+			"streetrace",
+			"resource",
+			"endanger",
+			"homicide",
+		}
+
+		local count = math.random(1, 12)
+		table.Shuffle(possible)
+
+		for i = 1, count do
+			local infraction = possible[i]
+			infractions[infraction] = math.random(0, 50)
+		end
+
+		return infractions
+	end
+
+	UVMenu.CurrentMenu = UVMenu:Open({
+		Name = "Unit Vehicles | " .. UVString("uv.debug"),
+		Width  = UV.ScaleW(1200),
+		Height = UV.ScaleH(400),
+		DynamicHeight = true,
+		Description = false,
+		UnfocusClose = true,
+		HideCloseButton = false,
+		Tabs = {
+			{ TabName = "uv.faq.racing",
+				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
+				{ type = "buttonsw", text = UVString("uv.debug.raceresults"), playsfx = "confirm", prompts = {"uv.prompt.confirm"}, min = 1, max = 32, start = 1,
+					func = function(self2, amount)
+							local function UV_DebugCreateVehicle(isLocal)
+								local ent = ClientsideModel("models/props_c17/oildrum001.mdl") -- cheap dummy
+								ent:SetNoDraw(true)
+
+								-- Fake GetDriver function
+								function ent:GetDriver()
+									if isLocal then
+										return LocalPlayer()
+									else
+										return NULL
+									end
+								end
+
+								return ent
+							end
+							
+							local function UV_DebugRandomName()
+								local first = {"Alex", "Jordan", "Taylor", "Chris", "Morgan", "Casey", "Riley"}
+								local last = {"Smith", "Johnson", "Brown", "Miller", "Davis", "Wilson"}
+								return first[math.random(#first)] .. " " .. last[math.random(#last)]
+							end
+							
+							local function UV_DebugRandomVehicle()
+								local first = {"Audi", "BMW", "Cadillac", "Delorean", "Lamborghini", "Subaru", "Toyota", "Volvo"}
+								local last = {"RS4", "M3 GTR", "CTS-V", "DMC-12", "Aventador", "Impreza", "Supra", "240"}
+								return first[math.random(#first)] .. " " .. last[math.random(#last)]
+							end
+
+							local function UV_DebugBuildRaceParticipants(count)
+								local racers = {}
+								local localIndex = math.random(1, count)
+
+								for i = 1, count do
+									local baseTime = CurTime() - math.Rand(40, 120)
+									baseTime = baseTime + (i * math.Rand(0.05, 3))
+
+									local checkpoints = {}
+									local time = baseTime
+
+									for j = 1, math.random(8, 18) do
+										time = time + math.Rand(1.5, 3.0)
+										checkpoints[j] = time
+									end
+
+									local isLocal = (i == localIndex)
+
+									local vehicle = UV_DebugCreateVehicle(isLocal)
+									local finished = math.random() > 0.2
+									local busted = not finished and math.random() > 0.7
+									local dnf = not finished and not busted
+
+									if isLocal then
+										finished = true
+										busted = false
+										dnf = false
+									end
+
+									local totalTime = checkpoints[#checkpoints] - checkpoints[1]
+
+									racers[vehicle] = {
+										Name = isLocal and LocalPlayer():Nick() or UV_DebugRandomName(),
+										Lap = math.random(1, 2),
+										Checkpoints = checkpoints,
+										Finished = finished,
+										Busted = busted,
+										Disqualified = dnf,
+										IsAI = not isLocal,
+										Position = i,
+										Vehicle = vehicle,
+										VehicleName = UV_DebugRandomVehicle(),
+
+										LastLapTime = finished and totalTime or nil,
+										BestLapTime = finished and totalTime or nil,
+										TotalTime = finished and totalTime or nil,
+									}
+								end
+
+								timer.Simple(5, function()
+									for vehicle, _ in pairs(racers) do
+										if IsValid(vehicle) then vehicle:Remove() end
+									end
+								end)
+
+								return racers
+							end
+
+							local count = amount
+							local participants = UV_DebugBuildRaceParticipants(count)
+
+							hook.Run( "UIEventHook", "racing", "onRaceEnd", UVFormLeaderboard(participants) )
+					end
+				},
+			},
+			{ TabName = "uv.faq.pursuits",
+				{ type = "combo", text = "uv.ui.main", desc = "uv.ui.main.desc", convar = "unitvehicle_hudtype_main", content = mainHUDList },
+				{ type = "infosimple", text = "uv.debug.pursuitresults.racer" },
+				{ type = "buttonlr", text = "uv.debug.pursuitresults.escaped", text2 = "uv.debug.pursuitresults.busted", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2)
+						local debrief = UV_DebugBuildPursuitDebrief()
+						local infractions = UV_DebugBuildInfractions()
+						local fines = math.random(100, 250000)
+
+						if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
+							UVMenu.CloseCurrentMenu()
+							timer.Simple(0.5, function()
+								hook.Run( "UIEventHook", "pursuit", "onRacerEscapedDebrief", debrief, infractions, fines )
+							end)
+							return
+						end
+						hook.Run( "UIEventHook", "pursuit", "onRacerEscapedDebrief", debrief, infractions, fines )
+					end,
+					func2 = function(self2)
+						local debrief = UV_DebugBuildPursuitDebrief()
+						local infractions = UV_DebugBuildInfractions()
+						local fines = math.random(100, 250000)
+
+						if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
+							UVMenu.CloseCurrentMenu()
+							timer.Simple(0.5, function()
+								hook.Run( "UIEventHook", "pursuit", "onRacerBustedDebrief", debrief, infractions, fines )
+							end)
+							return
+						end
+						hook.Run( "UIEventHook", "pursuit", "onRacerBustedDebrief", debrief, infractions, fines )
+					end
+				},
+				{ type = "infosimple", text = "uv.debug.pursuitresults.units" },
+				{ type = "buttonlr", text = "uv.debug.pursuitresults.escaped", text2 = "uv.debug.pursuitresults.busted", playsfx = "confirm", prompts = {"uv.prompt.confirm"},
+					func = function(self2)
+						local debrief = UV_DebugBuildPursuitDebrief()
+
+						if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
+							UVMenu.CloseCurrentMenu()
+							timer.Simple(0.5, function()
+								hook.Run( "UIEventHook", "pursuit", "onCopEscapedDebrief", debrief )
+							end)
+							return
+						end
+						hook.Run( "UIEventHook", "pursuit", "onCopEscapedDebrief", debrief )
+					end,
+					func2 = function(self2)
+						local debrief = UV_DebugBuildPursuitDebrief()
+
+						if UVMenu.CurrentMenu and IsValid(UVMenu.CurrentMenu) then
+							UVMenu.CloseCurrentMenu()
+							timer.Simple(0.5, function()
+								hook.Run( "UIEventHook", "pursuit", "onCopBustedDebrief", debrief )
+							end)
+							return
+						end
+						hook.Run( "UIEventHook", "pursuit", "onCopBustedDebrief", debrief )
+					end
+				},
+			},
+			
+			{ TabName = "uv.back", playsfx = "clickback", Prompts = { "uv.prompt.return" }, func = function()
+					UVMenu.OpenMenu(UVMenu.Main)
+				end,
+			},
+		}
+	})
+end
 
 ------- [ Challenge Series ] ------- CONCEPT ONLY
 --[[

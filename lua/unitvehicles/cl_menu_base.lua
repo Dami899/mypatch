@@ -365,6 +365,12 @@ function UV.PlayerCanSeeSetting(st)
 		return false
 	end
 	
+	if st.developer then
+		local ply = LocalPlayer()
+		if not IsValid(ply) then return false end
+		if GetConVar("developer"):GetInt() < 1 then return false end
+	end
+	
 	if st.sv or st.admin then
 		local ply = LocalPlayer()
 		if not IsValid(ply) then return false end
@@ -643,7 +649,7 @@ function UVDropdown:OpenList()
 		opt.Paint = function(btn, w, h)
 			local hovered = btn:IsHovered()
 			draw.RoundedBox(6, 0, 0, w, h, hovered and Color(80, 80, 80, 220) or Color(60, 60, 60, 200))
-			DrawWrappedText(self, v.text, self:GetWide(), w * 0.5, nil, true, "UVMostWantedLeaderboardFont2", "UVMostWantedLeaderboardFont2")
+			DrawWrappedText(self, v.text, self:GetWide(), w * 0.5, h * 0.05, true, "UVMostWantedLeaderboardFont2", "UVMostWantedLeaderboardFont2")
 		end
 
 		opt.DoClick = function()
@@ -1623,7 +1629,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		local btn = vgui.Create("DButton", panel)
 		btn:Dock(LEFT)
 		btn:DockMargin(6, 6, 6, 6)
-		btn:SetWide(UV.ScaleW(350))
+		btn:SetWide(UV.ScaleW(400))
 		btn:SetText("")
 		btn.Paint = function(self, w, h)
 			local hovered = self:IsHovered()
@@ -1675,7 +1681,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		local btn2 = vgui.Create("DButton", panel)
 		btn2:Dock(RIGHT)
 		btn2:DockMargin(6, 6, 6, 6)
-		btn2:SetWide(UV.ScaleW(350))
+		btn2:SetWide(UV.ScaleW(400))
 		btn2:SetText("")
 		btn2.Paint = function(self, w, h)
 			local hovered = self:IsHovered()
@@ -5314,7 +5320,7 @@ function UVMenu:Open(menu)
                 end
 				
 				if a > 5 then
-					DrawWrappedText(self, UVString(tab.TabName or "Tab"), self:GetWide() - ((tab.Icon and self:GetWide() * 0.15 or self:GetWide() * 0.085)) * 2, tab.Icon and UV.ScaleW(60) or UV.ScaleW(20), nil, false, "UVMostWantedLeaderboardFont", "UVMostWantedLeaderboardFont")
+					DrawWrappedText(self, UVString(tab.TabName or "Tab"), self:GetWide() - ((tab.Icon and self:GetWide() * 0.15 or self:GetWide() * 0.085)) * 2, tab.Icon and UV.ScaleW(60) or UV.ScaleW(20), nil, false, "UVMostWantedLeaderboardFont", "UVMostWantedLeaderboardFont2")
 				end
             end
 

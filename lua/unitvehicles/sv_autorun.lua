@@ -470,9 +470,11 @@ function UV_StartPursuit(ply, skipCountdown)
 	end)
 end
 
-concommand.Add("uv_startpursuit", function(ply)
+concommand.Add("uv_startpursuit", function(ply, cmd, args)
 	if ply and not ply:IsSuperAdmin() then return end
-	UV_StartPursuit(ply)
+	local skipCountdown = tonumber(args[1]) == 1
+
+	UV_StartPursuit(ply, skipCountdown)
 end)
 
 function UV_StopPursuit(ply)

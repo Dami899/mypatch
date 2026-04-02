@@ -266,10 +266,10 @@ UV_UI.pursuit.original.events = {
         local deploys = bustedtable["Deploys"]
         local roadblocksdodged = bustedtable["Roadblocks"]
         local spikestripsdodged = bustedtable["Spikestrips"]
-        local bounty = UVBounty
-        local tags = UVTags
-        local wrecks = UVWrecks
-        local suspects = UVHUDWantedSuspectsNumber
+        local bounty = UVBounty or 0
+        local tags = UVTags or 0
+        local wrecks = UVWrecks or 0
+        local suspects = UVHUDWantedSuspectsNumber or 0
         
         -- Tip
         local TipsPanel = vgui.Create("DFrame")
@@ -384,10 +384,10 @@ UV_UI.pursuit.original.events = {
         local deploys = escapedtable["Deploys"]
         local roadblocksdodged = escapedtable["Roadblocks"]
         local spikestripsdodged = escapedtable["Spikestrips"]
-        local bounty = UVBounty
-        local tags = UVTags
-        local wrecks = UVWrecks
-        local suspects = UVHUDWantedSuspectsNumber
+        local bounty = UVBounty or 0
+        local tags = UVTags or 0
+        local wrecks = UVWrecks or 0
+        local suspects = UVHUDWantedSuspectsNumber or 0
 
         -- Tip
         local TipsPanel = vgui.Create("DFrame")
@@ -503,9 +503,9 @@ UV_UI.pursuit.original.events = {
         local deploys = escapedtable["Deploys"]
         local roadblocksdodged = escapedtable["Roadblocks"]
         local spikestripsdodged = escapedtable["Spikestrips"]
-        local bounty = UVBounty
-        local tags = UVTags
-        local wrecks = UVWrecks
+        local bounty = UVBounty or 0
+        local tags = UVTags or 0
+        local wrecks = UVWrecks or 0
 
         -- Tip
         local TipsPanel = vgui.Create("DFrame")
@@ -621,9 +621,9 @@ UV_UI.pursuit.original.events = {
         local deploys = bustedtable["Deploys"]
         local roadblocksdodged = bustedtable["Roadblocks"]
         local spikestripsdodged = bustedtable["Spikestrips"]
-        local bounty = UVBounty
-        local tags = UVTags
-        local wrecks = UVWrecks
+        local bounty = UVBounty or 0
+        local tags = UVTags or 0
+        local wrecks = UVWrecks or 0
 
         -- Tip
         local TipsPanel = vgui.Create("DFrame")

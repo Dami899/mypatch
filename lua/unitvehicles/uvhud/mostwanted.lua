@@ -1000,10 +1000,10 @@ UV_UI.pursuit.mostwanted.events = {
         local deploys = debriefdata["Deploys"]
         local roadblocksdodged = debriefdata["Roadblocks"]
         local spikestripsdodged = debriefdata["Spikestrips"]
-        local bounty = UVBounty
-        local tags = UVTags
-        local wrecks = UVWrecks
-        local suspects = UVHUDWantedSuspectsNumber
+        local bounty = UVBounty or 0
+        local tags = UVTags or 0
+        local wrecks = UVWrecks or 0
+        local suspects = UVHUDWantedSuspectsNumber or 0
         
         local ResultPanel = vgui.Create("DFrame")
         local OK = vgui.Create("DButton")
@@ -1074,7 +1074,9 @@ UV_UI.pursuit.mostwanted.events = {
 					})
 				end
 				
-				table.insert(labels, { label = UVString("uv.results.chase.fines"), value = "$" .. finescost } )
+				if params.finesdue then
+					table.insert(labels, { label = UVString("uv.results.chase.fines"), value = "$" .. finescost } )
+				end
 			else
 				-- INFRACTION VIEW
 				if infractiondata then

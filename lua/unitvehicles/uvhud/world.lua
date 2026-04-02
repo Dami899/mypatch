@@ -902,10 +902,10 @@ UV_UI.pursuit.world.events = {
         local deploys = debriefdata["Deploys"]
         local roadblocksdodged = debriefdata["Roadblocks"]
         local spikestripsdodged = debriefdata["Spikestrips"]
-        local bounty = UVBounty
-        local tags = UVTags
-        local wrecks = UVWrecks
-        local suspects = UVHUDWantedSuspectsNumber
+        local bounty = UVBounty or 0
+        local tags = UVTags or 0
+        local wrecks = UVWrecks or 0
+        local suspects = UVHUDWantedSuspectsNumber or 0
 
 		--------------------------------------
 
