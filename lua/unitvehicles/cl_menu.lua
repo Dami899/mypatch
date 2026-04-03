@@ -1927,6 +1927,22 @@ UVMenu.DebugWarning = function()
 	})
 end
 
+-- Debugging Racer Names for Client
+local UVRacerNames = nil
+local UVNamesLoaded = false
+
+if not UVNamesLoaded then
+	file.AsyncRead('unitvehicles/names/Names.json', 'DATA', function(_, _, status, data)
+		if status == FSASYNC_OK and data then
+			UVRacerNames = util.JSONToTable(data)
+			UVNamesLoaded = true
+			print("UV names loaded:", #UVRacerNames.Racers)
+		else
+			print("Failed to load Names.json")
+		end
+	end, true)
+end
+
 UVMenu.DebugMenu = function()
 	local mainHUDList, backupHUDList, speedometers = BuildHUDComboLists()
 	
@@ -1982,7 +1998,7 @@ UVMenu.DebugMenu = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = "Unit Vehicles | " .. UVString("uv.debug"),
 		Width  = UV.ScaleW(1200),
-		Height = UV.ScaleH(400),
+		Height = UV.ScaleH(720),
 		DynamicHeight = true,
 		Description = false,
 		UnfocusClose = true,
@@ -2011,13 +2027,18 @@ UVMenu.DebugMenu = function()
 							local function UV_DebugRandomName()
 								local first = {"Alex", "Jordan", "Taylor", "Chris", "Morgan", "Casey", "Riley"}
 								local last = {"Smith", "Johnson", "Brown", "Miller", "Davis", "Wilson"}
+
+								if UVNamesLoaded and UVRacerNames and UVRacerNames.Racers then
+									return UVRacerNames.Racers[math.random(#UVRacerNames.Racers)]
+								end
+
 								return first[math.random(#first)] .. " " .. last[math.random(#last)]
 							end
 							
 							local function UV_DebugRandomVehicle()
-								local first = {"Audi", "BMW", "Cadillac", "Delorean", "Lamborghini", "Subaru", "Toyota", "Volvo"}
-								local last = {"RS4", "M3 GTR", "CTS-V", "DMC-12", "Aventador", "Impreza", "Supra", "240"}
-								return first[math.random(#first)] .. " " .. last[math.random(#last)]
+								local carname = { "alfa.8c", "astonmartin.dbs", "astonmartin.dbs.volante", "astonmartin.vantage", "audi.rs1", "audi.a3", "audi.quattro", "audi.r8", "audi.r8.coupe", "audi.r8.lms", "audi.rs4", "audi.s5", "audi.tt", "bentley.continental", "bentley.continental.c", "bmw.1series", "bmw.135i", "bmw.csl", "bmw.m1procar", "bmw.m3", "bmw.m3.e92", "bmw.m3.e46", "bmw.m3.gts", "bmw.m3.evo", "bmw.m6", "bmw.m6.coupe", "bmw.z4", "bmw.z4.gt3", "bugatti.veyron", "cadillac.ctsv", "caterham.superlight", "chevrolet.camaro.ss", "chevrolet.camaro.zl1", "chevrolet.chevelle", "chevrolet.cobalt", "chevrolet.corvette.stingray", "chevrolet.corvette.z06", "chevrolet.corvette.z06.carbon", "chevrolet.corvette.zr1", "chevrolet.elcamino", "chrysler.300c", "dodge.challenger.concept", "dodge.challenger.rt", "dodge.charger.rt", "dodge.charger.srt8", "dodge.charger.srt8.superbee", "dodge.viper", "dodge.viper.acr", "ford.capri", "ford.crownvic", "ford.escort.mk1", "ford.escort", "ford.f150svt", "ford.focus", "ford.gt", "ford.gt40", "ford.cortina", "ford.mustang.boss", "ford.mustang.rtrx", "ford.interceptor", "ford.shelby", "ford.shelby.terlingua", "hummer.h1", "infiniti.g35", "jaguar.etype", "jaguar.xkr", "jeep.grandcherokee", "koenigsegg.agera", "koenigsegg.ccx", "koenigsegg.ccxr", "lamborghini.aventador", "lamborghini.countach", "lamborghini.diablo", "lamborghini.estoque", "lamborghini.gallardo.vb", "lamborghini.gallardo", "lamborghini.gallardo.spyder", "lamborghini.miura.concept", "lamborghini.miura", "lamborghini.murcielago", "lamborghini.murcielago.roadster", "lamborghini.murcielago.sv", "lamborghini.reventon", "lamborghini.sesto", "lancia.delta", "lexus.is300", "lexus.is350", "lexus.isf", "lexus.lfa", "lotus.elise", "lotus.europa", "lotus.evora", "lotus.exige.cup", "lotus.exige", "marussia.b2", "mazda.mazdaspeed3", "mazda.mx5", "mazda.rx7", "mazda.rx7.rz", "mazda.rx8", "mazda.rx8.09", "mclaren.mp4", "mercedesbenz.slr", "mercedesbenz.slr.stirlingmoss", "mitsubishi.eclipse", "mitsubishi.eclipsegt", "mitsubishi.evo.9", "mitsubishi.evo.8", "mitsubishi.evo.10", "bfh.suv", "nissan.200sx", "nissan.240sx", "nissan.350z", "nissan.370z", "nissan.370z.roadster", "nissan.240zg", "nissan.r35", "nissan.r35.specv", "nissan.skyline.ztune", "nissan.silvia", "nissan.skyline.2000gtr", "nissan.skyline.r32", "nissan.skyline.r34", "pagani.zonda.cinque", "pagani.zonda", "pagani.zonda.roadster", "plymouth.cuda", "plymouth.roadrunner", "pontiac.firebird", "pontiac.gto", "pontiac.solstice", "porsche.911.rsr", "porsche.991", "porsche.911.gt2", "porsche.911.gt2.997", "porsche.911.gt3rs", "porsche.911.gt3rs.40", "porsche.911.turbo", "porsche.914", "porsche.959", "porsche.boxster", "porsche.carreragt", "porsche.cayman", "porsche.918rsr", "porsche.panamera", "renault.clio", "renault.megane", "renault.megane.sport", "scion.tc", "shelby.427sc", "shelbydaytona", "subaru.impreza", "subaru.impreza.hatchback", "toyota.ae86", "toyota.mr2", "toyota.supra", "vauxhall.monaro", "volkswagen.golf.mk1", "volkswagen.golf", "volkswagen.scirocco" }
+								
+								return "#moka.glide.nfsw.car." .. carname[math.random(#carname)] .. (math.random(100) <= 50 and ".tuned" or "")
 							end
 
 							local function UV_DebugBuildRaceParticipants(count)
@@ -2144,6 +2165,13 @@ UVMenu.DebugMenu = function()
 						end
 						hook.Run( "UIEventHook", "pursuit", "onCopBustedDebrief", debrief )
 					end
+				},
+				{ type  = "buttonsw", text  = UVString("uv.debug.infraction"), min = 1, max = 10, start = 1,
+					func = function(self2, amount)
+						for i = 1, amount do
+							RunConsoleCommand("uv_test_infraction")
+						end
+					end,
 				},
 			},
 			
