@@ -3787,13 +3787,13 @@ function UVCheckIfBeingBusted(enemy)
 	
 	if not closestunit then closestunit = enemy end
 
-	UVBustSpeed = UVBustSpeed or 5
+	local _LocalUVBustSpeed = UVBustSpeed or 5
 	
 	if enemy.hasreset then
-		UVBustSpeed = UVBustSpeed * (enemy.UVBustingPenaltyMult or 1)
+		_LocalUVBustSpeed = _LocalUVBustSpeed * (enemy.UVBustingPenaltyMult or 1)
 	end
 	
-	if not enemy.uvbusted and btimeout and btimeout > 0 and enemy:GetVelocity():LengthSqr() < UVBustSpeed and not UVEnemyEscaping and next(UVUnitsChasing) ~= nil and
+	if not enemy.uvbusted and btimeout and btimeout > 0 and enemy:GetVelocity():LengthSqr() < _LocalUVBustSpeed and not UVEnemyEscaping and next(UVUnitsChasing) ~= nil and
 	(closestdistancetounit < 250000 or closestunit.CloseToTarget) and 
 	(IsValid(closestunit.e) or (isfunction(closestunit.GetTarget)) and IsValid(closestunit:GetTarget())) then
 		if not enemy.UVHUDBusting and not enemy.UVHUDBustingDelayed then
@@ -4385,7 +4385,8 @@ function UVNavigateDVWaypoint(self, vectors)
 		local maxNewWaypoints = 30
 		local added = 0
 
-		for _, v in ipairs( operationStack ) do
+		for i, v in ipairs( operationStack ) do
+			if i == 1 then continue end
 			if added >= maxNewWaypoints then break end
 
 			local targetVec = v["Target"]
