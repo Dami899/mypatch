@@ -615,10 +615,10 @@ if SERVER then
 		end)
 
 		if DVWaypointsPriority:GetBool() then
-			local enemy_nearest_waypoint = nil
-			local friendly_nearest_waypoint = nil
+			local enemy_nearest_waypoint = InfMap or nil
+			local friendly_nearest_waypoint = InfMap or nil
 
-			if dvd then
+			if dvd and not InfMap then
 				local friendly_position = self.v:WorldSpaceCenter()
 
 				enemy_nearest_waypoint = dvd.GetNearestWaypoint( vectors )
@@ -648,18 +648,18 @@ if SERVER then
 			if enemy_nearest_waypoint then
 				if ( DVNavigationOptimized:GetBool() and UVNavigateDVWaypointOptimized(self, vectors) ) or ( ( not DVNavigationOptimized:GetBool() ) and UVNavigateDVWaypoint(self, vectors) ) then
 					return
-				elseif UVNavigateNavmesh(self, vectors) then
+				elseif not InfMap and UVNavigateNavmesh(self, vectors) then
 					return
 				end
 			else
-				if UVNavigateNavmesh(self, vectors) then
+				if not InfMap and UVNavigateNavmesh(self, vectors) then
 					return
 				elseif ( DVNavigationOptimized:GetBool() and UVNavigateDVWaypointOptimized(self, vectors) ) or ( ( not DVNavigationOptimized:GetBool() ) and UVNavigateDVWaypoint(self, vectors) ) then
 					return
 				end
 			end
 		else
-			if UVNavigateNavmesh(self, vectors) then
+			if not InfMap and UVNavigateNavmesh(self, vectors) then
 				return
 			elseif ( DVNavigationOptimized:GetBool() and UVNavigateDVWaypointOptimized(self, vectors) ) or ( ( not DVNavigationOptimized:GetBool() ) and UVNavigateDVWaypoint(self, vectors) ) then
 				return
@@ -728,7 +728,8 @@ if SERVER then
 			local dist = math.sqrt(distSqr)
 			local toWaypointNormalized = toWaypoint:GetNormalized()
 			
-			local hasLineOfSight = InfMap or UVStraightToWaypoint(unitpos, waypointpos)
+			-- local hasLineOfSight = InfMap or UVStraightToWaypoint(unitpos, waypointpos)
+			local hasLineOfSight = true
 			
 			local score = 0
 			
