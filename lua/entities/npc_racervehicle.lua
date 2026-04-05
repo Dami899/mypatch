@@ -525,7 +525,7 @@ if SERVER then
 					local diff_mode = targetEntry[3]
 					local diff = targetEntry[4]
 
-					local comparison_value = (diff_mode == "Time") and 2 or 0
+					local comparison_value = (diff_mode == "Time") and (UVRaceCatchupGap:GetInt() or 2) or 0
 
 					if diff and diff > comparison_value then
 						self.__catchup_active = true
@@ -540,7 +540,7 @@ if SERVER then
 			-- Reverse catchup (slow down if too far ahead of players)
 			self.__reverse_catchup_mult = 1
 
-			if UVRaceCatchup:GetBool() and not self.__catchup_active then
+			if UVRaceReverseCatchup:GetBool() and not self.__catchup_active then
 				local sorted_table, string_array = UVFormLeaderboard(UVRaceTable['Participants'], self.v)
 
 				local targetEntry = nil
@@ -563,13 +563,14 @@ if SERVER then
 				if targetEntry then
 					local diff_mode = targetEntry[3]
 					local diff = targetEntry[4]
+					
+					local diffval = (UVRaceReverseCatchupGap:GetInt() or 2)
 
 					-- Only apply for time gaps (ignore lap/finished/etc)
-					if diff_mode == "Time" and diff and diff < -3 then
+					if diff_mode == "Time" and diff and diff < -diffval then
 						local gap = math.abs(diff)
 
-						-- Scale from 3s → 10s into 0.9 → 0.5 multiplier
-						local t = math.Clamp((gap - 3) / 5, 0, 1)
+						local t = math.Clamp((gap - diffval) / 5, 0, 1)
 						self.__reverse_catchup_mult = Lerp(t, 0.99, 0.25)
 					end
 				end
