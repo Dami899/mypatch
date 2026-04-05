@@ -502,18 +502,82 @@ if SERVER then
 			end
 
 			if UVRaceCatchup:GetBool() then
-				local sorted_table, string_array = UVFormLeaderboard( UVRaceTable['Participants'], self.v )
-				local first_racer = string_array[1]
-	
-				if not first_racer[2] then -- not AI's vehicle
-					local diff_mode = first_racer[3]
-					local diff = first_racer[4]
+				local sorted_table, string_array = UVFormLeaderboard(UVRaceTable['Participants'], self.v)
 
-					local comparison_value = diff_mode == 'Time' and 3 or 0
-	
-					if (diff and diff > comparison_value) then self.__catchup_active = true else self.__catchup_active = false end
+				local targetEntry = nil
+
+				for i = 1, #string_array do -- Find closest player
+					local entry = string_array[i]
+					local racerName = entry[1]
+					local isLocalPlayer = entry[2]
+
+					for veh, data in pairs(UVRaceTable['Participants']) do
+						if data.Name == racerName and not data.IsAI then -- If the target is a player, then ignore the rest
+							targetEntry = entry
+							break
+						end
+					end
+
+					if targetEntry then break end
+				end
+
+				if targetEntry then
+					local diff_mode = targetEntry[3]
+					local diff = targetEntry[4]
+
+					local comparison_value = (diff_mode == "Time") and 2 or 0
+
+					if diff and diff > comparison_value then
+						self.__catchup_active = true
+					else
+						self.__catchup_active = false
+					end
+				else
+					self.__catchup_active = false
 				end
 			end
+			
+			-- Reverse catchup (slow down if too far ahead of players)
+			self.__reverse_catchup_mult = 1
+
+			if UVRaceCatchup:GetBool() and not self.__catchup_active then
+				local sorted_table, string_array = UVFormLeaderboard(UVRaceTable['Participants'], self.v)
+
+				local targetEntry = nil
+
+				-- Find closest PLAYER (same logic as before)
+				for i = 1, #string_array do
+					local entry = string_array[i]
+					local racerName = entry[1]
+
+					for veh, data in pairs(UVRaceTable['Participants']) do
+						if data.Name == racerName and not data.IsAI then
+							targetEntry = entry
+							break
+						end
+					end
+
+					if targetEntry then break end
+				end
+
+				if targetEntry then
+					local diff_mode = targetEntry[3]
+					local diff = targetEntry[4]
+
+					-- Only apply for time gaps (ignore lap/finished/etc)
+					if diff_mode == "Time" and diff and diff < -3 then
+						local gap = math.abs(diff)
+
+						-- Scale from 3s → 10s into 0.9 → 0.5 multiplier
+						local t = math.Clamp((gap - 3) / 5, 0, 1)
+						self.__reverse_catchup_mult = Lerp(t, 0.99, 0.25)
+					end
+				end
+			end
+
+			-- print(self.v.racer,
+			-- (self.__reverse_catchup_mult and "Speed Limit Mult: " .. self.__reverse_catchup_mult or ""),
+			-- (self.__catchup_active and "Catch-up" or ""))
 
 			for _, v in ipairs(ents.FindByClass('uvrace_brush*')) do
 				if v:GetID() == current_checkp then
@@ -814,9 +878,15 @@ if SERVER then
 
 			local speedLimit = blendedSpeedLimit ^ 2
 			
-			-- Apply increased speed limit on higher difficulties
-			-- When catching up, has x2 speed limit as absolute max. Otherwise, cap at x1.5
-			speedLimit = speedLimit * math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
+			-- Apply adjusted speed limit depending on difficulty and catchup status
+			local difficultyScale = math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
+
+			speedLimit = speedLimit * difficultyScale
+
+			-- Apply reverse catchup penalty
+			if self.__reverse_catchup_mult and self.__reverse_catchup_mult < 0.9 then
+				speedLimit = speedLimit * self.__reverse_catchup_mult
+			end
 
 			local throttle = 1
 			local cornerDist = 400
@@ -1003,9 +1073,14 @@ if SERVER then
 			local speedlimitmph = self.PatrolWaypoint["SpeedLimit"]
 			self.Speeding = speedlimitmph^2
 
-			-- Apply increased speed limit on higher difficulties
-			-- When catching up, has x2 speed limit as absolute max. Otherwise, cap at x1.5
-			self.Speeding = self.Speeding * math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
+			-- Apply adjusted speed limit depending on difficulty and catchup status
+			local difficultyScale = math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
+
+			self.Speeding = self.Speeding * difficultyScale
+
+			if self.__reverse_catchup_mult then
+				self.Speeding = self.Speeding * self.__reverse_catchup_mult
+			end
 
 			local throttleInput = nil
 			local brakeInput = nil
