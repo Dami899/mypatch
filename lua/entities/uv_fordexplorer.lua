@@ -120,6 +120,10 @@ if CLIENT then
         { offset = Vector(117.04,18.62,26.23), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 0, 1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0,175), },
         { offset = Vector(120.16,16.97,25.24), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 0, 1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0,175), },
 
+        { offset = Vector(115.44,-19.27,25.81), ifBodygroupId = 1, ifSubModelId = 0, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0,175), },
+        { offset = Vector(115.87,-18.63,25.51), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0,175), },
+        { offset = Vector(115.87,-18.63,25.51), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0,175), },
+
         -- BLUE
 
         { offset = Vector(-76.81,36.15,49.83), dir = Vector( 0, 1, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255,175), },
@@ -144,10 +148,6 @@ if CLIENT then
 
         { offset = Vector(-16.2,0,71.78),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255,175), },
         { offset = Vector(-8.54,0,71.78),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255,175), },
-
-        { offset = Vector(115.44,-19.27,25.81), ifBodygroupId = 1, ifSubModelId = 0, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(0,115,255,175), },
-        { offset = Vector(115.87,-18.63,25.51), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(0,115,255,175), },
-        { offset = Vector(115.87,-18.63,25.51), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(0,115,255,175), },
 }
      
     function ENT:OnCreateEngineStream( stream )
