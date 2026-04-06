@@ -21,6 +21,9 @@ Text = [[
 - Improved AI Racer behaviour during races:
       |-- AI will slow down if another racer ahead of them is driving slower
       |-- AI will swerve away from other racers if side-by-side
+- Improved AI Racer Rubberband:
+      |-- Now checks for actual players ahead of them before rubberbanding
+      |-- If there's no players ahead (only AI), then they'll never rubberband
 ]],
 },
 
