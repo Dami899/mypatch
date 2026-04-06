@@ -1,6 +1,6 @@
 UV = UV or {}
 
--- ["VERSIONNUMBER"] = {
+-- ["VERSIONNUMBER"] = { --MAJOR.MINOR.PATCH
 -- Date = "RELEASEDATE",
 -- Text = [[
 
@@ -8,8 +8,49 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
-["v1.5.0"] = {
+["1.6.0"] = {
+Date = { year = 2026, month = 4, day = 14 },
+Type = "Minor",
+Text = [[
+**New Features**
+- AI Racers: Added a new *Inverted Rubberband* feature
+      |-- AI that are ahead of players will gradually slow down
+      |-- Does not apply during Pursuits, or if they are rubberbanding up to another player
+
+**Changes**
+- Improved AI Racer behaviour during races:
+      |-- AI will slow down if another racer ahead of them is driving slower
+      |-- AI will swerve away from other racers if side-by-side
+]],
+},
+
+["1.5.3"] = {
+Date = { year = 2026, month = 4, day = 4 },
+Text = [[
+**Fixes**
+- Fixed that the busting speed penalties were applying to all racers if one racer reset during pursuits
+]],
+},
+
+["1.5.2"] = {
+Date = { year = 2026, month = 4, day = 1 },
+Text = [[
+**Fixes**
+- Fixed that Glide traffic vehicles were not spawning
+]],
+},
+
+["1.5.1"] = {
+Date = { year = 2026, month = 3, day = 31 },
+Text = [[
+**Fixes**
+- Fixed the *NIGHT-RUNNERS™ PROLOGUE* speedometer displaying incorrectly on non-16:9 resolutions
+]],
+},
+
+["1.5.0"] = {
 Date = { year = 2026, month = 3, day = 30 },
+Type = "Minor",
 Text = [[
 **Quick Information**
 Many patches had been added to UV since its launch that were undocumented.
@@ -43,7 +84,7 @@ Lastly, some updates have had their version numbers altered for better consisten
 ]],
 },
 
-["v1.4.2"] = {
+["1.4.2"] = {
 Date = { year = 2026, month = 3, day = 21 },
 Text = [[
 **Fixes**
@@ -52,7 +93,7 @@ Text = [[
 ]],
 },
 
-["v1.4.1"] = {
+["1.4.1"] = {
 Date = { year = 2026, month = 3, day = 20 },
 Text = [[
 **Fixes**
@@ -61,8 +102,9 @@ Text = [[
 ]],
 },
 
-["v1.4.0"] = {
+["1.4.0"] = {
 Date = { year = 2026, month = 3, day = 20 },
+Type = "Minor",
 Text = [[
 **New Features**
 - Added *Infractions* during pursuits
@@ -88,8 +130,9 @@ Text = [[
 ]],
 },
 
-["v1.3.0"] = {
+["1.3.0"] = {
 Date = { year = 2026, month = 3, day = 14 },
+Type = "Minor",
 Text = [[
 **New Features**
 - Racing: Added a *Racer Difficulty* setting
@@ -144,7 +187,7 @@ And many more smaller undocumented fixes.
 ]],
 },
 
-["v1.2.5"] = {
+["1.2.5"] = {
 Date = { year = 2026, month = 2, day = 27 },
 Text = [[
 **Changes**
@@ -153,7 +196,7 @@ Text = [[
 ]],
 },
 
-["v1.2.4"] = {
+["1.2.4"] = {
 Date = { year = 2026, month = 2, day = 25 },
 Text = [[
 **Fixes**
@@ -164,7 +207,7 @@ Text = [[
 ]],
 },
 
-["v1.2.3"] = {
+["1.2.3"] = {
 Date = { year = 2026, month = 2, day = 24 },
 Text = [[
 **Changes**
@@ -172,7 +215,7 @@ Text = [[
 ]],
 },
 
-["v1.2.2"] = {
+["1.2.2"] = {
 Date = { year = 2026, month = 2, day = 24 },
 Text = [[
 **Fixes**
@@ -183,7 +226,7 @@ Text = [[
 ]],
 },
 
-["v1.2.1"] = {
+["1.2.1"] = {
 Date = { year = 2026, month = 2, day = 24 },
 Text = [[
 **Fixes**
@@ -191,8 +234,9 @@ Text = [[
 ]],
 },
 
-["v1.2.0"] = {
+["1.2.0"] = {
 Date = { year = 2026, month = 2, day = 24 },
+Type = "Minor",
 Text = [[
 **New Features**
 - Racing: Added support for *AI Path Nodes*
@@ -225,7 +269,7 @@ Text = [[
 ]],
 },
 
-["v1.1.1"] = {
+["1.1.1"] = {
 Date = { year = 2026, month = 2, day = 7 },
 Text = [[
 **Fixes**
@@ -233,8 +277,9 @@ Text = [[
 ]],
 },
 
-["v1.1.0"] = {
+["1.1.0"] = {
 Date = { year = 2026, month = 2, day = 3 },
+Type = "Minor",
 Text = [[
 **New Features**
 - UV Menu: Added a new First-Time Setup menu
@@ -260,7 +305,7 @@ Text = [[
 ]],
 },
 
-["v1.0.2"] = {
+["1.0.2"] = {
 Date = { year = 2026, month = 1, day = 30 },
 Text = [[
 This patch brings fixes for bugs reported by the community as well as other improvements/tweaks to the addon.
@@ -274,7 +319,7 @@ Keep 'em coming! We appreciate your reports and feedback!
 ]],
 },
 
-["v1.0.1"] = {
+["1.0.1"] = {
 Date = { year = 2026, month = 1, day = 29 },
 Text = [[
 **Fixes**
@@ -282,8 +327,9 @@ Text = [[
 ]],
 },
 
-["v1.0.0"] = {
+["1.0.0"] = {
 Date = { year = 2026, month = 1, day = 29 },
+Type = "Major",
 Text = [[
 This lists changes that were made after v.0.42.0 and have been applied to v1.0:
 
@@ -328,8 +374,9 @@ This lists changes that were made after v.0.42.0 and have been applied to v1.0:
 ]],
 },
 
-["v0.42.0"] = {
+["0.42.0"] = {
 Date = { year = 2026, month = 1, day = 16 },
+Type = "Minor",
 Text = [[
 **Almost there!**
 Unit Vehicles is getting closer and closer to its v1.0 release on *January 29th*!
@@ -364,8 +411,9 @@ Mark your calendars, it's almost time to **Race, Chase or Escape**!
 ]],
 },
 
-["v0.41.0"] = {
+["0.41.0"] = {
 Date = { year = 2026, month = 1, day = 5 },
+Type = "Minor",
 Text = [[
 **New Features**
 - Added the *UVPD Chevrolet Colorado ZR2 2017 Police Cruiser*
@@ -386,8 +434,9 @@ Text = [[
 ]],
 },
 
-["v0.40.0"] = {
+["0.40.0"] = {
 Date = { year = 2025, month = 12, day = 31 },
+Type = "Minor",
 Text = [[
 **The final stretch!**
 We're now preparing Unit Vehicles for its v1.0 release. There's lots to do still, and we hope to keep receiving feedback until then.
@@ -438,7 +487,7 @@ We're now preparing Unit Vehicles for its v1.0 release. There's lots to do still
 ]],
 },
 
-["v0.39.1"] = {
+["0.39.1"] = {
 Date = { year = 2025, month = 12, day = 17 },
 Text = [[
 # New Features
@@ -459,8 +508,9 @@ And various other undocumented tweaks
 ]],
 },
 
-["v0.39.0"] = {
+["0.39.0"] = {
 Date = { year = 2025, month = 12, day = 11 },
+Type = "Minor",
 Text = [[
 # New Features
 **UV Menu**

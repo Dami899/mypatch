@@ -4,7 +4,7 @@ UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
 UVMenu.CustomizeSpeedo = UVMenu.CustomizeSpeedo or {}
 
 -- Current Version -- Change this whenever a new update is releasing!
-UV.CurVersion = "v1.5.0" --MAJOR.MINOR.PATCH
+UV.CurVersion = "1.6.0" --MAJOR.MINOR.PATCH
 
 -- Credits List
 UV.Credits = {
@@ -1448,18 +1448,29 @@ local function BuildPatchNoteTabs()
     end)
 
     -- Build tabs
-    for _, version in ipairs(versions) do
-        local note = UV.PNotes[version]
+	for _, version in ipairs(versions) do
+		local note = UV.PNotes[version]
 
-        table.insert(tabs, {
-            TabName = version,
-            { type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"}, func = function() UVMenu.OpenMenu(UVMenu.Main) end },
-            { type = "label", text = FormatPatchDate(note.Date, true) },
-			
+		-- Base tab
+		local tab = {
+			TabName = version,
+			{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"}, func = function() UVMenu.OpenMenu(UVMenu.Main) end },
+			{ type = "label", text = FormatPatchDate(note.Date, true) },
 			{ type = "image", image = "unitvehicles/icons_settings/pnotes/" .. version .. ".png" },
-            { type = "info", text = note.Text },
-        })
-    end
+			{ type = "info", text = note.Text },
+		}
+
+		-- Add icon data if Type exists
+		if note.Type == "Minor" then
+			tab.Icon = "unitvehicles/icons/milestone_outrun_races_won.png"
+			tab.ShowIcon = true
+		elseif note.Type == "Major" then
+			tab.Icon = "unitvehicles/icons/minimap_icon_event_rival.png"
+			tab.ShowIcon = true
+		end
+
+		table.insert(tabs, tab)
+	end
 
     return tabs
 end
