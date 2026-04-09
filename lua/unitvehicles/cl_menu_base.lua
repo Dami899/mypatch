@@ -880,7 +880,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			-- end
 			-- return p
 			
-			mat = Material("unitvehicles/icons_settings/pnotes/v1.0.0.png", "smooth")
+			mat = Material("unitvehicles/icons_settings/pnotes/1.0.0.png", "smooth")
 		end
 
 		-- Cache image size
@@ -3793,6 +3793,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			{ name = "invnext", token = "invnext" },
 			{ name = "invprev", token = "invprev" },
 			{ name = "+speed", token = "+speed" },
+			-- { name = "Controller Navigation", token = "ContrNavi" },
 		}
 		
 		local TokenToName = {}
@@ -4927,7 +4928,11 @@ function UVMenu:Open(menu)
 			local wrapWidth = w - xPadding * 2
 
 			local resolved = {}
-
+			
+			-- if GetConVar("unitvehicle_controllermode"):GetBool() then
+				-- table.insert(resolved, UVString("uv.prompt.navigate"))
+			-- end
+			
 			for _, prompt in ipairs(self.Prompts) do
 				local phrase = UVString(prompt)
 				table.insert(resolved, phrase)

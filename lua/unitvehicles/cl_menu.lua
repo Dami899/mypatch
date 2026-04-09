@@ -4,7 +4,7 @@ UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
 UVMenu.CustomizeSpeedo = UVMenu.CustomizeSpeedo or {}
 
 -- Current Version -- Change this whenever a new update is releasing!
-UV.CurVersion = "v1.5.0" --MAJOR.MINOR.PATCH
+UV.CurVersion = "1.6.0" --MAJOR.MINOR.PATCH
 
 -- Credits List
 UV.Credits = {
@@ -1006,7 +1006,11 @@ UVMenu.RaceManagerSettings = function()
 						{ "uv.difficulty.3", 1 } ,
 					},
 				},
-				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_racercatchup", showprefix = true, sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_racercatchup", sv = true },
+				{ type = "slider", text = "uv.aidifficulty.racer.rubberband.gap", desc = "uv.aidifficulty.racer.rubberband.gap.desc", convar = "unitvehicle_racercatchup_gap", requireparentconvar = "unitvehicle_racercatchup", min = 0.1, max = 10, decimals = 1, sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.rubberbandrev", desc = "uv.aidifficulty.racer.rubberbandrev.desc", convar = "unitvehicle_racercatchup_rev", sv = true },
+				{ type = "slider", text = "uv.aidifficulty.racer.rubberband.gap", desc = "uv.aidifficulty.racer.rubberbandrev.gap.desc", convar = "unitvehicle_racercatchup_rev_gap", requireparentconvar = "unitvehicle_racercatchup_rev", min = 0.1, max = 10, decimals = 1, sv = true },
+				
 				{ type = "label", text = "uv.settings.general" },
 				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },
 				{ type = "slider", text = "uv.rm.options.dnftimer", desc = "uv.rm.options.dnftimer.desc", convar = "unitvehicle_racednftimer", min = 0, max = 90, decimals = 0, sv = true },
@@ -1444,18 +1448,29 @@ local function BuildPatchNoteTabs()
     end)
 
     -- Build tabs
-    for _, version in ipairs(versions) do
-        local note = UV.PNotes[version]
+	for _, version in ipairs(versions) do
+		local note = UV.PNotes[version]
 
-        table.insert(tabs, {
-            TabName = version,
-            { type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"}, func = function() UVMenu.OpenMenu(UVMenu.Main) end },
-            { type = "label", text = FormatPatchDate(note.Date, true) },
-			
+		-- Base tab
+		local tab = {
+			TabName = version,
+			{ type = "button", text = "uv.back", playsfx = "clickback", prompts = {"uv.prompt.return"}, func = function() UVMenu.OpenMenu(UVMenu.Main) end },
+			{ type = "label", text = FormatPatchDate(note.Date, true) },
 			{ type = "image", image = "unitvehicles/icons_settings/pnotes/" .. version .. ".png" },
-            { type = "info", text = note.Text },
-        })
-    end
+			{ type = "info", text = note.Text },
+		}
+
+		-- Add icon data if Type exists
+		if note.Type == "Minor" then
+			tab.Icon = "unitvehicles/icons/milestone_outrun_races_won.png"
+			tab.ShowIcon = true
+		elseif note.Type == "Major" then
+			tab.Icon = "unitvehicles/icons/minimap_icon_event_rival.png"
+			tab.ShowIcon = true
+		end
+
+		table.insert(tabs, tab)
+	end
 
     return tabs
 end

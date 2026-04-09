@@ -486,6 +486,193 @@ if SERVER then
 		return tobool(tr)
 	end
 
+	function ENT:GetNearbyRacers()
+		if not IsValid(self.v) then return {} end
+		
+		local pos = self.v:WorldSpaceCenter()
+		local velocity = self.v:GetVelocity()
+		local speed = velocity:Length()
+		local forward = self.v.IsSimfphyscar 
+			and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() 
+			or self.v:GetForward()
+
+		local right = forward:Cross(Vector(0,0,1))
+
+		-- Dynamic detection size
+		local forwardDist = math.Clamp(speed * 1.2, 500, 2500)
+		local sideDist = math.Clamp(self.v.width or 100, 100, 300)
+
+		local nearby = {}
+
+		for _, ent in ipairs(ents.FindInSphere(pos, forwardDist)) do
+			if ent == self.v then continue end
+			if not ent:IsVehicle() then continue end
+			if not ent.RacerVehicle and not ent.uvraceparticipant then continue end
+			
+			local otherPos = ent:WorldSpaceCenter()
+			local offset = otherPos - pos
+
+			local forwardDot = offset:GetNormalized():Dot(forward)
+			local sideDot = offset:GetNormalized():Dot(right)
+
+			table.insert(nearby, {
+				ent = ent,
+				dist = offset:Length(),
+				forwardDot = forwardDot,
+				sideDot = sideDot,
+				offset = offset
+			})
+		end
+
+		return nearby
+	end
+
+	local DEBUG_AVOIDANCE = false
+	
+	function ENT:ComputeAvoidance()
+		local nearby = self:GetNearbyRacers()
+		if not nearby or #nearby == 0 then return 0, nil end
+
+		local steerOffset = 0
+		local targetSpeed = nil
+
+		local myVel = self.v:GetVelocity()
+		local mySpeed = myVel:Length()
+
+		-- === SPEED FACTOR ===
+		local speedFactor = math.Clamp(mySpeed / 2000, 0, 1)
+
+		-- === DYNAMIC DISTANCES ===
+		local forwardDist = Lerp(speedFactor, 300, 2000)
+		local brakeDist = Lerp(speedFactor, 150, 800)
+		local sideDist = Lerp(speedFactor, 100, 300)
+
+		-- === DYNAMIC FORWARD CONE ===
+		local forwardDotThreshold = Lerp(speedFactor, 0.98, 0.85)
+
+		if DEBUG_AVOIDANCE then
+			local pos = self.v:WorldSpaceCenter()
+
+			local forward = self.v.IsSimfphyscar 
+				and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() 
+				or self.v:GetForward()
+
+			local right = forward:Cross(Vector(0,0,1))
+
+			-- Forward detection box (GREEN)
+			debugoverlay.BoxAngles(
+				pos + forward * (forwardDist * 0.5),
+				Vector(-sideDist, -sideDist, -50),
+				Vector(sideDist, sideDist, 50),
+				Angle(0, forward:Angle().y, 0),
+				0.3,
+				Color(0,255,0,20)
+			)
+
+			-- Brake zone (RED)
+			debugoverlay.BoxAngles(
+				pos + forward * (brakeDist * 0.5),
+				Vector(-sideDist * 0.5, -sideDist * 0.5, -50),
+				Vector(sideDist * 0.5, sideDist * 0.5, 50),
+				Angle(0, forward:Angle().y, 0),
+				0.3,
+				Color(255,0,0,20)
+			)
+
+			-- Side zone (BLUE)
+			debugoverlay.Box(
+				pos,
+				Vector(-sideDist, -sideDist, -50),
+				Vector(sideDist, sideDist, 50),
+				0.3,
+				Color(0,100,255,20)
+			)
+
+			-- Forward direction line (YELLOW)
+			debugoverlay.Line(
+				pos,
+				pos + forward * forwardDist,
+				0.3,
+				Color(255,255,0),
+				true
+			)
+		end
+
+		-- === START GRACE (fix gridlock) ===
+		self.StartTime = self.StartTime or CurTime()
+		local inStartPhase = (CurTime() - self.StartTime) < 2.5
+
+		for _, data in ipairs(nearby) do
+			local ent = data.ent
+			local dist = data.dist
+
+			if DEBUG_AVOIDANCE then
+				local pos = self.v:WorldSpaceCenter()
+				local otherPos = data.ent:WorldSpaceCenter()
+
+				local isAhead = data.forwardDot > forwardDotThreshold
+
+				debugoverlay.Line(
+					pos,
+					otherPos,
+					0.05,
+					isAhead and Color(0,255,0) or Color(255,0,0),
+					true
+				)
+
+				debugoverlay.Sphere(
+					otherPos,
+					10,
+					0.05,
+					isAhead and Color(0,255,0) or Color(255,0,0),
+					true
+				)
+			end
+
+			if data.forwardDot > forwardDotThreshold and dist < forwardDist then
+				local otherVel = ent:GetVelocity()
+				local otherSpeed = otherVel:Length()
+
+				-- === RELATIVE SPEED (CRITICAL FIX) ===
+				local closingSpeed = (myVel - otherVel):Length()
+
+				-- === IGNORE SAME-SPEED TRAFFIC ===
+				if closingSpeed < 150 then continue end
+
+				-- === SPEED MATCHING (SOFT) ===
+				targetSpeed = math.min(targetSpeed or math.huge, otherSpeed)
+
+				-- === SMART BRAKING ===
+				local brakeStrength = math.Clamp(closingSpeed / 1000, 0, 1)
+
+				if dist < brakeDist then
+					targetSpeed = otherSpeed * (1 - brakeStrength)
+				end
+
+				-- === OVERTAKE LOGIC ===
+				if otherSpeed < mySpeed * 0.7 and dist < forwardDist * 0.8 then
+					local overtakeDir = data.sideDot >= 0 and 1 or -1
+					steerOffset = steerOffset + overtakeDir * (1 - dist / forwardDist)
+				end
+			end
+
+			-- === SIDE AVOIDANCE ===
+			if math.abs(data.sideDot) > 0.3 and dist < sideDist then
+				local dir = data.sideDot > 0 and -1 or 1
+				local strength = 1 - (dist / sideDist)
+
+				steerOffset = steerOffset + dir * strength
+			end
+		end
+
+		-- === DISABLE AVOIDANCE DURING RACE START ===
+		if inStartPhase then
+			return 0, nil
+		end
+
+		return steerOffset, targetSpeed
+	end
+
 	function ENT:FindRace()
 		if (self.v.uvraceparticipant and UVRaceInEffect) and (UVRaceTable['Participants'] and UVRaceTable['Participants'][self.v]) then
 			if not UVRaceInProgress then self.PatrolWaypoint = nil; return end
@@ -502,18 +689,83 @@ if SERVER then
 			end
 
 			if UVRaceCatchup:GetBool() then
-				local sorted_table, string_array = UVFormLeaderboard( UVRaceTable['Participants'], self.v )
-				local first_racer = string_array[1]
-	
-				if not first_racer[2] then -- not AI's vehicle
-					local diff_mode = first_racer[3]
-					local diff = first_racer[4]
+				local sorted_table, string_array = UVFormLeaderboard(UVRaceTable['Participants'], self.v)
 
-					local comparison_value = diff_mode == 'Time' and 3 or 0
-	
-					if (diff and diff > comparison_value) then self.__catchup_active = true else self.__catchup_active = false end
+				local targetEntry = nil
+
+				for i = 1, #string_array do -- Find closest player
+					local entry = string_array[i]
+					local racerName = entry[1]
+					local isLocalPlayer = entry[2]
+
+					for veh, data in pairs(UVRaceTable['Participants']) do
+						if data.Name == racerName and not data.IsAI then -- If the target is a player, then ignore the rest
+							targetEntry = entry
+							break
+						end
+					end
+
+					if targetEntry then break end
+				end
+
+				if targetEntry then
+					local diff_mode = targetEntry[3]
+					local diff = targetEntry[4]
+
+					local comparison_value = (diff_mode == "Time") and (UVRaceCatchupGap:GetInt() or 2) or 0
+
+					if diff and diff > comparison_value then
+						self.__catchup_active = true
+					else
+						self.__catchup_active = false
+					end
+				else
+					self.__catchup_active = false
 				end
 			end
+			
+			-- Reverse catchup (slow down if too far ahead of players)
+			self.__reverse_catchup_mult = 1
+
+			if UVRaceReverseCatchup:GetBool() and not self.__catchup_active then
+				local sorted_table, string_array = UVFormLeaderboard(UVRaceTable['Participants'], self.v)
+
+				local targetEntry = nil
+
+				-- Find closest PLAYER (same logic as before)
+				for i = 1, #string_array do
+					local entry = string_array[i]
+					local racerName = entry[1]
+
+					for veh, data in pairs(UVRaceTable['Participants']) do
+						if data.Name == racerName and not data.IsAI then
+							targetEntry = entry
+							break
+						end
+					end
+
+					if targetEntry then break end
+				end
+
+				if targetEntry then
+					local diff_mode = targetEntry[3]
+					local diff = targetEntry[4]
+					
+					local diffval = (UVRaceReverseCatchupGap:GetInt() or 2)
+
+					-- Only apply for time gaps (ignore lap/finished/etc)
+					if diff_mode == "Time" and diff and diff < -diffval then
+						local gap = math.abs(diff)
+
+						local t = math.Clamp((gap - diffval) / 5, 0, 1)
+						self.__reverse_catchup_mult = Lerp(t, 0.99, 0.25)
+					end
+				end
+			end
+
+			-- print(self.v.racer,
+			-- (self.__reverse_catchup_mult and "Speed Limit Mult: " .. self.__reverse_catchup_mult or ""),
+			-- (self.__catchup_active and "Catch-up" or ""))
 
 			for _, v in ipairs(ents.FindByClass('uvrace_brush*')) do
 				if v:GetID() == current_checkp then
@@ -814,9 +1066,15 @@ if SERVER then
 
 			local speedLimit = blendedSpeedLimit ^ 2
 			
-			-- Apply increased speed limit on higher difficulties
-			-- When catching up, has x2 speed limit as absolute max. Otherwise, cap at x1.5
-			speedLimit = speedLimit * math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
+			-- Apply adjusted speed limit depending on difficulty and catchup status
+			local difficultyScale = math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
+
+			speedLimit = speedLimit * difficultyScale
+
+			-- Apply reverse catchup penalty
+			if self.__reverse_catchup_mult and self.__reverse_catchup_mult < 0.9 then
+				speedLimit = speedLimit * self.__reverse_catchup_mult
+			end
 
 			local throttle = 1
 			local cornerDist = 400
@@ -831,15 +1089,41 @@ if SERVER then
 				throttle = math.min(throttle, 0.5)
 			end
 
-			-- local avoid = self:ObstaclesNearbySide()
-			-- if avoid then
-				-- steer = steer + (avoid * 0.5)
-				-- throttle = throttle * 0.8
-			-- end
+			local avoidSteer, targetSpeed = self:ComputeAvoidance()
 
-			-- if self:ObstaclesNearby() then
-				-- throttle = 0.25
-			-- end
+			local mySpeed = self.v:GetVelocity():Length()
+
+			local MIN_SPEED = 300
+			local START_DISABLE_SPEED = 400
+			local OVERTAKE_BOOST = 1.15
+
+			local speedFactor = math.Clamp(mySpeed / 2000, 0, 1)
+			local allowAvoidance = mySpeed > START_DISABLE_SPEED
+
+			if allowAvoidance and avoidSteer ~= 0 then
+				local avoidStrength = Lerp(speedFactor, 0.6, 0.2) -- Stronger at low speed, weaker at high speed
+				steer = steer + avoidSteer * avoidStrength
+			end
+
+			if targetSpeed and allowAvoidance then
+				local desiredSpeed = math.max(targetSpeed * OVERTAKE_BOOST, MIN_SPEED)
+
+				if mySpeed > desiredSpeed then -- If we're too fast, slow down
+					throttle = math.min(throttle, 0.4)
+
+					if mySpeed > desiredSpeed * 1.25 then
+						throttle = -0.6
+					end
+				else -- If target is VERY slow, try overtaking instead of matching forever
+					if targetSpeed < MIN_SPEED * 0.75 then
+						throttle = math.max(throttle, 0.8)
+					end
+				end
+			end
+
+			if mySpeed < MIN_SPEED and throttle >= 0 then -- Minimum throttle
+				throttle = math.max(throttle, 0.6)
+			end
 
 			-- Traction control
 			if GetConVar("unitvehicle_tractioncontrol"):GetBool() and selfvelocity > 10000 and not self.stuck then
@@ -1003,9 +1287,14 @@ if SERVER then
 			local speedlimitmph = self.PatrolWaypoint["SpeedLimit"]
 			self.Speeding = speedlimitmph^2
 
-			-- Apply increased speed limit on higher difficulties
-			-- When catching up, has x2 speed limit as absolute max. Otherwise, cap at x1.5
-			self.Speeding = self.Speeding * math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
+			-- Apply adjusted speed limit depending on difficulty and catchup status
+			local difficultyScale = math.Clamp(self.DifficultyMult, 1, self.__catchup_active and 2 or 1.5)
+
+			self.Speeding = self.Speeding * difficultyScale
+
+			if self.__reverse_catchup_mult then
+				self.Speeding = self.Speeding * self.__reverse_catchup_mult
+			end
 
 			local throttleInput = nil
 			local brakeInput = nil
@@ -1022,6 +1311,42 @@ if SERVER then
 				throttle = throttle * -1
 				throttleInput = nil
 			end --Getting unstuck
+
+			local avoidSteer, targetSpeed = self:ComputeAvoidance()
+
+			local mySpeed = self.v:GetVelocity():Length()
+
+			local MIN_SPEED = 300
+			local START_DISABLE_SPEED = 400
+			local OVERTAKE_BOOST = 1.15
+
+			local speedFactor = math.Clamp(mySpeed / 2000, 0, 1)
+			local allowAvoidance = mySpeed > START_DISABLE_SPEED
+
+			if allowAvoidance and avoidSteer ~= 0 then
+				local avoidStrength = Lerp(speedFactor, 0.6, 0.2) -- Stronger at low speed, weaker at high speed
+				steer = steer + avoidSteer * avoidStrength
+			end
+
+			if targetSpeed and allowAvoidance then
+				local desiredSpeed = math.max(targetSpeed * OVERTAKE_BOOST, MIN_SPEED)
+
+				if mySpeed > desiredSpeed then -- If we're too fast, slow down
+					throttle = math.min(throttle, 0.4)
+
+					if mySpeed > desiredSpeed * 1.25 then
+						throttle = -0.6
+					end
+				else -- If target is VERY slow, try overtaking instead of matching forever
+					if targetSpeed < MIN_SPEED * 0.75 then
+						throttle = math.max(throttle, 0.8)
+					end
+				end
+			end
+
+			if mySpeed < MIN_SPEED and throttle >= 0 then -- Minimum throttle
+				throttle = math.max(throttle, 0.6)
+			end
 
 			if self:ObstaclesNearby() and not self.v.uvraceparticipant and not (self.v.UVWanted and UVTargeting) then
 				throttle = throttle * -1
