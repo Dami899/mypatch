@@ -121,6 +121,200 @@ function UVGetDriverName(vehicle)
 	return driverName
 end
 
+UVPursuitScopes = {}
+
+UV_SCOPE_DEFAULTS = {
+	InPursuit = false,
+	InCooldown = false,
+	IsEvading = false,
+	PursuitStart = 0,
+	Heat = 1,
+	UnitsChasing = 0,
+	Deploys = 0,
+	-- PursuitLength = 0,
+	Wrecks = 0,
+	Tags = 0,
+	Bounty = 0,
+	EnemyEscaped = false,
+	EnemyBusted = false,
+	EnemyEscaping = false,
+	BountyTimer = 0,
+	BountyTimerProgress = 0,
+	ComboBounty = 1,
+	CooldownTimer = 20,
+	CooldownTimerProgress = 0,
+	CooldownProgressTimeout = 0,
+	BustSpeed = 10,
+	Busting = 0,
+	BustingProgress = 0,
+	BustingLastProgress = 0,
+	BustingLastProgress2 = 0,
+	Losing = 0,
+	TimeTillNextHeatEnd = 0,
+	Hiding = false,
+}
+
+UV_SCOPE_REPLICATED_KEYS = {
+	["InPursuit"] = true,
+	["InCooldown"] = true,
+	["IsEvading"] = true,
+	["PursuitStart"] = true,
+	["Heat"] = true,
+	["UnitsChasing"] = true,
+	["Deploys"] = true,
+	-- ["PursuitLength"] = true,
+	["Wrecks"] = true,
+	["Tags"] = true,
+	["Bounty"] = true,
+	["EnemyEscaped"] = true,
+	["EnemyBusted"] = true,
+	["EnemyEscaping"] = true,
+	--["BountyTimerProgress"] = true,
+	["BountyTime"] = true,
+	["ComboBounty"] = true,
+	["CooldownTimer"] = true,
+	["CooldownTimerProgress"] = true,
+	["BustSpeed"] = true,
+	["BustingProgress"] = true,
+	["BustingLastProgress2"] = true,
+	["Losing"] = true,
+	["TimeTillNextHeatEnd"] = true,
+	["Hiding"] = true,
+}
+
+function UVScopeKey(veh)
+	if not IsValid(veh) then return nil end
+	return veh:EntIndex() .. "_" .. veh:GetCreationID()
+end
+
+function UVGetScope(veh)
+	local key = UVScopeKey(veh)
+	if not key then return nil end
+	return UVPursuitScopes[key]
+end
+
+function UVGetScopeByKey(key)
+	if not key then return nil end
+	return UVPursuitScopes[key]
+end
+
+UVGlobalPursuit = {
+	ResourcePoints = 0,
+	CommanderActive = false,
+	PursuitStart = 0,
+}
+
+function UVGetActiveScope()
+	if SERVER then return nil end
+	local veh = UVGetVehicle(LocalPlayer())
+	if not veh then return nil end
+	return UVGetScope(veh)
+end
+
+function UV_GetActiveBounty()
+	local scope = UVGetActiveScope()
+	return scope and scope.Bounty or 0
+end
+
+function UV_GetActiveHeat()
+	local scope = UVGetActiveScope()
+	return scope and scope.Heat or 1
+end
+
+function UV_GetActiveTimeTillNextHeat()
+	local scope = UVGetActiveScope()
+	if not scope or scope.TimeTillNextHeatEnd == 0 then return nil end
+	return math.max(0, scope.TimeTillNextHeatEnd - CurTime())
+end
+
+function UV_GetDominantScope()
+	local bestScope = nil
+	local bestHeat = 0
+	local bestBounty = 0
+
+	for _, scope in pairs(UVPursuitScopes) do
+		if scope.InPursuit then
+			if scope.Heat > bestHeat or (scope.Heat == bestHeat and scope.Bounty > bestBounty) then
+				bestHeat = scope.Heat
+				bestBounty = scope.Bounty
+				bestScope = scope
+			end
+		end
+	end
+
+	return bestScope
+end
+
+function UV_GetInPursuitCount()
+	local count = 0
+	 
+	for _, v in pairs( UVPursuitScopes ) do
+		if v.InPursuit then count = count + 1 end
+	end
+
+	return count
+end
+
+function UV_GetEscapingCount()
+	local count = 0
+	for _, v in pairs( UVPursuitScopes ) do
+		if v.EnemyEscaping then count = count + 1 end
+	end
+	return count
+end
+
+function UV_GetBustedCount()
+	local count = 0
+	for _, v in pairs( UVPursuitScopes ) do
+		if v.EnemyBusted then count = count + 1 end
+	end
+	return count
+end
+
+function UV_GetCopDisplayHeat()
+	local scope = UV_GetDominantScope()
+	return scope and scope.Heat or 1
+end
+
+function UV_GetCopDisplayBounty()
+	local scope = UV_GetDominantScope()
+	return scope and scope.Bounty or 0
+end
+
+function UV_GetCopEvadeProgress()
+	local inPursuitCount = 0
+	local evadingOrCooldownCount = 0
+
+	for _, scope in pairs(UVPursuitScopes) do
+		if scope.InPursuit then
+			inPursuitCount = inPursuitCount + 1
+			if scope.IsEvading or scope.InCooldown then
+				evadingOrCooldownCount = evadingOrCooldownCount + 1
+			end
+		end
+	end
+
+	if inPursuitCount == 0 then return 0 end
+	return evadingOrCooldownCount / inPursuitCount
+end
+
+function UV_GetCopAllInCooldown()
+	local inPursuitCount = 0
+	local cooldownCount = 0
+
+	for _, scope in pairs(UVPursuitScopes) do
+		if scope.InPursuit then
+			inPursuitCount = inPursuitCount + 1
+			if scope.InCooldown then
+				cooldownCount = cooldownCount + 1
+			end
+		end
+	end
+
+	if inPursuitCount == 0 then return false end
+	return cooldownCount == inPursuitCount
+end
+
 --Sound spam check--
 
 function UVDelaySound()
@@ -1102,6 +1296,9 @@ UVRBOverride = CreateConVar("unitvehicle_roadblock_override", 0, {FCVAR_ARCHIVE,
 
 if SERVER then
 
+	-- Last replicated scope fields per key; UVScopeThink diffs against this (see UVReplicate*).
+	local UV_SCOPE_LAST_REPLICATED = {}
+
 	--convars--
 	--traffic convars
 
@@ -1173,6 +1370,31 @@ if SERVER then
 		UVPlayerUnitTablePlayers = {}
 		UVJammerDeployed = nil
 		UVPreInfractionCount = 0
+
+		-- Clear all pursuit scopes
+		for key, _ in pairs(UVPursuitScopes) do
+			net.Start("UV_RemoveScope")
+			net.WriteString(key)
+			net.Broadcast()
+		end
+		UVPursuitScopes = {}
+		UV_SCOPE_LAST_REPLICATED = {}
+
+		UVGlobalPursuit = {
+			ResourcePoints = 0,
+			CommanderActive = false,
+			PursuitStart = 0,
+		}
+
+		local serializedJson = util.TableToJSON(UVGlobalPursuit)
+		local compressedJson = util.Compress(serializedJson)
+		local messageSize = #compressedJson
+		net.Start("UV_SetGlobal")
+		net.WriteBool(true)
+		net.WriteUInt(messageSize, 16)
+		net.WriteData(compressedJson, messageSize)
+		net.Broadcast()
+
 		if next(UVLoadedPursuitBreakers) ~= nil then
 			for k, v in pairs(UVLoadedPursuitBreakers) do
 				net.Start("UVTriggerPursuitBreaker")
@@ -1191,24 +1413,513 @@ if SERVER then
 		net.Broadcast()
 	end)
 
-	function UpdatePursuitTable( key, value )
-		-- done so serialization works
-		if value == nil then value = false end
+	--[[
+	
+	Scopes manipulation functions
 
-		if PursuitTable[key] ~= value then
-			PursuitTable[key] = value
+	]]--
 
-			-- We will be using WriteData as it seems more performant and optimized
+	function UVCreateScope( veh, scopeData )
+		local key = isstring(veh) and veh or UVScopeKey(veh)
+		if not key then return nil end
+		if UVPursuitScopes[key] then return UVPursuitScopes[key] end
 
-			local serializedJson = util.TableToJSON( {[key] = value} )
-			local compressedJson = util.Compress( serializedJson )
-			local messageSize = #compressedJson
+		local scope = table.Copy( scopeData or {} )
 
-			net.Start( "UVSet_PursuitTable" )
-			net.WriteUInt( messageSize, 16 )
-			net.WriteData( compressedJson, messageSize )
+		for k, v in pairs( UV_SCOPE_DEFAULTS ) do
+			if not scope[k] then scope[k] = v end
+		end
+
+		scope.EntIndex = veh:EntIndex()
+		scope.CreationID = veh:GetCreationID()
+		-- scope.EntIndex = veh:EntIndex()
+		-- scope.CreationID = veh:GetCreationID()
+		-- scope.BountyTimer = CurTime()
+		-- scope.Busting = CurTime()
+		-- scope.BustingProgress = CurTime()
+		-- scope.BustingLastProgress = CurTime()
+		-- scope.Losing = 0
+		-- scope.CooldownProgressTimeout = CurTime()
+
+		UVPursuitScopes[key] = scope
+
+		UVReplicateFullScope(key, scope)
+
+		return scope
+	end
+
+	function UVRemoveScope( veh )
+		local key = isstring( veh ) and veh or UVScopeKey( veh )
+		if not key then return end
+
+		UV_SCOPE_LAST_REPLICATED[key] = nil
+		UVPursuitScopes[key] = nil
+
+		net.Start( "UV_RemoveScope" )
+		net.WriteString( key )
+		net.Broadcast()
+	end
+
+	function UVUpdateScope( veh, deltaTable )
+		local key = isstring(veh) and veh or UVScopeKey( veh )
+		if not key or not UVPursuitScopes[key] then return end
+
+		local scope = UVPursuitScopes[key]
+		local replicateDelta = {}
+		local changed = false
+
+		for k, v in pairs( deltaTable ) do
+			if scope[k] ~= v then
+				scope[k] = v
+				changed = true
+				if UV_SCOPE_REPLICATED_KEYS[k] then replicateDelta[k] = v end
+			end
+		end
+
+		if changed and next( replicateDelta ) then UVReplicateScopeDelta( key, replicateDelta ) end
+	end
+
+	function UVReplicateFullScope( key, scope, _players )
+		local replicateData = {}
+		local last = UV_SCOPE_LAST_REPLICATED[key] or {}
+
+		for k, v in pairs( UV_SCOPE_REPLICATED_KEYS ) do
+			replicateData[k] = scope[k]
+			if not _players then
+				last[k] = replicateData[k]
+			end
+		end
+
+		replicateData.EntIndex = scope.EntIndex
+		replicateData.CreationID = scope.CreationID
+
+		UV_SCOPE_LAST_REPLICATED[key] = last
+
+		local serializedJson = util.TableToJSON(replicateData)
+		local compressedJson = util.Compress(serializedJson)
+		local messageSize = #compressedJson
+
+		net.Start("UV_SetScope")
+		net.WriteString(key)
+		net.WriteUInt(messageSize, 16)
+		net.WriteData(compressedJson, messageSize)
+		if _players then
+			net.Send(_players)
+		else
 			net.Broadcast()
 		end
+	end
+
+	function UVReplicateScopeDelta( key, deltaTable )
+		for k, v in pairs(deltaTable) do
+			if not UV_SCOPE_REPLICATED_KEYS[k] then deltaTable[k] = nil continue end
+			UV_SCOPE_LAST_REPLICATED[key][k] = v
+		end
+
+		local serializedJson = util.TableToJSON(deltaTable)
+		local compressedJson = util.Compress(serializedJson)
+		local messageSize = #compressedJson
+
+		net.Start("UV_SetScope")
+		net.WriteString(key)
+		net.WriteUInt(messageSize, 16)
+		net.WriteData(compressedJson, messageSize)
+		net.Broadcast()
+	end
+
+	-- function UVReplicateFullScopeTo(key, scope, ply)
+	-- 	local replicateData = {}
+
+	-- 	for i = 1, #UV_SCOPE_REPLICATED_KEYS do
+	-- 		local rk = UV_SCOPE_REPLICATED_KEYS[i]
+	-- 		replicateData[rk] = scope[rk]
+	-- 	end
+
+	-- 	replicateData.EntIndex = scope.EntIndex
+	-- 	replicateData.CreationID = scope.CreationID
+
+	-- 	local serializedJson = util.TableToJSON(replicateData)
+	-- 	local compressedJson = util.Compress(serializedJson)
+	-- 	local messageSize = #compressedJson
+
+	-- 	net.Start("UV_SetScope")
+	-- 	net.WriteString(key)
+	-- 	net.WriteUInt(messageSize, 16)
+	-- 	net.WriteData(compressedJson, messageSize)
+	-- 	net.Send(ply)
+	-- end
+
+	function UVUpdateGlobalPursuit(key, value)
+		if value == nil then value = false end
+		if UVGlobalPursuit[key] == value then return end
+
+		UVGlobalPursuit[key] = value
+
+		local serializedJson = util.TableToJSON({[key] = value})
+		local compressedJson = util.Compress(serializedJson)
+		local messageSize = #compressedJson
+
+		net.Start("UV_SetGlobal")
+		net.WriteBool(false)
+		net.WriteUInt(messageSize, 16)
+		net.WriteData(compressedJson, messageSize)
+		net.Broadcast()
+	end
+
+	function UVGetPursuitRecipients()
+		local recipients = {}
+
+		for _, ply in player.Iterator() do
+			local veh = UVGetVehicle( ply )
+
+			if IsValid( veh ) then
+				local scope = UVGetScope( veh )
+
+				if ( scope and scope.InPursuit ) or veh.UnitVehicle then
+					table.insert(recipients, ply)
+				end
+			end
+		end
+
+		return recipients
+	end
+
+	function UVGetVehicleOccupants(veh)
+		local occupants = {}
+		if not IsValid(veh) then return occupants end
+
+		for _, ply in player.Iterator() do
+			if UVGetVehicle(ply) == veh then
+				table.insert( occupants, ply )
+			end
+		end
+
+		return occupants
+	end
+
+	local _scopeSyncThrottle = 0
+	local _highestHeatLevel = 0
+
+	function UVScopeThink()
+		local now = CurTime()
+		-- InPursuit is set manually by unit spotting (visibility) or uv_startpursuit only
+
+		-- Per-scope tick (we sync changes based on the UV_SCOPE_LAST_REPLICATED diffs)
+		for key, scope in pairs( UVPursuitScopes ) do
+			local veh = Entity( scope.EntIndex )
+			if not IsValid( veh ) then continue end
+
+			-- Bounty accumulation
+			if not scope.InPursuit then
+				scope.BountyTimer = now
+				scope.Hiding = false
+			else
+				if not scope.EnemyEscaping then
+					scope.BountyTimerProgress = now - scope.BountyTimer
+					scope.Hiding = false
+				else
+					scope.BountyTimer = now - scope.BountyTimerProgress
+				end
+			end
+
+			local botimeout = 10
+			if not scope.EnemyEscaping and scope.BountyTimerProgress >= botimeout then
+				local bountyTime = GetConVar('unitvehicle_unit_bountytime' .. scope.Heat):GetInt()
+				scope.Bounty = scope.Bounty + bountyTime
+				scope.BountyTimer = now
+			end
+
+			-- Losing/escape progression
+			local ltimeout = (scope.CooldownTimer + 5)
+
+			if scope.InPursuit and not scope.EnemyEscaped then
+				if scope.Losing >= 5 then
+					if not scope.EnemyEscaping then
+						hook.Run('PursuitEventHook', 'onSuspectEscaping', veh)
+						scope.EnemyEscaping = true
+						scope.InCooldown = true
+						scope.IsEvading = true
+						scope.CooldownProgressTimeout = now
+					end
+
+					if scope.EnemyEscaping then
+						local cooldowntimer = GetConVar('unitvehicle_unit_cooldowntimer' .. scope.Heat):GetInt()
+						if scope.Hiding then
+							cooldowntimer = cooldowntimer / 4
+						end
+						local cooldownprogresstick = 0.01
+						local cooldownprogress = ((1 / cooldowntimer) * cooldownprogresstick)
+						if now > scope.CooldownProgressTimeout + cooldownprogresstick then
+							scope.CooldownTimerProgress = scope.CooldownTimerProgress + cooldownprogress
+							scope.CooldownProgressTimeout = now
+						end
+					end
+				else
+					if scope.EnemyEscaping and not scope.EnemyEscaped and not scope.EnemyBusted then
+						hook.Run('PursuitEventHook', 'onSuspectEscapingEnd', veh)
+						scope.EnemyEscaping = false
+						scope.InCooldown = false
+						scope.IsEvading = false
+						scope.CooldownTimerProgress = 0
+					end
+				end
+
+				-- call off pursuit for scope if escaped
+				if scope.CooldownTimerProgress >= 1 then
+					hook.Run('PursuitEventHook', 'onSuspectEscaped', veh)
+					scope.CooldownTimerProgress = 0
+					scope.InPursuit = false
+					scope.EnemyEscaped = true
+					scope.EnemyEscaping = false
+					scope.IsEvading = false
+					scope.InCooldown = false
+				end
+
+				-- Never evade option
+				if NeverEvade:GetBool() or ( ( (not UVUCommanderEvade:GetBool()) and UVOneCommanderActive ) and not scope.EnemyEscaping ) then
+					scope.Losing = 0
+				end
+			end
+
+			-- Heat level management
+			if scope.InPursuit then
+				local timedHeatEnabled = UVUTimeTillNextHeatEnabled:GetInt() == 1
+				local enemyEscaping = scope.EnemyEscaping
+				
+				if timedHeatEnabled then
+					local isTimeHeatDefined = scope.TimeTillNextHeatEnd > 0
+					local canHeatTransition = ( now >= scope.TimeTillNextHeatEnd and isTimeHeatDefined )
+
+					if not enemyEscaping and canHeatTransition then
+						local nextHeat = scope.Heat + 1
+						if nextHeat <= MaxHeatLevel:GetInt() then
+							scope.Heat = nextHeat
+							hook.Run( 'PursuitEventHook', 'onHeatLevelIncrease', veh, nextHeat )
+							TriggerHeatLevelEffects( nextHeat, veh )
+							local timeTillNextHeatConVar = GetConVar( 'unitvehicle_unit_timetillnextheat' .. nextHeat )
+							local nextInterval = timeTillNextHeatConVar and timeTillNextHeatConVar:GetInt() or 120
+							scope.TimeTillNextHeatEnd = now + nextInterval
+						else
+							scope.TimeTillNextHeatEnd = 0
+						end
+					elseif not isTimeHeatDefined and scope.Heat < MaxHeatLevel:GetInt() then
+						local timeTillNextHeatConVar = GetConVar( 'unitvehicle_unit_timetillnextheat' .. scope.Heat )
+						local interval = timeTillNextHeatConVar and timeTillNextHeatConVar:GetInt() or 120
+						scope.TimeTillNextHeatEnd = now + interval
+					end
+				else
+					local newHeatLevel = CalculateHeatLevel( scope.Bounty, scope.Heat )
+					if newHeatLevel ~= scope.Heat then
+						scope.Heat = newHeatLevel
+						hook.Run( 'PursuitEventHook', 'onHeatLevelIncrease', veh, newHeatLevel )
+						TriggerHeatLevelEffects( newHeatLevel, veh )
+					end
+				end
+			end
+			-- if scope.InPursuit and UVUTimeTillNextHeatEnabled:GetInt() == 1 and scope.TimeTillNextHeatEnd > 0 then
+			-- 	if not scope.EnemyEscaping and now >= scope.TimeTillNextHeatEnd then
+			-- 		local nextHeat = scope.Heat + 1
+			-- 		if nextHeat <= MaxHeatLevel:GetInt() then
+			-- 			scope.Heat = nextHeat
+			-- 			local timeTillNextHeatConVar = GetConVar('unitvehicle_unit_timetillnextheat' .. nextHeat)
+			-- 			local nextInterval = timeTillNextHeatConVar and timeTillNextHeatConVar:GetInt() or 120
+			-- 			scope.TimeTillNextHeatEnd = now + nextInterval
+			-- 		else
+			-- 			scope.TimeTillNextHeatEnd = 0
+			-- 		end
+			-- 	end
+			-- elseif scope.InPursuit and UVUTimeTillNextHeatEnabled:GetInt() == 1 and scope.TimeTillNextHeatEnd == 0 and scope.Heat < MaxHeatLevel:GetInt() then
+			-- 	local timeTillNextHeatConVar = GetConVar('unitvehicle_unit_timetillnextheat' .. scope.Heat)
+			-- 	local interval = timeTillNextHeatConVar and timeTillNextHeatConVar:GetInt() or 120
+			-- 	scope.TimeTillNextHeatEnd = now + interval
+			-- end
+
+			-- Pause heat timer during cooldown
+			if scope.EnemyEscaping and scope.TimeTillNextHeatEnd > 0 then
+				scope.TimeTillNextHeatEnd = scope.TimeTillNextHeatEnd + ( now - ( scope._lastThinkTime or now ) )
+			end
+			scope._lastThinkTime = now
+
+			-- Per-scope SFX transitions (only to that vehicle's occupants)
+			local occupants = UVGetVehicleOccupants( veh )
+
+			if not scope._lastInPursuitState and scope.InPursuit then
+				if #occupants > 0 then
+					local sfx = scope.Heat <= 3 and "ui/pursuit/start.wav" or "ui/pursuit/start_wanted_level_high.wav"
+					UVRelaySoundToClients( sfx, false, occupants )
+				end
+			end
+			scope._lastInPursuitState = scope.InPursuit
+
+			if not scope._lastEscapingState and scope.EnemyEscaping then
+				if #occupants > 0 then
+					UVRelaySoundToClients( "ui/pursuit/escaping.wav", false, occupants )
+				end
+			elseif scope._lastEscapingState and not scope.EnemyEscaping and not scope.EnemyEscaped and not scope.EnemyBusted then
+				if #occupants > 0 then
+					UVRelaySoundToClients( "ui/pursuit/resume.wav", false, occupants )
+				end
+			end
+			scope._lastEscapingState = scope.EnemyEscaping
+
+			if not scope._lastEscapedState and scope.EnemyEscaped then
+				if #occupants > 0 then
+					UVRelaySoundToClients( "ui/pursuit/escaped.wav", false, occupants )
+					net.Start( "UVHUDStopPursuit" )
+					net.Send( occupants )
+
+					local escapedtable = {
+						["PursuitLength"] = CurTime() - scope.PursuitStart,
+						["Deploys"] = scope.Deploys,
+						["Roadblocks"] = UVRoadblocksDodged or 0,
+						["Spikestrips"] = UVSpikestripsDodged or 0,
+						["Bounty"] = string.Comma( scope.Bounty or 0 ),
+						["Tags"] = scope.Tags or 0,
+						["Wrecks"] = scope.Wrecks or 0,
+					}
+					local infractionstable = IsValid( veh ) and veh.Infractions or {}
+					local finesdue = IsValid( veh ) and veh.FinesDue or 0
+
+					net.Start( "UVHUDEscapedDebrief" )
+					net.WriteTable( escapedtable )
+					net.WriteTable( infractionstable )
+					net.WriteInt( finesdue, 32 )
+					net.Send( occupants )
+				end
+			end
+			scope._lastEscapedState = scope.EnemyEscaped
+
+			-- compare last sync vals with current
+			local last = UV_SCOPE_LAST_REPLICATED[key] or {}
+			local delta = {}
+
+			local hasChanges = false
+
+			for k, v in pairs( UV_SCOPE_REPLICATED_KEYS ) do
+				if scope[k] ~= last[k] then
+					delta[k] = scope[k]
+					hasChanges = true
+				end
+				last[k] = scope[k]
+			end
+			if hasChanges then
+				UVReplicateScopeDelta( key, delta )
+			end
+		end
+
+		-- if now > _scopeSyncThrottle then
+		-- 	_scopeSyncThrottle = now + 0.1
+		-- end
+
+		-- backward-compat globals from scopes (until i fully migrate them to scopes across the luas xd)
+		local anyInPursuit = false
+		local anyEscaping = false
+		local anyBusted = false
+		local anyEscaped = false
+		local InPursuitCount = 0
+		local EscapingCount = 0
+		local BustedCount = 0
+		local EscapedCount = 0
+		local maxHeat = 1
+		local totalBounty = 0
+		local totalDeploys = 0
+		local totalWrecks = 0
+		local totalTags = 0
+		local totalUnitsChasing = 0
+
+		for _, scope in pairs( UVPursuitScopes ) do
+			if scope.InPursuit then
+				anyInPursuit = true
+				InPursuitCount = InPursuitCount + 1
+			end
+			if scope.EnemyEscaping then
+				anyEscaping = true
+				EscapingCount = EscapingCount + 1
+			end
+			if scope.EnemyBusted then
+				anyBusted = true
+				BustedCount = BustedCount + 1
+			end
+			if scope.EnemyEscaped then
+				anyEscaped = true
+				EscapedCount = EscapedCount + 1
+			end
+			if scope.Heat > maxHeat then maxHeat = scope.Heat end
+			totalBounty = totalBounty + scope.Bounty
+			totalDeploys = totalDeploys + scope.Deploys
+			totalWrecks = totalWrecks + scope.Wrecks
+			totalTags = totalTags + scope.Tags
+			totalUnitsChasing = totalUnitsChasing + scope.UnitsChasing
+		end
+
+		-- pursuit just ended
+		if ( not anyInPursuit ) and UVTargeting then
+			if anyBusted then
+				hook.Run( 'PursuitEventHook', 'onPursuitEnd', 'Busted' )
+			elseif anyEscaped then
+				hook.Run( 'PursuitEventHook', 'onPursuitEnd', 'Escaped' )
+			end
+		end
+
+		-- Losing states management
+		if anyInPursuit then
+			if EscapingCount == InPursuitCount and UVPursuitState ~= 'LOSING' then
+				UVPursuitState = 'LOSING'
+				if Chatter:GetBool() and not UVCalm then
+					local unitCollection = ents.FindByClass( "npc_uv*" )
+
+					if next( unitCollection ) ~= nil then
+
+						local unit = unitCollection[math.random(#unitCollection)]
+						UVChatterLosing(unit)
+
+						timer.Remove('UVChatterLosingUpdate')
+						timer.Create('UVChatterLosingUpdate', math.random(10, 20), 1, function()
+							if UVPursuitState == 'LOSING' then
+								UVChatterLosingUpdate(unit)
+							end
+						end)
+
+					end
+
+				end
+			elseif UVPursuitState == 'LOSING' and EscapingCount ~= InPursuitCount then
+				UVPursuitState = 'NONE'
+				if Chatter:GetBool() and not UVCalm then
+					local airUnits = ents.FindByClass( "uvair" )
+					local unitCollection = ents.FindByClass( "npc_uv*" )
+
+					local unit = ( next( airUnits ) ~= nil and airUnits[math.random(#airUnits)] ) or ( next( unitCollection ) ~= nil and unitCollection[math.random(#unitCollection)] )
+					if unit and not (unit.crashing or unit.disengaging) then UVChatterFoundEnemy(unit) end
+				end
+			end
+		else
+			UVPursuitState = 'NONE'
+			timer.Remove('UVChatterLosingUpdate')
+		end
+
+		UVTargeting = anyInPursuit or nil
+		UVEnemyEscaping = anyEscaping or nil
+		UVEnemyBusted = anyBusted or nil
+		UVEnemyEscaped = anyEscaped or nil
+		UVHeatLevel = maxHeat
+		-- UVBounty = totalBounty
+		-- UVDeploys = totalDeploys
+		-- UVWrecks = totalWrecks
+		-- UVTags = totalTags
+
+		if _highestHeatLevel ~= maxHeat then
+			if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVTargeting then
+				local units = ents.FindByClass("npc_uv*")
+				local random_entry = math.random(#units)
+				local unit = units[random_entry]
+				UVChatterReportHeat(unit, maxHeat)
+			end
+
+			ApplyHeatSettings( maxHeat )
+		end
+
+		_highestHeatLevel = maxHeat
 	end
 
 	UVHeliCooldown = -math.huge
@@ -1256,18 +1967,70 @@ if SERVER then
 	UVWreckedVehicles = {}
 	UVUnitVehicles = {}
 
+	hook.Add('PursuitEventHook', 'onPursuitEvent', function( type, result )
+		print(type, result)
+		if type == 'onPursuitEnd' then
+			if result == 'Busted' then
+				-- idek
+			elseif result == 'Escaped' then
+				for k, v in pairs(ents.FindByClass("npc_uv*")) do
+					v:ForgetEnemy()
+				end
+				for k, v in pairs(player.GetAll()) do
+					v:SetHealth(100)
+					v:SetMaxHealth(100)
+					if v:InVehicle() then
+						local car = v:GetVehicle()
+						if car:GetClass() == "prop_vehicle_jeep" and vcmod_main then
+							car:VC_repairFull_Admin()
+							if car:VC_hasGodMode() then
+								car:VC_setGodMode(false)
+							end
+						elseif car.IsSimfphyscar then
+							if car.simfphysoldhealth then
+								car:SetMaxHealth(car.simfphysoldhealth)
+								car:SetCurHealth(car.simfphysoldhealth)
+								car.simfphysoldhealth = nil
+							end
+							if istable(car.Wheels) then
+								for i = 1, table.Count(car.Wheels) do
+									local Wheel = car.Wheels[i]
+									if IsValid(Wheel) then
+										Wheel:SetDamaged(false)
+										Wheel.UVTireDeflatable = nil
+									end
+								end
+							end
+						end
+					end
+				end
+				for k, v in pairs(ents.FindByClass("uvair")) do
+					v.disengaging = true
+				end
+				if #ents.FindByClass("npc_uv*") > 0 then
+					local units = ents.FindByClass("npc_uv*")
+					if Chatter:GetBool() then
+						UVChatterLost(units[math.random(#units)])
+					end
+				end
+			end
+		end
+	end)
+
 	--Think
 	hook.Add("Think", "UVServerThink", function()
+		UVScopeThink()
+
 		--One Commander Active
 		if UVOneCommanderActive then
-			if not UVCommanderRespawning and (UVUOneCommander:GetInt() ~= 1 or next(UVCommanders) == nil) then
+			if not UVCommanderRespawning and ( UVUOneCommander:GetInt() ~= 1 or next(UVCommanders) == nil ) then
 				UVOneCommanderActive = nil
 				UVCommanderLastHealth = nil
 				UVCommanderLastEngineHealth = nil
-				net.Start("UVHUDStopOneCommander")
+				net.Start( "UVHUDStopOneCommander" )
 				net.Broadcast()
 			end
-			for k, v in pairs(UVCommanders) do
+			for k, v in pairs( UVCommanders ) do
 				if not IsValid(v) then
 					table.RemoveByValue(UVCommanders, v)
 				end
@@ -1281,10 +2044,8 @@ if SERVER then
 			net.Broadcast()
 		end
 
-		--Bounty
+		--Commander cleanup when not targeting
 		if not UVTargeting then
-			UVBountyTimer = CurTime()
-			UVHiding = nil
 			if UVOneCommanderDeployed then
 				if not UVOneCommanderActive then
 					UVOneCommanderDeployed = nil
@@ -1297,29 +2058,13 @@ if SERVER then
 				UVCommanderLastHealth = nil
 				UVCommanderLastEngineHealth = nil
 			end
-		else
-			if not UVEnemyEscaping then
-				UVBountyTimerProgress = CurTime() - UVBountyTimer
-				UVHiding = nil
-			else
-				UVBountyTimer = CurTime() - UVBountyTimerProgress
-			end
 		end
-
-		local botimeout = 10
-		if not UVEnemyEscaping and UVBountyTimerProgress >= botimeout then
-			UVBounty = UVBounty+UVBountyTime
-			UVBountyTimer = CurTime()
-		end
-
-		local ltimeout = (UVCooldownTimer+5)
 
 		--Wrecked vehicles
-		if next(UVWreckedVehicles) ~= nil then
-			for k, car in pairs(UVWreckedVehicles) do
-				if not IsValid(car) then
-					table.RemoveByValue(UVWreckedVehicles, car)
-				end
+		for i = 1, #UVWreckedVehicles do
+			local car = UVWreckedVehicles[i]
+			if not IsValid(car) then
+				table.remove(UVWreckedVehicles, i)
 			end
 		end
 
@@ -1438,36 +2183,6 @@ if SERVER then
 			end
 		end
 
-		--Check if busting/hiding
-		if next(UVWantedTableVehicle) ~= nil then
-			for k, v in pairs(UVWantedTableVehicle) do
-				if not v.UVBustingProgress then
-					v.UVBustingProgress = 0
-				end
-
-				if not v.UVBustingLastProgress then 
-					v.UVBustingLastProgress = CurTime()
-				end
-
-				if not v.UVBustingLastProgress2 then 
-					v.UVBustingLastProgress2 = CurTime()
-				end
-
-				UVCheckIfBeingBusted(v)
-			end
-			if UVEnemyEscaping then
-				UVHiding = UVCheckIfHiding()
-			end
-		end
-
-		if next(UVPotentialSuspects) ~= nil then
-			for k, v in pairs(UVPotentialSuspects) do
-				if UVTargeting and not table.HasValue(UVWantedTableVehicle, v) then
-					UVAddToWantedListVehicle(v)
-				end
-			end
-		end
-
 		if next(UVVehicleInitializing) ~= nil then
 			for k, car in pairs(UVVehicleInitializing) do
 				if IsValid(car) and ((isfunction(car.IsInitialized) and car:IsInitialized()) or car.IsGlideVehicle or (car.LVS and car:IsInitialized()) or car:GetClass() == "prop_vehicle_jeep") then
@@ -1544,9 +2259,8 @@ if SERVER then
 		--Player-controlled Unit Vehicles
 		if next(UVPlayerUnitTableVehicle) ~= nil then
 			for k, car in pairs(UVPlayerUnitTableVehicle) do
-
-				if not table.HasValue(UVUnitVehicles, car) and car.UnitVehicle then
-					table.insert(UVUnitVehicles, car)
+				if not UVUnitVehicles[car] and car.UnitVehicle then
+					UVUnitVehicles[car] = car
 				end
 				
 				if IsValid(car) and not car.wrecked and
@@ -1617,82 +2331,62 @@ if SERVER then
 					UVKillSwitchCheck(car)
 				end
 
-				local suspects = UVWantedTableVehicle
-				local closestsuspect = nil
-				local closestdistancetosuspect = math.huge
+				-- Now handled in logic below; no longer needed duplicated logic here...
 
-				local visualrange = UVHiding and 1000000 or 25000000
-				local visible_suspects = visible_suspects or {}
+				-- local suspects = UVWantedTableVehicle
+				-- local closestsuspect = nil
+				-- local closestdistancetosuspect = math.huge
 
-				for _, w in pairs(suspects) do
-					if IsValid(w) then
-						local enemypos = w:WorldSpaceCenter()
-						local distance = enemypos:DistToSqr(car:WorldSpaceCenter())
+				-- for _, w in pairs(suspects) do
+				-- 	if IsValid(w) then
+				-- 		local enemypos = w:WorldSpaceCenter()
+				-- 		local distance = enemypos:DistToSqr(car:WorldSpaceCenter())
+				-- 		if distance < closestdistancetosuspect then
+				-- 			closestdistancetosuspect = distance
+				-- 			closestsuspect = w
+				-- 		end
+				-- 	end
+				-- end
 
-						if distance < closestdistancetosuspect then
-							closestdistancetosuspect = distance
-							closestsuspect = w
-						end
+				-- if IsValid(closestsuspect) then
+				-- 	local is_vehicle =
+				-- 		closestsuspect.IsSimfphyscar or
+				-- 		closestsuspect.IsGlideVehicle or
+				-- 		closestsuspect.LVS or
+				-- 		closestsuspect:GetClass() == "prop_vehicle_jeep"
 
-						local last_visible = w.inunitview or false
-						local in_view = w.gpsdarttagged and next(w.gpsdarttagged) ~= nil or UVVisualOnTarget(car, w) and (car.uvplayerdistancetoenemy or math.huge) < visualrange
+				-- 	if is_vehicle then
+				-- 		if not IsValid(car.e) or car.e ~= closestsuspect then
+				-- 			car.e = closestsuspect
+				-- 			UVAddToWantedListVehicle(closestsuspect)
+				-- 		end
 
-						w.inunitview = in_view
-						if in_view then
-							if not table.HasValue(visible_suspects, w) then
-								table.insert(visible_suspects, w)
-							end
-						else
-							if table.HasValue(visible_suspects, w) then
-								table.RemoveByValue(visible_suspects, w)
-							end
-						end
+				-- 		car.uvplayerdistancetoenemy = closestdistancetosuspect
+				-- 	end
+				-- end
 
-						if last_visible ~= w.inunitview then
-							net.Start("UVUpdateSuspectVisibility")
-							net.WriteEntity(w)
-							net.WriteBool(w.inunitview)
-							net.Broadcast()
-						end
-					end
-				end
+				-- -- Tracking logic for chasing units
+				-- if IsValid(car.e) and car.uvplayerdistancetoenemy then
+				-- 	local carETargetScope = UVGetScope(car.e)
+				-- 	local chaseVisualRange = (carETargetScope and carETargetScope.Hiding) and 1000000 or 25000000
+				-- 	local in_view = UVVisualOnTarget(car, car.e) and car.uvplayerdistancetoenemy < chaseVisualRange
 
-				if IsValid(closestsuspect) then
-					local is_vehicle =
-						closestsuspect.IsSimfphyscar or
-						closestsuspect.IsGlideVehicle or
-						closestsuspect.LVS or
-						closestsuspect:GetClass() == "prop_vehicle_jeep"
-
-					if is_vehicle then
-						if not IsValid(car.e) or car.e ~= closestsuspect then
-							car.e = closestsuspect
-							UVAddToWantedListVehicle(closestsuspect)
-						end
-
-						car.uvplayerdistancetoenemy = closestdistancetosuspect
-					end
-				end
-
-				-- Tracking logic for chasing units
-				if IsValid(car.e) and car.uvplayerdistancetoenemy then
-					local in_view = UVVisualOnTarget(car, car.e) and car.uvplayerdistancetoenemy < visualrange
-
-					if in_view then
-						UVLosing = CurTime()
-						if not table.HasValue(UVUnitsChasing, car) then
-							table.insert(UVUnitsChasing, car)
-						end
-					else
-						if table.HasValue(UVUnitsChasing, car) then
-							table.RemoveByValue(UVUnitsChasing, car)
-						end
-					end
-				else
-					if table.HasValue(UVUnitsChasing, car) then
-						table.RemoveByValue(UVUnitsChasing, car)
-					end
-				end
+				-- 	if in_view then
+				-- 		local carEScope = UVGetScope(car.e)
+				-- 		if carEScope then carEScope.Losing = CurTime() end
+				-- 		if not table.HasValue(UVUnitsChasing, car) then
+				-- 			table.insert(UVUnitsChasing, car)
+				-- 		end
+				-- 	else
+				-- 		if table.HasValue(UVUnitsChasing, car) then
+				-- 			table.RemoveByValue(UVUnitsChasing, car)
+				-- 		end
+				-- 	end
+				-- else
+				-- 	if table.HasValue(UVUnitsChasing, car) then
+				-- 		table.RemoveByValue(UVUnitsChasing, car)
+				-- 	end
+				-- end
 			end
 		end
 
@@ -1701,49 +2395,75 @@ if SERVER then
 		if next(ents.FindByClass("npc_uv*")) ~= nil then
 			for k, unit in pairs(ents.FindByClass("npc_uv*")) do
 				if not unit.v then return end
-				if not table.HasValue(UVUnitVehicles, unit.v) then
-					table.insert(UVUnitVehicles, unit.v)
+				if not UVUnitVehicles[unit.v] then
+					UVUnitVehicles[unit.v] = unit.v
 				end
 			end
 		end
 
 		local visible_suspects = {}
 
+		-- so essentially i moved all unit detection/pursuit start logic to here and removed it wherever else it was
+		-- this way we save up on a lot of performance by not having duplicate logic elsewhere
 		if next(UVUnitVehicles) ~= nil or (UVTargeting and not UVEnemyEscaping) then
-			local newUnits = {}
-			for k, unit in pairs(UVUnitVehicles) do
-				if IsValid(unit) and unit.UnitVehicle then
-					table.insert(newUnits, unit)
+			--local newUnits = {}
+			for unit, _ in pairs(UVUnitVehicles) do
+				if not IsValid(unit) or not unit.UnitVehicle or unit.wrecked then
+					UVUnitVehicles[unit] = nil
 				end
 			end
-			UVUnitVehicles = newUnits
+			--UVUnitVehicles = newUnits
 			
 			if next(UVWantedTableVehicle) ~= nil then
 				for _, v in pairs(UVWantedTableVehicle) do
 					local last_visible_value = v.inunitview
 
-					local visualrange = 25000000
-					if UVHiding then
-						visualrange = 1000000
+					local vScope = UVGetScope(v)
+					local visualrange = (vScope and vScope.Hiding) and 1000000 or 25000000
+					if vScope then
+						vScope.UnitsChasing = 0
 					end
-
-					local check = false
+					
+					v.closestunit = nil
+					v.closestdistancetounit = nil
+					--local check = false
 
 					for _, j in pairs(ents.FindByClass("uvair")) do
 						if (not (j.Downed and j.disengaging and j.crashing)) and j:GetTarget() == v then
 							v.inunitview = true
-							check = true
-							table.insert(visible_suspects, v)
+							--check = true
+							visible_suspects[v] = true
+							
+							local closestunit = v.closestunit
+							local closestdistancetounit = v.closestdistancetounit
+
+							if UVUHelicopterBusting:GetBool() and ( not closestunit or j:GetPos():DistToSqr(v:GetPos()) < closestdistancetounit ) then
+								v.closestunit = j
+								v.closestdistancetounit = j:GetPos():DistToSqr(v:GetPos())
+							end
 						end
 					end
 
-					if not check then
-						for _, unit in pairs(UVUnitVehicles) do
-							if UVVisualOnTarget(unit, v) then
+					if not check and (not _LAST_VISIBLE_UPDATE or _LAST_VISIBLE_UPDATE < CurTime() - 0.5) then
+						for unit, _ in pairs(UVUnitVehicles) do
+							local withinRange = unit:GetPos():DistToSqr(v:GetPos()) < visualrange
+							if withinRange and UVVisualOnTarget(unit, v) then
+								vScope.UnitsChasing = vScope.UnitsChasing + 1
 								v.inunitview = true
-								table.insert(visible_suspects, v)
+								visible_suspects[v] = true
+								
+								local closestunit = v.closestunit
+								local closestdistancetounit = v.closestdistancetounit
+
+								if not closestunit or unit:GetPos():DistToSqr(v:GetPos()) < closestdistancetounit then
+									v.closestunit = unit
+									v.closestdistancetounit = unit:GetPos():DistToSqr(v:GetPos())
+									if unit.UnitVehicle and unit.UnitVehicle:IsPlayer() then
+										unit.e = v
+									end
+								end
 							else
-								if not table.HasValue(visible_suspects, v) then
+								if not visible_suspects[v] then
 									v.inunitview = false 
 								end
 							end
@@ -1765,8 +2485,67 @@ if SERVER then
 						net.WriteBool(v.inunitview)
 						net.Broadcast()
 					end
+
+					if v.inunitview then
+						if vScope and vScope.InPursuit then
+							vScope.Losing = 0
+						end
+					else
+						if vScope and vScope.InPursuit then
+							vScope.Losing = math.Clamp( vScope.Losing + FrameTime(), 0, 5 )
+						end
+					end
+
+					if v.inunitview and vScope and not vScope.InPursuit then
+						if v.closestunit and v.closestunit.UnitVehicle:IsNPC() then
+							UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
+						end
+						hook.Run('PursuitEventHook', 'onSuspectSpotted', v)
+						vScope.InPursuit = true
+						vScope.EnemyEscaped = false
+						vScope.EnemyEscaping = false
+						vScope.InCooldown = false
+						vScope.Deploys = 0
+						vScope.Wrecks = 0
+						vScope.Tags = 0
+						vScope.Losing = 0
+						if vScope.PursuitStart == 0 then
+							vScope.PursuitStart = now
+						end
+					end
 				end
 			end
+		end
+
+		--Check if busting/hiding
+		if next(UVWantedTableVehicle) ~= nil then
+			for k, v in pairs(UVWantedTableVehicle) do
+				if not v.UVBustingProgress then
+					v.UVBustingProgress = 0
+				end
+
+				if not v.UVBustingLastProgress then 
+					v.UVBustingLastProgress = CurTime()
+				end
+
+				if not v.UVBustingLastProgress2 then 
+					v.UVBustingLastProgress2 = CurTime()
+				end
+
+				UVCheckIfBeingBusted(v)
+			end
+			-- Per-scope hiding computation
+			local anyHiding = false
+			for _key, _scope in pairs(UVPursuitScopes) do
+				local _veh = Entity(_scope.EntIndex)
+				if IsValid(_veh) and _scope.EnemyEscaping then
+					_scope.Hiding = UVCheckIfHiding(_veh)
+				else
+					_scope.Hiding = false
+				end
+				if _scope.Hiding then anyHiding = true end
+			end
+			UVHiding = anyHiding
 		end
 
 		--Idle chatter
@@ -1792,157 +2571,87 @@ if SERVER then
 			end
 		end
 
-		-- if UVTargeting then
-		-- 	if not UVTimer then
-		-- 		UVTimer = CurTime()
+		-- Escape/cooldown progression is handled per-scope in UVScopeThink.
+		-- This section only fires side effects (chatter, sounds) on global state transitions.
+		-- TODO: Rewrite a bit
+
+		-- -- Global escape transition chatter (SFX is now per-scope in UVScopeThink)
+		-- if not _uvLastEscapingState and UVEnemyEscaping then
+		-- 	if Chatter:GetBool() and not UVCalm and not UVEnemyBusted then
+		-- 		if next(ents.FindByClass("npc_uv*")) ~= nil then
+		-- 			local units = ents.FindByClass("npc_uv*")
+		-- 			local unit = units[math.random(#units)]
+		-- 			UVChatterLosing(unit)
+		-- 			timer.Simple(math.random(10, 20), function()
+		-- 				if UVEnemyEscaping then
+		-- 					UVChatterLosingUpdate(unit)
+		-- 				end
+		-- 			end)
+		-- 		end
+		-- 	end
+		-- elseif _uvLastEscapingState and not UVEnemyEscaping and not UVEnemyEscaped and not UVEnemyBusted then
+		-- 	if Chatter:GetBool() and not UVCalm and not UVEnemyBusted then
+		-- 		local airUnits = ents.FindByClass("uvair")
+		-- 		if next(airUnits) ~= nil then
+		-- 			local unit = airUnits[math.random(#airUnits)]
+		-- 			if not (unit.crashing or unit.disengaging) then
+		-- 				UVChatterFoundEnemy(unit)
+		-- 			elseif next(ents.FindByClass("npc_uv*")) ~= nil then
+		-- 				local units = ents.FindByClass("npc_uv*")
+		-- 				UVChatterFoundEnemy(units[math.random(#units)])
+		-- 			end
+		-- 		elseif next(ents.FindByClass("npc_uv*")) ~= nil then
+		-- 			local units = ents.FindByClass("npc_uv*")
+		-- 			UVChatterFoundEnemy(units[math.random(#units)])
+		-- 		end
 		-- 	end
 		-- end
+		-- _uvLastEscapingState = UVEnemyEscaping
 
-		--Losing		
-		local ltimeout = (UVCooldownTimer+5)
-
-		if UVHUDPursuit then
-			net.Start("UVHUDEvading")
-			net.WriteString(math.Clamp((CurTime() - UVLosing) / 5, 0, 1))
-			net.Broadcast()
-		end
-
-		if not UVEnemyEscaped and UVTargeting and UVLosing ~= CurTime() and (UVLosing - CurTime() + ltimeout) < (ltimeout - 5) and #UVWantedTableVehicle > 0 then
-			if not UVEnemyEscaping then
-				UVEnemyEscaping = true
-				UVCooldownProgressTimeout = CurTime()
-
-				for _, v in pairs(UVWantedTableVehicle) do
-					UVAddInfraction(v, 'resist', true)
-				end
-
-				if timer.Exists("UVTimeTillNextHeat") then
-					timer.Pause("UVTimeTillNextHeat")
-				end
-
-				if Chatter:GetBool() and not UVCalm and not UVEnemyBusted then
-					if next(ents.FindByClass("npc_uv*")) ~= nil then
-						local units = ents.FindByClass("npc_uv*")
-						local random_entry = math.random(#units)	
-						local unit = units[random_entry]
-						UVChatterLosing(unit)
-						timer.Simple(math.random(10,20), function()
-							if UVEnemyEscaping then
-								UVChatterLosingUpdate(unit) 
-							end
-						end)
-					end
-				end
-				--Entity(1):EmitSound("ui/pursuit/escaping.wav", 0, 100, 0.5)
-				UVRelaySoundToClients("ui/pursuit/escaping.wav", false)
-			end
-			if UVEnemyEscaping then
-				local cooldowntimer = UVCooldownTimer
-				if UVHiding then
-					cooldowntimer = cooldowntimer/4
-				end
-				local cooldownprogresstick = 0.01
-				local cooldownprogress = ((1/cooldowntimer)*cooldownprogresstick)
-				if CurTime() > UVCooldownProgressTimeout + cooldownprogresstick then
-					UVCooldownTimerProgress = UVCooldownTimerProgress+cooldownprogress
-					UVCooldownProgressTimeout = CurTime()
-				end 
-			end
-		else
-			if UVEnemyEscaping and not UVEnemyEscaped and not UVEnemyBusted then
-				UVEnemyEscaping = nil
-				UVCooldownTimerProgress = 0
-				if timer.Exists("UVTimeTillNextHeat") then
-					timer.UnPause("UVTimeTillNextHeat")
-				end
-				if UVTargeting then 
-					--Entity(1):EmitSound("ui/pursuit/resume.wav", 0, 100, 0.5)
-					UVRelaySoundToClients("ui/pursuit/resume.wav", false)
-				end
-				local function ChatterChopperUnavailable()
-					if next(ents.FindByClass("npc_uv*")) ~= nil then
-						local units = ents.FindByClass("npc_uv*")
-						local random_entry = math.random(#units)	
-						local unit = units[random_entry]
-						UVChatterFoundEnemy(unit)
-					end
-				end
-				if Chatter:GetBool() and not UVCalm and not UVEnemyBusted then
-					local airUnits = ents.FindByClass("uvair")
-					if next(airUnits) ~= nil then
-						local random_entry = math.random(#airUnits)	
-						local unit = airUnits[random_entry]
-						if not (unit.crashing or unit.disengaging) then
-							UVChatterFoundEnemy(unit)
-						else
-							ChatterChopperUnavailable()
-						end
-					else
-						ChatterChopperUnavailable()
-					end
-				end
-			end
-		end
-
-		--Call off the pursuit.
-		if UVTargeting and not UVEnemyEscaped and UVCooldownTimer then
-			if UVCooldownTimerProgress >= 1 then
-				UVCooldownTimerProgress = 0
-				UVTargeting = nil
-				UVEnemyEscaped = true
-				timer.Simple(10, function() if UVEnemyEscaped then UVEnemyEscaped = nil end end)
-				for k, v in pairs(ents.FindByClass("npc_uv*")) do
-					v:ForgetEnemy()
-				end
-				for k, v in pairs(player.GetAll()) do
-					v:SetHealth(100)
-					v:SetMaxHealth(100)
-					if v:InVehicle() then
-						local car = v:GetVehicle()
-						if car:GetClass() == "prop_vehicle_jeep" and vcmod_main then
-							car:VC_repairFull_Admin()
-							if car:VC_hasGodMode() then
-								car:VC_setGodMode(false)
-							end
-						elseif car.IsSimfphyscar then
-							if car.simfphysoldhealth then
-								car:SetMaxHealth(car.simfphysoldhealth)
-								car:SetCurHealth(car.simfphysoldhealth)
-								car.simfphysoldhealth = nil
-							end
-							if istable(car.Wheels) then
-								for i = 1, table.Count( car.Wheels ) do
-									local Wheel = car.Wheels[ i ]
-									if IsValid(Wheel) then
-										Wheel:SetDamaged( false )
-										Wheel.UVTireDeflatable = nil
-									end
-								end
-							end
-						end
-					end
-				end
-				for k, v in pairs(ents.FindByClass("uvair")) do
-					v.disengaging = true 
-				end
-				if #ents.FindByClass("npc_uv*") > 0 then
-					local units = ents.FindByClass("npc_uv*")
-					local random_entry = math.random(#units)	
-					local unit = units[random_entry]
-					if Chatter:GetBool() then
-						UVChatterLost(unit) 
-					end
-				end
-				--Entity(1):EmitSound("ui/pursuit/escaped.wav")
-				UVRelaySoundToClients("ui/pursuit/escaped.wav", false)
-			end
-
-		end
-
-		--Never evade option
-		if (NeverEvade:GetBool() and UVTargeting) or (((not UVUCommanderEvade:GetBool()) and UVOneCommanderActive) and not UVEnemyEscaping) then
-			UVLosing = CurTime()
-		end
+		-- -- shit that fires on all escape
+		-- if not _uvLastEscapedState and UVEnemyEscaped and not UVTargeting then
+		-- 	for k, v in pairs(ents.FindByClass("npc_uv*")) do
+		-- 		v:ForgetEnemy()
+		-- 	end
+		-- 	for k, v in pairs(player.GetAll()) do
+		-- 		v:SetHealth(100)
+		-- 		v:SetMaxHealth(100)
+		-- 		if v:InVehicle() then
+		-- 			local car = v:GetVehicle()
+		-- 			if car:GetClass() == "prop_vehicle_jeep" and vcmod_main then
+		-- 				car:VC_repairFull_Admin()
+		-- 				if car:VC_hasGodMode() then
+		-- 					car:VC_setGodMode(false)
+		-- 				end
+		-- 			elseif car.IsSimfphyscar then
+		-- 				if car.simfphysoldhealth then
+		-- 					car:SetMaxHealth(car.simfphysoldhealth)
+		-- 					car:SetCurHealth(car.simfphysoldhealth)
+		-- 					car.simfphysoldhealth = nil
+		-- 				end
+		-- 				if istable(car.Wheels) then
+		-- 					for i = 1, table.Count(car.Wheels) do
+		-- 						local Wheel = car.Wheels[i]
+		-- 						if IsValid(Wheel) then
+		-- 							Wheel:SetDamaged(false)
+		-- 							Wheel.UVTireDeflatable = nil
+		-- 						end
+		-- 					end
+		-- 				end
+		-- 			end
+		-- 		end
+		-- 	end
+		-- 	for k, v in pairs(ents.FindByClass("uvair")) do
+		-- 		v.disengaging = true
+		-- 	end
+		-- 	if #ents.FindByClass("npc_uv*") > 0 then
+		-- 		local units = ents.FindByClass("npc_uv*")
+		-- 		if Chatter:GetBool() then
+		-- 			UVChatterLost(units[math.random(#units)])
+		-- 		end
+		-- 	end
+		-- end
+		-- _uvLastEscapedState = UVEnemyEscaped and not UVTargeting
 
 		if CurTime() > (uv_next_racer_name_check or 0) then 
 			uv_next_racer_name_check = CurTime() + 5
@@ -1957,14 +2666,7 @@ if SERVER then
 			end
 		end
 
-		UpdatePursuitTable( 'InPursuit', UVTargeting )
-		UpdatePursuitTable( 'Heat', UVHeatLevel )
-		UpdatePursuitTable( 'UnitsChasing', #UVUnitsChasing )
-		UpdatePursuitTable( 'ResourcePoints', UVResourcePoints )
-		UpdatePursuitTable( 'Deploys', UVDeploys )
-		UpdatePursuitTable( 'Wrecks', UVWrecks )
-		UpdatePursuitTable( 'Tags', UVTags )
-		UpdatePursuitTable( 'Bounty', UVBounty )
+		UVUpdateGlobalPursuit('ResourcePoints', UVResourcePoints)
 
 		--SPOTTED CAMERA
 		local FREEZE_DURATION = 2.7
@@ -2001,25 +2703,7 @@ if SERVER then
 		if UVTargeting then
 
 			if not UVHUDPursuit then
-				UVLosing = CurTime()
 				UVRestoreResourcePoints()
-				for _, ent in ents.Iterator() do
-					if UVPassConVarFilter(ent) then
-						UVAddToWantedListVehicle(ent)
-					end
-				end
-				if timer.Exists("UVTimeTillNextHeat") then
-					timer.UnPause("UVTimeTillNextHeat")
-				end
-
-				local function StartPursuitSound()
-					if UVHeatLevel <= 3 then
-						UVRelaySoundToClients("ui/pursuit/start.wav", false)
-					else
-						UVRelaySoundToClients("ui/pursuit/start_wanted_level_high.wav", false)
-					end
-				end
-
 				if game.SinglePlayer() and SpottedFreezeCam:GetBool() then --SPOTTED CAMERA
 					local ply = Entity(1)
 
@@ -2067,11 +2751,7 @@ if SERVER then
 
 
 						UVRelaySoundToClients("ui/pursuit/spottedfreezecam.wav", false)
-					else
-						StartPursuitSound()
 					end
-				else
-					StartPursuitSound()
 				end
 
 				if next(UVPlayerUnitTableVehicle) ~= nil then
@@ -2083,96 +2763,43 @@ if SERVER then
 			end
 
 			if not UVHUDPursuit then
-				UpdatePursuitTable( 'PursuitStart', CurTime() )
+				UVUpdateGlobalPursuit('PursuitStart', CurTime())
 				UVHUDScreenFlashStartTime = CurTime()
 			end
 
 			UVHUDPursuit = true
 
-			if timer.Exists("UVTimeTillNextHeat") then
-				if not _last_timed_heat_update then _last_timed_heat_update = 0 end				
-				if timer.TimeLeft("UVTimeTillNextHeat") >= 0 and CurTime() - _last_timed_heat_update > 1 then
-					net.Start( "UVHUDTimeTillNextHeat" )
-					net.WriteFloat( timer.TimeLeft("UVTimeTillNextHeat") )
-					net.Broadcast()
-				end
-			elseif UVUTimeTillNextHeatEnabled:GetInt() == 1 then
-				local TimeTillNextHeat = 120
-
-				local timeTillNextHeatConVar = GetConVar( 'unitvehicle_unit_timetillnextheat' .. UVHeatLevel )
-
-				if timeTillNextHeatConVar then
-					TimeTillNextHeat = timeTillNextHeatConVar and timeTillNextHeatConVar:GetInt() or 0
-
-					timer.Create( "UVTimeTillNextHeat", TimeTillNextHeat, 0, function()
-						if UVUTimeTillNextHeatEnabled:GetInt() ~= 1 then
-							timer.Remove( "UVTimeTillNextHeat" )
-							return
-						end
-
-						local nextHeat = UVHeatLevel + 1
-						local timeTillNextHeatNew = GetConVar( 'unitvehicle_unit_timetillnextheat' .. nextHeat ) or TimeTillNextHeat
-
-						if nextHeat <= MaxHeatLevel:GetInt() then
-							UVHeatLevel = nextHeat
-
-							timer.Adjust("UVTimeTillNextHeat", (isnumber(timeTillNextHeatNew) and timeTillNextHeatNew or timeTillNextHeatNew:GetInt()), 0)
-
-							UVUpdateHeatLevel(nextHeat)
-							TriggerHeatLevelEffects(nextHeat)
-						end
-					end )
-				end
-			end
-
-		else	
+		else
 			if UVHUDPursuit then
 				UVHUDPursuit = nil
-				net.Start( "UVHUDStopPursuit" )
-				net.Broadcast()
 				UVHUDBusting = nil
 				net.Start( "UVHUDStopBusting" )
 				net.Broadcast()
-				if timer.Exists("UVTimeTillNextHeat") then
-					timer.Pause("UVTimeTillNextHeat")
-				end
 
 				if uvhudtimestopped then return end
 				uvhudtimestopped = true
-				
-				if not UVEnemyEscaped then --busted
-					local bustedtable = {}
-					bustedtable["Deploys"] = UVDeploys
-					bustedtable["Roadblocks"] = UVRoadblocksDodged
-					bustedtable["Spikestrips"] = UVSpikestripsDodged
+
+				local debrieftable = {
+					["Deploys"] = UVDeploys,
+					["Bounty"] = UVBounty or 0,
+					["Tags"] = UVTags or 0,
+					["Wrecks"] = UVWrecks or 0,
+					["Roadblocks"] = UVRoadblocksDodged or 0,
+					["Spikestrips"] = UVSpikestripsDodged or 0,
+					["PursuitLength"] = CurTime() - UVGlobalPursuit.PursuitStart,
+				}
+
+				if not UVEnemyEscaped then
 					net.Start( "UVHUDCopModeBustedDebrief" )
-					net.WriteTable(bustedtable)
+					net.WriteTable(debrieftable)
 					net.Send(UVPlayerUnitTablePlayers)
-				else --escaped
-					local escapedtable = {}
-					escapedtable["Deploys"] = UVDeploys
-					escapedtable["Roadblocks"] = UVRoadblocksDodged
-					escapedtable["Spikestrips"] = UVSpikestripsDodged
-
-					for _, v in pairs(UVWantedTableDriver) do
-						local vehicle = UVGetVehicle(v)
-
-						if IsValid(vehicle) then
-							local infractionstable = vehicle and vehicle.Infractions or {}
-							local finesdue = vehicle.FinesDue or 0
-
-							net.Start( "UVHUDEscapedDebrief" )
-							net.WriteTable(escapedtable)
-							net.WriteTable(infractionstable)
-							net.WriteInt(finesdue, 32)
-							net.Send(v)
-						end
-					end
-
+				else
 					net.Start( "UVHUDCopModeEscapedDebrief" )
-					net.WriteTable(escapedtable)
+					net.WriteTable(debrieftable)
 					net.Send(UVPlayerUnitTablePlayers)
 				end
+
+				UVUpdateGlobalPursuit('PursuitStart', 0)
 
 				timer.Simple(1, function()
 					uvhudtimestopped = nil
@@ -2189,30 +2816,7 @@ if SERVER then
 			net.Broadcast()
 		end
 
-		if not UVEnemyEscaped and UVTargeting and UVEnemyEscaping and not UVEnemyBusted then
-			UVHUDCooldown = true
-			net.Start( "UVHUDCooldown" )
-			net.WriteString(UVCooldownTimerProgress)
-			net.Broadcast()
-		elseif UVHUDCooldown then
-			UVHUDCooldown = nil
-			net.Start( "UVHUDStopCooldown" )
-			net.Broadcast()
-		end
-
-		if UVHiding and UVEnemyEscaping then
-			if UVHiding and not UVHUDHiding then
-				UVHUDHiding = true
-			end
-			net.Start( "UVHUDHiding" )
-			net.Broadcast()
-		else
-			if UVHUDHiding then
-				UVHUDHiding = nil
-				net.Start( "UVHUDStopHiding" )
-				net.Broadcast()
-			end
-		end
+		-- Cooldown and hiding are now derived from active scope on client
         if UVTargeting then
             if not UVEnemyBusted and next(UVWantedTableVehicle) == nil then
                 UVTargeting = nil
@@ -2429,7 +3033,30 @@ if SERVER then
 		net.WriteTable(PursuitTable)
 		net.Send(ply)
 
-		for _, v in pairs( UVUnitVehicles ) do
+		-- Send all pursuit scopes to connecting player
+		if next(UVPursuitScopes) then
+			local allScopeData = {}
+			local i = 0
+			for key, scope in pairs(UVPursuitScopes) do
+				i = i + 1
+				timer.Simple(i * 0.01, function()
+					UVReplicateFullScope(key, scope, ply)
+				end)
+			end
+		end
+
+		-- Send global pursuit state
+		local serializedJson = util.TableToJSON(UVGlobalPursuit)
+		local compressedJson = util.Compress(serializedJson)
+		local messageSize = #compressedJson
+
+		net.Start("UV_SetGlobal")
+		net.WriteBool(true)
+		net.WriteUInt(messageSize, 16)
+		net.WriteData(compressedJson, messageSize)
+		net.Send(ply)
+
+		for v, _ in pairs( UVUnitVehicles ) do
 			net.Start( "UVHUDAddUV" )
 			net.WriteInt( v:EntIndex(), 32 )
 			net.WriteInt( v:GetCreationID(), 32 )
@@ -2918,7 +3545,7 @@ else -- CLIENT Settings | HUD/Options
 		file.CreateDir( 'unitvehicles/preset_import/uvunitmanager' )
 	end
 
-	timer.Simple(3, function()
+	timer.Simple(0, function()
 		local importFiles, _ = file.Find( 'data/unitvehicles/preset_import/uvunitmanager/*', 'GAME' )
 		
 		for _, impFile in pairs( importFiles ) do
@@ -3181,24 +3808,102 @@ else -- CLIENT Settings | HUD/Options
 		end
 	end)
 
-	net.Receive('UVGet_PursuitTable', function()
-		PursuitTable = net.ReadTable()
+	-- net.Receive('UVGet_PursuitTable', function()
+	-- 	PursuitTable = net.ReadTable()
+	-- end)
+
+	-- net.Receive('UVSet_PursuitTable', function()
+	-- 	local messageSize = net.ReadUInt( 16 )
+	-- 	local recvData = net.ReadData( messageSize )
+
+	-- 	local decompData = util.Decompress( recvData )
+	-- 	local dataTable = util.JSONToTable( decompData )
+
+	-- 	for key, value in pairs( dataTable ) do
+	-- 		-- Found inside uvhud
+	-- 		if UV_UI_Events[key] then 
+	-- 			hook.Run( 'UIEventHook', 'pursuit', UV_UI_Events[key], value, PursuitTable[key] )
+	-- 		end
+
+	-- 		PursuitTable[key] = value
+	-- 	end
+	-- end)
+
+	-- ========================
+	-- Scope Net Receivers (client)
+	-- ========================
+
+	net.Receive('UV_SetScope', function()
+		local key = net.ReadString()
+		local messageSize = net.ReadUInt(16)
+		local recvData = net.ReadData(messageSize)
+
+		local decompData = util.Decompress(recvData)
+		local dataTable = util.JSONToTable(decompData)
+
+		if not UVPursuitScopes[key] then
+			UVPursuitScopes[key] = table.Copy(UV_SCOPE_DEFAULTS)
+		end
+
+		local scope = UVPursuitScopes[key]
+		for k, v in pairs(dataTable) do
+			print(k, v)
+			local oldVal = scope[k]
+			scope[k] = v
+
+			if UV_UI_Events and UV_UI_Events[k] then
+				local activeScope = UVGetActiveScope()
+				if activeScope == scope then
+					hook.Run('UIEventHook', 'pursuit', UV_UI_Events[k], v, oldVal)
+				end
+			end
+		end
 	end)
 
-	net.Receive('UVSet_PursuitTable', function()
-		local messageSize = net.ReadUInt( 16 )
-		local recvData = net.ReadData( messageSize )
+	net.Receive('UV_RemoveScope', function()
+		local key = net.ReadString()
+		UVPursuitScopes[key] = nil
+	end)
 
-		local decompData = util.Decompress( recvData )
-		local dataTable = util.JSONToTable( decompData )
+	net.Receive('UV_GetAllScopes', function()
+		local messageSize = net.ReadUInt(16)
+		local recvData = net.ReadData(messageSize)
 
-		for key, value in pairs( dataTable ) do
-			-- Found inside uvhud
-			if UV_UI_Events[key] then 
-				hook.Run( 'UIEventHook', 'pursuit', UV_UI_Events[key], value, PursuitTable[key] )
+		local decompData = util.Decompress(recvData)
+		local allScopes = util.JSONToTable(decompData)
+
+		if allScopes then
+			for key, scopeData in pairs(allScopes) do
+				if not UVPursuitScopes[key] then
+					UVPursuitScopes[key] = table.Copy(UV_SCOPE_DEFAULTS)
+				end
+				for k, v in pairs(scopeData) do
+					UVPursuitScopes[key][k] = v
+				end
+			end
+		end
+	end)
+
+	net.Receive('UV_SetGlobal', function()
+		local fullReplace = net.ReadBool()
+		local messageSize = net.ReadUInt(16)
+		local recvData = net.ReadData(messageSize)
+
+		local decompData = util.Decompress(recvData)
+		local dataTable = util.JSONToTable(decompData)
+
+		if dataTable then
+			if dataTable.ResourcePoints and dataTable.ResourcePoints ~= (UVGlobalPursuit.ResourcePoints or 0) then
+				hook.Run('UIEventHook', 'pursuit', 'onResourceChange', dataTable.ResourcePoints, UVGlobalPursuit.ResourcePoints or 0)
 			end
 
-			PursuitTable[key] = value
+			if fullReplace then
+				UVGlobalPursuit = dataTable
+			else
+				for k, v in pairs(dataTable) do
+					UVGlobalPursuit[k] = v
+				end
+			end
 		end
 	end)
 
@@ -3276,38 +3981,6 @@ else -- CLIENT Settings | HUD/Options
 		net.SendToServer()
 	end)
 
-	net.Receive("UVHUDPursuit", function()
-
-		UVBountyString = net.ReadString()
-		UVBountyNo = tonumber(UVBountyString)
-		UVBounty = string.Comma(UVBountyString)
-
-		UVHUDDisplayPursuit = true
-
-	end)
-
-	net.Receive("UVHUDHeatLevel", function()
-
-		local HeatLevel = tonumber(net.ReadString())
-		hook.Run( 'UIEventHook', 'pursuit', 'onHeatLevelUpdate', HeatLevel, UVHeatLevel )
-
-		UVHeatLevel = HeatLevel
-
-	end)
-
-	net.Receive("UVHUDResourcePoints", function()
-
-		local ResourcePoints = net.ReadString()
-		local rp_num = tonumber(ResourcePoints)
-
-		if rp_num ~= UVResourcePoints then
-			hook.Run( 'UIEventHook', 'pursuit', 'onResourceChange', rp_num, UVResourcePoints )
-		end
-
-		UVResourcePoints = tonumber(ResourcePoints)
-
-	end)
-
 	net.Receive("UVHUDBackupTimer", function()
 
 		UVBackupProgress = net.ReadString()
@@ -3335,42 +4008,6 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive( "UVFineArrest", function()
 		hook.Run( 'UIEventHook', 'pursuit', 'onFineArrest' )
-	end)
-
-	net.Receive("UVHUDDeploys", function()
-
-		local deploys = net.ReadString()
-
-		if deploys ~= UVDeploys then
-			hook.Run( 'UIEventHook', 'pursuit', 'onUnitDeploy', deploys, UVDeploys )
-		end
-
-		UVDeploys = deploys
-
-	end)
-
-	net.Receive("UVHUDWrecks", function()
-
-		local wrecks = net.ReadString()
-
-		if wrecks ~= UVWrecks then
-			hook.Run( 'UIEventHook', 'pursuit', 'onUnitWreck', wrecks, UVWrecks )
-		end
-
-		UVWrecks = wrecks
-
-	end)
-
-	net.Receive("UVHUDTags", function()
-
-		local tags = net.ReadString()
-
-		if tags ~= UVTags then
-			hook.Run( 'UIEventHook', 'pursuit', 'onUnitTag', wrecks, UVTags )
-		end
-
-		UVTags = tags
-
 	end)
 
 	net.Receive("UVHUDTimer", function()
@@ -3492,40 +4129,6 @@ else -- CLIENT Settings | HUD/Options
 		if UVHUDDisplayPursuit and not UVPlayingRace then
 			UVSoundBusted( UVHeatLevel )
 		end
-	end)
-
-	net.Receive("UVHUDEvading", function()
-		UVEvadingProgress = net.ReadString()
-	end)
-
-	net.Receive("UVHUDCooldown", function()
-
-		UVCooldownTimer = net.ReadString()
-		UVHUDDisplayCooldown = true
-
-	end)
-
-	net.Receive("UVHUDStopCooldown", function()
-
-		UVHUDDisplayCooldown = nil
-
-	end)
-
-	net.Receive("UVHUDHiding", function()
-		local blink = math.floor(RealTime()*2)==math.Round(RealTime()*2) and 255 or 0
-		if UVHUDCopMode then return end
-		UVNotificationColor = Color( blink, blink, 255)
-		UVNotification = "--- " .. UVString("uv.chase.hiding") .. " ---"
-		UVHUDDisplayNotification = true
-		UVHUDDisplayHidingPrompt = true
-
-	end)
-
-	net.Receive("UVHUDStopHiding", function()
-
-		UVHUDDisplayNotification = nil
-		UVHUDDisplayHidingPrompt = nil
-
 	end)
 
 	net.Receive("UVHUDCopMode", function()
@@ -3733,7 +4336,8 @@ else -- CLIENT Settings | HUD/Options
 		end
 
 		for i, v in pairs( EntityQueue ) do
-			if InitEntity( v.entIndex, v.creationId, v.entType ) then
+			local ent = InitEntity( v.entIndex, v.creationId, v.entType )
+			if ent then
 				table.remove( EntityQueue, i )
 			end
 		end
@@ -3778,55 +4382,112 @@ else -- CLIENT Settings | HUD/Options
 			end
 		end
 
-		if vehicle == NULL then 
-			UVHUDDisplayBusting = false
-			UVHUDPursuitTech = nil
-			return 
-		end
+		-- if vehicle == NULL then 
+		-- 	UVHUDDisplayBusting = false
+		-- 	UVHUDPursuitTech = nil
+		-- 	return 
+		-- end
 
-		if UVHUDDisplayPursuit then
-			if not UVCooldownProgress then UVCooldownProgress = 0 end
+		-- if UVHUDDisplayPursuit then
+		-- 	if not UVCooldownProgress then UVCooldownProgress = 0 end
 
-			if UVHUDDisplayCooldown or UVBustedState then
-				if not UVTimerFroze then
-					UVTimerWhenFroze = CurTime() - UVCooldownProgress
-					UVTimerFroze = true
-				end
-			else
-				UVTimerFroze = false
-			end
+		-- 	if UVHUDDisplayCooldown or UVBustedState then
+		-- 		if not UVTimerFroze then
+		-- 			UVTimerWhenFroze = CurTime() - UVCooldownProgress
+		-- 			UVTimerFroze = true
+		-- 		end
+		-- 	else
+		-- 		UVTimerFroze = false
+		-- 	end
 
-			if not UVTimerFroze and PursuitTable.PursuitStart then
-				UVTimerProgress = CurTime() - tonumber( PursuitTable.PursuitStart ) - UVCooldownProgress
-			else
-				UVCooldownProgress = CurTime() - UVTimerWhenFroze
-			end
-		else
-			UVHeatPlayIntro = true 
-			UVHeatLevelIncrease = false
-			UVHeatPlayTransition = false
-			UVLastHeatChange = CurTime()
-			UVHUDDisplayBackupTimer = nil
-		end
+		-- 	if not UVTimerFroze and PursuitTable.PursuitStart then
+		-- 		UVTimerProgress = CurTime() - tonumber( PursuitTable.PursuitStart ) - UVCooldownProgress
+		-- 	else
+		-- 		UVCooldownProgress = CurTime() - UVTimerWhenFroze
+		-- 	end
+		-- else
+		-- 	UVHeatPlayIntro = true 
+		-- 	UVHeatLevelIncrease = false
+		-- 	UVHeatPlayTransition = false
+		-- 	UVLastHeatChange = CurTime()
+		-- 	UVHUDDisplayBackupTimer = nil
+		-- end
 
-		UVHUDWantedSuspectsNumber = #UVHUDWantedSuspects
+		UVHUDWantedSuspectsNumber = UV_GetInPursuitCount()
 
 		if not UVHUDRaceInProgress and UVHUDWantedSuspectsNumber > 1 then
 			UVHUDRaceInProgress = true
 		end
 
-		UVHUDDisplayPursuit = PursuitTable.InPursuit
-		--UVHUDDisplayCooldown = PursuitTable.InCooldown
-		UVHeatLevel = tonumber( PursuitTable.Heat )
-		UVUnitsChasing = PursuitTable.UnitsChasing
-		UVResourcePoints = PursuitTable.ResourcePoints
-		UVDeploys = PursuitTable.Deploys
-		UVPursuitLength = PursuitTable.PursuitLength
-		UVWrecks = PursuitTable.Wrecks
-		UVTags = PursuitTable.Tags
-		UVBounty = string.Comma( PursuitTable.Bounty )
-		UVBountyNo = PursuitTable.Bounty
-		UVTimer = (UVTimerProgress and UVDisplayTime( UVTimerProgress )) or UVDisplayTime( 0 )
+		-- UVHUDDisplayPursuit = PursuitTable.InPursuit
+		-- --UVHUDDisplayCooldown = PursuitTable.InCooldown
+		-- UVHeatLevel = tonumber( PursuitTable.Heat )
+		-- UVUnitsChasing = PursuitTable.UnitsChasing
+		-- UVResourcePoints = PursuitTable.ResourcePoints
+		-- UVDeploys = PursuitTable.Deploys
+		-- UVPursuitLength = PursuitTable.PursuitLength
+		-- UVWrecks = PursuitTable.Wrecks
+		-- UVTags = PursuitTable.Tags
+		-- UVBounty = string.Comma( PursuitTable.Bounty )
+		-- UVBountyNo = PursuitTable.Bounty
+		-- UVTimer = (UVTimerProgress and UVDisplayTime( UVTimerProgress )) or UVDisplayTime( 0 )
+
+		-- Per-scope HUD override: derive display values from the correct scope
+		UVResourcePoints = UVGlobalPursuit.ResourcePoints or 0
+
+		local _scopeVeh = UVGetVehicle(LocalPlayer())
+		local _activeScope = IsValid(_scopeVeh) and UVGetScope(_scopeVeh) or nil
+
+		if UVHUDCopMode and not _activeScope then
+			local domScope = UV_GetDominantScope()
+			if domScope then
+				UVHeatLevel = domScope.Heat
+				UVBounty = string.Comma(domScope.Bounty)
+				UVBountyNo = domScope.Bounty
+				UVDeploys = domScope.Deploys
+				UVWrecks = domScope.Wrecks
+				UVTags = domScope.Tags
+				UVUnitsChasing = domScope.UnitsChasing
+				UVTimeTillNextHeat = domScope.TimeTillNextHeatEnd > 0 and math.max(0, domScope.TimeTillNextHeatEnd - CurTime()) or nil
+				UVTimerProgress = CurTime() - domScope.PursuitStart
+				UVTimer = UVDisplayTime(UVTimerProgress)
+				UVHUDDisplayCooldown = UV_GetCopAllInCooldown()
+				UVEvadingProgress = UV_GetCopEvadeProgress()
+			end
+			UVHUDDisplayPursuit = domScope ~= nil
+		elseif _activeScope then
+			UVHUDCopMode = false
+			UVHeatLevel = _activeScope.Heat
+			UVBounty = string.Comma(_activeScope.Bounty)
+			UVBountyNo = _activeScope.Bounty
+			UVDeploys = _activeScope.Deploys
+			UVWrecks = _activeScope.Wrecks
+			UVTags = _activeScope.Tags
+			UVUnitsChasing = _activeScope.UnitsChasing
+			UVHUDDisplayPursuit = _activeScope.InPursuit
+			UVHUDDisplayCooldown = _activeScope.InCooldown
+			UVCooldownTimer = _activeScope.CooldownTimerProgress
+			UVTimerProgress = CurTime() - _activeScope.PursuitStart
+			UVTimer = UVDisplayTime(UVTimerProgress)
+			--UVCooldownTimerProgress = _activeScope.CooldownTimerProgress
+			UVTimeTillNextHeat = _activeScope.TimeTillNextHeatEnd > 0 and math.max(0, _activeScope.TimeTillNextHeatEnd - CurTime()) or nil
+			if _activeScope.Losing and _activeScope.Losing > 0 then
+				UVEvadingProgress = math.Clamp(_activeScope.Losing / 5, 0, 1)
+			end
+			if _activeScope.PursuitStart > 0 then
+				PursuitTable.PursuitStart = _activeScope.PursuitStart
+			end
+			if _activeScope.Hiding and _activeScope.EnemyEscaping then
+				local blink = math.floor(RealTime()*2)==math.Round(RealTime()*2) and 255 or 0
+				UVNotificationColor = Color(blink, blink, 255)
+				UVNotification = "--- " .. UVString("uv.chase.hiding") .. " ---"
+				UVHUDDisplayNotification = true
+				UVHUDDisplayHidingPrompt = true
+			elseif not _activeScope.Hiding and UVHUDDisplayHidingPrompt then
+				UVHUDDisplayNotification = nil
+				UVHUDDisplayHidingPrompt = nil
+			end
+		end
 
 		if not UVBustedState then
 			if UVHUDDisplayPursuit then
@@ -3892,6 +4553,31 @@ else -- CLIENT Settings | HUD/Options
 
 		DrawScreenFlash(PursuitTable.PursuitStart, Color(255, 255, 255)) -- white flash
 		DrawScreenFlash(UVHUDScreenFlashHeatUp, Color(0, 0, 255))        -- blue flash
+
+		-- local scope = UVGetScope(UVGetVehicle(LocalPlayer()))
+		-- if scope then
+		-- 	local details = {
+		-- 		"InPursuit: " .. tostring(scope.InPursuit),
+		-- 		"EnemyEscaping: " .. tostring(scope.EnemyEscaping),
+		-- 		"EnemyEscaped: " .. tostring(scope.EnemyEscaped),
+		-- 		"EnemyBusted: " .. tostring(scope.EnemyBusted),
+		-- 		"Bounty: " .. tostring(scope.Bounty),
+		-- 		"Heat: " .. tostring(scope.Heat),
+		-- 		"Deploys: " .. tostring(scope.Deploys),
+		-- 		"Wrecks: " .. tostring(scope.Wrecks),
+		-- 		"Tags: " .. tostring(scope.Tags),
+		-- 		"UnitsChasing: " .. tostring(scope.UnitsChasing),
+		-- 	}
+
+		-- 	for i, line in ipairs(details) do
+		-- 		local ent = UVGetVehicle(LocalPlayer())
+		-- 		if IsValid(ent) then
+		-- 			local entPos = ent:GetPos()
+		-- 			local ent2d = entPos:ToScreen()
+		-- 			draw.DrawText(line, "DermaDefault", ent2d.x, ent2d.y + (i-1)*16, Color(255,255,255,255), 0)
+		-- 		end
+		-- 	end
+		-- end
 
 		local hudHandler = UV_UI.pursuit[main] and UV_UI.pursuit[main].main
 

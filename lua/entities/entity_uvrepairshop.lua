@@ -33,7 +33,7 @@ if SERVER then
 		for k, v in pairs(vehicles) do
 			if not v.uvrepairdelayed and 
 			not v.wrecked and 
-			(v:GetClass() == "prop_vehicle_jeep" or v.IsSimfphyscar or v.IsGlideVehicle or v.LVS)
+			(v:GetClass() == "prop_vehicle_jeep" or v.IsSimfphyscar or v.IsGlideVehicle or (v.LVS and v.BaseClass.ClassName == "lvs_base_wheeldrive"))
 			then
 			-- and not table.HasValue(UVCommanders, v) then
 				UVRepair(v)

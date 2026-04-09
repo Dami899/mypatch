@@ -323,7 +323,7 @@ if CLIENT then
 		file.CreateDir( 'unitvehicles/preset_import/uvpursuittech' )
 	end
 
-	timer.Simple(1, function()
+	timer.Simple(0, function()
 		local importFiles, _ = file.Find( 'data/unitvehicles/preset_import/uvpursuittech/*', 'GAME' )
 		
 		for _, impFile in pairs( importFiles ) do

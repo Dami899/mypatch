@@ -1234,9 +1234,9 @@ UV_UI.pursuit.carbon.events = {
         local deploys = debriefdata["Deploys"]
         local roadblocksdodged = debriefdata["Roadblocks"]
         local spikestripsdodged = debriefdata["Spikestrips"]
-        local bounty = UVBounty or 0
-        local tags = UVTags or 0
-        local wrecks = UVWrecks or 0
+        local bounty = debriefdata["Bounty"] or 0
+        local tags = debriefdata["Tags"] or 0
+        local wrecks = debriefdata["Wrecks"] or 0
         local suspects = UVHUDWantedSuspectsNumber or 0
         
         OK = vgui.Create("DButton", vgui.GetWorldPanel())

@@ -266,9 +266,9 @@ UV_UI.pursuit.original.events = {
         local deploys = bustedtable["Deploys"]
         local roadblocksdodged = bustedtable["Roadblocks"]
         local spikestripsdodged = bustedtable["Spikestrips"]
-        local bounty = UVBounty or 0
-        local tags = UVTags or 0
-        local wrecks = UVWrecks or 0
+        local bounty = bustedtable["Bounty"] or 0
+        local tags = bustedtable["Tags"] or 0
+        local wrecks = bustedtable["Wrecks"] or 0
         local suspects = UVHUDWantedSuspectsNumber or 0
         
         -- Tip
@@ -384,9 +384,9 @@ UV_UI.pursuit.original.events = {
         local deploys = escapedtable["Deploys"]
         local roadblocksdodged = escapedtable["Roadblocks"]
         local spikestripsdodged = escapedtable["Spikestrips"]
-        local bounty = UVBounty or 0
-        local tags = UVTags or 0
-        local wrecks = UVWrecks or 0
+        local bounty = escapedtable["Bounty"] or 0
+        local tags = escapedtable["Tags"] or 0
+        local wrecks = escapedtable["Wrecks"] or 0
         local suspects = UVHUDWantedSuspectsNumber or 0
 
         -- Tip
@@ -503,9 +503,9 @@ UV_UI.pursuit.original.events = {
         local deploys = escapedtable["Deploys"]
         local roadblocksdodged = escapedtable["Roadblocks"]
         local spikestripsdodged = escapedtable["Spikestrips"]
-        local bounty = UVBounty or 0
-        local tags = UVTags or 0
-        local wrecks = UVWrecks or 0
+        local bounty = escapedtable["Bounty"] or 0
+        local tags = escapedtable["Tags"] or 0
+        local wrecks = escapedtable["Wrecks"] or 0
 
         -- Tip
         local TipsPanel = vgui.Create("DFrame")
@@ -621,9 +621,9 @@ UV_UI.pursuit.original.events = {
         local deploys = bustedtable["Deploys"]
         local roadblocksdodged = bustedtable["Roadblocks"]
         local spikestripsdodged = bustedtable["Spikestrips"]
-        local bounty = UVBounty or 0
-        local tags = UVTags or 0
-        local wrecks = UVWrecks or 0
+        local bounty = bustedtable["Bounty"] or 0
+        local tags = bustedtable["Tags"] or 0
+        local wrecks = bustedtable["Wrecks"] or 0
 
         -- Tip
         local TipsPanel = vgui.Create("DFrame")

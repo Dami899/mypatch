@@ -12,10 +12,12 @@ if SERVER then
                 table.insert(UVPotentialSuspects, ent)
                 UVApplyAutoHealth(ent)
                 UVGiveRacerPursuitTech(ent)
+                UVCreateScope(ent)
                 ent:CallOnRemove( "UVWantedPotentialSuspectRemoved", function(vehicle)
                     if table.HasValue(UVPotentialSuspects, vehicle) then
                         table.RemoveByValue(UVPotentialSuspects, vehicle)
                     end
+                    UVRemoveScope(vehicle)
                 end)
             end
         end
@@ -305,11 +307,8 @@ if SERVER then
             local unit = units[random_entry]
             UVChatterCallResponding(unit)
         end
-        
-        for k, v in pairs(UVPotentialSuspects) do
-            UVAddToWantedListVehicle(v)
-        end
-        
+
+        UVAddToWantedListVehicle(suspectvehicle)
     end
     
 else

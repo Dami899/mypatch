@@ -132,6 +132,10 @@ if SERVER then
 	--Spam check--
 	
 	function UVRelayToClients( init_time, sound_name, param, can_skip, players, callsign )
+		if not players and UVTargeting then
+			players = UVGetPursuitRecipients()
+		end
+
 		if players and type(players) == "table" then
 			if #players == 0 then return end
 		end
@@ -153,16 +157,23 @@ if SERVER then
 		end
 	end
 	
-	function UVRelaySoundToClients( sound_name, can_skip )
+	function UVRelaySoundToClients( sound_name, can_skip, players )
+		if not players then
+			players = UVGetPursuitRecipients()
+		end
+
 		local array = {
 			['FileName'] = sound_name,
 			['CanSkip'] = can_skip
 		}
 		net.Start('UV_Sound')
 		net.WriteTable(array)
-		--net.WriteBool(can_skip)
-		--net.WriteInt(tonumber(param))
-		net.Broadcast()
+
+		if players and type(players) == "table" and #players > 0 then
+			net.Send(players)
+		else
+			net.Broadcast()
+		end
 	end
 	
 	function UVDelayChatter(seconds)
@@ -994,7 +1005,7 @@ if SERVER then
 	end
 	
 	function UVChatterArrestAcknowledge(self)
-		if #UVWantedTableVehicle > 0 then return end
+		if UV_GetInPursuitCount() > 0 then return end
 		return UVSoundChatter(self, self.voice, "arrestacknowledge", 1, "DISPATCH")
 	end
 
@@ -1886,11 +1897,11 @@ if SERVER then
 		return UVSoundChatter(self, self.voice, "callresponded")
 	end
 	
-	function UVChatterPursuitStartWanted(self)
+	function UVChatterPursuitStartWanted(self, vehicle)
 		local timecheck = 5
 		timecheck = UVSoundChatter(self, self.voice, "pursuitstartwanted", 4)
-		local e = UVGetVehicleMakeAndModel(self.e)
-		UVChatterVehicleDescription(self, self.e, e)
+		local e = UVGetVehicleMakeAndModel(self.e or vehicle)
+		UVChatterVehicleDescription(self, self.e or vehicle, e)
 		return
 	end
 	

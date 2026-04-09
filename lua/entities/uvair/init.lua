@@ -165,6 +165,12 @@ function ENT:Initialize()
 
 	UVDeploys = UVDeploys + 1
 
+	for _, v in pairs(UVPursuitScopes) do
+		if v.InPursuit then
+			v.Deploys = v.Deploys + 1
+		end
+	end
+
 	net.Start("UVHUDAddUV")
 	net.WriteInt(self:EntIndex(), 32)
 	net.WriteInt(self:GetCreationID(), 32)
@@ -226,11 +232,13 @@ function ENT:Think()
 		end
 	end
 
+	local eScope = isValidTarget and UVGetScope(target) or nil
+
 	if isValidTarget then
 		
 		if self.CloseToTarget and self:IsSeeTarget() and not self.spotted then
 			self.spotted = true
-			UVLosing = CurTime()
+			-- if eScope then eScope.Losing = CurTime() end
 			timer.Simple(20, function() self.cooldown = nil end)
 
 			if not UVTargeting then
@@ -425,14 +433,14 @@ function ENT:PhysicsUpdate()
 			self:StartCrush()
 		end
 		
-		if isValidTarget and self:IsSeeTarget() and UVTargeting then
-			UVLosing = CurTime()
-		end
+		-- if isValidTarget and self:IsSeeTarget() and UVTargeting then
+		-- 	if eScope then eScope.Losing = CurTime() end
+		-- end
 		
 		--Bounty
 		local botimeout = 10
 		if CurTime() > self.bountytimer + botimeout and isValidTarget and self:IsSeeTarget() and UVTargeting then
-			UVBounty = UVBounty+(UVBountyTime or 0)
+			--if eScope then eScope.Bounty = eScope.Bounty + (eScope.BountyTime or 0) end
 			self.bountytimer = CurTime()
 			local MathAggressive = math.random(1,10) 
 			if MathAggressive == 1 then
@@ -516,7 +524,7 @@ function ENT:PhysicsUpdate()
 			end
 		end
 		
-		if isValidTarget and not UVEnemyEscaping and not UVJammerDeployed then
+		if isValidTarget and not (eScope and eScope.EnemyEscaping) and not UVJammerDeployed then
 			if self:GetVelocity():LengthSqr() <= (self:DistIgnoreZ((targetpos+target:GetVelocity()))^2) and not (self:DistIgnoreZ(targetpos) <= 500 and self:IsSeeTarget()) then
 				self:FlyTo(targetpos)
 			else
@@ -770,7 +778,8 @@ function ENT:IsSeeTarget()
 
 	if isValidSuspect then
 		local tr = util.TraceLine({start = self:WorldSpaceCenter(), endpos = suspect:WorldSpaceCenter(), mask = MASK_OPAQUE, filter = {self, suspect}}).Fraction==1
-		if UVHiding then
+		local tScope = UVGetScope(suspect)
+		if tScope and tScope.Hiding then
 			return tobool(tr) and self:DistIgnoreZ(self:GetTargetPos()) <= 2000
 		else
 			return tobool(tr) and self:DistIgnoreZ(self:GetTargetPos()) <= 10000
@@ -836,6 +845,11 @@ function ENT:StartCrush()
 			end 
 		end
 		UVWrecks = UVWrecks + 1
+		local scope = UVGetScope(self:GetTarget())
+		if scope then
+			scope.Wrecks = scope.Wrecks + 1
+			scope.Bounty = scope.Bounty + bountyplus
+		end
 		self.crashing = true
 		self:EmitSound( "npc/attack_helicopter/aheli_damaged_alarm1.wav" )
 		self:EmitSound( "npc/combine_gunship/gunship_crashing1.wav" )
@@ -918,6 +932,11 @@ function ENT:Explode()
 			end 
 		end
 		UVWrecks = UVWrecks + 1
+		local scope = UVGetScope(self:GetTarget())
+		if scope then
+			scope.Wrecks = scope.Wrecks + 1
+			scope.Bounty = scope.Bounty + bountyplus
+		end
 		self.crashing = true
 		UVBounty = (UVBounty+bountyplus)
 		UVComboBounty = UVComboBounty + 1

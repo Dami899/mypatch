@@ -1120,7 +1120,7 @@ if SERVER then
 		RunConsoleCommand("uv_despawnvehicles")
 
 		
-		for k, v in pairs( UVUnitVehicles ) do
+		for v, _ in pairs( UVUnitVehicles ) do
 			if IsValid(v) then
 				v:Remove()
 			end

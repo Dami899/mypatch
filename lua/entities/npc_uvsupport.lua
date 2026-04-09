@@ -151,7 +151,6 @@ if SERVER then
 	
 	--Find an enemy around.
 	function ENT:TargetEnemy()
-		if UVEnemyBusted or UVEnemyEscaped then return end
 		local t = ents.FindInSphere(self.v:WorldSpaceCenter(), 2500)
 		local distance, nearest = math.huge, nil --The nearest enemy is the target.
 		for k, v in pairs(t) do
@@ -184,22 +183,8 @@ if SERVER then
 	end
 	
 	function ENT:ForgetEnemy()
-		UVEnemyEscaping = nil
-		if IsValid(self.e) then
-			if table.HasValue(UVWantedTableVehicle, self.e) and not UVEnemyEscaped then
-				table.RemoveByValue(UVWantedTableVehicle, self.e)
-				net.Start( "UV_RemoveWantedVehicle" )
-				net.WriteInt( self.e:EntIndex(), 32 )
-				net.Broadcast()
-			end
-			self.e = nil
-		end
-		if self.edriver then
-			if table.HasValue(UVWantedTableDriver, self.edriver) and not UVEnemyEscaped then
-				table.RemoveByValue(UVWantedTableDriver, self.edriver)
-			end
-			self.edriver = nil
-		end
+		self.e = nil
+		self.edriver = nil
 	end
 	
 	--Validate the given enemy.
@@ -213,7 +198,12 @@ if SERVER then
 		(not GetConVar("ai_ignoreplayers"):GetBool())
 		if not valid then return false end
 		
-		return UVPassConVarFilter(v)
+		if not UVPassConVarFilter(v) then return false end
+
+		local scope = UVGetScope(v)
+		if scope and not scope.InPursuit then return false end
+
+		return true
 	end
 	
 	function ENT:IsWrecked()
@@ -276,6 +266,11 @@ if SERVER then
 				end
 			end
 			UVWrecks = UVWrecks + 1
+			local scope = UVGetScope(self.e)
+			if scope then
+				scope.Wrecks = scope.Wrecks + 1
+				scope.Bounty = scope.Bounty + bountyplus
+			end
 			if self.v.IsGlideVehicle then
 				local wreck = self.v
 				timer.Simple(despawntime, function()
@@ -460,7 +455,7 @@ if SERVER then
 				start = target:WorldSpaceCenter(), 
 				endpos = targetPos, 
 				mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
-				filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
+				filter = {self, self.v, target, 'glide_wheel', table.GetKeys(UVUnitVehicles)}
 			})
 
 			if trace.Hit then targetPos = trace.HitPos end
@@ -472,7 +467,7 @@ if SERVER then
 			start = startPos, 
 			endpos = targetPos, 
 			mask = (InfMap and MASK_ALL or MASK_NPCWORLDSTATIC), 
-			filter = {self, self.v, target, 'glide_wheel', UVUnitVehicles}
+			filter = {self, self.v, target, 'glide_wheel', table.GetKeys(UVUnitVehicles)}
 		})
 		
 		if tr.Fraction < 0.8 then return false end
@@ -686,12 +681,12 @@ if SERVER then
 	function ENT:DriveOnPath()
 		local unitpos = self.v:WorldSpaceCenter()
 		local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
-
+		
 		local waypoints = table.Copy( self.tableroutetoenemy )
 		if not waypoints or next(waypoints) == nil then 
-			return unitpos + (forward * 100)
+			return IsValid(self.e) and self.e:WorldSpaceCenter() or unitpos + (forward * 100)
 		end
-
+		
 		local reachThreshold = 250000
 		local passedThreshold = 16000000
 		
@@ -721,7 +716,7 @@ if SERVER then
 		
 		if next(waypoints) == nil then
 			self.tableroutetoenemy = {}
-			return unitpos + (forward * 100)
+			return IsValid(self.e) and self.e:WorldSpaceCenter() or unitpos + (forward * 100)
 		end
 		
 		local bestWaypoint = waypoints[1]
@@ -736,8 +731,8 @@ if SERVER then
 			local dist = math.sqrt(distSqr)
 			local toWaypointNormalized = toWaypoint:GetNormalized()
 			
-			-- local hasLineOfSight = InfMap or UVStraightToWaypoint(unitpos, waypointpos)
-			local hasLineOfSight = true
+			local hasLineOfSight = InfMap or UVStraightToWaypoint(unitpos, waypointpos)
+			-- local hasLineOfSight = true
 			
 			local score = 0
 			
@@ -788,13 +783,13 @@ if SERVER then
 				bestWaypoint = waypoint
 			end
 		end
-
+		
 		local needOffset = false
 		local searchRadius = 800
 		local aheadMaxDistSq = 500000
 		local onWaypointRadiusSq = 40000
 		local forwardDotMin = 0.2
-		for _, veh in ipairs( UVUnitVehicles ) do
+		for veh, _ in pairs( UVUnitVehicles ) do
 			if veh ~= self.v and IsValid(veh) then 
 				local otherPos = veh:WorldSpaceCenter()
 				local toOther = otherPos - unitpos
@@ -819,7 +814,7 @@ if SERVER then
 				end
 			end
 		end
-
+		
 		return bestWaypoint + (vector_up * 50)
 	end
 
@@ -1226,6 +1221,8 @@ if SERVER then
 		-- 	self:Wreck()
 		-- 	return
 		-- end
+
+		local eScope = IsValid(self.e) and UVGetScope(self.e) or nil
 		
 		if not UVTargeting then
 			self.bountytimer = CurTime() --Bounty parameters
@@ -1248,6 +1245,7 @@ if SERVER then
 			local straightToEnemy = self:StraightToTarget(closestsuspect)
 			if closestsuspect ~= self.e and straightToEnemy then
 				self.e = closestsuspect
+				eScope = IsValid(self.e) and UVGetScope(self.e) or nil
 				UVAddToWantedListVehicle(self.e)
 				if not closestsuspect.UVWanted then
 					closestsuspect.UVWanted = closestsuspect
@@ -1270,13 +1268,13 @@ if SERVER then
 				end
 			end
 			if UVTargeting and closestdistancetosuspect > 100000000 and not straightToEnemy and 
-			not UVEnemyBusted and not UVEnemyEscaped and self.uvmarkedfordeletion then
+			not (eScope and eScope.EnemyBusted) and not (eScope and eScope.EnemyEscaped) and self.uvmarkedfordeletion then
 				if self.v.disengaging or not OptimizeRespawn:GetBool() or (UVResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
 					SafeRemoveEntity(self)
 				else
 					UVOptimizeRespawn(self.v)
 				end
-				if Chatter:GetBool() and not UVEnemyEscaping and not self.invincible and not UVEnemyBusted then
+				if Chatter:GetBool() and not (eScope and eScope.EnemyEscaping) and not self.invincible and not (eScope and eScope.EnemyBusted) then
 					UVChatterLeftPursuit(self) 
 				end
 			end
@@ -1306,6 +1304,7 @@ if SERVER then
 				if IsValid(enemy) then
 					self.idle = nil
 					self.e = enemy
+					eScope = IsValid(self.e) and UVGetScope(self.e) or nil
 					UVAddToWantedListVehicle(self.e)
 					if not enemy.UVWanted then
 						enemy.UVWanted = enemy
@@ -1331,6 +1330,7 @@ if SERVER then
 				local enemy = self:TargetEnemy() --Find an enemy.			
 				if IsValid(enemy) then
 					self.e = enemy
+					eScope = IsValid(self.e) and UVGetScope(self.e) or nil
 					UVAddToWantedListVehicle(self.e)
 					if not enemy.UVWanted then
 						enemy.UVWanted = enemy
@@ -1343,7 +1343,7 @@ if SERVER then
 						self.edriver = nil
 					end
 					self.moving = CurTime()
-					UVLosing = CurTime()
+					--if eScope then eScope.Losing = CurTime() end
 					self.idle = nil
 					timer.Simple(15, function() 
 						local selfValid = IsValid(self)
@@ -1354,10 +1354,10 @@ if SERVER then
 							UVRestoreResourcePoints()
 							UVTargeting = true
 							if selfValid then
-								UVChatterPursuitStartRanAway(self)
-							end
-							UVLosing = CurTime()
-							if Photon and isfunction(self.v.ELS_ManualSiren) then
+						UVChatterPursuitStartRanAway(self)
+						end
+						--if eScope then eScope.Losing = CurTime() end
+						if Photon and isfunction(self.v.ELS_ManualSiren) then
 								self.v:ELS_ManualSiren(false)
 							end
 							self:ChangeELSSiren()
@@ -1365,7 +1365,7 @@ if SERVER then
 					end)
 					self.toofar = nil
 					self.aggressive = nil
-					if (UVBounty >= GetConVar( 'unitvehicle_unit_heatminimumbounty1' ):GetInt() or self.e.uvraceparticipant) and not UVTargeting and not UVEnemyBusted then
+					if ((eScope and eScope.Bounty or 0) >= GetConVar( 'unitvehicle_unit_heatminimumbounty1' ):GetInt() or self.e.uvraceparticipant) and not UVTargeting and not UVEnemyBusted then
 						timer.Simple(0.1, function()
 							if UVTargeting then return end
 							UVTargeting = true
@@ -1476,11 +1476,11 @@ if SERVER then
 			end
 
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
-			local straightToEnemyDistanceBased = self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 4000000)
-			local suspectInView = not UVEnemyEscaping and straightToEnemyDistanceBased
+			local straightToEnemyDistanceBased = self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 6000000)
+			local suspectInView = not (eScope and eScope.EnemyEscaping) and straightToEnemyDistanceBased
 			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
 			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC) or (InfMap and suspectOnWaypointGrid and suspectSameDirectionAsNPC and not suspectInView)
-			if eedistSqr < 200000 and suspectInView then useDirectDriveBranch = true end
+			if suspectPulledOver and suspectInView then useDirectDriveBranch = true end
 			if InfMap and eedistSqr > 1000000 and not suspectBehindNPC then followSuspectHeadingOnGrid = false end
 			local obstaclesNearbySide = self:ObstaclesNearbySide()
 			
@@ -1496,7 +1496,7 @@ if SERVER then
 					timer.Remove(self._cooldownString)
 				end
 				if (not self.formationpoint or enemyvelocity <= UVBustSpeed * 10)
-					or UVCalm or UVEnemyEscaping or obstaclesNearbySide then
+					or UVCalm or (eScope and eScope.EnemyEscaping) or obstaclesNearbySide then
 					if not self.driveinfront or obstaclesNearbySide then
 						self.targetpos = self.e:WorldSpaceCenter()
 					else
@@ -1566,50 +1566,61 @@ if SERVER then
 					end
 				end
 
-			elseif next(self.tableroutetoenemy) ~= nil and #self.tableroutetoenemy > 1 then
-				self.targetpos = self:DriveOnPath()
-				if next(self.tableroutetoenemy) == nil then
-					self.targetpos = self.e:WorldSpaceCenter()
-				else
-					local toTarget = self.targetpos - self.v:WorldSpaceCenter()
-					if toTarget:LengthSqr() < 10000 then
-						self.tableroutetoenemy = {}
-						self.targetpos = self.e:WorldSpaceCenter()
-					end
-				end
 			else
-				self:PathFindToEnemy(self.e:WorldSpaceCenter())
+				self.tableroutetoenemy = self.tableroutetoenemy or {}
 				if next(self.tableroutetoenemy) ~= nil and #self.tableroutetoenemy > 1 then
-					self.targetpos = self:DriveOnPath()
-					if next(self.tableroutetoenemy) == nil then
-						self.targetpos = self.e:WorldSpaceCenter()
-					else
-						local toTarget = self.targetpos - self.v:WorldSpaceCenter()
-						if toTarget:LengthSqr() < 10000 then
-							self.tableroutetoenemy = {}
-							self.targetpos = self.e:WorldSpaceCenter()
-						end
-					end
+					-- if not self.NavigateCooldown and not UVEnemyEscaping then
+					-- 	self:PathFindToEnemy(self.e:WorldSpaceCenter()) --Find the enemy
+					-- end
 				else
-					if self.NavigateBlind then
-						self.NavigateBlind = nil
-					end
-					if self.NavigateCooldown then
-						self.NavigateCooldown = nil
-						timer.Remove(self._cooldownString)
-					end
-					if (not self.formationpoint or enemyvelocity <= UVBustSpeed * 10)
-						or UVCalm or UVEnemyEscaping or obstaclesNearbySide then
-						if not self.driveinfront or obstaclesNearbySide then
-							self.targetpos = self.e:WorldSpaceCenter()
-						else
-							self.targetpos = (self.e:WorldSpaceCenter() + self.e:GetVelocity())
-						end
-					else
-						self.targetpos = (self.e:LocalToWorld(self.formationpoint) + self.e:GetVelocity())
-					end
+					self:PathFindToEnemy(self.e:WorldSpaceCenter()) --Find the enemy
 				end
+				self.targetpos = self:DriveOnPath()
 			end
+			-- if next(self.tableroutetoenemy) ~= nil and #self.tableroutetoenemy > 1 then
+			-- 	self.targetpos = self:DriveOnPath()
+			-- 	if next(self.tableroutetoenemy) == nil then
+			-- 		self.targetpos = self.e:WorldSpaceCenter()
+			-- 	else
+			-- 		local toTarget = self.targetpos - self.v:WorldSpaceCenter()
+			-- 		if toTarget:LengthSqr() < 10000 then
+			-- 			self.tableroutetoenemy = {}
+			-- 			self.targetpos = self.e:WorldSpaceCenter()
+			-- 		end
+			-- 	end
+			-- else
+			-- 	self:PathFindToEnemy(self.e:WorldSpaceCenter())
+			-- 	if next(self.tableroutetoenemy) ~= nil and #self.tableroutetoenemy > 1 then
+			-- 		self.targetpos = self:DriveOnPath()
+			-- 		if next(self.tableroutetoenemy) == nil then
+			-- 			self.targetpos = self.e:WorldSpaceCenter()
+			-- 		else
+			-- 			local toTarget = self.targetpos - self.v:WorldSpaceCenter()
+			-- 			if toTarget:LengthSqr() < 10000 then
+			-- 				self.tableroutetoenemy = {}
+			-- 				self.targetpos = self.e:WorldSpaceCenter()
+			-- 			end
+			-- 		end
+			-- 	else
+			-- 		if self.NavigateBlind then
+			-- 			self.NavigateBlind = nil
+			-- 		end
+			-- 		if self.NavigateCooldown then
+			-- 			self.NavigateCooldown = nil
+			-- 			timer.Remove(self._cooldownString)
+			-- 		end
+			-- 		if (not self.formationpoint or enemyvelocity <= UVBustSpeed * 10)
+			-- 			or UVCalm or (eScope and eScope.EnemyEscaping) or obstaclesNearbySide then
+			-- 			if not self.driveinfront or obstaclesNearbySide then
+			-- 				self.targetpos = self.e:WorldSpaceCenter()
+			-- 			else
+			-- 				self.targetpos = (self.e:WorldSpaceCenter() + self.e:GetVelocity())
+			-- 			end
+			-- 		else
+			-- 			self.targetpos = (self.e:LocalToWorld(self.formationpoint) + self.e:GetVelocity())
+			-- 		end
+			-- 	end
+			-- end
 			
 			--Driving techniques
 			forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward() --Forward vector (reuse from above).
@@ -1647,7 +1658,7 @@ if SERVER then
 			local obstaclesNearby = self:ObstaclesNearby()
 			
 			--Unique driving techniques
-			if (UVEnemyEscaping or not straightToEnemy) and not self.stuck then
+			if ((eScope and eScope.EnemyEscaping) or not straightToEnemy) and not self.stuck then
 				if distDotForward < 0 and not self.stuck then
 					if vectdot > 0 then
 						if right.z > 0 then 
@@ -1710,7 +1721,7 @@ if SERVER then
 				end --Slow down
 			elseif (distSqr > 250000 or distSqr < 250000 and not straightToEnemy) and self.stuck then --No eyes on the target
 				if right.z > 0 then steer = -1 else steer = 1 end
-				if UVEnemyEscaping then throttle = -1 else throttle = throttle * -1 end
+				if (eScope and eScope.EnemyEscaping) then throttle = -1 else throttle = throttle * -1 end
 			else --Getting unstuck
 				if edistDotForward < 0 and (edist2DSqr > 100000 or self.formationpoint) and eevectdot < 0 then
 					if eeevectdot > 0 or enemyvelocity < 100000 then
@@ -1820,7 +1831,7 @@ if SERVER then
 			--Awareness to friendly vehicles
 			local t = UVUnitVehicles
 			local distance, nearest = math.huge, nil --The nearest friendly.
-			for k, f in pairs(t) do
+			for f, _ in pairs(t) do
 				if f ~= self.v and IsValid(f) then --Friendly conditions
 					local d = f:WorldSpaceCenter():DistToSqr(self.v:WorldSpaceCenter())
 					if distance > d then
@@ -1865,7 +1876,7 @@ if SERVER then
 			end
 			if self.stuck then 
 				self.moving = CurTime()
-				if selfvelocity > 100000 and vectdot > 0 and not UVEnemyEscaping then
+				if selfvelocity > 100000 and vectdot > 0 and not (eScope and eScope.EnemyEscaping) then
 					self.stuck = nil
 				end
 			end
@@ -1884,7 +1895,7 @@ if SERVER then
 			--First encounter with enemy
 			if not self.metwithenemy and edistSqr < 25000000 and straightToEnemy then
 				self.metwithenemy = true
-				if Chatter:GetBool() and UVTargeting and not UVEnemyEscaping and not self.v.roadblocking and not self.v.disperse then
+				if Chatter:GetBool() and UVTargeting and not (eScope and eScope.EnemyEscaping) and not self.v.roadblocking and not self.v.disperse then
 					UVChatterOnScene(self) 
 				end
 			end
@@ -1934,7 +1945,7 @@ if SERVER then
 						end
 					else
 						local MathAggressive2 = math.random(1,10)
-						if Chatter:GetBool() and MathAggressive2 == 1 and not UVEnemyEscaping then
+						if Chatter:GetBool() and MathAggressive2 == 1 and not (eScope and eScope.EnemyEscaping) then
 							UVChatterRequestDisengage(self)
 						end
 					end
@@ -1966,7 +1977,7 @@ if SERVER then
 							end
 						end
 					end
-					if not UVEnemyEscaping and straightToEnemy and self.metwithenemy and not self.stuck then
+					if not (eScope and eScope.EnemyEscaping) and straightToEnemy and self.metwithenemy and not self.stuck then
 						if math.abs(steer) > 0.5 and selfvelocity > 100000 and enemyvelocity < selfvelocity then
 							if self.v:GetGear() >= 3 then
 								throttle = -1
@@ -1994,7 +2005,7 @@ if SERVER then
 						steer = 0
 						throttle = 1
 					end --Straighten out
-					if not UVEnemyEscaping and straightToEnemy and self.metwithenemy and not self.stuck then
+					if not (eScope and eScope.EnemyEscaping) and straightToEnemy and self.metwithenemy and not self.stuck then
 						if math.abs(steer) > 0.5 and selfvelocity > 100000 and enemyvelocity < selfvelocity then
 							if self.v:GetGear() >= 1 then
 								throttle = -1
@@ -2078,12 +2089,9 @@ if SERVER then
 			end
 			
 			--Losing conditions
-			local visualrange = 25000000
-			if UVHiding then
-				visualrange = 1000000
-			end
+			local visualrange = (eScope and eScope.Hiding) and 1000000 or 25000000
 			if visualOnEnemy and eedistSqr < visualrange then
-				UVLosing = CurTime()
+				--if eScope then eScope.Losing = CurTime() end
 				self:ApplyUnitDifficulty()
 				if not table.HasValue(UVUnitsChasing, self) then
 					table.insert(UVUnitsChasing, self)
@@ -2325,6 +2333,11 @@ if SERVER then
 		local vehiclePhysics = IsValid(self.v) and self.v:GetPhysicsObject() or nil
 		if not IsValid(self.v) or not IsValid(vehiclePhysics) then SafeRemoveEntity(self) return end --When there's no vehicle, remove Unit Vehicle.
 		UVDeploys = UVDeploys + 1
+		for _, v in pairs(UVPursuitScopes) do
+			if v.InPursuit then
+				v.Deploys = v.Deploys + 1
+			end
+		end
 
 		if isfunction(self.v.UVVehicleInitialize) then --For vehicles that has a driver bodygroup
 			self.v:UVVehicleInitialize()

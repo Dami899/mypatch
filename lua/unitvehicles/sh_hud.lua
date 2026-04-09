@@ -1594,10 +1594,21 @@ function UVRenderEnemySquare(ent)
 	if IsValid(ent) then
 		if not (UVHUDDisplayPursuit or UVHUDDisplayRacing) then return end
 
-		if (UVHUDCopMode and UVHUDDisplayCooldown) or
-		   (UVHUDCopMode and (tonumber(UVUnitsChasing) <= 0 or not ent.inunitview) and 
-		   not ((not GetConVar("unitvehicle_unit_onecommanderevading"):GetBool()) and UVOneCommanderActive))
-		then return end
+		-- Unfucked, clarified logic: hide enemy square as cop during cooldown, or if there are no units chasing or out of unit view,
+		-- except when one-commander-evading is actually active (and one commander is active)
+		if UVHUDCopMode then
+			if UVHUDDisplayCooldown then
+				return
+			end
+
+			local oneCommanderEvading = GetConVar("unitvehicle_unit_onecommanderevading"):GetBool()
+			if not ent.inunitview then
+				-- Only hide if either one-commander-evading is off or commander is NOT active
+				if not oneCommanderEvading or not UVOneCommanderActive then
+					return
+				end
+			end
+		end
 
 		if UVHUDRaceInfo and UVHUDRaceInfo.Participants and UVHUDRaceInfo.Participants[ent] then
 			local pdata = UVHUDRaceInfo.Participants[ent]

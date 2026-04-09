@@ -1986,8 +1986,8 @@ if SERVER then
                 local attachVictim = false
                 --if object.UnitVehicle then
                     damage = (table.HasValue(UVCommanders, object) and UVPTShockwaveCommanderDamage:GetFloat()) or damage
-                    local phmass = math.Round(objectphys:GetMass())
-                    UVBounty = UVBounty+phmass
+                    -- local phmass = math.Round(objectphys:GetMass())
+                    -- UVBounty = UVBounty+phmass
                     UVDamage(object, damage)
                     attachVictim = true
 
@@ -2043,7 +2043,7 @@ if SERVER then
             end
         end)
         
-        for k, unit in pairs(UVUnitVehicles) do
+        for unit, _ in pairs(UVUnitVehicles) do
             UVDeactivateESF(unit)
             UVDeactivateKillSwitch(unit)
             UVDeactivateGrappler(unit)
@@ -2188,8 +2188,6 @@ if SERVER then
                 
                 local attachVictim = false
                 --if object.UnitVehicle then
-                    local phmass = math.Round(objectphys:GetMass())
-                    UVBounty = UVBounty+phmass
                     UVDamage(object, damage)
                     attachVictim = true
                 --end
