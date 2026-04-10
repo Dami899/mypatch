@@ -2426,7 +2426,9 @@ function UVAddToWantedListVehicle(vehicle)
 	if not vehicle.UVWanted then
 		vehicle.UVWanted = vehicle
 	end
+
 	local driver = UVGetDriver(vehicle)
+	local scope = UVCreateScope(vehicle)
 	
 	if not table.HasValue(UVWantedTableVehicle, vehicle) then
 		table.insert(UVWantedTableVehicle, vehicle)
@@ -3321,9 +3323,7 @@ end
 function UVBustEnemy(self, enemy, finearrest)
 	if not IsValid(self) or not IsValid(enemy) or (enemy.uvbusted and not finearrest) then return end
 
-	if not self.callsign then
-		self.callsign = "the Unit Vehicles"
-	end
+	local callsign = self:IsPlayer() and self:Nick() or ( self.callsign or "the Unit Vehicles" )
 
 	enemy.uvbusted = true
 	enemy.UVBustingProgress = 0
@@ -3383,14 +3383,14 @@ function UVBustEnemy(self, enemy, finearrest)
 			net.Start('UVBusted')
 			net.WriteTable({
 				['Racer'] = enemyDriver:GetName(),
-				['Cop'] = self.callsign
+				['Cop'] = callsign
 			})
 			net.Broadcast()
 		else
 			net.Start('UVBusted')
 			net.WriteTable({
 				['Racer'] = enemy.racer or "Racer "..enemy:EntIndex(),
-				['Cop'] = self.callsign
+				['Cop'] = callsign
 			})
 			net.Broadcast()
 		end
@@ -3496,7 +3496,7 @@ function UVBustEnemy(self, enemy, finearrest)
 		if enemyDriver and enemyDriver:IsPlayer() and not enemy.DecentVehicle and not enemy.TrafficVehicle then
 			local driver = enemyDriver
 			local bustedtable = {}
-			bustedtable["Unit"] = self.callsign
+			bustedtable["Unit"] = callsign
 			bustedtable["Deploys"] = enemyScope and enemyScope.Deploys
 			bustedtable["Wrecks"] = enemyScope and enemyScope.Wrecks
 			bustedtable["Tags"] = enemyScope and enemyScope.Tags
