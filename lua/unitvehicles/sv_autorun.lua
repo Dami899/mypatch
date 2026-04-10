@@ -2440,13 +2440,6 @@ function UVAddToWantedListVehicle(vehicle)
 		if (driver and driver:IsPlayer()) and not table.HasValue(UVWantedTableDriver, driver) then
 			UVAddToWantedListDriver(driver)
 		end
-		
-		if (driver and driver:IsPlayer()) then
-			if driver:GetMaxHealth() == 100 then
-				driver:SetHealth(driver:Health()+1000000)
-				driver:SetMaxHealth(driver:GetMaxHealth()+1000000)
-			end
-		end
 
 		vehicle:CallOnRemove( "UVWantedVehicleRemoved", function(ent)
 			if table.HasValue(UVWantedTableVehicle, ent) then

@@ -1976,37 +1976,11 @@ if SERVER then
 				for k, v in pairs(ents.FindByClass("npc_uv*")) do
 					v:ForgetEnemy()
 				end
-				for k, v in pairs(player.GetAll()) do
-					v:SetHealth(100)
-					v:SetMaxHealth(100)
-					if v:InVehicle() then
-						local car = v:GetVehicle()
-						if car:GetClass() == "prop_vehicle_jeep" and vcmod_main then
-							car:VC_repairFull_Admin()
-							if car:VC_hasGodMode() then
-								car:VC_setGodMode(false)
-							end
-						elseif car.IsSimfphyscar then
-							if car.simfphysoldhealth then
-								car:SetMaxHealth(car.simfphysoldhealth)
-								car:SetCurHealth(car.simfphysoldhealth)
-								car.simfphysoldhealth = nil
-							end
-							if istable(car.Wheels) then
-								for i = 1, table.Count(car.Wheels) do
-									local Wheel = car.Wheels[i]
-									if IsValid(Wheel) then
-										Wheel:SetDamaged(false)
-										Wheel.UVTireDeflatable = nil
-									end
-								end
-							end
-						end
-					end
-				end
+
 				for k, v in pairs(ents.FindByClass("uvair")) do
 					v.disengaging = true
 				end
+				
 				if #ents.FindByClass("npc_uv*") > 0 then
 					local units = ents.FindByClass("npc_uv*")
 					if Chatter:GetBool() then
