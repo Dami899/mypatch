@@ -169,7 +169,7 @@ if SERVER then
 		net.Start('UV_Sound')
 		net.WriteTable(array)
 
-		if players and type(players) == "table" and #players > 0 then
+		if players and type(players) == "table" then
 			net.Send(players)
 		else
 			net.Broadcast()

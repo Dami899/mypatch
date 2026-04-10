@@ -696,8 +696,8 @@ if SERVER then
             end)
         end
 
-        if NPC.metwithenemy and not UVResourcePointsRefreshing and UVResourcePoints > 1 and not UVOneCommanderActive and not vehicle.roadblocking then
-			UVResourcePoints = (UVResourcePoints - 1)
+        if NPC.metwithenemy and not UVResourcePointsRefreshing and UVGlobalPursuit.ResourcePoints > 1 and not UVOneCommanderActive and not vehicle.roadblocking then
+			UVUpdateGlobalPursuit('ResourcePoints', UVGlobalPursuit.ResourcePoints - 1)
 		end
 
         if vehicle.roadblocking then

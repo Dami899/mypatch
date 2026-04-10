@@ -143,8 +143,8 @@ if SERVER then
 			
 		end
 		
-		if not self.v.disengaging and self.metwithenemy and not UVResourcePointsRefreshing and UVResourcePoints > 1 and not UVOneCommanderActive and not self.roadblocking then
-			UVResourcePoints = (UVResourcePoints - 1)
+		if not self.v.disengaging and self.metwithenemy and not UVResourcePointsRefreshing and UVGlobalPursuit.ResourcePoints > 1 and not UVOneCommanderActive and not self.roadblocking then
+			UVUpdateGlobalPursuit('ResourcePoints', UVGlobalPursuit.ResourcePoints - 1)
 		end	
 		
 	end
@@ -1244,7 +1244,7 @@ if SERVER then
 			end
 			if UVTargeting and closestdistancetosuspect > 100000000 and not straightToEnemy and 
 			not (eScope and eScope.EnemyBusted) and not (eScope and eScope.EnemyEscaped) and self.uvmarkedfordeletion then
-				if self.v.disengaging or not OptimizeRespawn:GetBool() or (UVResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
+				if self.v.disengaging or not OptimizeRespawn:GetBool() or (UVGlobalPursuit.ResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
 					SafeRemoveEntity(self)
 				else
 					UVOptimizeRespawn(self.v)

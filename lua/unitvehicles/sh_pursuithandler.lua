@@ -199,7 +199,7 @@ function UVGetScopeByKey(key)
 end
 
 UVGlobalPursuit = {
-	ResourcePoints = 0,
+	ResourcePoints = 10,
 	CommanderActive = false,
 	PursuitStart = 0,
 }
@@ -1950,7 +1950,6 @@ if SERVER then
 	UVWantedTableVehicle = {}
 	UVWantedTableDriver = {}
 	UVPotentialSuspects = {}
-	UVResourcePoints = 10
 	UVMaxUnits = 3
 	UVTacticFormationNo = 1
 	UVVehicleInitializing = {}

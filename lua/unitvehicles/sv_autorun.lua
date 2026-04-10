@@ -726,7 +726,7 @@ local function CheckVehicleLimit()
 	end
 
 	local totalUnits = activeUnitsCount + wreckedUnitsCount
-	return totalUnits < UVMaxUnits and totalUnits < UVResourcePoints or activeUnitsCount < 1
+	return totalUnits < UVMaxUnits and totalUnits < UVGlobalPursuit.ResourcePoints or activeUnitsCount < 1
 end
 
 -- Helper function for vehicle spawning logic
@@ -861,7 +861,7 @@ function UVRestoreResourcePoints()
 	
 	local unitsAvailableConVar = GetConVar( "unitvehicle_unit_unitsavailable" .. UVHeatLevel )
 	
-	UVResourcePoints = (unitsAvailableConVar and unitsAvailableConVar:GetInt()) or 5
+	UVUpdateGlobalPursuit('ResourcePoints', unitsAvailableConVar:GetInt())
 	UVBackupUnderway = nil
 end
 
@@ -4297,8 +4297,8 @@ function UVPlayerWreck(vehicle)
 	end
 	UVWrecks = UVWrecks + 1
 	
-	if not UVResourcePointsRefreshing and UVResourcePoints > 1 and not UVOneCommanderActive then
-		UVResourcePoints = (UVResourcePoints - 1)
+	if not UVResourcePointsRefreshing and UVGlobalPursuit.ResourcePoints > 1 and not UVOneCommanderActive then
+		UVUpdateGlobalPursuit('ResourcePoints', UVGlobalPursuit.ResourcePoints - 1)
 	end
 
 	UVSetELS(false, vehicle)
