@@ -798,7 +798,7 @@ if SERVER then
 			local right = forward:Cross(vector_up)
 			if right:LengthSqr() > 0.01 then
 				right:Normalize()
-				local offsetAmount = 90
+				local offsetAmount = 10
 				if self.__entIndex % 2 == 0 then
 					bestWaypoint = bestWaypoint + right * offsetAmount
 				else

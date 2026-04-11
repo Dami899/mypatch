@@ -776,34 +776,6 @@ function HandleVehicleSpawning(Patrolling)
 	}
 
 	funcs[random]()
-	-- local specialChance = Patrolling and math.random(6,10) or math.random(1,10)
-	
-	-- if UVCommanderRespawning then
-		
-	-- 	if not SpawnMainUnits:GetBool() then return end
-	-- 	UVAutoSpawn(nil, nil, nil, nil, UVCommanderRespawning) --COMMANDER RESPAWN
-		
-	-- elseif specialChance >= 1 and specialChance <= 2 and not UVEnemyEscaping then
-		
-	-- 	if not SpawnMainUnits:GetBool() then return end
-	-- 	UVAutoSpawn(nil, true) --RHINO
-		
-	-- elseif specialChance >= 3 and specialChance <= 5 and next(ents.FindByClass("npc_uv*")) ~= nil and uvRoadblockDeployable then
-		
-	-- 	local units = ents.FindByClass("npc_uv*")
-	-- 	local unit = units[math.random(#units)]
-	-- 	UVDeployRoadblock(unit) --ROADBLOCK
-		
-	-- elseif specialChance == 6 and #ents.FindByClass("uvair") < 1 and uvHelicopterDeployable and CurTime() - UVHeliCooldown > 120 then
-		
-	-- 	if not SpawnMainUnits:GetBool() then return end
-	-- 	UVAutoSpawn(nil, nil, true) --HELICOPTER
-		
-	-- elseif SpawnMainUnits:GetBool() and UVResourcePoints > (#ents.FindByClass("npc_uv*")) then
-		
-	-- 	UVAutoSpawn(nil) --NORMAL
-		
-	-- end
 end
 
 function UVResetStats()

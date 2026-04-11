@@ -2069,7 +2069,7 @@ if SERVER then
 
 		--Actual backup timer
 		if UVTargeting then
-			if UVResourcePoints < UVMaxUnits then
+			if UVGlobalPursuit.ResourcePoints < UVMaxUnits then
 				if not UVBackupUnderway then
 					UVResourcePointsTimer = CurTime()
 					UVResourcePointsTimerMax = UVBackupTimerMax
@@ -2638,8 +2638,6 @@ if SERVER then
 				end
 			end
 		end
-
-		UVUpdateGlobalPursuit('ResourcePoints', UVResourcePoints)
 
 		--SPOTTED CAMERA
 		local FREEZE_DURATION = 2.7
@@ -3820,7 +3818,6 @@ else -- CLIENT Settings | HUD/Options
 
 		local scope = UVPursuitScopes[key]
 		for k, v in pairs(dataTable) do
-			print(k, v)
 			local oldVal = scope[k]
 			scope[k] = v
 

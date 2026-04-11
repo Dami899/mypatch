@@ -366,7 +366,7 @@ if SERVER then
 					_init()
 				end)
 			end
-			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2)))
+			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random()))
 		end
 
 		-- 	--[[Parameters
@@ -466,7 +466,7 @@ if SERVER then
 			end)
 			
 			
-			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(staticFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2))
+			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(staticFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random())
 			
 		elseif parameters == 4 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/*", "GAME")
@@ -478,8 +478,12 @@ if SERVER then
 			
 			ChatterLastPlay = initTime
 
-			local emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/copresponse.mp3"
-			local emergencyDuration = SoundDuration(emergencyFile)
+			local emergencyFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/emergency/*", "GAME")
+			table.Shuffle(emergencyFiles)
+			local emergencyFile
+			if next(emergencyFiles) ~= nil then
+				emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/"..emergencyFiles[1]
+			end
 
 			local radioOnFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/radioon/*", "GAME")
 			table.Shuffle(radioOnFiles)
@@ -526,7 +530,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter((SoundDuration(soundFile or "") + emergencyDuration + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2)))
+			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(emergencyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random()))
 			
 		elseif parameters == 5 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/*", "GAME")
@@ -589,7 +593,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(identifyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2))
+			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(identifyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random())
 			
 		elseif parameters == 6 then
 
@@ -603,7 +607,12 @@ if SERVER then
 
 			ChatterLastPlay = initTime
 			
-			local emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/copresponse.mp3"
+			local emergencyFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/emergency/*", "GAME")
+			table.Shuffle(emergencyFiles)
+			local emergencyFile
+			if next(emergencyFiles) ~= nil then
+				emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/"..emergencyFiles[1]
+			end
 						
 			local addressFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/dispatch/addressgroup_map/"..game.GetMap().."/*", "GAME")
 			table.Shuffle(addressFiles)
@@ -710,7 +719,7 @@ if SERVER then
 					end)
 				end)
 			end)
-			return UVDelayChatter((soundDuration_soundFile + soundDuration_emergencyFile + soundDuration_addressFile + soundDuration_locationFile + soundDuration_requestFile + soundDuration_radioOffFile + soundDuration_radioOnFile + (soundDuration_chirpGenericFile or 0) + math.random(1, 2)))
+			return UVDelayChatter((soundDuration_soundFile + soundDuration_emergencyFile + soundDuration_addressFile + soundDuration_locationFile + soundDuration_requestFile + soundDuration_radioOffFile + soundDuration_radioOnFile + (soundDuration_chirpGenericFile or 0) + math.random(0, 2) + math.random()))
 			
 		elseif parameters == 7 then
 			if not UVEnemyEscaping then return 5 end
@@ -718,7 +727,13 @@ if SERVER then
 			voice = "dispatch"
 			unitVoiceProfile = GetConVar("unitvehicle_unit_dispatch_voiceprofile"):GetString()
 			
-			local emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/copresponse.mp3"
+			local emergencyFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/emergency/*", "GAME")
+			table.Shuffle(emergencyFiles)
+			local emergencyFile
+			if next(emergencyFiles) ~= nil then
+				emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/"..emergencyFiles[1]
+			end
+			
 			local breakawayFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/dispatch/dispbreakaway/*", "GAME")
 			table.Shuffle(breakawayFiles)
 			local breakawayFile
@@ -805,7 +820,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter((SoundDuration(emergencyFile or "") + SoundDuration(breakawayFile or "") + SoundDuration(locationFile or "") + SoundDuration(quadrantFile or "") + SoundDuration(radioOnFile or "") + SoundDuration(radioOffFile or "") + math.random(1, 2)))
+			return UVDelayChatter((SoundDuration(emergencyFile or "") + SoundDuration(breakawayFile or "") + SoundDuration(locationFile or "") + SoundDuration(quadrantFile or "") + SoundDuration(radioOnFile or "") + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random()))
 			
 		elseif parameters == 8 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/*", "GAME")
@@ -813,7 +828,12 @@ if SERVER then
 			table.Shuffle(soundFiles)
 			local soundFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/"..soundFiles[1]
 			
-			local emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/copresponse.mp3"
+			local emergencyFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/emergency/*", "GAME")
+			table.Shuffle(emergencyFiles)
+			local emergencyFile
+			if next(emergencyFiles) ~= nil then
+				emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/"..emergencyFiles[1]
+			end
 
 			ChatterLastPlay = initTime
 
@@ -862,7 +882,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter((SoundDuration(soundFile) + SoundDuration(emergencyFile) + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2)))
+			return UVDelayChatter((SoundDuration(soundFile) + SoundDuration(emergencyFile) + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random()))
 		elseif parameters == 9 then -- in person chatter
 			local players = select(1, ...)
 
@@ -964,7 +984,7 @@ if SERVER then
 				end)
 			end)
 
-			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2))
+			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random())
 		end
 		
 		return HandleCallSounds()
@@ -1844,15 +1864,15 @@ if SERVER then
 		else
 			timecheck = UVSoundChatter(self, self.voice, "requestdisengage")
 		end
-		timer.Simple(timecheck, function()
+		--timer.Simple(timecheck, function()
 			if next(ents.FindByClass("npc_uv*")) ~= nil and not UVEnemyBusted then
 				local units = ents.FindByClass("npc_uv*")
-				local random_entry = math.random(#units)	
+				local random_entry = math.random(#units)
 				local unit = units[random_entry]
 				if unit == self then return end
 				UVChatterDoNotDisengage(unit, self)
 			end
-		end)
+		--end)
 		return
 	end
 	

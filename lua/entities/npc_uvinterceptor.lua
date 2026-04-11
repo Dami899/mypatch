@@ -780,7 +780,7 @@ if SERVER then
 			local right = forward:Cross(vector_up)
 			if right:LengthSqr() > 0.01 then
 				right:Normalize()
-				local offsetAmount = 90
+				local offsetAmount = 10
 				if self.__entIndex % 2 == 0 then
 					bestWaypoint = bestWaypoint + right * offsetAmount
 				else
@@ -1454,13 +1454,19 @@ if SERVER then
 			end
 			
 			self.tableroutetoenemy = self.tableroutetoenemy or {}
-			local straightToEnemyDistanceBased = self:StraightToTarget(self.e, true, DVWaypointsDistanceBased:GetBool() and 6000000)
-			local suspectInView = not (eScope and eScope.EnemyEscaping) and straightToEnemyDistanceBased
-			local useDirectDriveBranch = suspectInView and (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
+			local straightToEnemy = self:StraightToTarget(self.e, true)
+			local distanceCheck = true
+			if DVWaypointsDistanceBased:GetBool() then
+				distanceCheck = eedistSqr <= 3000000
+			end
+			local suspectInView = not (eScope and eScope.EnemyEscaping) and straightToEnemy
+			local shouldGoTowards = (suspectHeadingAwayFromNPC or suspectPulledOver or not suspectOnWaypointGrid)
+			local useDirectDriveBranch = suspectInView and shouldGoTowards
+			if suspectSameDirectionAsNPC and not suspectPulledOver then
+				useDirectDriveBranch = suspectInView and distanceCheck
+			end
 			local followSuspectHeadingOnGrid = (suspectOnWaypointGrid and suspectBehindNPC and suspectSameDirectionAsNPC) or (InfMap and suspectOnWaypointGrid and suspectSameDirectionAsNPC and not suspectInView)
-			if suspectPulledOver and suspectInView then useDirectDriveBranch = true end
 			if InfMap and eedistSqr > 1000000 and not suspectBehindNPC then followSuspectHeadingOnGrid = false end
-			
 			local obstaclesNearbySide = self:ObstaclesNearbySide()
 			
 			if useDirectDriveBranch then
