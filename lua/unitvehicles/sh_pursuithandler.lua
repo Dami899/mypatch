@@ -797,7 +797,7 @@ function UVSoundEscaped(heatlevel)
 		local escapedTrack = escapedArray[1]
 
 		if escapedTrack then
-			UVPlaySound(escapedTrack, false)
+			UVPlaySound( escapedTrack, false, false, nil, true )
 		else
 			UVSoundHeat( UVHeatLevel )
 			return
@@ -5440,12 +5440,14 @@ else -- CLIENT Settings | HUD/Options
 			if state ~= GMOD_CHANNEL_STOPPED and init_time ~= lastInitTime then return end
 		end
 
+		local shouldStop = lastInitTime ~= init_time
+
 		lastCanSkip = can_skip
 		lastInitTime = init_time
 
 		sound.PlayFile(audio_file, "", function(source, err, errname)
 			if IsValid(source) then
-				if IsValid(uvchatterplaying) then
+				if IsValid(uvchatterplaying) and shouldStop then
 					uvchatterplaying:Stop()
 				end
 				uvchatterplaying = source
