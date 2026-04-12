@@ -538,12 +538,7 @@ UVMenu.Main = function()
 					UVMenu.OpenMenu(UVMenu.Credits, true) -- Credits
 				end,
 			},
-			
-			-- { TabName = "uv.ft", playsfx = "clickopen", Prompts = { "uv.prompt.open.menu" }, func = function() -- DEBUG
-					-- UVMenu.OpenMenu(UVMenu.FirstTimeSetup, true) -- First-Time Setup
-				-- end,
-			-- },
-			
+
 			{ TabName = "uv.debug", Icon = "unitvehicles/icons/generic_alert.png", playsfx = "clickopen", Prompts = { "uv.prompt.open.menu" }, developer = true, sv = true,
 			func = function() -- DEBUG
 				UVMenu.OpenMenu(UVMenu.DebugWarning, true)
@@ -590,7 +585,7 @@ UVMenu.Settings = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
 		Name = UVString("uv.unitvehicles") .. " | " .. UVString("uv.settings"),
 		Width  = UV.ScaleW(1540),
-		Height = UV.ScaleH(760),
+		Height = UV.ScaleH(800),
 		Description = true,
 		UnfocusClose = true,
 		Tabs = {
@@ -636,15 +631,8 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.ui.policescanner.vehicle", desc = "uv.ui.policescanner.vehicle.desc", convar = "unitvehicle_policescanner_vehicle", requireparentconvar = "unitvehicle_policescanner" },
 				-- { type = "bool", text = "uv.ui.subtitles", desc = "uv.ui.subtitles.desc", convar = "unitvehicle_subtitles" },
 				{ type = "bool", text = "uv.ui.vehnametakedown", desc = "uv.ui.vehnametakedown.desc", convar = "unitvehicle_vehiclenametakedown" },
-
-				{ type = "label", text = "uv.ui.menu", desc = "uv.ui.menu.desc" },
-				{ type = "bool", text = "uv.ui.menu.hidedesc", desc = "uv.ui.menu.hidedesc.desc", convar = "uvmenu_hide_description" },
-				{ type = "bool", text = "uv.ui.menu.hideprompts", desc = "uv.ui.menu.hideprompts.desc", convar = "uvmenu_hide_prompts" },
-				{ type = "slider", text = "uv.ui.menu.openspeed", desc = "uv.ui.menu.openspeed.desc", convar = "uvmenu_open_speed", min = 0.1, max = 1, decimals = 2 },
-				{ type = "slider", text = "uv.ui.menu.closespeed", desc = "uv.ui.menu.closespeed.desc", convar = "uvmenu_close_speed", min = 0.1, max = 1, decimals = 2 },
-				{ type = "button", text = "uv.ui.menu.custcol", desc = "uv.ui.menu.custcol.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.SettingsCol, true) end },
-				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
 			},
+
 			{ TabName = "uv.audio.title", Icon = "unitvehicles/icons_settings/audio.png",
 
 				{ type = "label", text = "uv.settings.general" },
@@ -672,6 +660,7 @@ UVMenu.Settings = function()
 				{ type = "label", text = "uv.audio.racing" },
 				{ type = "combo", text = "uv.audio.racing.sfx", desc = "uv.audio.racing.sfx.desc", convar = "unitvehicle_sfxtheme", content = racesfxcontent },
 			},
+
 			{ TabName = "uv.audio.uvtrax", Icon = "unitvehicles/icons/ICON_EA_TRAX.png",
 				--{ type = "label", text = "uv.audio.uvtrax" },
 				{ type = "bool", text = "uv.audio.uvtrax.enable", desc = "uv.audio.uvtrax.desc", convar = "unitvehicle_racingmusic" },
@@ -683,6 +672,7 @@ UVMenu.Settings = function()
 				{ type = "label", text = "uv.audio.uvtrax.editor", requireparentconvar = "unitvehicle_racingmusic" },
 				{ type = "uvtrax", text = "uv.audio.uvtrax.profiles", desc = "uv.audio.uvtrax.profiles.desc", requireparentconvar = "unitvehicle_racingmusic" },
 			},
+
 			{ TabName = "uv.controls", Icon = "unitvehicles/icons_settings/controls.png",
 
 				{ type = "label", text = "uv.controls.pt" },
@@ -702,6 +692,7 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.controls.glyphs.enable", desc = "uv.controls.glyphs.enable.desc", convar = "unitvehicle_glyph_override" },
 				{ type = "bindoverride", text = "uv.controls.glyphs.list.enable", desc = "uv.controls.glyphs.list.desc", convar = "unitvehicle_glyph_set", requireparentconvar = "unitvehicle_glyph_override" },
 			},
+
 			{ TabName = "uv.pursuit", Icon = "unitvehicles/icons/milestone_pursuit.png", sv = true,
 				{ type = "label", text = "uv.pursuit.heatlevels", sv = true },
 				{ type = "bool", text = "uv.pursuit.heatlevels.enable", desc = "uv.pursuit.heatlevels.enable.desc", convar = "unitvehicle_heatlevels", sv = true },
@@ -732,12 +723,14 @@ UVMenu.Settings = function()
 					},
 				},
 			},
+
 			{ TabName = "uv.ptech", Icon = "unitvehicles/icons_carbon/wingman_target.png", sv = true,
 				{ type = "label", text = "uv.settings.general", sv = true },
 				{ type = "bool", text = "uv.ptech.racer", desc = "uv.ptech.racer.desc", convar = "unitvehicle_racerpursuittech", sv = true },
 				{ type = "bool", text = "uv.ptech.friendlyfire", desc = "uv.ptech.friendlyfire.desc", convar = "unitvehicle_racerfriendlyfire", sv = true },
 				{ type = "bool", text = "uv.ptech.roadblockfriendlyfire", desc = "uv.ptech.roadblockfriendlyfire.desc", convar = "unitvehicle_spikestriproadblockfriendlyfire", sv = true },
 			},
+
 			{ TabName = "uv.pb", Icon = "unitvehicles/icons/minimap_icon_pursuit_breaker.png", sv = true,
 				{ type = "label", text = "uv.settings.general", sv = true },
 				{ type = "slider", text = "uv.pb.maxnr", desc = "uv.pb.maxnr.desc", convar = "unitvehicle_pursuitbreaker_maxpb", min = 0, max = 10, sv = true },
@@ -749,6 +742,7 @@ UVMenu.Settings = function()
 				},
 				{ type = "slider", text = "uv.pb.cooldown", desc = "uv.pb.cooldown.desc", convar = "unitvehicle_pursuitbreaker_pbcooldown", min = 10, max = 600, sv = true },
 			},
+
 			{ TabName = "uv.rs", Icon = "unitvehicles/icons/repairshop.png", sv = true,
 				{ type = "label", text = "uv.settings.general", sv = true },
 				{ type = "slider", text = "uv.rs.maxnr", desc = "uv.rs.maxnr.desc", convar = "unitvehicle_repairshop_maxrs", min = 0, max = 10, sv = true },
@@ -761,6 +755,7 @@ UVMenu.Settings = function()
 				{ type = "slider", text = "uv.pursuit.repaircooldown", desc = "uv.pursuit.repaircooldown.desc", convar = "unitvehicle_repaircooldown", min = 5, max = 300, decimals = 0, sv = true },
 				{ type = "slider", text = "uv.pursuit.repairrange", desc = "uv.pursuit.repairrange.desc", convar = "unitvehicle_repairrange", min = 10, max = 1000, decimals = 0, sv = true },
 			},
+
 			{ TabName = "uv.ai.title", Icon = "unitvehicles/icons/cops_icon.png", sv = true,
 				{ type = "label", text = "uv.aidifficulty", sv = true },
 				{ type = "combo", text = "uv.aidifficulty.racer", desc = "uv.aidifficulty.racer.desc", convar = "unitvehicle_racedifficulty", sv = true, content = {
@@ -800,6 +795,22 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.ainav.dvnavoptimized", desc = "uv.ainav.dvnavoptimized.desc", convar = "unitvehicle_dvnavioptimized", sv = true },
 				{ type = "bool", text = "uv.ainav.dvdistancebased", desc = "uv.ainav.dvdistancebased.desc", convar = "unitvehicle_dvwaypointsdistancebased", sv = true },
 			},
+
+			{ TabName = "uv.uvset.title", Icon = "unitvehicles/icons/milestone_outrun_races_won.png", sv = true,
+				{ type = "label", text = "uv.ui.menu", desc = "uv.ui.menu.desc" },
+				{ type = "button", text = "uv.ui.menu.custcol", desc = "uv.ui.menu.custcol.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.SettingsCol, true) end },
+				{ type = "bool", text = "uv.ui.menu.hidedesc", desc = "uv.ui.menu.hidedesc.desc", convar = "uvmenu_hide_description" },
+				{ type = "bool", text = "uv.ui.menu.hideprompts", desc = "uv.ui.menu.hideprompts.desc", convar = "uvmenu_hide_prompts" },
+				{ type = "slider", text = "uv.ui.menu.openspeed", desc = "uv.ui.menu.openspeed.desc", convar = "uvmenu_open_speed", min = 0.1, max = 1, decimals = 2 },
+				{ type = "slider", text = "uv.ui.menu.closespeed", desc = "uv.ui.menu.closespeed.desc", convar = "uvmenu_close_speed", min = 0.1, max = 1, decimals = 2 },
+				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
+				
+				{ type = "label", text = "uv.ui.dataimport", desc = "uv.ui.dataimport.desc", sv = true, sp = true },
+				{ type = "button", text = "uv.ui.dataimport.scan", desc = "uv.ui.dataimport.scan.desc", sv = true, sp = true, playsfx = "clickopen", prompts = {"uv.prompt.confirm"}, func = function() UV_StartImportFlow() end },
+				{ type = "bool", text = "uv.ui.dataimport.disableimport", desc = "uv.ui.dataimport.disableimport.desc", convar = "uvmenu_disabledataimport", sv = true, sp = true },
+				{ type = "bool", text = "uv.ui.dataimport.disablereplace", desc = "uv.ui.dataimport.disablereplace.desc", convar = "uvmenu_disabledatareplace", sv = true, sp = true },
+			},
+
 			{ TabName = "uv.addons", Icon = "unitvehicles/icons/generic_cart.png", sv = true,
 				unpack(addonTabRows)
 			},
@@ -1920,6 +1931,131 @@ net.Receive("UV_OpenDVWarning", function()
     UVMenu.OpenMenu(UVMenu.DVWarning, true)
 end)
 
+------- [ Import Notifications ] -------
+UVMenu.ImportAdd = function()
+    local replaceentries = UVMenu.ImportDataText or ""
+
+    local tab = {
+        { type = "infosimple", text = "uv.system.starter.noexist" },
+    }
+
+    if replaceentries ~= "" then
+        table.insert(tab, { type = "infosimple", text = replaceentries })
+    end
+
+    table.insert(tab, {
+        type = "buttonlr",
+        text = "uv.system.starter.import.skip",
+        text2 = "uv.system.starter.import",
+        playsfx = "confirm",
+        prompts = {"uv.prompt.confirm"},
+
+        func = function()
+            if UVMenu.ImportOnSkip then
+                UVMenu.ImportOnSkip()
+				UVMenu.CloseCurrentMenu()
+			else
+				UVMenu.CloseCurrentMenu()
+            end
+
+            -- UVMenu.ImportDataText = nil
+            -- UVMenu.ImportOnSkip = nil
+            -- UVMenu.ImportOnConfirm = nil
+        end,
+
+        func2 = function()
+            if UVMenu.ImportOnConfirm then
+                UVMenu.ImportOnConfirm()
+				UVMenu.CloseCurrentMenu()
+			else
+				UVMenu.CloseCurrentMenu()
+            end
+
+            -- UVMenu.ImportDataText = nil
+            -- UVMenu.ImportOnSkip = nil
+            -- UVMenu.ImportOnConfirm = nil
+        end,
+    })
+
+    UVMenu.CurrentMenu = UVMenu:Open({
+        Name = " ",
+        Width  = UV.ScaleW(1200),
+        Height = UV.ScaleH(1200),
+        DynamicHeight = true,
+        Description = false,
+        UnfocusClose = false,
+        HideCloseButton = true,
+        Tabs = {
+            {
+                TabName = "uv.system.starter.header.import",
+                unpack(tab)
+            }
+        }
+    })
+end
+
+UVMenu.ImportReplace = function()
+    local replaceentries = UVMenu.ImportDataText or ""
+
+    local tab = {
+        { type = "infosimple", text = "uv.system.starter.replace" },
+    }
+
+    if replaceentries ~= "" then
+        table.insert(tab, { type = "infosimple", text = replaceentries })
+    end
+
+    table.insert(tab, {
+        type = "buttonlr",
+        text = "uv.system.starter.import.skip",
+        text2 = "uv.system.starter.import.replace",
+        playsfx = "confirm",
+        prompts = {"uv.prompt.confirm"},
+
+        func = function()
+            if UVMenu.ImportOnSkip then
+                UVMenu.ImportOnSkip()
+				UVMenu.CloseCurrentMenu()
+			else
+				UVMenu.CloseCurrentMenu()
+            end
+
+            -- UVMenu.ImportDataText = nil
+            -- UVMenu.ImportOnSkip = nil
+            -- UVMenu.ImportOnConfirm = nil
+        end,
+
+        func2 = function()
+            if UVMenu.ImportOnConfirm then
+                UVMenu.ImportOnConfirm()
+				UVMenu.CloseCurrentMenu()
+			else
+				UVMenu.CloseCurrentMenu()
+            end
+
+            -- UVMenu.ImportDataText = nil
+            -- UVMenu.ImportOnSkip = nil
+            -- UVMenu.ImportOnConfirm = nil
+        end,
+    })
+
+    UVMenu.CurrentMenu = UVMenu:Open({
+        Name = " ",
+        Width  = UV.ScaleW(1200),
+        Height = UV.ScaleH(1200),
+        DynamicHeight = true,
+        Description = false,
+        UnfocusClose = false,
+        HideCloseButton = true,
+        Tabs = {
+            {
+                TabName = "uv.system.starter.header.replace",
+                unpack(tab)
+            }
+        }
+    })
+end
+
 ------- [ DEBUG ] -------
 UVMenu.DebugWarning = function()
 	UVMenu.CurrentMenu = UVMenu:Open({
@@ -2119,6 +2255,22 @@ UVMenu.DebugMenu = function()
 
 							hook.Run( "UIEventHook", "racing", "onRaceEnd", UVFormLeaderboard(participants) )
 					end
+				},
+				
+				{ type = "label", text = "Moka's Corner", cond = function() return game.GetMap() == "gm_futuropark_circuit_v1" end },
+				{ type = "button", text = "Start Drag Race on futuropark", playsfx = "confirm", prompts = {"uv.prompt.confirm"}, func = function(self2)
+						RunConsoleCommand("uvrace_import", "drag_speed_test.txt")
+
+						timer.Simple(0.35, function()
+							RunConsoleCommand("uvrace_startinvite")
+						end)
+						
+						timer.Simple(1.25, function()
+							RunConsoleCommand("uvrace_startrace", GetConVar("unitvehicle_racelaps"):GetString())
+							UVMenu.CloseCurrentMenu()
+						end)
+					end,
+					cond = function() return game.GetMap() == "gm_futuropark_circuit_v1" end,
 				},
 			},
 			{ TabName = "uv.faq.pursuits",

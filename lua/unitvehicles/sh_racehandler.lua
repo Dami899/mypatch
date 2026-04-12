@@ -30,6 +30,12 @@ UVRaceReverseCatchupGap = CreateConVar( "unitvehicle_racercatchup_rev_gap", 2, {
 
 UVMenuFirstCreate = CreateConVar( "unitvehicle_uvmenu_firstsetup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, whenever you open the UV Menu via the Context Menu, you'll be prompted to go through the first-time setup." )
 
+-- Data Import
+if CLIENT then
+	CreateClientConVar("uvmenu_disabledataimport", 0, true, false)
+	CreateClientConVar("uvmenu_disabledatareplace", 0, true, false)
+end
+
 function UVFormLeaderboard(racers, overrideVehicle)
 	local lPr = CLIENT and LocalPlayer()
 	local sorted_table = {}
@@ -2496,6 +2502,8 @@ else -- CLIENT stuff
 		end
 	end)
 
+	local smoothedSpeed = 0
+
 	hook.Add("HUDPaint", "UVHUDRace", function()
 		local w, h = ScrW(), ScrH()
 		local hudyes = GetConVar("cl_drawhud"):GetBool()
@@ -2506,8 +2514,14 @@ else -- CLIENT stuff
 		if UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.speedometer[speedotype] and UV_UI.speedometer[speedotype].main) and table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, Glide.currentVehicle.BaseClass.ClassName ) then
 			local speed = Glide.currentVehicle:GetVelocity():Length()
 
-			local kmh = math.floor(speed * 3600 * 0.0000254 * 0.75)
-			local mph = math.floor(speed * 3600 / 63360 * 0.75)
+			-- smooth it (adjust 8–12 for responsiveness)
+			smoothedSpeed = Lerp(FrameTime() * 10, smoothedSpeed, speed)
+
+			local kmh = math.floor(smoothedSpeed * 3600 * 0.0000254 * 0.75)
+			local mph = math.floor(smoothedSpeed * 3600 / 63360 * 0.75)
+
+			-- local kmh = math.floor(speed * 3600 * 0.0000254 * 0.75)
+			-- local mph = math.floor(speed * 3600 / 63360 * 0.75)
 
 			local gear = Glide.currentVehicle:GetGear()
 			local rpm = math.floor(Glide.currentVehicle:GetEngineRPM())
@@ -2526,6 +2540,7 @@ else -- CLIENT stuff
 			local redlinestrength = (Glide.currentVehicle.stream and Glide.currentVehicle.stream.redlineFrequency) or 0
 			
 			local health = Glide.currentVehicle:GetEngineHealth()
+			health = math.max(0, math.min(1, health))
 			
 			local cfnitrousenabled = Glide.currentVehicle:GetNWBool( 'NitrousEnabled' )
 			local cfsbenabled = Glide.currentVehicle:GetNWBool( 'SpeedbreakerEnabled' )

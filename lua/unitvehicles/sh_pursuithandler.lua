@@ -3524,23 +3524,20 @@ else -- CLIENT Settings | HUD/Options
 				local data = util.JSONToTable( file.Read( 'data/unitvehicles/preset_import/uvunitmanager/' .. impFile, 'GAME' ) )
 				
 				if type(data) == 'table' and (data.Name and data.Data) then
-					presets.Add( 
-						'units', 
-						data.Name, 
-						data.Data 
-					)
+					if presets.Exists and presets.Exists("units", data.Name) then return end
+					presets.Add( 'units', data.Name, data.Data )
 				else
 					error('Malformed JSON data!')
 				end
 				
-				file.Delete( 'unitvehicles/preset_import/uvunitmanager/' .. impFile, 'DATA' )
+				-- file.Delete( 'unitvehicles/preset_import/uvunitmanager/' .. impFile, 'DATA' )
 			end)
 
-			if success then
-				MsgC( Color(0, 255, 0), "[Unit Vehicles (uvunitmanager)]: Added \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
-			else
-				MsgC( Color(255, 0, 0), "[Unit Vehicles (uvunitmanager)]: Failed to add \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
-			end
+			-- if success then
+				-- MsgC( Color(0, 255, 0), "[Unit Vehicles (uvunitmanager)]: Added \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
+			-- else
+				-- MsgC( Color(255, 0, 0), "[Unit Vehicles (uvunitmanager)]: Failed to add \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
+			-- end
 		end
 	end)
 
