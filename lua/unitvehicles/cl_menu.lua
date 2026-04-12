@@ -589,20 +589,6 @@ UVMenu.Settings = function()
 		Description = true,
 		UnfocusClose = true,
 		Tabs = {
-			{ TabName = "uv.uvset.title", Icon = "unitvehicles/icons/milestone_outrun_races_won.png", sv = true,
-				{ type = "label", text = "uv.ui.menu", desc = "uv.ui.menu.desc" },
-				{ type = "button", text = "uv.ui.menu.custcol", desc = "uv.ui.menu.custcol.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.SettingsCol, true) end },
-				{ type = "bool", text = "uv.ui.menu.hidedesc", desc = "uv.ui.menu.hidedesc.desc", convar = "uvmenu_hide_description" },
-				{ type = "bool", text = "uv.ui.menu.hideprompts", desc = "uv.ui.menu.hideprompts.desc", convar = "uvmenu_hide_prompts" },
-				{ type = "slider", text = "uv.ui.menu.openspeed", desc = "uv.ui.menu.openspeed.desc", convar = "uvmenu_open_speed", min = 0.1, max = 1, decimals = 2 },
-				{ type = "slider", text = "uv.ui.menu.closespeed", desc = "uv.ui.menu.closespeed.desc", convar = "uvmenu_close_speed", min = 0.1, max = 1, decimals = 2 },
-				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
-				
-				{ type = "label", text = "uv.ui.dataimport", desc = "uv.ui.dataimport.desc" },
-				{ type = "bool", text = "uv.ui.dataimport.disableimport", desc = "uv.ui.dataimport.disableimport.desc", convar = "uvmenu_disabledataimport" },
-				{ type = "bool", text = "uv.ui.dataimport.disablereplace", desc = "uv.ui.dataimport.disablereplace.desc", convar = "uvmenu_disabledatareplace" },
-			},
-
 			{ TabName = "uv.ui.title", Icon = "unitvehicles/icons_settings/display.png",
 
 				{ type = "label", text = "uv.settings.general" },
@@ -808,6 +794,20 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.ainav.dvpriority", desc = "uv.ainav.dvpriority.desc", convar = "unitvehicle_dvwaypointspriority", sv = true },
 				{ type = "bool", text = "uv.ainav.dvnavoptimized", desc = "uv.ainav.dvnavoptimized.desc", convar = "unitvehicle_dvnavioptimized", sv = true },
 				{ type = "bool", text = "uv.ainav.dvdistancebased", desc = "uv.ainav.dvdistancebased.desc", convar = "unitvehicle_dvwaypointsdistancebased", sv = true },
+			},
+
+			{ TabName = "uv.uvset.title", Icon = "unitvehicles/icons/milestone_outrun_races_won.png", sv = true,
+				{ type = "label", text = "uv.ui.menu", desc = "uv.ui.menu.desc" },
+				{ type = "button", text = "uv.ui.menu.custcol", desc = "uv.ui.menu.custcol.desc", playsfx = "clickopen", prompts = {"uv.prompt.open.menu"}, func = function() UVMenu.OpenMenu(UVMenu.SettingsCol, true) end },
+				{ type = "bool", text = "uv.ui.menu.hidedesc", desc = "uv.ui.menu.hidedesc.desc", convar = "uvmenu_hide_description" },
+				{ type = "bool", text = "uv.ui.menu.hideprompts", desc = "uv.ui.menu.hideprompts.desc", convar = "uvmenu_hide_prompts" },
+				{ type = "slider", text = "uv.ui.menu.openspeed", desc = "uv.ui.menu.openspeed.desc", convar = "uvmenu_open_speed", min = 0.1, max = 1, decimals = 2 },
+				{ type = "slider", text = "uv.ui.menu.closespeed", desc = "uv.ui.menu.closespeed.desc", convar = "uvmenu_close_speed", min = 0.1, max = 1, decimals = 2 },
+				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
+				
+				{ type = "label", text = "uv.ui.dataimport", desc = "uv.ui.dataimport.desc" },
+				{ type = "bool", text = "uv.ui.dataimport.disableimport", desc = "uv.ui.dataimport.disableimport.desc", convar = "uvmenu_disabledataimport" },
+				{ type = "bool", text = "uv.ui.dataimport.disablereplace", desc = "uv.ui.dataimport.disablereplace.desc", convar = "uvmenu_disabledatareplace" },
 			},
 
 			{ TabName = "uv.addons", Icon = "unitvehicles/icons/generic_cart.png", sv = true,
