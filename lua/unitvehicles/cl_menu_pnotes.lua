@@ -36,6 +36,9 @@ Text = [[
             |-- <color=255,255,100>Nav Meshes</color>
             |-- <color=255,255,100>Unit Presets</color>
       |-- Can be disabled in the new *UV Menu / Settings / UV Settings* tab
+	  
+**Please Note**
+The content importer will check all your UV content to see if anything is mismatched. Due to this, you can experience a hickup when going in-game. You can enable the *Disable Data Replacement* feature to alleviate this.
 
 **Changes**
 - Improved AI Racer behaviour during races:
@@ -44,9 +47,11 @@ Text = [[
 - Improved AI Racer Rubberband:
       |-- Now checks for actual players ahead of them before rubberbanding
       |-- If there's no players ahead (only AI), then they'll never rubberband
+- Altered the appearance of all UVPD vehicles
 
 **Fixes**
 - Fixed that the Speedometer speed values would become jittery when playing for a longer period of time
+- Fixed that the Speedometer's health value could go to "inf" if *Unlimited Durability* was enabled
 ]],
 },
 
