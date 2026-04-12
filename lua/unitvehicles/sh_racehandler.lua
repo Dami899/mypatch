@@ -2540,6 +2540,7 @@ else -- CLIENT stuff
 			local redlinestrength = (Glide.currentVehicle.stream and Glide.currentVehicle.stream.redlineFrequency) or 0
 			
 			local health = Glide.currentVehicle:GetEngineHealth()
+			health = math.max(0, math.min(1, health))
 			
 			local cfnitrousenabled = Glide.currentVehicle:GetNWBool( 'NitrousEnabled' )
 			local cfsbenabled = Glide.currentVehicle:GetNWBool( 'SpeedbreakerEnabled' )
