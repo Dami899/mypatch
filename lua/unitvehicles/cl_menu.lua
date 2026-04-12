@@ -805,9 +805,10 @@ UVMenu.Settings = function()
 				{ type = "slider", text = "uv.ui.menu.closespeed", desc = "uv.ui.menu.closespeed.desc", convar = "uvmenu_close_speed", min = 0.1, max = 1, decimals = 2 },
 				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
 				
-				{ type = "label", text = "uv.ui.dataimport", desc = "uv.ui.dataimport.desc" },
-				{ type = "bool", text = "uv.ui.dataimport.disableimport", desc = "uv.ui.dataimport.disableimport.desc", convar = "uvmenu_disabledataimport" },
-				{ type = "bool", text = "uv.ui.dataimport.disablereplace", desc = "uv.ui.dataimport.disablereplace.desc", convar = "uvmenu_disabledatareplace" },
+				{ type = "label", text = "uv.ui.dataimport", desc = "uv.ui.dataimport.desc", sv = true, sp = true },
+				{ type = "button", text = "uv.ui.dataimport.scan", desc = "uv.ui.dataimport.scan.desc", sv = true, sp = true, playsfx = "clickopen", prompts = {"uv.prompt.confirm"}, func = function() UV_StartImportFlow() end },
+				{ type = "bool", text = "uv.ui.dataimport.disableimport", desc = "uv.ui.dataimport.disableimport.desc", convar = "uvmenu_disabledataimport", sv = true, sp = true },
+				{ type = "bool", text = "uv.ui.dataimport.disablereplace", desc = "uv.ui.dataimport.disablereplace.desc", convar = "uvmenu_disabledatareplace", sv = true, sp = true },
 			},
 
 			{ TabName = "uv.addons", Icon = "unitvehicles/icons/generic_cart.png", sv = true,

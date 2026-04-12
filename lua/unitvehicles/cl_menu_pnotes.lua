@@ -35,7 +35,8 @@ Text = [[
             |-- <color=255,255,100>DV Waypoints</color>
             |-- <color=255,255,100>Nav Meshes</color>
             |-- <color=255,255,100>Unit Presets</color>
-      |-- Can be disabled in the new *UV Menu / Settings / UV Settings* tab
+            |-- <color=255,255,100>Glide/Simfphys/LVS/HL2 Jeep Vehicles</color>
+      |-- Can be disabled, or triggered manually, in the new *UV Menu / Settings / UV Settings* tab
 	  
 **Please Note**
 The content importer will check all your UV content to see if anything is mismatched. Due to this, you can experience a hickup when going in-game. You can enable the *Disable Data Replacement* feature to alleviate this.

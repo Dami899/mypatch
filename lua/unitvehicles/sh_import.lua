@@ -113,16 +113,23 @@ local function ImportReplace(entries)
 end
 
 local function CountEntries(entries)
-    local counts = {
-        names = false, -- special case
-        pb = 0,
-        race = 0,
-        repair = 0,
-        rb = 0,
-        waypoints = 0,
-        navmesh = 0,
-        presets = 0
-    }
+	local counts = {
+		names = false,
+		pb = 0,
+		race = 0,
+		repair = 0,
+		rb = 0,
+		waypoints = 0,
+		navmesh = 0,
+		presets = 0,
+
+		vehicles = {
+			glide = {racers = 0, traffic = 0, units = 0},
+			lvs = {racers = 0, traffic = 0, units = 0},
+			prop_vehicle_jeep = {racers = 0, traffic = 0, units = 0},
+			simfphys = {racers = 0, traffic = 0, units = 0}
+		}
+	}
 
     for _, v in ipairs(entries) do
         local path = v.dst:lower()
@@ -147,6 +154,13 @@ local function CountEntries(entries)
         if string.find(path, "navmesh") then
             counts.navmesh = counts.navmesh + 1
         end
+		
+		-- Vehicles
+		local base, vtype = string.match(path, "^unitvehicles/([^/]+)/([^/]+)/")
+
+		if base and vtype and counts.vehicles[base] and counts.vehicles[base][vtype] then
+			counts.vehicles[base][vtype] = counts.vehicles[base][vtype] + 1
+		end
     end
 
     return counts
@@ -169,6 +183,13 @@ end
 
 local function BuildEntryText(counts)
     local t = {}
+
+	local baseNames = {
+		glide = UVString("uv.base.glide"),
+		lvs = UVString("uv.base.lvs"),
+		prop_vehicle_jeep = UVString("uv.base.hl2"),
+		simfphys = UVString("uv.base.simfphys")
+	}
 
     -- NAMES (no count)
     if counts.names then
@@ -203,8 +224,20 @@ local function BuildEntryText(counts)
         table.insert(t, string.format(UVString("uv.system.starter.replace.presets"), counts.presets))
     end
 
+	local order = {"glide", "lvs", "prop_vehicle_jeep", "simfphys"}
+
+	for _, base in ipairs(order) do
+		local types = counts.vehicles[base]
+		local total = types.racers + types.traffic + types.units
+
+		if total > 0 then
+			local baseName = baseNames[base] or base
+			table.insert(t, string.format( UVString("uv.system.starter.replace.vehicles"), baseName, types.racers, types.traffic, types.units ))
+		end
+	end
+
     if #t == 0 then
-        return "No changes detected"
+        return UVString("uv.system.starter.unknownerror")
     end
 
     return table.concat(t, "\n")
@@ -287,7 +320,7 @@ function UV_StartImportFlow()
     end)
 end
 
-if CLIENT then
+if CLIENT and game.SinglePlayer() then
     hook.Add("InitPostEntity", "UV_RunImportFlow", function()
         timer.Simple(1, function()
             UV_StartImportFlow()
