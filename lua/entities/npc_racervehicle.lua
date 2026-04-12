@@ -1815,6 +1815,12 @@ if SERVER then
 		util.Effect("propspawn", e) --Perform a spawn effect.
 		self.v:EmitSound( "beams/beamstart5.wav" )
 		
+		if not UVNames then
+			file.AsyncRead('unitvehicles/names/Names.json', 'DATA', function( _, _, status, data )
+				UVNames = util.JSONToTable(data)
+			end, true)
+		end
+		
 		if not self.v.racer and UVNames then
 			self.v.racer = UVNames.Racers[math.random(1, #UVNames.Racers)]
 			local joinmessage = "Racer AI (" .. self.v.racer .. ") has joined the game"

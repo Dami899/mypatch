@@ -13,9 +13,29 @@ Date = { year = 2026, month = 4, day = 14 },
 Type = "Minor",
 Text = [[
 **New Features**
+- Pursuits: Replaced the global pursuit system with an *individual pursuit system*
+      |-- Racers can now hide, evade and join pursuits individually
+      |-- Vehicles have their own heat level, bounty, infractions, etc.
+      |-- Units will spawn as units from the highest heat level racer's pool
+
 - AI Racers: Added a new *Inverted Rubberband* feature
       |-- AI that are ahead of players will gradually slow down
       |-- Does not apply during Pursuits, or if they are rubberbanding up to another player
+
+- Added a new content importer
+      |-- Prompts the user if data from Workshop addons (such as the starter pack) is not present in their data folder
+      |-- Also prompts the user if data from Workshop addons already exist, but differ in any way
+      |-- Will have the option to accept the import and/or replacement, or skip it
+      |-- Checks for: 
+            |-- <color=255,255,100>Racer Names</color>
+            |-- <color=255,255,100>Pursuit Breakers</color>
+            |-- <color=255,255,100>Races</color>
+            |-- <color=255,255,100>Repair Shops</color>
+            |-- <color=255,255,100>Roadblocks</color>
+            |-- <color=255,255,100>DV Waypoints</color>
+            |-- <color=255,255,100>Nav Meshes</color>
+            |-- <color=255,255,100>Unit Presets</color>
+      |-- Can be disabled in the new *UV Menu / Settings / UV Settings* tab
 
 **Changes**
 - Improved AI Racer behaviour during races:
@@ -24,6 +44,9 @@ Text = [[
 - Improved AI Racer Rubberband:
       |-- Now checks for actual players ahead of them before rubberbanding
       |-- If there's no players ahead (only AI), then they'll never rubberband
+
+**Fixes**
+- Fixed that the Speedometer speed values would become jittery when playing for a longer period of time
 ]],
 },
 
