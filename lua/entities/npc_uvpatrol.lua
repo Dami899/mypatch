@@ -1226,14 +1226,13 @@ if SERVER then
 			if closestsuspect ~= self.e and straightToEnemy then
 				self.e = closestsuspect
 				eScope = IsValid(self.e) and UVGetScope(self.e) or nil
-				UVAddToWantedListVehicle(self.e)
 				if not closestsuspect.UVWanted then
 					closestsuspect.UVWanted = closestsuspect
 				end
 				local driver = UVGetDriver(self.e)
 				if isfunction(self.e.GetDriver) and IsValid(driver) and driver:IsPlayer() then 
 					self.edriver = driver
-					UVAddToWantedListDriver(self.edriver)
+					
 				else
 					self.edriver = nil
 				end
@@ -1285,14 +1284,14 @@ if SERVER then
 					self.idle = nil
 					self.e = enemy
 					eScope = IsValid(self.e) and UVGetScope(self.e) or nil
-					UVAddToWantedListVehicle(self.e)
+				
 					if not enemy.UVWanted then
 						enemy.UVWanted = enemy
 					end
 					local driver = UVGetDriver(self.e)
 					if isfunction(self.e.GetDriver) and IsValid(driver) and driver:IsPlayer() then 
 						self.edriver = driver
-						UVAddToWantedListDriver(self.edriver)
+						
 					else
 						self.edriver = nil
 					end
@@ -1311,14 +1310,14 @@ if SERVER then
 				if IsValid(enemy) then
 					self.e = enemy
 					eScope = IsValid(self.e) and UVGetScope(self.e) or nil
-					UVAddToWantedListVehicle(self.e)
+				
 					if not enemy.UVWanted then
 						enemy.UVWanted = enemy
 					end
 					local driver = UVGetDriver(self.e)
 					if isfunction(self.e.GetDriver) and IsValid(driver) and driver:IsPlayer() then 
 						self.edriver = driver
-						UVAddToWantedListDriver(self.edriver)
+						
 					else
 						self.edriver = nil
 					end
@@ -1941,7 +1940,7 @@ if SERVER then
 					local driver = UVGetDriver(self.e)
 					if isfunction(self.e.GetDriver) and IsValid(driver) and driver:IsPlayer() then 
 						self.edriver = driver
-						UVAddToWantedListDriver(self.edriver)
+						
 					else
 						self.edriver = nil
 					end
