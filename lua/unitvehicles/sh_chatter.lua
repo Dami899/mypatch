@@ -1115,7 +1115,6 @@ if SERVER then
 			timeCheck = UVSoundChatter(self, self.voice, "heat" .. heat, 8)
 		end
 		
-		timer.Simple(timeCheck, function()
 			if next(ents.FindByClass("npc_uv*")) ~= nil and not UVEnemyBusted then
 				local units = ents.FindByClass("npc_uv*")
 				local random_entry = math.random(#units)	
@@ -1126,17 +1125,14 @@ if SERVER then
 					timeCheck = UVSoundChatter(self, self.voice, "heat" .. heat .. "acknowledge", 1)
 				elseif next(ents.FindByClass("npc_uvspecial")) ~= nil then
 					timeCheck = UVSoundChatter(self, self.voice, "heat" .. heat .. "argue", 1)
-					timer.Simple(timeCheck, function()
 						if next(ents.FindByClass("npc_uv*")) ~= nil and not UVEnemyBusted then
 							local units = ents.FindByClass("npc_uv*")
 							local random_entry = math.random(#units)	
 							local unit = units[random_entry]
 							UVSoundChatter(self, self.voice, "heat" .. heat .. "reassure", nil, "DISPATCH")
 						end
-					end)
 				end
 			end
-		end)
 		
 		return
 	end

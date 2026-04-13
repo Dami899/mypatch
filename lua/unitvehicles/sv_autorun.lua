@@ -340,7 +340,21 @@ end)
 
 concommand.Add( "uv_setheat", function( ply, cmd, args )
 	if ply and not ply:IsSuperAdmin() then return end
-	UVHeatLevel = math.Clamp( (tonumber(args[1]) or 1), 1, MAX_HEAT_LEVEL )
+	for _, v in pairs( UVWantedTableVehicle ) do
+		local scope = UVGetScope(v)
+
+		if scope then
+			scope.Heat = math.Clamp( (tonumber(args[1]) or 1), 1, MAX_HEAT_LEVEL )
+			_highestHeatLevel = scope.Heat
+		end
+	end
+
+	if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVTargeting then
+		local units = ents.FindByClass("npc_uv*")
+		local random_entry = math.random(#units)
+		local unit = units[random_entry]
+		UVChatterReportHeat(unit, _highestHeatLevel)
+	end
 end)
 
 function UV_DespawnVehicles(ply)
@@ -2991,18 +3005,6 @@ function UVIsSeenByUnit(vehicle)
 
 		if seen then
 			UVAddToWantedListVehicle(vehicle)
-			local scope = UVGetScope(vehicle)
-			if scope and not scope.InPursuit then
-				scope.InPursuit = true
-				scope.EnemyEscaped = false
-				scope.EnemyEscaping = false
-				scope.InCooldown = false
-				scope.Deploys = 0
-				scope.Losing = 0
-				if scope.PursuitStart == 0 then
-					scope.PursuitStart = CurTime()
-				end
-			end
 			return true
 		end
 	end
@@ -3328,8 +3330,11 @@ function UVBustEnemy(self, enemy, finearrest)
 	local timeacknowledge = 5
 	local enemyDriver = UVGetDriver(enemy)
 	local finesdue = enemy.FinesDue or 0
+
+	local enemyScope = UVGetScope(enemy)
+	if not enemyScope then return end
 	
-	if UVTargeting or self.UVAir or finearrest then --Arrest
+	if enemyScope.InPursuit or self.UVAir or finearrest then --Arrest
 		if table.HasValue(UVPotentialSuspects, enemy) then
 			table.RemoveByValue(UVPotentialSuspects, enemy)
 		end
@@ -3518,9 +3523,8 @@ function UVBustEnemy(self, enemy, finearrest)
 				v:ForgetEnemy()
 			end
 			net.Start( "UVHUDStopBusting" )
-			net.Broadcast()
+			net.Send(UVGetVehicleOccupants(enemy))
 		end)
-		UVEnemyBusted = true
 		local enemyScope = UVGetScope(enemy)
 		if enemyScope then
 			enemyScope.EnemyBusted = true
@@ -3563,7 +3567,11 @@ function UVBustEnemy(self, enemy, finearrest)
 		end
 		self.aggressive = nil
 		timer.Simple(10, function()
-			UVEnemyBusted = nil
+			for _, v in pairs(ents.FindByClass("npc_uv*")) do
+				if v.e == enemy then
+					v:ForgetEnemy()
+				end
+			end
 			enemy.uvbusted = nil
 			local fineScope = UVGetScope(enemy)
 			if fineScope then
@@ -3860,7 +3868,7 @@ function UVCheckIfBeingBusted(enemy)
 
 	local scope = UVGetScope(enemy)
 	
-	if not enemy.uvbusted and btimeout and btimeout > 0 and enemy:GetVelocity():LengthSqr() < _LocalUVBustSpeed and not scope.EnemyEscaping and scope.InPursuit and
+	if not enemy.uvbusted and btimeout and btimeout > 0 and enemy:GetVelocity():LengthSqr() < _LocalUVBustSpeed and not scope.EnemyEscaping and (scope.InPursuit or table.HasValue(UVWantedTableVehicle, enemy)) and
 	(closestdistancetounit < 250000 or closestunit.CloseToTarget) then
 		if not enemy.UVHUDBusting and not enemy.UVHUDBustingDelayed then
 			enemy.UVHUDBusting = true
@@ -3931,7 +3939,7 @@ function UVCheckIfBeingBusted(enemy)
 				net.Start( "UVHUDStopBusting" )
 				net.Broadcast()
 				if not UVTargeting and not enemy.uvbusted then
-					UVTargeting = true
+					if scope then scope.InPursuit = true end
 					if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() then
 						local units = ents.FindByClass("npc_uv*")
 						local random_entry = math.random(#units)	

@@ -117,9 +117,8 @@ if SERVER then
 					local force = power * (1 - (vectorDifference:Length()/1000))
 					objectphys:ApplyForceCenter(angle:Forward()*force)
 					UVRamVehicle(object)
-					if object.UnitVehicle or (object.UVWanted and not AutoHealth:GetBool()) or not (object.UnitVehicle and object.UVWanted) then
-						damage = (table.HasValue(UVCommanders, object) and UVPTStunMineCommanderDamage:GetFloat()) or damage
-						UVDamage(vehicle, damage)
+					damage = (table.HasValue(UVCommanders, object) and UVPTStunMineCommanderDamage:GetFloat()) or damage
+					UVDamage( vehicle, damage )
 					
 						-- if self.racerdeployed then
 						-- 	if not UVGetDriver(self.racerdeployed) then continue end
@@ -127,7 +126,6 @@ if SERVER then
 						-- 		ReportPTEvent( self.racerdeployed, car, "StunMine", "Hit" )
 						-- 	end
 						-- end
-					end
 					local e = EffectData()
 					e:SetEntity(object)
 					util.Effect("phys_unfreeze", e)

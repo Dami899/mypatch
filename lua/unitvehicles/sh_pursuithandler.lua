@@ -666,10 +666,12 @@ function UVSoundCooldown(heatlevel)
 	local appendingString = "low"
 
 	local vehicle = LocalPlayer():GetVehicle()
-	if vehicle then
+	local isValid = IsValid(vehicle)
+	local physObj = nil
+	if isValid then
 		vehicle = IsValid(vehicle:GetParent()) and vehicle:GetParent() or vehicle
+		physObj = IsValid(vehicle:GetPhysicsObject()) and vehicle:GetPhysicsObject() or vehicle
 	end
-	local physObj = IsValid(vehicle:GetPhysicsObject()) and vehicle:GetPhysicsObject() or vehicle
 
 
 	appendingString = (physObj and physObj:GetVelocity():LengthSqr() > 500000) and "high" or "low"
@@ -1909,17 +1911,18 @@ if SERVER then
 		-- UVTags = totalTags
 
 		if _highestHeatLevel ~= maxHeat then
-			if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVTargeting then
+			if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVTargeting and not _SkipHeatLevelReporting then
 				local units = ents.FindByClass("npc_uv*")
 				local random_entry = math.random(#units)
 				local unit = units[random_entry]
 				UVChatterReportHeat(unit, maxHeat)
 			end
-
+			
 			ApplyHeatSettings( maxHeat )
 		end
 
 		_highestHeatLevel = maxHeat
+		_SkipHeatLevelReporting = false
 	end
 
 	UVHeliCooldown = -math.huge
@@ -2048,7 +2051,7 @@ if SERVER then
 		end
 
 		--Deploying backup
-		if not UVTargeting or UVEnemyBusted or UVEnemyEscaped then
+		if not UVTargeting or UVEnemyBusted then
 			UVBackupTimer = CurTime()
 		end
 
@@ -2378,7 +2381,7 @@ if SERVER then
 
 		-- so essentially i moved all unit detection/pursuit start logic to here and removed it wherever else it was
 		-- this way we save up on a lot of performance by not having duplicate logic elsewhere
-		if next(UVUnitVehicles) ~= nil or (UVTargeting and not UVEnemyEscaping) then
+		if next(UVUnitVehicles) ~= nil then
 			--local newUnits = {}
 			for unit, _ in pairs(UVUnitVehicles) do
 				if not IsValid(unit) or not unit.UnitVehicle or unit.wrecked then
@@ -2469,7 +2472,7 @@ if SERVER then
 						end
 					end
 
-					if v.inunitview and vScope and not vScope.InPursuit then
+					if v.inunitview and vScope and not vScope.InPursuit and vScope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() then
 						if v.closestunit and v.closestunit.UnitVehicle:IsNPC() then
 							UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
 						end
@@ -2677,51 +2680,54 @@ if SERVER then
 				UVRestoreResourcePoints()
 				if game.SinglePlayer() and SpottedFreezeCam:GetBool() then --SPOTTED CAMERA
 					local ply = Entity(1)
-
-					local closestunit
-					local closestdistancetounit
-
-					local units = ents.FindByClass("npc_uv*")
-					local airUnits = ents.FindByClass("uvair")
-					local playerUnits = UVPlayerUnitTableVehicle
-
-					table.Add( units, airUnits )
-					table.Add( units, playerUnits )
-
-					local r = math.huge
-					local closestdistancetounit, closestunit = r^2
-
-					for i, w in pairs(units) do
-						local plypos = ply:WorldSpaceCenter()
-						local distance = plypos:DistToSqr(w:WorldSpaceCenter())
-						if distance < closestdistancetounit and UVStraightToWaypoint(plypos, w:WorldSpaceCenter()) then
-							if w:GetClass() ~= 'uvair' then
-								closestdistancetounit, closestunit = distance, w.v
-							else
-								closestdistancetounit, closestunit = distance, w
+					local v = UVGetVehicle(ply)
+					local vScope = UVGetScope(v)
+					if vScope and vScope.InPursuit then
+						local closestunit
+						local closestdistancetounit
+	
+						local units = ents.FindByClass("npc_uv*")
+						local airUnits = ents.FindByClass("uvair")
+						local playerUnits = UVPlayerUnitTableVehicle
+	
+						table.Add( units, airUnits )
+						table.Add( units, playerUnits )
+	
+						local r = math.huge
+						local closestdistancetounit, closestunit = r^2
+	
+						for i, w in pairs(units) do
+							local plypos = ply:WorldSpaceCenter()
+							local distance = plypos:DistToSqr(w:WorldSpaceCenter())
+							if distance < closestdistancetounit and UVStraightToWaypoint(plypos, w:WorldSpaceCenter()) then
+								if w:GetClass() ~= 'uvair' then
+									closestdistancetounit, closestunit = distance, w.v
+								else
+									closestdistancetounit, closestunit = distance, w
+								end
 							end
 						end
-					end
-
-					if closestunit then
-						ply.isUVFrozen = true
-                    	ply.isUVFreezeTime = RealTime() + FREEZE_DURATION
-
-						-- if IsValid(UVGetVehicle(ply)) then
-						-- 	ply.UVLastVehicleDriven = UVGetVehicle(ply)
-						-- 	ply:ExitVehicle()
-						-- end
-					
-						--ply:Freeze(true)
-                    	net.Start("UVSpottedFreeze")
-                    	net.WriteFloat(FREEZE_DURATION)
-                    	net.WriteEntity(closestunit)
-                    	net.Send(ply)
-						CF_CanSetTimeScale = false
-                    	game.SetTimeScale(0.001) --Source dosen't like it if you set it to 0
-
-
-						UVRelaySoundToClients("ui/pursuit/spottedfreezecam.wav", false)
+	
+						if closestunit then
+							ply.isUVFrozen = true
+							ply.isUVFreezeTime = RealTime() + FREEZE_DURATION
+	
+							-- if IsValid(UVGetVehicle(ply)) then
+							-- 	ply.UVLastVehicleDriven = UVGetVehicle(ply)
+							-- 	ply:ExitVehicle()
+							-- end
+						
+							--ply:Freeze(true)
+							net.Start("UVSpottedFreeze")
+							net.WriteFloat(FREEZE_DURATION)
+							net.WriteEntity(closestunit)
+							net.Send(ply)
+							CF_CanSetTimeScale = false
+							game.SetTimeScale(0.001) --Source dosen't like it if you set it to 0
+	
+	
+							UVRelaySoundToClients("ui/pursuit/spottedfreezecam.wav", false)
+						end	
 					end
 				end
 
@@ -3580,7 +3586,7 @@ else -- CLIENT Settings | HUD/Options
 						return
 					end
 
-					if not UVHUDDisplayPursuit then
+					if not IsPursuitActive then
 						blip.color = unitBlipColors[2]
 						return
 					end
@@ -4404,6 +4410,8 @@ else -- CLIENT Settings | HUD/Options
 
 		local _scopeVeh = UVGetVehicle(LocalPlayer())
 		local _activeScope = IsValid(_scopeVeh) and UVGetScope(_scopeVeh) or nil
+
+		IsPursuitActive = UV_GetInPursuitCount() > 0
 
 		if UVHUDCopMode and not _activeScope then
 			local domScope = UV_GetDominantScope()

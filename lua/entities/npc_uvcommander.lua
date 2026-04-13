@@ -219,7 +219,8 @@ if SERVER then
 		if not UVPassConVarFilter(v) then return false end
 
 		local scope = UVGetScope(v)
-		if not scope or not scope.InPursuit then return false end
+		if not scope then return false end
+		if not v.inunitview then return false end
 
 		return true
 	end
@@ -1338,7 +1339,7 @@ if SERVER then
 						if UVCalm and enemyValid and not UVHUDBusting then
 							if UVTargeting then return end
 							UVRestoreResourcePoints()
-							UVTargeting = true
+							if eScope then eScope.InPursuit = true end
 							if selfValid then
 								UVChatterPursuitStartRanAway(self)
 							end
@@ -1354,7 +1355,7 @@ if SERVER then
 					if ((eScope and eScope.Bounty or 0) >= GetConVar( 'unitvehicle_unit_heatminimumbounty1' ):GetInt() or self.e.uvraceparticipant) and not UVTargeting and not UVEnemyBusted then
 						timer.Simple(0.1, function()
 							if UVTargeting then return end
-							UVTargeting = true
+							if eScope then eScope.InPursuit = true end
 							if Chatter:GetBool() and IsValid(self) then
 								UVChatterPursuitStartWanted(self)
 							end

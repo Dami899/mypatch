@@ -321,7 +321,7 @@ if SERVER then
 
 		-- Inject host dynamically
 		for _, ply in ipairs(player.GetAll()) do
-			if ply:IsAdmin() or ply:IsSuperAdmin() and (UVRace_CurrentTrackHost and ply:Nick() == UVRace_CurrentTrackHost) then
+			if UVRaceCurrentHost and ply == UVRaceCurrentHost then
 				local veh = UVGetVehicle(ply)
 				if IsValid(veh) then
 					local id = veh:EntIndex()
@@ -627,6 +627,7 @@ if SERVER then
 		uvbestlaptime = nil
 		UVRaceInEffect = nil
 		UVRaceInProgress = nil
+		UVRaceCurrentHost = nil
 		UVRaceFirstSplitTriggered = nil
 		UVRace_UsingNodes = nil
 		
@@ -874,22 +875,22 @@ if SERVER then
 		UVValidateParticipants()
 	end)
 	
-	local lastHostVeh
+	-- local lastHostVeh
 
-	hook.Add("Think", "UVRaceHostVehicleWatch", function()
-		if not UVRaceInEffect then return end
+	-- hook.Add("Think", "UVRaceHostVehicleWatch", function()
+	-- 	if not UVRaceInEffect then return end
 
-		for _, ply in ipairs(player.GetAll()) do
-			if ply:IsSuperAdmin() then
-				local veh = ply:GetVehicle()
-				if IsValid(veh) and veh ~= lastHostVeh then
-					lastHostVeh = veh
-					UVBroadcastRacerList()
-				end
-				break
-			end
-		end
-	end)
+	-- 	for _, ply in ipairs(player.GetAll()) do
+	-- 		if ply:IsSuperAdmin() then
+	-- 			local veh = ply:GetVehicle()
+	-- 			if IsValid(veh) and veh ~= lastHostVeh then
+	-- 				lastHostVeh = veh
+	-- 				UVBroadcastRacerList()
+	-- 			end
+	-- 			break
+	-- 		end
+	-- 	end
+	-- end)
 
 	hook.Add( "Think", "UVRacing", function( ply )
 		if not UVRaceInEffect then return end
@@ -1373,6 +1374,7 @@ if SERVER then
 
 				UVRaceEnd()
 				UVCounterActive = false
+				UVRaceCurrentHost = nil
 		
 				net.Start( "uvrace_end" )
 				net.Broadcast()
@@ -1382,10 +1384,12 @@ if SERVER then
 
 			local tname = args[1]:Split(".")[2]
 
+			UVRaceCurrentHost = ply
+
 			net.Start("UVRace_TrackReady")
 			net.WriteString(trackName:Replace("_", " "))
 			net.WriteString(author)
-			net.WriteString(ply:Nick())
+			net.WritePlayer(ply)
 			net.Broadcast()
 			UVBroadcastRacerList()
 		end)
@@ -2952,7 +2956,7 @@ else -- CLIENT stuff
 	net.Receive("UVRace_TrackReady", function()
 		local name = net.ReadString()
 		local author = net.ReadString()
-		local hostedby = net.ReadString()
+		local plr = net.ReadPlayer()
 
 		if name == "?" and author == "?" then
 			UVRace_CurrentTrackName = nil
@@ -2961,7 +2965,7 @@ else -- CLIENT stuff
 		else
 			UVRace_CurrentTrackName = name
 			UVRace_CurrentTrackAuthor = author
-			UVRace_CurrentTrackHost = hostedby
+			UVRace_CurrentTrackHost = plr
 		end
 	end)
 
@@ -2979,7 +2983,7 @@ else -- CLIENT stuff
 			if not IsValid(ply) then return false end
 
 			-- Host always sees it
-			if UVRace_CurrentTrackHost and ply:Nick() == UVRace_CurrentTrackHost then
+			if UVRace_CurrentTrackHost and ply == UVRace_CurrentTrackHost then
 				return true
 			end
 
