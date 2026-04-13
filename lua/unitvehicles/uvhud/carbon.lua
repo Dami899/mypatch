@@ -421,8 +421,8 @@ UV_UI.racing.carbon.events = {
         if UVHUDDisplayRacing then return end
         if IsValid(ResultPanel) then ResultPanel:Remove() end
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
 
@@ -1224,8 +1224,8 @@ UV_UI.pursuit.carbon.events = {
         local debrieftitlevar = params.titleVar or " "
 		local debriefunitspawn = params.spawnAsUnit or false
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
@@ -1606,8 +1606,8 @@ UV_UI.pursuit.carbon.events = {
 }
 
 local function carbon_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)
@@ -1736,8 +1736,8 @@ local function carbon_pursuit_main( ... )
     
     local vehicle = LocalPlayer():GetVehicle()
     
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)

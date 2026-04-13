@@ -54,8 +54,8 @@ UV_UI.racing.underground2.events = {
     end,
     
     ShowResults = function(sortedRacers) -- Underground 2
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
@@ -431,8 +431,8 @@ UV_UI.racing.underground2.events = {
 }
 
 local function underground2_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)

@@ -190,8 +190,8 @@ UV_UI.racing.undercover.events = {
     ShowResults = function(sortedRacers) -- Undercover
         if UVHUDDisplayRacing then return end
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
@@ -771,8 +771,8 @@ UV_UI.pursuit.undercover.events = {
     ShowDebrief = function(params) -- Undercover
         if UVHUDDisplayRacing then return end
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
@@ -1194,8 +1194,8 @@ UV_UI.pursuit.undercover.events = {
 }
 
 local function undercover_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)
@@ -1329,8 +1329,8 @@ local function undercover_pursuit_main( ... )
 
     local vehicle = LocalPlayer():GetVehicle()
     
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)

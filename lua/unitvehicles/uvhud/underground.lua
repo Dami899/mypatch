@@ -56,8 +56,8 @@ UV_UI.racing.underground.events = {
     ShowResults = function(sortedRacers) -- Underground 1
         local debriefcolor = Color(255, 183, 61)
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
@@ -397,8 +397,8 @@ UV_UI.racing.underground.events = {
 }
 
 local function underground_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)

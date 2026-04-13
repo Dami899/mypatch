@@ -1899,8 +1899,8 @@ local function RenderUI()
 end
 
 local function nightrunners_speedometer( ... )
-    local w = ScrW()
-    local h = ScrH()
+	local w = UV_GetW()
+	local h = UV_GetH()
     
     local speed = select(1, ...)
     local speedname = select(2, ...)
@@ -1922,8 +1922,8 @@ local function nightrunners_speedometer( ... )
     if gear == -1 then gearText = "R"
     elseif gear == 0 then gearText = "N" end
     
-    data.posX = w * (GetConVar("uvspeedo_nightrunners_x"):GetFloat())
-    data.posY = h * (GetConVar("uvspeedo_nightrunners_y"):GetFloat())
+    data.posX = UV_UI.XScaled( w * (GetConVar("uvspeedo_nightrunners_x"):GetFloat()) )
+    data.posY = UV_UI.Y( h * (GetConVar("uvspeedo_nightrunners_y"):GetFloat()) )
 
     local screenXBase = math.min( w, h * ( UV.BaseW / UV.BaseH ) )
     local targetAspect = UV.BaseW / UV.BaseH
@@ -1951,8 +1951,8 @@ local function nightrunners_speedometer( ... )
     data.mph = mph
     
     local speedopos = {
-        x = w * (GetConVar("uvspeedo_nightrunners_x"):GetFloat()),
-        y = h * (GetConVar("uvspeedo_nightrunners_y"):GetFloat()),
+        x = UV_UI.XScaled( w * (GetConVar("uvspeedo_nightrunners_x"):GetFloat()) ),
+        y = UV_UI.Y( h * (GetConVar("uvspeedo_nightrunners_y"):GetFloat()) ),
     }
     
     local colorValues = {
