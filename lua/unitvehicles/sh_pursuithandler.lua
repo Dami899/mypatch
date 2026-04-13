@@ -2051,7 +2051,7 @@ if SERVER then
 		end
 
 		--Deploying backup
-		if not UVTargeting or UVEnemyBusted then
+		if not UVTargeting then
 			UVBackupTimer = CurTime()
 		end
 
