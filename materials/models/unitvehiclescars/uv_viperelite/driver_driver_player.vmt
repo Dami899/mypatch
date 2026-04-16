@@ -1,0 +1,14 @@
+VertexLitGeneric
+{
+	"$basetexture"	"models\unitvehiclescars\uv_viperelite\Textures\driver"
+	"$color2"	"[1 1 1]"
+
+	Proxies
+	{
+		Equals
+		{
+			srcVar1				$color2
+			resultVar			$color
+		}
+	}
+}

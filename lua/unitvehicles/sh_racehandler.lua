@@ -245,7 +245,6 @@ function UVFormLeaderboard(racers, overrideVehicle)
 	return sorted_table, leaderboardLines
 end
 
-
 if SERVER then	
 	UVRaceTable = {}
 	UVRaceCurrentParticipants = {}

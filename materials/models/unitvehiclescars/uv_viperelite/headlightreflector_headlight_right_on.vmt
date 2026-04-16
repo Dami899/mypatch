@@ -1,0 +1,16 @@
+VertexLitGeneric
+{
+	"$basetexture"	"models\unitvehiclescars\uv_viperelite\Textures\viperelite_kit00_headlight_on"
+    "$selfillum" "1"
+    "$selfillummask" "models\unitvehiclescars\uv_viperelite\Textures\viperelite_kit00_headlight_mask"
+	"$color2"	"[1 1 1]"
+
+	Proxies
+	{
+		Equals
+		{
+			srcVar1				$color2
+			resultVar			$color
+		}
+	}
+}

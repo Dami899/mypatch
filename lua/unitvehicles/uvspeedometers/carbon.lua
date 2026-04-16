@@ -48,8 +48,8 @@ UVMenu.CustomizeSpeedo.carbon = function()
 end
 
 local function carbon_bar( progress, width, height, col, icon )
-    local w = ScrW()
-    local h = ScrH()
+	local w = UV_GetW()
+	local h = UV_GetH()
 
     local outlineX = width - (w * -0.05)
     local outlineY = height - (w * 0.1)
@@ -91,8 +91,8 @@ local function carbon_bar( progress, width, height, col, icon )
 end
 
 local function carbon_speedometer( ... )
-	local w = ScrW()
-	local h = ScrH()
+	local w = UV_GetW()
+	local h = UV_GetH()
 
 	local speed = select(1, ...)
 	local speedname = select(2, ...)
@@ -113,8 +113,8 @@ local function carbon_speedometer( ... )
 	elseif gear == 0 then gearText = "N" end
 
 	local speedopos = {
-		x = w * (GetConVar("uvspeedo_carbon_x"):GetFloat()),
-		y = h * (GetConVar("uvspeedo_carbon_y"):GetFloat()),
+		x = UV_UI.XScaled( w * GetConVar("uvspeedo_carbon_x"):GetFloat() ),
+		y = UV_UI.Y( h * GetConVar("uvspeedo_carbon_y"):GetFloat() ),
 	}
 
 	local cvs = {

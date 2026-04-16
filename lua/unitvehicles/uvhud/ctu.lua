@@ -31,8 +31,8 @@ UV_UI.racing.ctu = UV_UI.racing.ctu or {}
 -- UV_UI.pursuit.ctu = UV_UI.pursuit.ctu or {}
 
 local function ctu_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)
@@ -188,8 +188,8 @@ UV_UI.racing.ctu.states = {
 
 UV_UI.racing.ctu.events = {
     ShowResults = function(sortedRacers) -- ctu
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         

@@ -892,8 +892,8 @@ UV_UI.pursuit.world.events = {
 		local debriefunitspawn = params.spawnAsUnit or false
 		local debvriefbustedbg = params.bustedBG or false
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
@@ -1250,8 +1250,8 @@ function UVDisplayTimeRaceWorld(time) -- include milliseconds in the string
 end
 
 local function world_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)
@@ -1457,8 +1457,8 @@ local function world_pursuit_main( ... )
     
     local vehicle = LocalPlayer():GetVehicle()
     
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)

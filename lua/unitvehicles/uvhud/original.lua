@@ -252,8 +252,8 @@ UV_UI.pursuit.original.events = {
 		chat.AddText(Color(255, 0, 0), cnt)
 	end,
     onCopBustedDebrief = function(...)
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         local bustedtable = select( 1, ... )
 
@@ -370,8 +370,8 @@ UV_UI.pursuit.original.events = {
     end,
     onCopEscapedDebrief = function(...)
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         local escapedtable = select( 1, ... )
 
@@ -489,8 +489,8 @@ UV_UI.pursuit.original.events = {
     onRacerEscapedDebrief = function(...)
         if UVHUDDisplayRacing then return end
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         local escapedtable = select( 1, ... )
 
@@ -606,8 +606,8 @@ UV_UI.pursuit.original.events = {
 		end)
     end,
     onRacerBustedDebrief = function(...)
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         local bustedtable = select( 1, ... )
 
@@ -773,8 +773,8 @@ UV_UI.pursuit.original.events = {
 }
 
 local function original_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)
@@ -918,8 +918,8 @@ local function original_pursuit_main( ... )
     
     local vehicle = LocalPlayer():GetVehicle()
     
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)

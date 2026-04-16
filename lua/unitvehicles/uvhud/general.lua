@@ -4,7 +4,9 @@ local function uv_general()
     local hudyes = GetConVar("cl_drawhud"):GetBool()
     if not hudyes then return end
 
-    local w, h = ScrW(), ScrH()
+    local w = UV_GetW()
+	local h = UV_GetH()
+	
     local vehicle = LocalPlayer():GetVehicle()
     if not IsValid(vehicle) then
         UVHUDPursuitTech = nil
@@ -52,14 +54,12 @@ local function uv_general()
             local keyCode = GetConVar("unitvehicle_pursuittech_keybindslot_" .. i):GetInt()
             local tech = UVHUDPursuitTech[i]
 
-            local xOffset = w * (hudpos.x - hudoffset.x)
-            local y = h * (hudpos.y - hudoffset.y)
-            local xOffsetI = w * (hudpos.x - hudoffset.x) + ((i - 1) * (h * 0.105))
+            local xOffset = UV_UI.XScaled( w * (hudpos.x - hudoffset.x) )
+            local y = UV_UI.Y( h * (hudpos.y - hudoffset.y) )
+            local xOffsetI = UV_UI.XScaled( w * (hudpos.x - hudoffset.x) + ((i - 1) * (h * 0.105)) )
             local bw, bh = w * 0.06, h * 0.06
             local x = xOffsetI
-            local keyX = w * (0.8425 + ((i - 1) * 0.0625))
             local textX = xOffset + (bw * 0.5) + ((i - 1) * (h * 0.105))
-            local keyY = h * 0.57
 
             local bgColor = Color(0, 0, 0, 225)
             local fillOverlayColor = nil
@@ -137,13 +137,12 @@ local function uv_general()
 				draw.SimpleTextOutlined( ammoText, "UVMostWantedLeaderboardFont", textX, y + (h * 0.0275), textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0))
 
 				local mk = markup.Parse( UVReplaceKeybinds( "[key:unitvehicle_pursuittech_keybindslot_" .. i .. "]", "Big" ), w )
-				mk:Draw(x + (bw * 0.475), y - (bh * 0.5), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+				mk:Draw(x + (bw * 0.5), y - (bh * 0.45), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
             end
         end
 	else
 		local xOffset = w * (hudpos.x - hudoffset.x)
 		local bw, bh = w * 0.06, h * 0.06
-		local keyX = w * 0.8425
 		local textX = xOffset + (bw * 0.95)
 		local y = h * (hudpos.y - hudoffset.y) + (bh * 0.25)
 
@@ -211,7 +210,8 @@ UV_UI.general.events = {
 
 		local hookName = "UV_CENTERNOTI_PURSUITTECH"
 		local displayDuration = 3
-		local w, h = ScrW(), ScrH()
+		local w = UV_GetW()
+		local h = UV_GetH()
 		local startTime = CurTime()
 		local closing = false
 		local closeStartTime = nil
@@ -287,8 +287,8 @@ UV_UI.general.events = {
 			end
 
 			local barHeight = h * 0.175
-			local barX = (w - currentWidth) / 2
-			local barY = h * (subconvar and 0.575 or 0.675)
+			local barX = UV_UI.XScaled( (w - currentWidth) / 2 )
+			local barY = UV_UI.Y( h * (subconvar and 0.575 or 0.675) )
 
 			-- Color Fade Logic
 			local colorVal = 0
@@ -329,7 +329,7 @@ UV_UI.general.events = {
 					outlineAlpha = outlineAlpha * fade
 				end
 				
-				mw_noti_draw(showhud and ptext, "UVFont5Shadow", w * 0.5, h * (subconvar and 0.66 or 0.76), pcol, pcolbg) -- Subconvar > barY + 0.095
+				mw_noti_draw(showhud and ptext, "UVFont5Shadow", UV_UI.XScaled( w * 0.5), UV_UI.Y( h * (subconvar and 0.66 or 0.76) ), pcol, pcolbg) -- Subconvar > barY + 0.095
 			end
 		end)
 	end,
@@ -341,8 +341,8 @@ UV_UI.pursuit.general = {}
 UV_UI.racing.general.SplitDiffCache = UV_UI.racing.general.SplitDiffCache or {}
 
 local function general_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)

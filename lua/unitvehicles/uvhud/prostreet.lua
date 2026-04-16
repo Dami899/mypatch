@@ -30,8 +30,8 @@ end
 UV_UI.racing.prostreet = UV_UI.racing.prostreet or {}
 
 local function prostreet_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)
@@ -280,8 +280,8 @@ UV_UI.racing.prostreet.events = {
 	end,
 	
     ShowResults = function(sortedRacers) -- ProStreet
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
