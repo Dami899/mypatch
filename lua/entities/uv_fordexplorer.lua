@@ -2,8 +2,10 @@ AddCSLuaFile()
 
 ENT.Type = "anim"
 ENT.Base = "base_glide_car"
-ENT.PrintName = "Ford Police Interceptor Utility 2011 Police Cruiser"
 ENT.Author = "Sergeant Armstrong"
+
+-- ENT.PrintName = "Ford Police Interceptor Utility 2011 Police Cruiser"
+ENT.PrintName = "#uv.veh.explorer"
 
 ENT.GlideCategory = "unitvehiclesglide"
 ENT.ChassisModel = "models/unitvehiclescars/uv_fordexplorer/uv_fordexplorer.mdl"

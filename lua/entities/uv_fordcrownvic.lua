@@ -4,7 +4,8 @@ ENT.Type = "anim"
 ENT.Base = "base_glide_car"
 ENT.Author = "Sergeant Armstrong"
 
-ENT.PrintName = "Ford Crown Victoria Police Cruiser"
+-- ENT.PrintName = "Ford Crown Victoria Police Cruiser"
+ENT.PrintName = "#uv.veh.crownvic"
 
 ENT.GlideCategory = "unitvehiclesglide"
 ENT.ChassisModel = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic.mdl"

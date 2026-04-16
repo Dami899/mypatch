@@ -4,7 +4,8 @@ ENT.Type = "anim"
 ENT.Base = "base_glide_car"
 ENT.Author = "Sergeant Armstrong"
 
-ENT.PrintName = "Chevrolet Corvette Grand Sport (C7) Police Cruiser"
+-- ENT.PrintName = "Chevrolet Corvette Grand Sport (C7) Police Cruiser"
+ENT.PrintName = "#uv.veh.corvette"
 
 ENT.VehicleName = "uv_corvettec7" -- Change this to the class name of your vehicle
 ENT.EntityModelName = "uv_corvettec7" -- Change this to the model name of your vehicle

@@ -4,7 +4,8 @@ ENT.Type = "anim"
 ENT.Base = "base_glide_car"
 ENT.Author = "Sergeant Armstrong"
 
-ENT.PrintName = "Rhino Truck"
+-- ENT.PrintName = "Rhino Truck"
+ENT.PrintName = "#uv.veh.rhino"
 
 ENT.GlideCategory = "unitvehiclesglide"
 ENT.ChassisModel = "models/unitvehiclescars/uv_rhinotruck/uv_rhinotruck.mdl"

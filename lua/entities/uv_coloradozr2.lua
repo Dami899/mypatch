@@ -4,7 +4,8 @@ ENT.Type = "anim"
 ENT.Base = "base_glide_car"
 ENT.Author = "Sergeant Armstrong"
 
-ENT.PrintName = "Chevrolet Colorado ZR2 2017 Police Cruiser"
+-- ENT.PrintName = "Chevrolet Colorado ZR2 2017 Police Cruiser"
+ENT.PrintName = "#uv.veh.zr2"
 
 ENT.GlideCategory = "unitvehiclesglide"
 ENT.ChassisModel = "models/unitvehiclescars/uv_coloradozr2/uv_coloradozr2.mdl"

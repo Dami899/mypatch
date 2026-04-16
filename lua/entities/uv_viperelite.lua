@@ -6,7 +6,8 @@ ENT.Type = "anim"
 ENT.Base = "base_glide_car"
 ENT.Author = "Police Commander Moka"
 
-ENT.PrintName = "Dodge Viper SRT-10 Pursuit Commander"
+-- ENT.PrintName = "Dodge Viper SRT-10 Pursuit Commander"
+ENT.PrintName = "#uv.veh.viper"
 
 ENT.GlideCategory = "unitvehiclesglide"
 ENT.ChassisModel = modelpath .. "base.mdl"
