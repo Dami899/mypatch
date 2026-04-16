@@ -1081,11 +1081,13 @@ if SERVER then
 					self.invincible = true
 					self.stuck = true
 					self.moving = CurTime()
+					self.PatrolWaypoint = nil
+
 					timer.Simple(1, function() if IsValid(self.v) then self.invincible = nil end end)
 					timer.Simple(1, function() if IsValid(self.v) then self.stuck = nil end end)
-					if not self.respondingtocall then
-						self.returningtopatrol = true
-					end
+					-- if not self.respondingtocall then
+					-- 	self.returningtopatrol = false
+					-- end
 				end
 			end
 			
@@ -1263,7 +1265,7 @@ if SERVER then
 
 			self:ApplyUnitDifficulty(1)
 
-			if UVEnemyBusted and #UVWantedTableVehicle == 0 then --Stop moving
+			if (UVEnemyBusted and #UVWantedTableVehicle == 0) or self.stopped then --Stop moving
 				self:Stop()
 			else --Patrol
 				self:Patrol()
@@ -1326,8 +1328,9 @@ if SERVER then
 					self.idle = nil
 					timer.Simple(15, function() 
 						local selfValid = IsValid(self)
-						local enemyValid = IsValid(self.e)
+						local enemyValid = IsValid(enemy)
 						UVTrafficStop = false
+						if not table.HasValue( UVWantedTableVehicle, enemy ) then return end
 						if UVCalm and enemyValid and not UVHUDBusting then
 							if UVTargeting then return end
 							UVRestoreResourcePoints()

@@ -3516,18 +3516,10 @@ function UVBustEnemy(self, enemy, finearrest)
 		end)
 		self.displaybusting = nil
 	else --Fine
-		timer.Simple(0.01, function()
-			UVTargeting = nil
-			self.chasing = nil
-			for k, v in pairs(ents.FindByClass("npc_uv*")) do
-				v:ForgetEnemy()
-			end
-			net.Start( "UVHUDStopBusting" )
-			net.Send(UVGetVehicleOccupants(enemy))
-		end)
+		local stoppedUnits = {}
 		local enemyScope = UVGetScope(enemy)
 		if enemyScope then
-			enemyScope.EnemyBusted = true
+			--enemyScope.EnemyBusted = true
 			enemyScope.InPursuit = false
 			enemyScope.EnemyEscaping = false
 			enemyScope.IsEvading = false
@@ -3553,6 +3545,19 @@ function UVBustEnemy(self, enemy, finearrest)
 				UVChatterFinePaid(self)
 			end
 		end
+		timer.Simple(0.01, function()
+			--UVTargeting = nil
+			--self.chasing = nil
+			for k, v in pairs(ents.FindByClass("npc_uv*")) do
+				if v.e == enemy then
+					v.stopped = true
+					stoppedUnits[v] = true
+					v:ForgetEnemy()
+				end
+			end
+			net.Start( "UVHUDStopBusting" )
+			net.Send(UVGetVehicleOccupants(enemy))
+		end)
 		if enemyDriver and enemyDriver:IsPlayer() then 
 			local driver = enemyDriver
 			timer.Simple(0.1, function()
@@ -3567,15 +3572,14 @@ function UVBustEnemy(self, enemy, finearrest)
 		end
 		self.aggressive = nil
 		timer.Simple(10, function()
-			for _, v in pairs(ents.FindByClass("npc_uv*")) do
-				if v.e == enemy then
-					v:ForgetEnemy()
-				end
+			for k, v in pairs(stoppedUnits) do
+				if k.stopped then k.stopped = nil end
+				k:ForgetEnemy()
 			end
 			enemy.uvbusted = nil
 			local fineScope = UVGetScope(enemy)
 			if fineScope then
-				fineScope.EnemyBusted = false
+				--fineScope.EnemyBusted = false
 				fineScope.Bounty = 0
 				fineScope.Heat = 1
 				fineScope.TimeTillNextHeatEnd = 0
