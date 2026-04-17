@@ -1820,12 +1820,13 @@ function UVRenderEnemySquare(ent)
 			surface.SetFont("UVFont4")
 			local textWidth, textHeight = surface.GetTextSize(enemycallsign)
 			local textWidthDist, textHeightDist = surface.GetTextSize(enemypos)
-			local padding = 48
+			local padding = 10
+			local distpadding = 5
 
-			local rectywidth = math.max(textWidth + padding, 125)
+			local rectywidth = math.max(textWidth + textWidthDist + padding, 0)
 			local rectxpos = textX - (rectywidth / 2)
 			local rectypos = textY + 17.5
-			
+
 			local targetAlpha = bustpro >= 4 and 1 or 0
 			local targetOffset = bustpro >= 2 and -20 or -40
 
@@ -1851,38 +1852,33 @@ function UVRenderEnemySquare(ent)
 			if UVHUDRaceInfo and UVHUDRaceInfo.Participants then
 
 				surface.SetDrawColor( box_color.r, box_color.g, box_color.b, fadeAlpha )
-				surface.DrawOutlinedRect( rectxpos - 1.5, rectypos - 1.5, rectywidth + 3, 28, 1.5 )
+				surface.DrawOutlinedRect( rectxpos - 1.5, rectypos - 1.5, rectywidth + 3, textHeight, 1.5 )
 				
 				surface.SetMaterial(UVMaterials["ARROW_CARBON"])
 				surface.DrawTexturedRectRotated( textX, textY + 57.5, 15, 15, -90)
 
 				surface.SetDrawColor( 0, 0, 0, math.min(200, fadeAlpha) )
-				surface.DrawRect( rectxpos, rectypos, rectywidth, 25)
-				draw.RoundedBox( 0, rectxpos - 1.5, rectypos - 1.5, 30, 27, Color( 255, 255, 255, fadeAlpha ) )
-				
-				draw.DrawText(enemycallsign, "UVFont4", textX + 12.5, textY + 17.5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_CENTER)
-				draw.DrawText(enemypos or bustdist, "UVFont4", rectxpos + 5, textY + 17.5, Color(0, 0, 0, fadeAlpha), TEXT_ALIGN_LEFT)
-				
+				surface.DrawRect( rectxpos, rectypos, rectywidth, textHeight - 3)
+				draw.RoundedBox( 0, rectxpos - 1.5, rectypos - 1.5, textWidthDist + distpadding, textHeight + 1.5, Color( 255, 255, 255, fadeAlpha ) )
+
+				draw.DrawText(enemycallsign, "UVFont4", rectxpos + textWidthDist + distpadding, rectypos - 1.5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT)
+				draw.DrawText(enemypos or bustdist, "UVFont4", rectxpos, rectypos - 1.5, Color(0, 0, 0, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+
 			else
-			
-				local distpadding = 5
-				padding = 25
-				rectywidth = math.max(textWidth + textWidthDist + padding, 125)
-				rectxpos = textX - (rectywidth / 2)
 
 				surface.SetDrawColor( box_color.r, box_color.g, box_color.b, fadeAlpha )
-				surface.DrawOutlinedRect( rectxpos - 1.5, rectypos - 1.5, rectywidth + 3, 28, 1.5 )
+				surface.DrawOutlinedRect( rectxpos - 1.5, rectypos - 1.5, rectywidth + 3, textHeight, 1.5 )
 				
 				surface.SetMaterial(UVMaterials["ARROW_CARBON"])
-				surface.DrawTexturedRectRotated( textX, textY + 57.5, 15, 15, -90)
+				surface.DrawTexturedRectRotated( textX, rectypos + (textHeight * 1.5), 15, 15, -90)
 
 				surface.SetDrawColor( 0, 0, 0, math.min(200, fadeAlpha) )
-				surface.DrawRect( rectxpos, rectypos, rectywidth, 25)
-				draw.RoundedBox( 0, rectxpos - 1.5, rectypos - 1.5, textWidthDist + distpadding, 27, Color( box_color.r, box_color.g, box_color.b, math.Clamp(fadeAlpha, 0, 50) ) )
+				surface.DrawRect( rectxpos, rectypos, rectywidth, textHeight - 3)
+				draw.RoundedBox( 0, rectxpos - 1.5, rectypos - 1.5, textWidthDist + distpadding, textHeight + 1.5, Color( box_color.r, box_color.g, box_color.b, math.Clamp(fadeAlpha, 0, 100) ) )
 
-				draw.DrawText(enemycallsign, "UVFont4", rectxpos + distpadding + textWidthDist + (padding / 3), textY + 17.5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT)
-				draw.DrawText(bustdist, "UVFont4", rectxpos, textY + 17.5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT)
-				
+				draw.DrawText(enemycallsign, "UVFont4", rectxpos + textWidthDist + distpadding, rectypos - 1.5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT)
+				draw.DrawText(bustdist, "UVFont4", rectxpos, rectypos - 1.5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+
 			end
         cam.End2D()
     end
