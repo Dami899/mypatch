@@ -39,7 +39,12 @@ Text = [[
             |-- <color=255,255,100>Unit Presets</color>
             |-- <color=255,255,100>Glide/Simfphys/LVS/HL2 Jeep Vehicles</color>
       |-- Can be disabled, or triggered manually, in the new *UV Menu / Settings / UV Settings* tab
-	  
+
+- Added new Name Tag settings:
+      |-- *Outline Thickness*
+      |-- *Fade-out Distance*
+      |-- *Max Nr. On-Screen*
+
 **Please Note**
 The content importer will check all your UV content to see if anything is mismatched. Due to this, you can experience a hickup when going in-game. You can disable the import and/or replacement functions in the new UV Settings submenu inside the Settings menu.
 
