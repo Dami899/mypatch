@@ -299,6 +299,23 @@ function UV_GetCopAllInCooldown()
 	return cooldownCount == inPursuitCount
 end
 
+function UV_InitiatePursuit( target )
+	local scope = UVGetScope( target )
+	if not scope or scope.InPursuit then return end
+	
+	UVEndTrafficStop( target )
+	scope.InPursuit = true
+	scope.EnemyEscaped = false
+	scope.EnemyEscaping = false
+	scope.InCooldown = false
+	scope.Deploys = 0
+	scope.Wrecks = 0
+	scope.Tags = 0
+	scope.Losing = 0
+	if not target.FinesDue then target.FinesDue = 0 end
+	scope.PursuitStart = CurTime()
+end
+
 --Sound spam check--
 
 function UVDelaySound()
@@ -2258,120 +2275,138 @@ if SERVER then
 				end
 			end
 			--UVUnitVehicles = newUnits
-			
-			if next(UVWantedTableVehicle) ~= nil then
-				for _, v in pairs(UVWantedTableVehicle) do
-					local last_visible_value = v.inunitview
+		end
 
-					local vScope = UVGetScope(v)
-					if not vScope then continue end
-					local visualrange = vScope.Hiding and 1000000 or 25000000
-					vScope.UnitsChasing = 0
-					
-					v.closestunit = nil
-					v.closestdistancetounit = nil
-					--local check = false
+		if next(UVWantedTableVehicle) ~= nil then
+			for _, v in pairs(UVWantedTableVehicle) do
+				local last_visible_value = v.inunitview
 
-					for _, j in pairs(ents.FindByClass("uvair")) do
-						if (not (j.Downed and j.disengaging and j.crashing)) and j:GetTarget() == v then
+				local vScope = UVGetScope(v)
+				if not vScope then continue end
+				local visualrange = vScope.Hiding and 1000000 or 25000000
+				vScope.UnitsChasing = 0
+				
+				v.closestunit = nil
+				v.closestdistancetounit = nil
+				--local check = false
+
+				-- Visibility check for helicopter, should they have busting enabled.
+				for _, j in pairs(ents.FindByClass("uvair")) do
+					if (not (j.Downed and j.disengaging and j.crashing)) and j:GetTarget() == v then
+						v.inunitview = true
+						--check = true
+						visible_suspects[v] = true
+						
+						local closestunit = v.closestunit
+						local closestdistancetounit = v.closestdistancetounit
+
+						local dist = j:GetPos():DistToSqr(v:GetPos())
+						if UVUHelicopterBusting:GetBool() and ( not closestunit or dist < closestdistancetounit ) then
+							v.closestunit = j
+							v.closestdistancetounit = dist
+						end
+					end
+				end
+
+				-- Every 0.5 seconds, we update the visibility of the wanted vehicle.
+				-- Had to reduce the interval to save up on a little performance
+				if not check and (not _LAST_VISIBLE_UPDATE or _LAST_VISIBLE_UPDATE < CurTime() - 0.5) then
+					for unit, _ in pairs(UVUnitVehicles) do
+						local dist = unit:GetPos():DistToSqr(v:GetPos())
+						local withinRange = dist < visualrange
+						if withinRange and UVVisualOnTarget(unit, v) then
+							vScope.UnitsChasing = vScope.UnitsChasing + 1
 							v.inunitview = true
-							--check = true
 							visible_suspects[v] = true
 							
 							local closestunit = v.closestunit
 							local closestdistancetounit = v.closestdistancetounit
 
-							local dist = j:GetPos():DistToSqr(v:GetPos())
-							if UVUHelicopterBusting:GetBool() and ( not closestunit or dist < closestdistancetounit ) then
-								v.closestunit = j
+							if not closestunit or dist < closestdistancetounit then
+								v.closestunit = unit
 								v.closestdistancetounit = dist
-							end
-						end
-					end
-
-					if not check and (not _LAST_VISIBLE_UPDATE or _LAST_VISIBLE_UPDATE < CurTime() - 0.5) then
-						for unit, _ in pairs(UVUnitVehicles) do
-							local dist = unit:GetPos():DistToSqr(v:GetPos())
-							local withinRange = dist < visualrange
-							if withinRange and UVVisualOnTarget(unit, v) then
-								vScope.UnitsChasing = vScope.UnitsChasing + 1
-								v.inunitview = true
-								visible_suspects[v] = true
-								
-								local closestunit = v.closestunit
-								local closestdistancetounit = v.closestdistancetounit
-
-								if not closestunit or dist < closestdistancetounit then
-									v.closestunit = unit
-									v.closestdistancetounit = dist
-									if unit.UnitVehicle and unit.UnitVehicle:IsPlayer() then
-										unit.e = v
-									end
-								end
-							else
-								if not visible_suspects[v] then
-									v.inunitview = false 
+								if unit.UnitVehicle and unit.UnitVehicle:IsPlayer() then
+									unit.e = v
 								end
 							end
-						end
-					end
-
-					if v.gpsdarttagged and next(v.gpsdarttagged) ~= nil then
-						v.inunitview = true
-					end
-
-					v._lastVisibilityChange = v._lastVisibilityChange or 0
-					local now = CurTime()
-
-					if last_visible_value ~= v.inunitview then
-						v._lastVisibilityChange = now
-
-						net.Start("UVUpdateSuspectVisibility")
-						net.WriteEntity(v)
-						net.WriteBool(v.inunitview)
-						net.Broadcast()
-					end
-
-					if v.inunitview then
-						if vScope.InPursuit then
-							vScope.Losing = 0
-						elseif not vScope.IsBeingPulledOver then
-							-- if a player cop has siren lights on, we want to initiate a traffic stop
-							if v.closestunit and v.closestunit.UnitVehicle:IsPlayer() and UVGetELS( v.closestunit ) and vScope.Bounty < GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() then
-								UVInitiateTrafficStop( v.closestunit, v )
+						else
+							if not visible_suspects[v] then
+								v.inunitview = false 
 							end
-						end
-					else
-						if vScope.InPursuit then
-							vScope.Losing = math.Clamp( vScope.Losing + FrameTime(), 0, 5 )
-						end
-					end
-
-					if v.inunitview and not vScope.InPursuit and vScope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() then
-						if v.closestunit and v.closestunit.UnitVehicle:IsNPC() then
-							UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
-						end
-						UVEndTrafficStop(v)
-						hook.Run('PursuitEventHook', 'onSuspectSpotted', v)
-						vScope.InPursuit = true
-						vScope.EnemyEscaped = false
-						vScope.EnemyEscaping = false
-						vScope.InCooldown = false
-						vScope.Deploys = 0
-						vScope.Wrecks = 0
-						vScope.Tags = 0
-						vScope.Losing = 0
-						if vScope.PursuitStart == 0 then
-							vScope.PursuitStart = now
 						end
 					end
 				end
-			end
-		end
 
-		--Check if busting/hiding
-		if next(UVWantedTableVehicle) ~= nil then
-			for k, v in pairs(UVWantedTableVehicle) do
+				if v.gpsdarttagged and next(v.gpsdarttagged) ~= nil then
+					v.inunitview = true
+				end
+
+				v._lastVisibilityChange = v._lastVisibilityChange or 0
+				local now = CurTime()
+
+				if last_visible_value ~= v.inunitview then
+					v._lastVisibilityChange = now
+
+					net.Start("UVUpdateSuspectVisibility")
+					net.WriteEntity(v)
+					net.WriteBool(v.inunitview)
+					net.Broadcast()
+				end
+
+				-- Right now, whether a vehicle is pursuable is determined by:
+				-- 1. The vehicle's bounty is greater than or equal to the minimum bounty required for pursuit.
+				-- 2. The vehicle has fines due of at least $500 ONLY IF there is an active pursuit going on.
+				-- This might change in the future, but for now this is the logic for pursuing vehicles during existing pursuits.
+				-- I was considering making only certain infractions immediately start a pursuit, but meh...
+				local isPursuable = vScope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and v.FinesDue >= 500 )
+				local isClosestCopPlayer = v.closestunit and v.closestunit.UnitVehicle:IsPlayer()
+
+				-- If a suspect is being pulled over, we don't want the timeout to be reached even if the vehicle is complying.
+				-- Basically, instead of relying on a constantly ticking timer, we just decrease it if the vehicle is moving.
+				-- This allows the cop to actually get to the suspect without triggering a pursuit due to it taking too long.
+				-- If any pursuit starts (UVTargeting is true), the traffic stop is called off so that the Unit can join the chase.
+				-- (unless isPursuable is true, in which case the pulled over suspect will be added to the chase)
+				if vScope.IsBeingPulledOver then
+					local vehicleVelocity = v:GetVelocity():Length2DSqr()
+
+					if vehicleVelocity > 10000 then 
+						v.TrafficStopTimeout = v.TrafficStopTimeout - FrameTime() 
+					end
+
+					if v.TrafficStopTimeout <= 0 then
+						UVEndTrafficStop(v)
+						isPursuable = true
+					end
+
+					-- Also checking for whether Unit might be too far, we end the traffic stop in that case.
+					if UVTargeting or not IsValid(v.TargetingUnit) then 
+						UVEndTrafficStop(v) 
+					end
+				end
+
+				if v.inunitview then
+					if vScope.InPursuit then
+						vScope.Losing = 0
+					elseif not vScope.IsBeingPulledOver then
+					-- if a player cop has siren lights on, we want to initiate a traffic stop
+						if isClosestCopPlayer and UVGetELS( v.closestunit ) and not isPursuable then
+							UVInitiateTrafficStop( v.closestunit, v )
+						end
+					end
+				else
+					if vScope.InPursuit then
+						vScope.Losing = math.Clamp( vScope.Losing + FrameTime(), 0, 5 )
+					end
+				end
+
+				if v.inunitview and not vScope.InPursuit and isPursuable then
+					if v.closestunit and v.closestunit.UnitVehicle:IsNPC() then
+						UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
+					end
+					UV_InitiatePursuit(v)
+					hook.Run('PursuitEventHook', 'onSuspectSpotted', v)
+				end
+
 				if not v.UVBustingProgress then
 					v.UVBustingProgress = 0
 				end
@@ -2386,8 +2421,7 @@ if SERVER then
 
 				UVCheckIfBeingBusted(v)
 			end
-			-- Per-scope hiding computation
-			local anyHiding = false
+
 			for _key, _scope in pairs(UVPursuitScopes) do
 				local _veh = Entity(_scope.EntIndex)
 				if IsValid(_veh) and _scope.EnemyEscaping then
@@ -2397,8 +2431,26 @@ if SERVER then
 				end
 				if _scope.Hiding then anyHiding = true end
 			end
-			UVHiding = anyHiding
 		end
+
+
+		-- --Check if busting/hiding
+		-- if next(UVWantedTableVehicle) ~= nil then
+		-- 	for k, v in pairs(UVWantedTableVehicle) do
+		-- 	end
+		-- 	-- Per-scope hiding computation
+		-- 	local anyHiding = false
+		-- 	for _key, _scope in pairs(UVPursuitScopes) do
+		-- 		local _veh = Entity(_scope.EntIndex)
+		-- 		if IsValid(_veh) and _scope.EnemyEscaping then
+		-- 			_scope.Hiding = UVCheckIfHiding(_veh)
+		-- 		else
+		-- 			_scope.Hiding = false
+		-- 		end
+		-- 		if _scope.Hiding then anyHiding = true end
+		-- 	end
+		-- 	UVHiding = anyHiding
+		-- end
 
 		--Idle chatter
 		if #ents.FindByClass("npc_uv*") > 0 and not UVTargeting then
@@ -3807,7 +3859,6 @@ else -- CLIENT Settings | HUD/Options
 	net.Receive( "UVFined", function()
 		local finenr = net.ReadUInt(2)
 		local finesdue = net.ReadInt(32)
-		print("lovers revenge")
 		hook.Run( 'UIEventHook', 'pursuit', 'onFined', finenr, finesdue )
 	end)
 

@@ -366,7 +366,7 @@ if SERVER then
 					_init()
 				end)
 			end
-			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random()))
+			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random()))
 		end
 
 		-- 	--[[Parameters
@@ -466,7 +466,7 @@ if SERVER then
 			end)
 			
 			
-			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(staticFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random())
+			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(staticFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random())
 			
 		elseif parameters == 4 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/*", "GAME")
@@ -533,7 +533,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(emergencyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random()))
+			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(emergencyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random()))
 			
 		elseif parameters == 5 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/*", "GAME")
@@ -596,7 +596,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(identifyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random())
+			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(identifyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random())
 			
 		elseif parameters == 6 then
 
@@ -725,7 +725,7 @@ if SERVER then
 					end)
 				end)
 			end)
-			return UVDelayChatter((soundDuration_soundFile + soundDuration_emergencyFile + soundDuration_addressFile + soundDuration_locationFile + soundDuration_requestFile + soundDuration_radioOffFile + soundDuration_radioOnFile + (soundDuration_chirpGenericFile or 0) + math.random(0, 2) + math.random()))
+			return UVDelayChatter((soundDuration_soundFile + soundDuration_emergencyFile + soundDuration_addressFile + soundDuration_locationFile + soundDuration_requestFile + soundDuration_radioOffFile + soundDuration_radioOnFile + (soundDuration_chirpGenericFile or 0) + math.random(0.5, 2) + math.random()))
 			
 		elseif parameters == 7 then
 			if not UVEnemyEscaping then return 5 end
@@ -829,7 +829,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter((SoundDuration(emergencyFile or "") + SoundDuration(breakawayFile or "") + SoundDuration(locationFile or "") + SoundDuration(quadrantFile or "") + SoundDuration(radioOnFile or "") + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random()))
+			return UVDelayChatter((SoundDuration(emergencyFile or "") + SoundDuration(breakawayFile or "") + SoundDuration(locationFile or "") + SoundDuration(quadrantFile or "") + SoundDuration(radioOnFile or "") + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random()))
 			
 		elseif parameters == 8 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/*", "GAME")
@@ -894,7 +894,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter((SoundDuration(soundFile) + SoundDuration(emergencyFile) + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random()))
+			return UVDelayChatter((SoundDuration(soundFile) + SoundDuration(emergencyFile) + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random()))
 		elseif parameters == 9 then -- in person chatter
 			local players = select(1, ...)
 
@@ -996,7 +996,7 @@ if SERVER then
 				end)
 			end)
 
-			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0, 2) + math.random())
+			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random())
 		end
 		
 		return HandleCallSounds()

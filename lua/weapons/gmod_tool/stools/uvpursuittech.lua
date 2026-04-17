@@ -251,7 +251,6 @@ end
 
 local function IsSupportedVehicle(ent)
     if not IsValid(ent) then return false end
-    print(ent.LVS)
     return (ent.IsGlideVehicle or ent.IsSimfphyscar or ent:GetClass() == "prop_vehicle_jeep" or ent.LVS)
 end
 

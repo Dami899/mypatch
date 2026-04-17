@@ -727,7 +727,6 @@ function TOOL:LeftClick( trace )
 			Ent.OldColor = dot
 
 			if ply.UVTrafficTOOLMemory.SaveColor then
-				print("ok")
 				Ent:SetColor( Color )
 			else
 				if isfunction(Ent.GetSpawnColor) then

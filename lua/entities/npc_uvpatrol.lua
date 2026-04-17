@@ -154,7 +154,7 @@ if SERVER then
 		local t = UVWantedTableVehicle
 		local distance, nearest = math.huge, nil --The nearest enemy is the target.
 		for k, v in pairs(t) do
-			if self:Validate(v) and ((SpeedLimit:GetFloat() > 0 and v:GetVelocity():LengthSqr() > (self.Speeding+30976)) or self.v.rammed or v.UVWanted or v.uvraceparticipant) and self:StraightToTarget(v) then --Target conditions
+			if self:Validate(v) and ((not v.TargetingUnit and v.inunitview) or (v.TargetingUnit == self.v)) then --Target conditions
 				local d = v:WorldSpaceCenter():DistToSqr(self.v:WorldSpaceCenter())
 				if distance > d then
 					distance = d
@@ -169,14 +169,21 @@ if SERVER then
 	function ENT:TargetEnemyAdvanced()
 		local t = UVWantedTableVehicle
 		local distance, nearest = math.huge, nil --The nearest enemy is the target.
+		local availableEnemies = {}
 		for k, v in pairs(t) do
-			if self:Validate(v) then --Target conditions
+			local scope = UVGetScope(v)
+			if scope.InPursuit then availableEnemies[#availableEnemies+1] = v end
+			if self:Validate(v) and not scope.InCooldown then --Target conditions
 				local d = v:WorldSpaceCenter():DistToSqr(self.v:WorldSpaceCenter())
 				if distance > d then
 					distance = d
 					nearest = v
 				end
 			end
+		end
+
+		if not nearest and #availableEnemies > 0 then
+			nearest = availableEnemies[math.random(1, #availableEnemies)]
 		end
 		
 		return nearest
@@ -200,12 +207,10 @@ if SERVER then
 		not v.UnitVehicle and
 		(not GetConVar("ai_ignoreplayers"):GetBool()) 
 		if not valid then return false end
-		
-		if not UVPassConVarFilter(v) then return false end
 
+		if not UVPassConVarFilter(v) then return false end
 		local scope = UVGetScope(v)
-		if not scope then return false end
-		if not v.inunitview then return false end
+		if not scope.InPursuit then return false end
 
 		return true
 	end
@@ -604,6 +609,12 @@ if SERVER then
 
 			if dvd and not InfMap then
 				local friendly_position = self.v:WorldSpaceCenter()
+
+				if enemy then
+					local scope = UVGetScope(enemy)
+					if scope and scope.InCooldown then vectors = dvd.Waypoints[math.random( #dvd.Waypoints )].Target end
+				end
+
 
 				enemy_nearest_waypoint = dvd.GetNearestWaypoint( vectors )
 				friendly_nearest_waypoint = dvd.GetNearestWaypoint( friendly_position )
@@ -1310,8 +1321,10 @@ if SERVER then
 					end
 				end
 			else
-				local enemy = self:TargetEnemy() --Find an enemy.	
-				if IsValid(enemy) and not enemy.TargetingUnit then
+				local enemy = self:TargetEnemy() --Find an enemy.
+				local scope = UVGetScope(enemy)
+				local isPursuable = scope and scope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and v.FinesDue >= 500 )
+				if IsValid(enemy) and not isPursuable then
 					self.e = enemy
 					eScope = IsValid(self.e) and UVGetScope(self.e) or nil
 				
@@ -1479,7 +1492,7 @@ if SERVER then
 					local bestDot = -1
 
 					if Waypoint.Neighbors then	
-						for _, n in ipairs( Waypoint.Neighbors ) do
+						for _, n in pairs( Waypoint.Neighbors ) do
 							local waypoint = dvd.Waypoints[n]
 
 							local dir = ( waypoint.Target - laneStart ):GetNormalized()
@@ -1499,7 +1512,7 @@ if SERVER then
 						local possibleNeighbors = {}
 						local bestDot = -1
 						
-						for _, waypoint in ipairs( dvd.Waypoints ) do
+						for _, waypoint in pairs( dvd.Waypoints ) do
 							if not waypoint.Neighbors then continue end
 							if not table.HasValue( waypoint.Neighbors, WaypointID ) then continue end
 							
@@ -1526,7 +1539,7 @@ if SERVER then
 					-- 	self:PathFindToEnemy(self.e:WorldSpaceCenter()) --Find the enemy
 					-- end
 				else
-					self:PathFindToEnemy(self.e:WorldSpaceCenter()) --Find the enemy
+					self:PathFindToEnemy(self.e:WorldSpaceCenter(), self.e) --Find the enemy
 				end
 				self.targetpos = self:DriveOnPath()
 			end
@@ -1942,7 +1955,7 @@ if SERVER then
 					end
 				elseif self.v.IsGlideVehicle then
 					local maxSlip = 0
-					for _, wheel in ipairs(self.v.wheels) do
+					for _, wheel in pairs(self.v.wheels) do
 						maxSlip = math.max(maxSlip, math.abs(wheel:GetForwardSlip() or 0))
 					end
 					local minThrottle = 0.5
