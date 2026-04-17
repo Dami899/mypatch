@@ -9,10 +9,12 @@ UV = UV or {}
 
 UV.PNotes = {
 ["1.6.0"] = {
-Date = { year = 2026, month = 4, day = 14 },
+Date = { year = 2026, month = 4, day = 19 },
 Type = "Minor",
 Text = [[
 **New Features**
+- UVPD: Added the *Dodge Viper SRT-10 ACR Command Interceptor '11*
+
 - Pursuits: Replaced the global pursuit system with an *individual pursuit system*
       |-- Racers can now hide, evade and join pursuits individually
       |-- Vehicles have their own heat level, bounty, infractions, etc.
@@ -39,7 +41,7 @@ Text = [[
       |-- Can be disabled, or triggered manually, in the new *UV Menu / Settings / UV Settings* tab
 	  
 **Please Note**
-The content importer will check all your UV content to see if anything is mismatched. Due to this, you can experience a hickup when going in-game. You can enable the *Disable Data Replacement* feature to alleviate this.
+The content importer will check all your UV content to see if anything is mismatched. Due to this, you can experience a hickup when going in-game. You can disable the import and/or replacement functions in the new UV Settings submenu inside the Settings menu.
 
 **Changes**
 - Improved AI Racer behaviour during races:
