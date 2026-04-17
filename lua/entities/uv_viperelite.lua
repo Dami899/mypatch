@@ -4,7 +4,7 @@ local modelpath = "models/unitvehiclescars/uv_viperelite/"
 
 ENT.Type = "anim"
 ENT.Base = "base_glide_car"
-ENT.Author = "Police Commander Moka"
+ENT.Author = "Sergeant Armstrong"
 
 -- ENT.PrintName = "Dodge Viper SRT-10 Pursuit Commander"
 ENT.PrintName = "#uv.veh.viper"
@@ -101,8 +101,10 @@ if CLIENT then
 	-- RED
         { offset = Vector( 102.81, -8.84, 13.83 ), time = 0, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(255,30,0), },
         { offset = Vector( 103.92, 2.97, 13.89 ), time = 0, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(255,30,0), },
-        { offset = Vector( -0.559, -0.344, 1.094 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
-        { offset = Vector( -0.559, 0.345, 1.094 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+		{ offset = Vector( -0.559, -0.443, 1.08 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector( -0.559, -0.223, 1.099 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector( -0.559, 0.224, 1.099 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector( -0.559, 0.443, 1.08 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
 		{ offset = Vector( -0.559, -0.344, 1.094 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
         { offset = Vector( -0.559, 0.345, 1.094 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
         { offset = Vector( 93.55, -24.45, 13.04 ), time = 0, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(255,30,0), },
@@ -117,10 +119,8 @@ if CLIENT then
 	-- BLUE
         { offset = Vector( 102.81, 8.84, 13.83 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(0,115,255), },
         { offset = Vector( 103.92, -2.97, 13.89 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(0,115,255), },
-        { offset = Vector( -0.559, -0.443, 1.08 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
-        { offset = Vector( -0.559, -0.223, 1.099 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
-        { offset = Vector( -0.559, 0.224, 1.099 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
-        { offset = Vector( -0.559, 0.443, 1.08 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+        { offset = Vector( -0.559, -0.344, 1.094 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+        { offset = Vector( -0.559, 0.345, 1.094 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
 		{ offset = Vector( -0.559, -0.443, 1.08 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
         { offset = Vector( -0.559, -0.223, 1.099 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
         { offset = Vector( -0.559, 0.224, 1.099 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
