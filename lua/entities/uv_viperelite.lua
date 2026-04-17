@@ -20,19 +20,18 @@ ENT.NitrousDepletionRate = 0.66
 ENT.NitrousRegenRate = 0.2
 
 ENT.SirenTable = {
-    ")uvcars/code3 rls/emv_wail.wav",
-    ")uvcars/code3 rls/emv_yelp.wav",
-    ")uvcars/code3 rls/emv_hyperyelp.wav",
-    ")uvcars/code3 rls/emv_hilo.wav",
+    ")uvcars/federal sig rumbler/emv_wail.wav",
+    ")uvcars/federal sig rumbler/emv_yelp.wav",
+    ")uvcars/federal sig rumbler/emv_hilo.wav",
 }
 
 if CLIENT then
 
     ENT.SirenVolume = 1
 
-    ENT.SirenLoopSound = ")uvcars/code3 rls/emv_wail.wav"
-    ENT.SirenLoopAltSound = ")uvcars/code3 rls/emv_horn.wav"
-    ENT.HornSound = ")uvcars/code3 rls/emv_horn.wav"
+    ENT.SirenLoopSound = ")uvcars/federal sig rumbler/emv_wail.wav"
+    ENT.SirenLoopAltSound = ")uvcars/federal sig rumbler/emv_priority.wav"
+    ENT.HornSound = ")uvcars/federal sig rumbler/emv_horn.wav"
 
     ENT.CameraOffset = Vector( -220, 0, 65 )
 
@@ -67,36 +66,21 @@ if CLIENT then
 			l = Vector( -2.046, 0.7, 0.655 ) * 45.1,
 			r = Vector( -2.046, -0.7, 0.655 ) * 45.1,
 		},
-		reverse = {
-			l = Vector( -2.111, 0.56, 0.556 ) * 45.1,
-			r = Vector( -2.111, -0.56, 0.556 ) * 45.1,
-		},
 	}
 
     ENT.LightSprites = {
-			-- Headlights Low Beams, Left / Right
-        { type = "headlight", beamType = "low", offset = lightpos.front.l, color = Color(100,165,255), dir = Vector( 1, 0.0, 0 ), size = 60, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightflareouter" ) },
-        { type = "headlight", beamType = "low", offset = lightpos.front.l, color = Color(180,210,255), dir = Vector( 1, 0.0, 0 ), size = 12, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightglow" ) },
-		
-        { type = "headlight", beamType = "low", offset = lightpos.front.r, color = Color(100,165,255), dir = Vector( 1, -0.0, 0 ), size = 60, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightflareouter" ) },
-        { type = "headlight", beamType = "low", offset = lightpos.front.r, color = Color(180,210,255), dir = Vector( 1, -0.0, 0 ), size = 12, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightglow" ) },
-		
-		-- Headlights High Beams, Left / Right
-        { type = "headlight", beamType = "high", offset = lightpos.front.l, color = Color(100,165,255), dir = Vector( 1, 0.0, 0 ), size = 120, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightflareouter" ) },
-        { type = "headlight", beamType = "high", offset = lightpos.front.l, color = Color(180,210,255), dir = Vector( 1, 0.0, 0 ), size = 24, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightglow" ) },
-		
-        { type = "headlight", beamType = "high", offset = lightpos.front.r, color = Color(100,165,255), dir = Vector( 1, -0.0, 0 ), size = 120, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightflareouter" ) },
-        { type = "headlight", beamType = "high", offset = lightpos.front.r, color = Color(180,210,255), dir = Vector( 1, -0.0, 0 ), size = 24, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightglow" ) },
+		-- Headlights
+        { type = "headlight", offset = lightpos.front.l, color = Color(255,255,255), dir = Vector( 1, 0, 0 ), size = 40},
+        { type = "headlight", offset = lightpos.front.r, color = Color(255,255,255), dir = Vector( 1, 0, 0 ), size = 40},
 
 		-- Rear Lights
-        { type = "taillight", offset = lightpos.rear.l, color = Color(255,0,0,50), dir = Vector( -1, 0.5, 0 ), size = 30, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightglow" ) },
-        { type = "taillight", offset = lightpos.rear.r, color = Color(255,0,0,50), dir = Vector( -1, -0.5, 0 ), size = 30, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightglow" ) },
+        { type = "taillight", offset = lightpos.rear.l, color = Color(255,0,0,50), dir = Vector( -1, 0.5, 0 ), size = 30},
+        { type = "taillight", offset = lightpos.rear.r, color = Color(255,0,0,50), dir = Vector( -1, -0.5, 0 ), size = 30},
 
-        { type = "brake", offset = lightpos.rear.l, color = Color(255,0,0,200), dir = Vector( -1, 0.5, 0 ), size = 20, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightglow" ) },
-        { type = "brake", offset = lightpos.rear.r, color = Color(255,0,0,200), dir = Vector( -1, -0.5, 0 ), size = 20, spriteMaterial = Material( "mokanfsw/universal/textures/lights/headlightglow" ) },
+        { type = "brake", offset = lightpos.rear.l, color = Color(255,0,0,200), dir = Vector( -1, 0.5, 0 ), size = 20},
+        { type = "brake", offset = lightpos.rear.r, color = Color(255,0,0,200), dir = Vector( -1, -0.5, 0 ), size = 20},
 
-        { type = "reverse", offset = lightpos.reverse.l, color = Color(255,255,255), dir = Vector( -1, 0.5, 0 ), size = 20 },
-        { type = "reverse", offset = lightpos.reverse.r, color = Color(255,255,255), dir = Vector( -1, 0.5, 0 ), size = 20 },
+        { type = "reverse", offset = Vector( -102.33, 0, 11.08 ), color = Color(255,255,255), dir = Vector( -1, 0.5, 0 ), size = 20 },
 		
         { type = "signal_left", offset = Vector( 77.07, 37.73, 22.13 ), dir = Vector( 1, 0.5, 0 ), color = Glide.DEFAULT_TURN_SIGNAL_COLOR },
         { type = "signal_left", offset = Vector( -90.86, 34.25, 25.05 ), dir = Vector( -1, 0.85, 0 ), color = Glide.DEFAULT_TURN_SIGNAL_COLOR },
@@ -107,64 +91,52 @@ if CLIENT then
 
     ENT.SirenCycle = 0.3
 
-		local coplights = {
-		blue = {
-			[1] = Vector( 2.281, -0.07, 0.292 ) * 45.1,
-			[2] = Vector( 2.269, 0.201, 0.292 ) * 45.1,
-			[3] = Vector( -2.065, -0.686, 0.538 ) * 45.1,
-			[4] = Vector( -0.559, -0.443, 1.08 ) * 45.1,
-			[5] = Vector( -0.559, -0.223, 1.099 ) * 45.1,
-			[6] = Vector( -0.559, 0.224, 1.099 ) * 45.1,
-			[7] = Vector( -0.559, 0.443, 1.08 ) * 45.1,
-			[8] = Vector( 2.075, -0.537, 0.276 ) * 45.1,
-		},
-		red = {
-			[1] = Vector( 2.281, 0.07, 0.292 ) * 45.1,
-			[2] = Vector( 2.272, -0.201, 0.292 ) * 45.1,
-			[3] = Vector( -2.065, 0.686, 0.542 ) * 45.1,
-			[4] = Vector( -2.267, 0, 0.233 ) * 45.1,
-			[5] = Vector( -0.559, -0.344, 1.094 ) * 45.1,
-			[6] = Vector( -0.559, 0.345, 1.094 ) * 45.1,
-			[7] = Vector( 2.078, 0.537, 0.276 ) * 45.1,
-		},
-	}
-	
-
     ENT.SirenLights = {
-	-- RED
-        { offset = Vector( 2.281, 0.07, 0.292 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector( 2.272, -0.201, 0.292 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        -- { offset = Vector( -2.065, 0.686, 0.542 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector( -2.267, 0, 0.233 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector( -0.559, -0.344, 1.094 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector( -0.559, 0.345, 1.094 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector( 2.078, 0.537, 0.276 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-		
-        { offset = Vector( -97.97, 14.46, 47.26 ), time = 0, duration = 0.5, size = 25, color = Color(255,30,0), },
-        { offset = Vector( -97.97, 2.85, 47.26 ), time = 0, duration = 0.5, size = 25, color = Color(255,30,0), },
-        { offset = Vector( -97.97, -9.07, 47.26 ), time = 0, duration = 0.5, size = 25, color = Color(255,30,0), },
 
-        -- { offset = Vector(-22.01,19.92,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+	-- WIG-WAG
+		
+	{ offset = lightpos.front.l, time = 0, duration = 0.5,  size = 50, color = Color(215,240,255), dir = Vector( 1, 0, 0 ), },
+    { offset = lightpos.front.r, time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255), dir = Vector( 1, 0, 0 ), },
+
+	-- RED
+        { offset = Vector( 102.81, -8.84, 13.83 ), time = 0, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(255,30,0), },
+        { offset = Vector( 103.92, 2.97, 13.89 ), time = 0, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(255,30,0), },
+        { offset = Vector( -0.559, -0.344, 1.094 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector( -0.559, 0.345, 1.094 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+		{ offset = Vector( -0.559, -0.344, 1.094 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector( -0.559, 0.345, 1.094 ) * 45.1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector( 93.55, -24.45, 13.04 ), time = 0, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(255,30,0), },
+
+		{ offset = Vector( 40.92, -45.94, 21.96 ), time = 0, duration = 0.5, size = 50, dir = Vector( 0, -1, 0 ), color = Color(255,30,0), },
+		{ offset = Vector( 35.25, 45.57, 22.35 ), time = 0, duration = 0.5, size = 50, dir = Vector( 0, 1, 0 ), color = Color(255,30,0), },
+		
+        { offset = Vector( -97.97, 14.46, 47.26 ), time = 0, duration = 0.5, size = 50, dir = Vector( -1, 0, 0 ), color = Color(255,30,0), },
+        { offset = Vector( -97.97, 2.85, 47.26 ), time = 0, duration = 0.5, size = 50, dir = Vector( -1, 0, 0 ), color = Color(255,30,0), },
+        { offset = Vector( -97.97, -9.07, 47.26 ), time = 0, duration = 0.5, size = 50, dir = Vector( -1, 0, 0 ), color = Color(255,30,0), },
 
 	-- BLUE
-        { offset = Vector( 2.281, -0.07, 0.292 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector( 2.269, 0.201, 0.292 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        -- { offset = Vector( -2.065, -0.686, 0.538 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector( -0.559, -0.443, 1.08 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector( 102.81, 8.84, 13.83 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(0,115,255), },
+        { offset = Vector( 103.92, -2.97, 13.89 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(0,115,255), },
+        { offset = Vector( -0.559, -0.443, 1.08 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+        { offset = Vector( -0.559, -0.223, 1.099 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+        { offset = Vector( -0.559, 0.224, 1.099 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+        { offset = Vector( -0.559, 0.443, 1.08 ) * 45.1, spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+		{ offset = Vector( -0.559, -0.443, 1.08 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
         { offset = Vector( -0.559, -0.223, 1.099 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
         { offset = Vector( -0.559, 0.224, 1.099 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
         { offset = Vector( -0.559, 0.443, 1.08 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector( 2.075, -0.537, 0.276 ) * 45.1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector( 93.55, 24.45, 13.04 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( 1, 0, 0 ), color = Color(0,115,255), },
 
-        -- { offset = Vector(-22.01,0,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+		{ offset = Vector( 40.92, 45.94, 21.96 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( 0, 1, 0 ), color = Color(0,115,255), },
+		{ offset = Vector( 35.25, -45.57, 22.35 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( 0, -1, 0 ), color = Color(0,115,255), },
 		
-        { offset = Vector( -97.97, -14.46, 47.26 ), time = 0.5, duration = 0.5, size = 25, color = Color(0,115,255), },
-        { offset = Vector( -97.97, -2.85, 47.26 ), time = 0.5, duration = 0.5, size = 25, color = Color(0,115,255), },
-        { offset = Vector( -97.97, 9.07, 47.26 ), time = 0.5, duration = 0.5, size = 25, color = Color(0,115,255), },
+        { offset = Vector( -97.97, -14.46, 47.26 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( -1, 0, 0 ), color = Color(0,115,255), },
+        { offset = Vector( -97.97, -2.85, 47.26 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( -1, 0, 0 ), color = Color(0,115,255), },
+        { offset = Vector( -97.97, 9.07, 47.26 ), time = 0.5, duration = 0.5, size = 50, dir = Vector( -1, 0, 0 ), color = Color(0,115,255), },
     }
 
     function ENT:OnCreateEngineStream( stream )
-        stream:LoadPreset( "moka_nfsw_muscle_viperacr" )
+        stream:LoadPreset( "uvdodgeviperacrengine" )
     end
 
 
@@ -431,16 +403,6 @@ if SERVER then
         self:CreateWheel( self.WheelPos[2], { model = modelpath .. "wheelfr.mdl", modelAngle = Angle( 0, -90, 0 ), modelScale = Vector( 0.4, 1, 1 ), radius = 15, steerMultiplier = 1 } )
         self:CreateWheel( self.WheelPos[3], { model = modelpath .. "wheelbk.mdl", modelAngle = Angle( 0, 90, 0 ), modelScale = Vector( 0.4, 1, 1 ), radius = 15.25 } )
         self:CreateWheel( self.WheelPos[4], { model = modelpath .. "wheelbk.mdl", modelAngle = Angle( 0, -90, 0 ), modelScale = Vector( 0.4, 1, 1 ), radius = 15.25 } )
-    end
-
-    function ENT:OnPostThink( dt, selfTbl )
-        BaseClass.OnPostThink( self, dt, selfTbl )
-
-        if self.wrecked and !self.emittedwreckedsound then
-            self.emittedwreckedsound = true
-            local wreckedsoundtable = file.Find( "sound/mokanfs/siren/wrecked/*.wav", "GAME")
-            self:EmitSound( "mokanfs/siren/wrecked/" .. wreckedsoundtable[math.random(1,#wreckedsoundtable)], 100, math.random( 90, 110 ) )
-        end
     end
     
     function ENT:Repair()
