@@ -183,6 +183,9 @@ if SERVER then
 	end
 	
 	function ENT:ForgetEnemy()
+		if IsValid(self.e) then
+			self.e.TargetingUnit = nil
+		end
 		self.e = nil
 		self.edriver = nil
 	end
@@ -1334,59 +1337,23 @@ if SERVER then
 				if IsValid(enemy) then
 					self.e = enemy
 					eScope = IsValid(self.e) and UVGetScope(self.e) or nil
+				
 					if not enemy.UVWanted then
 						enemy.UVWanted = enemy
 					end
-					local driver = UVGetDriver(self.e)
-					if isfunction(self.e.GetDriver) and IsValid(driver) and driver:IsPlayer() then 
-						self.edriver = driver
-						else
-						self.edriver = nil
-					end
+
+					enemy.TargetingUnit = self
+
 					self.moving = CurTime()
-					--if eScope then eScope.Losing = CurTime() end
 					self.idle = nil
-					timer.Simple(15, function() 
-						local selfValid = IsValid(self)
-						local enemyValid = IsValid(enemy)
-						UVTrafficStop = false
-						if not table.HasValue( UVWantedTableVehicle, enemy ) then return end
-						if UVCalm and enemyValid and not UVHUDBusting then
-							if UVTargeting then return end
-							UVRestoreResourcePoints()
-							if eScope then eScope.InPursuit = true end
-							if selfValid then
-						UVChatterPursuitStartRanAway(self)
-						end
-						--if eScope then eScope.Losing = CurTime() end
-						if Photon and isfunction(self.v.ELS_ManualSiren) then
-								self.v:ELS_ManualSiren(false)
-							end
-							self:ChangeELSSiren()
-						end
-					end)
 					self.toofar = nil
 					self.aggressive = nil
-					if ((eScope and eScope.Bounty or 0) >= GetConVar( 'unitvehicle_unit_heatminimumbounty1' ):GetInt() or self.e.uvraceparticipant) and not UVTargeting and not UVEnemyBusted then
-						timer.Simple(0.1, function()
-							if UVTargeting then return end
-							if eScope then eScope.InPursuit = true end
-							if Chatter:GetBool() and IsValid(self) then
-								UVChatterPursuitStartWanted(self)
-							end
-						end)
-						return
-					end
-					if UVTrafficStop then return end
-					local driver = UVGetDriver(self.e)
-					if isfunction(self.e.GetDriver) and IsValid(driver) and driver:IsPlayer() then 
-						--driver:PrintMessage( HUD_PRINTCENTER, "PULL OVER TO PAY A FINE!")
-						net.Start( "UVPullOver" )
-						net.Send(driver)
-					end
+
 					if not UVCalm then
 						UVCalm = true
 					end
+
+					UVInitiateTrafficStop( self.v, self.e )
 					if not self.v.rammed then
 						if Chatter:GetBool() then
 							UVChatterTrafficStopSpeeding(self)
@@ -1396,7 +1363,6 @@ if SERVER then
 							UVChatterTrafficStopRammed(self) 
 						end
 					end
-					UVTrafficStop = true
 				end
 			end 
 			

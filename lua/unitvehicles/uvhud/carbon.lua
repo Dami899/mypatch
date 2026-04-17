@@ -1584,14 +1584,14 @@ UV_UI.pursuit.carbon.events = {
 	
 	onPullOverRequest = function(...)
 		UV_UI.racing.carbon.events.CenterNotification({
-			text = UVString("uv.hud.fine.pullover"),
+			text = UVHUDCopMode and UVString("uv.hud.fine.pullover.unit") or UVString("uv.hud.fine.pullover"),
 			noIcon = true,
 			immediate = true,
 		})
 	end,
 	onFined = function( finenr, finesdue )
 		UV_UI.racing.carbon.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finenr),
+			text = string.format( UVHUDCopMode and UVString("uv.hud.fine.fined.unit") or UVString("uv.hud.fine.fined"), finenr),
 			noIcon = true,
 			immediate = true,
 		})

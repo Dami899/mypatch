@@ -1491,7 +1491,7 @@ UV_UI.pursuit.mostwanted.events = {
 	end,
 	onPullOverRequest = function(...)
 		UV_UI.racing.mostwanted.events.CenterNotification({
-			text = UVString("uv.hud.fine.pullover"),
+			text = UVHUDCopMode and UVString("uv.hud.fine.pullover.unit") or UVString("uv.hud.fine.pullover"),
 			textNoFall = true,
 			noIcon = true,
 			immediate = true,
@@ -1499,7 +1499,7 @@ UV_UI.pursuit.mostwanted.events = {
 	end,
 	onFined = function( finenr, finesdue )
 		UV_UI.racing.mostwanted.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finenr),
+			text = string.format( UVHUDCopMode and UVString("uv.hud.fine.fined.unit") or UVString("uv.hud.fine.fined"), finenr),
 			textNoFall = true,
 			noIcon = true,
 			immediate = true,

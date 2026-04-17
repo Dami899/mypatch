@@ -54,24 +54,6 @@ local Colors = {
 	['CopThemeShade'] = Color(41, 149, 212, 107)--Color(93, 85, 166, 107)
 }
 
-PursuitTable = {
-	['InPursuit'] = false,
-	['InCooldown'] = false,
-	['IsEvading'] = false,
-	['PursuitStart'] = 0,
-	['Heat'] = 1,
-	['UnitsChasing'] = 0,
-	['ResourcePoints'] = 0,
-	['Deploys'] = 0,
-	['PursuitLength'] = 0,
-	['Wrecks'] = 0,
-	['Tags'] = 0,
-	['Bounty'] = 0,
-	['CommanderActive'] = false,
-	['CommanderEntity'] = nil
-	--['ChasedVehicles'] = {},
-}
-
 function UVGetVehicle(driver)
 	if not IsValid(driver) then return false end
 	
@@ -127,6 +109,7 @@ UV_SCOPE_DEFAULTS = {
 	InPursuit = false,
 	InCooldown = false,
 	IsEvading = false,
+	IsBeingPulledOver = false,
 	PursuitStart = 0,
 	Heat = 1,
 	UnitsChasing = 0,
@@ -180,6 +163,7 @@ UV_SCOPE_REPLICATED_KEYS = {
 	["Losing"] = true,
 	["TimeTillNextHeatEnd"] = true,
 	["Hiding"] = true,
+	["IsBeingPulledOver"] = true
 }
 
 function UVScopeKey(veh)
@@ -1295,44 +1279,16 @@ UVRSSpawnCondition = CreateConVar("unitvehicle_repairshop_spawncondition", 2, {F
 UVRBMax = CreateConVar("unitvehicle_roadblock_maxrb", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVRBOverride = CreateConVar("unitvehicle_roadblock_override", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 
+UnitVehicles = true
 
 if SERVER then
 
 	-- Last replicated scope fields per key; UVScopeThink diffs against this (see UVReplicate*).
 	local UV_SCOPE_LAST_REPLICATED = {}
 
-	--convars--
-	--traffic convars
-
-	--UVUVoiceProfile = CreateConVar("unitvehicle_unit_voiceprofile", "nfsmw", {FCVAR_ARCHIVE}, "Unit Vehicles: If set to 1, Units will use the voice profile assigned to them. If set to 0, Units will use a random voice profile.")
-
-	
-
-	--UVUTimeTillNextHeatEnabled = GetConVar('unitvehicle_unit_timetillnextheatenabled')
-
-	unitvehicles = true
-
 	UVHUDPursuit = nil
 	UVHUDBusting = nil
 	UVHUDCooldown = nil
-
-	PursuitTable = {
-		['InPursuit'] = false,
-		['InCooldown'] = false,
-		['IsEvading'] = false,
-		['PursuitStart'] = 0,
-		['Heat'] = 1,
-		['UnitsChasing'] = 0,
-		['ResourcePoints'] = 0,
-		['Deploys'] = 0,
-		['PursuitLength'] = 0,
-		['Wrecks'] = 0,
-		['Tags'] = 0,
-		['Bounty'] = 0,
-		['CommanderActive'] = false,
-		['CommanderEntity'] = nil
-		--['ChasedVehicles'] = {},
-	}
 
 	--Exiting the vehicle during pursuits or races
 	hook.Add("CanExitVehicle", "UVExitingVehicleWhlistInPursuit", function( veh, ply)
@@ -1718,23 +1674,6 @@ if SERVER then
 					end
 				end
 			end
-			-- if scope.InPursuit and UVUTimeTillNextHeatEnabled:GetInt() == 1 and scope.TimeTillNextHeatEnd > 0 then
-			-- 	if not scope.EnemyEscaping and now >= scope.TimeTillNextHeatEnd then
-			-- 		local nextHeat = scope.Heat + 1
-			-- 		if nextHeat <= MaxHeatLevel:GetInt() then
-			-- 			scope.Heat = nextHeat
-			-- 			local timeTillNextHeatConVar = GetConVar('unitvehicle_unit_timetillnextheat' .. nextHeat)
-			-- 			local nextInterval = timeTillNextHeatConVar and timeTillNextHeatConVar:GetInt() or 120
-			-- 			scope.TimeTillNextHeatEnd = now + nextInterval
-			-- 		else
-			-- 			scope.TimeTillNextHeatEnd = 0
-			-- 		end
-			-- 	end
-			-- elseif scope.InPursuit and UVUTimeTillNextHeatEnabled:GetInt() == 1 and scope.TimeTillNextHeatEnd == 0 and scope.Heat < MaxHeatLevel:GetInt() then
-			-- 	local timeTillNextHeatConVar = GetConVar('unitvehicle_unit_timetillnextheat' .. scope.Heat)
-			-- 	local interval = timeTillNextHeatConVar and timeTillNextHeatConVar:GetInt() or 120
-			-- 	scope.TimeTillNextHeatEnd = now + interval
-			-- end
 
 			-- Pause heat timer during cooldown
 			if scope.EnemyEscaping and scope.TimeTillNextHeatEnd > 0 then
@@ -2250,17 +2189,6 @@ if SERVER then
 
 				if UVGetDriver(car) and UVGetDriver(car):IsPlayer() then
 					local driver = UVGetDriver(car)
-					if car.PursuitTech then
-						-- local status = car.PursuitTechStatus or "Ready"
-						-- net.Start( "UVHUDPursuitTech" )
-						-- net.WriteString(car.PursuitTech)
-						-- net.WriteString(status)
-						-- net.Send(driver)
-						-- net.Start("UVHUDPursuitTech")
-						-- net.WriteTable(car.PursuitTech)
-						-- net.Broadcast()
-					end
-
 					playerUnitActive = true
 
 					if not table.HasValue(UVPlayerUnitTablePlayers, driver) then
@@ -2306,63 +2234,6 @@ if SERVER then
 				if car.uvkillswitching then
 					UVKillSwitchCheck(car)
 				end
-
-				-- Now handled in logic below; no longer needed duplicated logic here...
-
-				-- local suspects = UVWantedTableVehicle
-				-- local closestsuspect = nil
-				-- local closestdistancetosuspect = math.huge
-
-				-- for _, w in pairs(suspects) do
-				-- 	if IsValid(w) then
-				-- 		local enemypos = w:WorldSpaceCenter()
-				-- 		local distance = enemypos:DistToSqr(car:WorldSpaceCenter())
-				-- 		if distance < closestdistancetosuspect then
-				-- 			closestdistancetosuspect = distance
-				-- 			closestsuspect = w
-				-- 		end
-				-- 	end
-				-- end
-
-				-- if IsValid(closestsuspect) then
-				-- 	local is_vehicle =
-				-- 		closestsuspect.IsSimfphyscar or
-				-- 		closestsuspect.IsGlideVehicle or
-				-- 		closestsuspect.LVS or
-				-- 		closestsuspect:GetClass() == "prop_vehicle_jeep"
-
-				-- 	if is_vehicle then
-				-- 		if not IsValid(car.e) or car.e ~= closestsuspect then
-				-- 			car.e = closestsuspect
-				-- 			UVAddToWantedListVehicle(closestsuspect)
-				-- 		end
-
-				-- 		car.uvplayerdistancetoenemy = closestdistancetosuspect
-				-- 	end
-				-- end
-
-				-- -- Tracking logic for chasing units
-				-- if IsValid(car.e) and car.uvplayerdistancetoenemy then
-				-- 	local carETargetScope = UVGetScope(car.e)
-				-- 	local chaseVisualRange = (carETargetScope and carETargetScope.Hiding) and 1000000 or 25000000
-				-- 	local in_view = UVVisualOnTarget(car, car.e) and car.uvplayerdistancetoenemy < chaseVisualRange
-
-				-- 	if in_view then
-				-- 		local carEScope = UVGetScope(car.e)
-				-- 		if carEScope then carEScope.Losing = CurTime() end
-				-- 		if not table.HasValue(UVUnitsChasing, car) then
-				-- 			table.insert(UVUnitsChasing, car)
-				-- 		end
-				-- 	else
-				-- 		if table.HasValue(UVUnitsChasing, car) then
-				-- 			table.RemoveByValue(UVUnitsChasing, car)
-				-- 		end
-				-- 	end
-				-- else
-				-- 	if table.HasValue(UVUnitsChasing, car) then
-				-- 		table.RemoveByValue(UVUnitsChasing, car)
-				-- 	end
-				-- end
 			end
 		end
 
@@ -2379,8 +2250,6 @@ if SERVER then
 
 		local visible_suspects = {}
 
-		-- so essentially i moved all unit detection/pursuit start logic to here and removed it wherever else it was
-		-- this way we save up on a lot of performance by not having duplicate logic elsewhere
 		if next(UVUnitVehicles) ~= nil then
 			--local newUnits = {}
 			for unit, _ in pairs(UVUnitVehicles) do
@@ -2395,10 +2264,9 @@ if SERVER then
 					local last_visible_value = v.inunitview
 
 					local vScope = UVGetScope(v)
-					local visualrange = (vScope and vScope.Hiding) and 1000000 or 25000000
-					if vScope then
-						vScope.UnitsChasing = 0
-					end
+					if not vScope then continue end
+					local visualrange = vScope.Hiding and 1000000 or 25000000
+					vScope.UnitsChasing = 0
 					
 					v.closestunit = nil
 					v.closestdistancetounit = nil
@@ -2413,16 +2281,18 @@ if SERVER then
 							local closestunit = v.closestunit
 							local closestdistancetounit = v.closestdistancetounit
 
-							if UVUHelicopterBusting:GetBool() and ( not closestunit or j:GetPos():DistToSqr(v:GetPos()) < closestdistancetounit ) then
+							local dist = j:GetPos():DistToSqr(v:GetPos())
+							if UVUHelicopterBusting:GetBool() and ( not closestunit or dist < closestdistancetounit ) then
 								v.closestunit = j
-								v.closestdistancetounit = j:GetPos():DistToSqr(v:GetPos())
+								v.closestdistancetounit = dist
 							end
 						end
 					end
 
 					if not check and (not _LAST_VISIBLE_UPDATE or _LAST_VISIBLE_UPDATE < CurTime() - 0.5) then
 						for unit, _ in pairs(UVUnitVehicles) do
-							local withinRange = unit:GetPos():DistToSqr(v:GetPos()) < visualrange
+							local dist = unit:GetPos():DistToSqr(v:GetPos())
+							local withinRange = dist < visualrange
 							if withinRange and UVVisualOnTarget(unit, v) then
 								vScope.UnitsChasing = vScope.UnitsChasing + 1
 								v.inunitview = true
@@ -2431,9 +2301,9 @@ if SERVER then
 								local closestunit = v.closestunit
 								local closestdistancetounit = v.closestdistancetounit
 
-								if not closestunit or unit:GetPos():DistToSqr(v:GetPos()) < closestdistancetounit then
+								if not closestunit or dist < closestdistancetounit then
 									v.closestunit = unit
-									v.closestdistancetounit = unit:GetPos():DistToSqr(v:GetPos())
+									v.closestdistancetounit = dist
 									if unit.UnitVehicle and unit.UnitVehicle:IsPlayer() then
 										unit.e = v
 									end
@@ -2463,19 +2333,25 @@ if SERVER then
 					end
 
 					if v.inunitview then
-						if vScope and vScope.InPursuit then
+						if vScope.InPursuit then
 							vScope.Losing = 0
+						elseif not vScope.IsBeingPulledOver then
+							-- if a player cop has siren lights on, we want to initiate a traffic stop
+							if v.closestunit and v.closestunit.UnitVehicle:IsPlayer() and UVGetELS( v.closestunit ) and vScope.Bounty < GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() then
+								UVInitiateTrafficStop( v.closestunit, v )
+							end
 						end
 					else
-						if vScope and vScope.InPursuit then
+						if vScope.InPursuit then
 							vScope.Losing = math.Clamp( vScope.Losing + FrameTime(), 0, 5 )
 						end
 					end
 
-					if v.inunitview and vScope and not vScope.InPursuit and vScope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() then
+					if v.inunitview and not vScope.InPursuit and vScope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() then
 						if v.closestunit and v.closestunit.UnitVehicle:IsNPC() then
 							UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
 						end
+						UVEndTrafficStop(v)
 						hook.Run('PursuitEventHook', 'onSuspectSpotted', v)
 						vScope.InPursuit = true
 						vScope.EnemyEscaped = false
@@ -3005,11 +2881,6 @@ if SERVER then
 		local ply = Player(id)
 
 		print('Unit Vehicles:', 'Initializing for -', ply)
-
-		net.Start('UVGet_PursuitTable')
-		net.WriteTable(PursuitTable)
-		net.Send(ply)
-
 		-- Send all pursuit scopes to connecting player
 		if next(UVPursuitScopes) then
 			local allScopeData = {}
@@ -3112,7 +2983,6 @@ else -- CLIENT Settings | HUD/Options
 	UVHUDScannerPos = Vector(0,0,0)
 
 	KeyBindButtons = {}
-	PursuitTable = {}
 	UnitTable = {}
 	EntityQueue = {}
 	CleanupTask = {}
@@ -3202,24 +3072,6 @@ else -- CLIENT Settings | HUD/Options
 
 	UVHeatLevel = 1
 	UVHUDWantedSuspects = {}
-
-	PursuitTable = {
-		['InPursuit'] = false,
-		['InCooldown'] = false,
-		['IsEvading'] = false,
-		['PursuitStart'] = 0,
-		['Heat'] = 1,
-		['UnitsChasing'] = 0,
-		['ResourcePoints'] = 0,
-		['Deploys'] = 0,
-		['PursuitLength'] = 0,
-		['Wrecks'] = 0,
-		['Tags'] = 0,
-		['Bounty'] = 0,
-		['CommanderActive'] = false,
-		['CommanderEntity'] = nil
-		--['ChasedVehicles'] = {},
-	}
 
 	local conVarList = {}
 	UVUnitsConVars = conVarList
@@ -3782,27 +3634,6 @@ else -- CLIENT Settings | HUD/Options
 		end
 	end)
 
-	-- net.Receive('UVGet_PursuitTable', function()
-	-- 	PursuitTable = net.ReadTable()
-	-- end)
-
-	-- net.Receive('UVSet_PursuitTable', function()
-	-- 	local messageSize = net.ReadUInt( 16 )
-	-- 	local recvData = net.ReadData( messageSize )
-
-	-- 	local decompData = util.Decompress( recvData )
-	-- 	local dataTable = util.JSONToTable( decompData )
-
-	-- 	for key, value in pairs( dataTable ) do
-	-- 		-- Found inside uvhud
-	-- 		if UV_UI_Events[key] then 
-	-- 			hook.Run( 'UIEventHook', 'pursuit', UV_UI_Events[key], value, PursuitTable[key] )
-	-- 		end
-
-	-- 		PursuitTable[key] = value
-	-- 	end
-	-- end)
-
 	-- ========================
 	-- Scope Net Receivers (client)
 	-- ========================
@@ -3976,6 +3807,7 @@ else -- CLIENT Settings | HUD/Options
 	net.Receive( "UVFined", function()
 		local finenr = net.ReadUInt(2)
 		local finesdue = net.ReadInt(32)
+		print("lovers revenge")
 		hook.Run( 'UIEventHook', 'pursuit', 'onFined', finenr, finesdue )
 	end)
 
@@ -4355,55 +4187,11 @@ else -- CLIENT Settings | HUD/Options
 			end
 		end
 
-		-- if vehicle == NULL then 
-		-- 	UVHUDDisplayBusting = false
-		-- 	UVHUDPursuitTech = nil
-		-- 	return 
-		-- end
-
-		-- if UVHUDDisplayPursuit then
-		-- 	if not UVCooldownProgress then UVCooldownProgress = 0 end
-
-		-- 	if UVHUDDisplayCooldown or UVBustedState then
-		-- 		if not UVTimerFroze then
-		-- 			UVTimerWhenFroze = CurTime() - UVCooldownProgress
-		-- 			UVTimerFroze = true
-		-- 		end
-		-- 	else
-		-- 		UVTimerFroze = false
-		-- 	end
-
-		-- 	if not UVTimerFroze and PursuitTable.PursuitStart then
-		-- 		UVTimerProgress = CurTime() - tonumber( PursuitTable.PursuitStart ) - UVCooldownProgress
-		-- 	else
-		-- 		UVCooldownProgress = CurTime() - UVTimerWhenFroze
-		-- 	end
-		-- else
-		-- 	UVHeatPlayIntro = true 
-		-- 	UVHeatLevelIncrease = false
-		-- 	UVHeatPlayTransition = false
-		-- 	UVLastHeatChange = CurTime()
-		-- 	UVHUDDisplayBackupTimer = nil
-		-- end
-
 		UVHUDWantedSuspectsNumber = UV_GetInPursuitCount()
 
 		if not UVHUDRaceInProgress and UVHUDWantedSuspectsNumber > 1 then
 			UVHUDRaceInProgress = true
 		end
-
-		-- UVHUDDisplayPursuit = PursuitTable.InPursuit
-		-- --UVHUDDisplayCooldown = PursuitTable.InCooldown
-		-- UVHeatLevel = tonumber( PursuitTable.Heat )
-		-- UVUnitsChasing = PursuitTable.UnitsChasing
-		-- UVResourcePoints = PursuitTable.ResourcePoints
-		-- UVDeploys = PursuitTable.Deploys
-		-- UVPursuitLength = PursuitTable.PursuitLength
-		-- UVWrecks = PursuitTable.Wrecks
-		-- UVTags = PursuitTable.Tags
-		-- UVBounty = string.Comma( PursuitTable.Bounty )
-		-- UVBountyNo = PursuitTable.Bounty
-		-- UVTimer = (UVTimerProgress and UVDisplayTime( UVTimerProgress )) or UVDisplayTime( 0 )
 
 		-- Per-scope HUD override: derive display values from the correct scope
 		UVResourcePoints = UVGlobalPursuit.ResourcePoints or 0
@@ -4450,7 +4238,7 @@ else -- CLIENT Settings | HUD/Options
 				UVEvadingProgress = math.Clamp(_activeScope.Losing / 5, 0, 1)
 			end
 			if _activeScope.PursuitStart > 0 then
-				PursuitTable.PursuitStart = _activeScope.PursuitStart
+				PursuitStartTime = _activeScope.PursuitStart or 0
 			end
 			if _activeScope.Hiding and _activeScope.EnemyEscaping then
 				local blink = math.floor(RealTime()*2)==math.Round(RealTime()*2) and 255 or 0
@@ -4493,6 +4281,7 @@ else -- CLIENT Settings | HUD/Options
 	local UVHUDScreenFlashDuration = 1.25
 
 	local function DrawScreenFlash(startTime, color)
+		if not startTime then return end
 		local elapsed = CurTime() - tonumber(startTime)
 		if elapsed >= UVHUDScreenFlashDuration then return end
 
@@ -4526,7 +4315,7 @@ else -- CLIENT Settings | HUD/Options
 		local main = UVHUDTypeMain:GetString()
 		local backup = UVHUDTypeBackup:GetString()
 
-		DrawScreenFlash(PursuitTable.PursuitStart, Color(255, 255, 255)) -- white flash
+		DrawScreenFlash(PursuitStartTime, Color(255, 255, 255)) -- white flash
 		DrawScreenFlash(UVHUDScreenFlashHeatUp, Color(0, 0, 255))        -- blue flash
 
 		-- local scope = UVGetScope(UVGetVehicle(LocalPlayer()))
@@ -5279,6 +5068,12 @@ else -- CLIENT Settings | HUD/Options
 
 		if entity then
 			table.RemoveByValue( UVHUDWantedSuspects, entity )
+			if GMinimap then
+				local blip = GMinimap:FindBlipByID("UVBlip" .. entIndex)
+				if not blip then return end
+
+				blip.alpha = 0
+			end
 		end
 	end)
 

@@ -750,12 +750,12 @@ UV_UI.pursuit.original.events = {
 
     onPullOverRequest = function(...)
         local ply = LocalPlayer()
-		ply:PrintMessage(HUD_PRINTCENTER, UVString("uv.hud.fine.pullover"))
+		ply:PrintMessage(HUD_PRINTCENTER, UVHUDCopMode and UVString("uv.hud.fine.pullover.unit") or UVString("uv.hud.fine.pullover"))
 	end,
 
 	onFined = function( finenr, finesdue )
         local ply = LocalPlayer()
-		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.fined"), finenr))
+		ply:PrintMessage(HUD_PRINTCENTER, string.format( UVHUDCopMode and UVString("uv.hud.fine.fined.unit") or UVString("uv.hud.fine.fined"), finenr))
 		timer.Simple(3, function()
 			ply:PrintMessage(HUD_PRINTCENTER, string.format( UVString("uv.hud.fine.cost"), finesdue))
 		end)

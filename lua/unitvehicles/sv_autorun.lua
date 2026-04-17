@@ -2431,10 +2431,6 @@ function UVAddToWantedListVehicle(vehicle)
 		net.WriteInt( vehicle:GetCreationID(), 32 )
 		net.Broadcast()
 		
-		if (driver and driver:IsPlayer()) and not table.HasValue(UVWantedTableDriver, driver) then
-			UVAddToWantedListDriver(driver)
-		end
-
 		vehicle:CallOnRemove( "UVWantedVehicleRemoved", function(ent)
 			if table.HasValue(UVWantedTableVehicle, ent) then
 				table.RemoveByValue(UVWantedTableVehicle, ent)
@@ -2445,25 +2441,6 @@ function UVAddToWantedListVehicle(vehicle)
 			net.WriteInt( ent:GetCreationID(), 32 )
 			net.Broadcast()
 		end)
-	end
-end
-
-function UVAddToWantedListDriver(driver)
-	if not IsValid(driver) or not driver:IsPlayer() then return end
-	if table.HasValue(UVPlayerUnitTablePlayers, driver) then
-		table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
-		net.Start( "UVHUDStopCopMode" )
-		net.Send(driver)
-	end
-	if not table.HasValue(UVWantedTableDriver, driver) then
-		table.insert(UVWantedTableDriver, driver)
-		hook.Add( "PlayerDisconnected", "UVWantedDriverDisconnect", function(driver)
-			if table.HasValue(UVWantedTableDriver, driver) then
-				table.RemoveByValue(UVWantedTableDriver, driver)
-			end
-		end)
-		net.Start( "UVHUDWanted" )
-		net.Send(driver)
 	end
 end
 
@@ -2995,20 +2972,29 @@ function UVSetVehiclePerformanceMultiplier( vehicle, mult, catchup )
 end
 
 function UVIsSeenByUnit(vehicle)
-	local units = ents.FindByClass("npc_uv*")
+	local units = UVUnitVehicles
 	local airUnits = ents.FindByClass("uvair")
 
-	table.Add( units, airUnits )
-	table.Add( units, playerUnits )
-	
-	for _, w in pairs(units) do
-		local seen = false
-		if w:GetClass() ~= 'uvair' then
-			seen = UVVisualOnTarget(w, vehicle)
-		else
-			seen = UVVisualOnTarget(w, vehicle)
-		end
+	local vScope = UVGetScope(vehicle)
+	local visualrange = (vScope and vScope.Hiding) and 1000000 or 25000000
 
+	for w, _ in pairs(units) do
+		local withinRange = w:GetPos():DistToSqr(vehicle:GetPos()) < visualrange
+		if not withinRange then continue end
+
+		local seen = UVVisualOnTarget(w, vehicle)
+
+		if seen then
+			UVAddToWantedListVehicle(vehicle)
+			return true
+		end
+	end
+
+	for _, w in pairs(airUnits) do
+		local withinRange = w:GetPos():DistToSqr(vehicle:GetPos()) < visualrange
+		if not withinRange then continue end
+
+		local seen = UVVisualOnTarget(w, vehicle)
 		if seen then
 			UVAddToWantedListVehicle(vehicle)
 			return true
@@ -3300,6 +3286,45 @@ function UVChangeTactics(tactic)
 	end
 end
 
+function UVEndTrafficStop( target )
+	local targetScope = UVGetScope(target)
+	if not targetScope or not targetScope.IsBeingPulledOver then return end
+
+	targetScope.IsBeingPulledOver = false
+	timer.Remove( target._trafficStopKey )
+	target._trafficStopKey = nil
+end
+
+function UVInitiateTrafficStop( unit, target )
+	local targetScope = UVGetScope(target)
+	print("initiated traffic stop")
+	if not targetScope or targetScope.IsBeingPulledOver or targetScope.InPursuit then return end
+
+	targetScope.IsBeingPulledOver = true
+
+	local targetOccupants = UVGetVehicleOccupants(target)
+	local unitOccupants = UVGetVehicleOccupants(unit)
+
+	table.Add( targetOccupants, unitOccupants )
+
+	net.Start( "UVPullOver" )
+	net.Send( targetOccupants )
+
+	target._trafficStopKey = "UVTrafficStop_" .. UVScopeKey( target )
+
+	timer.Create( target._trafficStopKey, 15, 1, function()
+		if not table.HasValue( UVWantedTableVehicle, target ) then return end
+		if targetScope and targetScope.IsBeingPulledOver and not targetScope.InPursuit then
+			targetScope.InPursuit = true
+			UVEndTrafficStop( target )
+
+			if IsValid( unit ) and unit.UnitVehicle:IsNPC() then
+				UVChatterPursuitStartRanAway( unit.UnitVehicle )
+			end
+		end
+	end)
+end
+
 function UVBustEnemy(self, enemy, finearrest)
 	if not IsValid(self) or not IsValid(enemy) or (enemy.uvbusted and not finearrest) then return end
 
@@ -3314,12 +3339,6 @@ function UVBustEnemy(self, enemy, finearrest)
 	-- 		UVRaceTable['Participants'][enemy].Busted = true
 	-- 	end
 	-- end
-	if enemy.RacerVehicle then
-		enemy.RacerVehicle:Remove()
-	end
-	if enemy.MadVehicle then
-		enemy.MadVehicle:Remove()
-	end
 	if enemy.UVWanted then
 		enemy.UVWanted = nil
 	end
@@ -3344,6 +3363,13 @@ function UVBustEnemy(self, enemy, finearrest)
 		if table.HasValue(UVPotentialSuspects, enemy) then
 			table.RemoveByValue(UVPotentialSuspects, enemy)
 		end
+
+		if enemy.RacerVehicle then
+			enemy.RacerVehicle:Remove()
+		end
+		if enemy.MadVehicle then
+			enemy.MadVehicle:Remove()
+		end
 		
 		net.Start("UVHUDRemoveUV")
 		net.WriteInt( enemy:EntIndex(), 32 )
@@ -3353,7 +3379,7 @@ function UVBustEnemy(self, enemy, finearrest)
 		if Chatter:GetBool() then
 			if finearrest then
 				net.Start( "UVFineArrest" )
-				net.Send(enemyDriver)
+				net.Send(IsValid(enemyDriver) and enemyDriver or {})
 				timeacknowledge = UVChatterFineArrest(self) or 5
 			else
 				timeacknowledge = UVChatterArrest(self) or 5
@@ -3500,7 +3526,8 @@ function UVBustEnemy(self, enemy, finearrest)
 				driver:SetNoDraw(true)
 				driver:Spectate(OBS_MODE_DEATHCAM)
 				driver:SpectateEntity(driver)
-				driver:SetFrags(0)
+				net.Start( "UVHUDStopBusting" )
+				net.Send( UVGetVehicleOccupants(enemy) )
 			end)
 			net.Start( "UVHUDEnemyBusted" )
 			net.Send(driver)
@@ -3537,6 +3564,8 @@ function UVBustEnemy(self, enemy, finearrest)
 
 			if enemyScope then enemyScope.Bounty = 0 end
 		end
+		UVEndTrafficStop( enemy )
+		local occupants = UVGetVehicleOccupants( enemy )
 		if enemy:IsVehicle() then
 			local e = UVGetVehicleMakeAndModel(enemy)
 			if not enemy.UVFinedCount then
@@ -3558,22 +3587,25 @@ function UVBustEnemy(self, enemy, finearrest)
 				if v.e == enemy then
 					v.stopped = true
 					stoppedUnits[v] = true
-					v:ForgetEnemy()
+					-- v:ForgetEnemy()
 				end
 			end
 			net.Start( "UVHUDStopBusting" )
-			net.Send(UVGetVehicleOccupants(enemy))
+			net.Send(occupants)
+			net.Start( "UVHUDUpdateBusting" )
+			net.WriteEntity(enemy)
+			net.WriteFloat(0)
+			net.Broadcast()
 		end)
-		if enemyDriver and enemyDriver:IsPlayer() then 
-			local driver = enemyDriver
-			timer.Simple(0.1, function()
-				driver:SetFrags(0)
-				-- driver:PrintMessage( HUD_PRINTCENTER, "You have been fined! You have 10 seconds to drive away.")
-				net.Start( "UVFined" )
-				net.WriteUInt( enemy.UVFinedCount, 3 )
-				net.WriteInt(finesdue, 32)
-				net.Send(driver)
-			end)
+		local driver = (enemyDriver and enemyDriver:IsPlayer()) and enemyDriver or nil
+		timer.Simple(0.1, function()				
+			table.Add( occupants, UVGetVehicleOccupants( UVGetVehicle( self ) ) )
+			net.Start( "UVFined" )
+			net.WriteUInt( enemy.UVFinedCount, 3 )
+			net.WriteInt(finesdue, 32)
+			net.Send(occupants)
+		end)
+		if driver then
 			driver:EmitSound("ui/pursuit/fined.wav", 0, 100, 0.5)
 		end
 		self.aggressive = nil
@@ -3876,9 +3908,11 @@ function UVCheckIfBeingBusted(enemy)
 		_LocalUVBustSpeed = _LocalUVBustSpeed * (enemy.UVBustingPenaltyMult or 1)
 	end
 
+	local velocity = enemy:GetVelocity():LengthSqr()
+
 	local scope = UVGetScope(enemy)
 	
-	if not enemy.uvbusted and btimeout and btimeout > 0 and enemy:GetVelocity():LengthSqr() < _LocalUVBustSpeed and not scope.EnemyEscaping and (scope.InPursuit or table.HasValue(UVWantedTableVehicle, enemy)) and
+	if not enemy.uvbusted and btimeout and btimeout > 0 and velocity < _LocalUVBustSpeed and not scope.EnemyEscaping and scope.InPursuit or scope.IsBeingPulledOver and
 	(closestdistancetounit < 250000 or closestunit.CloseToTarget) then
 		if not enemy.UVHUDBusting and not enemy.UVHUDBustingDelayed then
 			enemy.UVHUDBusting = true
@@ -3886,7 +3920,7 @@ function UVCheckIfBeingBusted(enemy)
 			timer.Simple(1, function()
 				enemy.UVHUDBustingDelayed = nil
 			end)
-			if Chatter:GetBool() and IsValid(closestunit) and not UVCalm then
+			if Chatter:GetBool() and IsValid(closestunit) and scope.InPursuit then
 				local randomno = math.random(1,2)
 				local airUnits = ents.FindByClass("uvair")
 				if next(airUnits) ~= nil and randomno == 1 then
@@ -3948,8 +3982,10 @@ function UVCheckIfBeingBusted(enemy)
 				end)
 				net.Start( "UVHUDStopBusting" )
 				net.Broadcast()
-				if not UVTargeting and not enemy.uvbusted then
+				-- check if enemy is moving fast enough to consider them to be attempting evasion after busting
+				if not enemy.uvbusted and velocity >= _LocalUVBustSpeed then
 					if scope then scope.InPursuit = true end
+					UVEndTrafficStop( enemy )
 					if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() then
 						local units = ents.FindByClass("npc_uv*")
 						local random_entry = math.random(#units)	
@@ -3958,7 +3994,7 @@ function UVCheckIfBeingBusted(enemy)
 						UVChatterPursuitStartRanAway(unit)
 					end
 				end
-				if Chatter:GetBool() and IsValid(closestunit.UnitVehicle) and not UVCalm then
+				if Chatter:GetBool() and IsValid(closestunit.UnitVehicle) and scope.InPursuit then
 					local randomno = math.random(1,2)
 					local airUnits = ents.FindByClass("uvair")
 					if next(airUnits) ~= nil and randomno == 1 then

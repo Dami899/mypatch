@@ -1204,7 +1204,7 @@ UV_UI.pursuit.world.events = {
 	end,
 	onPullOverRequest = function(...)
 		UV_UI.racing.world.events.CenterNotification({
-			text = UVString("uv.hud.fine.pullover"),
+			text = UVHUDCopMode and UVString("uv.hud.fine.pullover.unit") or UVString("uv.hud.fine.pullover"),
 			color = Color( 137, 242, 248 ),
 			colorbg = Color(66, 194, 222, 50),
 			immediate = true,
@@ -1213,7 +1213,7 @@ UV_UI.pursuit.world.events = {
 	end,
 	onFined = function( finenr, finesdue )
 		UV_UI.racing.world.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finenr),
+			text = string.format( UVHUDCopMode and UVString("uv.hud.fine.fined.unit") or UVString("uv.hud.fine.fined"), finenr),
 			color = Color( 137, 242, 248 ),
 			colorbg = Color(66, 194, 222, 50),
 			immediate = true,

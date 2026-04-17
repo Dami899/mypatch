@@ -154,6 +154,8 @@ function ENT:GetELS(v)
 		return vehicle:GetEMSEnabled()
 	elseif vehicle.LVS or vehicle.LVS_GUNNER then
         return isfunction(vehicle.GetSirenMode) and vehicle:GetSirenMode() >= 0
+    elseif vehicle.IsGlideVehicle then
+        return vehicle:GetSirenState() >= 1
 	elseif Photon2
     and isfunction(vehicle.GetPhotonControllerFromAncestor) then
         local pc = self.v:GetPhotonControllerFromAncestor()
@@ -179,6 +181,8 @@ function ENT:GetELSSound(v)
 		return vehicle.ems and vehicle.ems:IsPlaying()
 	elseif vehicle.LVS or vehicle.LVS_GUNNER then
         return isfunction(vehicle.GetSirenMode) and vehicle:GetSirenMode() >= 0
+    elseif vehicle.IsGlideVehicle then
+        return vehicle:GetSirenState() == 2
 	elseif Photon2
     and isfunction(vehicle.GetPhotonControllerFromAncestor) then
         local pc = self.v:GetPhotonControllerFromAncestor()
