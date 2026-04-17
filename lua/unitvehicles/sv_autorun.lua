@@ -266,6 +266,12 @@ NETWORK_STRINGS = {
 	
 	-- DV Warning
 	"UV_OpenDVWarning",
+	
+	-- Data Replacement for SERVER
+	"UV_HasPendingReplace",
+	"UV_RequestServerReplace",
+	"UV_ConfirmServerReplace",
+	"UV_OpenReplaceMenu",
 }
 
 for _, v in pairs( NETWORK_STRINGS ) do

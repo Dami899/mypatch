@@ -31,9 +31,11 @@ UVRaceReverseCatchupGap = CreateConVar( "unitvehicle_racercatchup_rev_gap", 2, {
 UVMenuFirstCreate = CreateConVar( "unitvehicle_uvmenu_firstsetup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, whenever you open the UV Menu via the Context Menu, you'll be prompted to go through the first-time setup." )
 
 -- Data Import
+UVMenuDataReplaceSV = CreateConVar( "uvmenu_enabledatareplace_server", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If enabled, allows the server to replace data available through third-party addons." )
+
 if CLIENT then
-	CreateClientConVar("uvmenu_disabledataimport", 0, true, false)
-	CreateClientConVar("uvmenu_disabledatareplace", 0, true, false)
+	CreateClientConVar("uvmenu_enabledataimport", 1, true, false)
+	CreateClientConVar("uvmenu_enabledatareplace", 1, true, false)
 end
 
 function UVFormLeaderboard(racers, overrideVehicle)

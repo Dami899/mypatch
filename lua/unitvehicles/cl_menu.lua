@@ -806,9 +806,25 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
 				
 				{ type = "label", text = "uv.ui.dataimport", desc = "uv.ui.dataimport.desc", sv = true, sp = true },
-				{ type = "button", text = "uv.ui.dataimport.scan", desc = "uv.ui.dataimport.scan.desc", sv = true, sp = true, playsfx = "clickopen", prompts = {"uv.prompt.confirm"}, func = function() UV_StartImportFlow() end },
-				{ type = "bool", text = "uv.ui.dataimport.disableimport", desc = "uv.ui.dataimport.disableimport.desc", convar = "uvmenu_disabledataimport", sv = true, sp = true },
-				{ type = "bool", text = "uv.ui.dataimport.disablereplace", desc = "uv.ui.dataimport.disablereplace.desc", convar = "uvmenu_disabledatareplace", sv = true, sp = true },
+
+				{ type = "bool", text = "uv.ui.dataimport.enableimport", desc = "uv.ui.dataimport.enableimport.desc", convar = "uvmenu_enabledataimport", sv = true, sp = true },
+				{ type = "bool", text = "uv.ui.dataimport.enablereplace", desc = "uv.ui.dataimport.enablereplace.desc", convar = "uvmenu_enabledatareplace", sv = true, sp = true },
+				{ type = "button", text = "uv.ui.dataimport.scan", desc = "uv.ui.dataimport.scan.desc", sv = true, sp = true, playsfx = "clickopen", prompts = {"uv.prompt.confirm"}, func = function() UV_StartImportFlow() end,
+				cond = function()
+					return (GetConVar("uvmenu_enabledataimport"):GetBool() or GetConVar("uvmenu_enabledatareplace"):GetBool())
+				end
+				},
+				{ type = "button", text = "uv.ui.dataimport.replaceserver", desc = "uv.ui.dataimport.replaceserver.desc", sv = true, playsfx = "clickopen", prompts = {"uv.prompt.confirm"},
+				func = function()
+					net.Start("UV_RequestServerReplace")
+					net.SendToServer()
+				end,
+				cond = function()
+					return not game.SinglePlayer()
+						and GetConVar("uvmenu_enabledatareplace_server"):GetBool()
+						and UV_HasPendingReplace
+				end
+				},
 			},
 
 			{ TabName = "uv.addons", Icon = "unitvehicles/icons/generic_cart.png", sv = true,
@@ -2082,14 +2098,11 @@ end
 local UVRacerNames = nil
 local UVNamesLoaded = false
 
-if not UVNamesLoaded then
+if not UVRacerNames and not UVNamesLoaded then
 	file.AsyncRead('unitvehicles/names/Names.json', 'DATA', function(_, _, status, data)
 		if status == FSASYNC_OK and data then
 			UVRacerNames = util.JSONToTable(data)
 			UVNamesLoaded = true
-			print("UV names loaded:", #UVRacerNames.Racers)
-		else
-			print("Failed to load Names.json")
 		end
 	end, true)
 end

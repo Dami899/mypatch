@@ -27,7 +27,7 @@ local function FilesDiffer(src, dst)
     return srcData ~= dstData
 end
 
-local function ScanImportData(folder)
+local function ScanImportData(folder, allowNew, allowReplace)
     local result = {
         new = {},
         replace = {}
@@ -44,13 +44,15 @@ local function ScanImportData(folder)
             local src = base .. dataFld .. "/" .. filename
             local dst = "unitvehicles/" .. dataFld .. "/" .. filename
 
-            if file.Exists(dst, "DATA") then
-                if FilesDiffer(src, dst) then
-                    table.insert(result.replace, {src = src, dst = dst})
-                end
-            else
-                table.insert(result.new, {src = src, dst = dst})
-            end
+			if file.Exists(dst, "DATA") then
+				if allowReplace and FilesDiffer(src, dst) then
+					table.insert(result.replace, {src = src, dst = dst})
+				end
+			else
+				if allowNew then
+					table.insert(result.new, {src = src, dst = dst})
+				end
+			end
         end
 
         -- Subfolder files
@@ -61,13 +63,15 @@ local function ScanImportData(folder)
                 local src = base .. dataFld .. "/" .. sub .. "/" .. filename
                 local dst = "unitvehicles/" .. dataFld .. "/" .. sub .. "/" .. filename
 
-                if file.Exists(dst, "DATA") then
-                    if FilesDiffer(src, dst) then
-                        table.insert(result.replace, {src = src, dst = dst})
-                    end
-                else
-                    table.insert(result.new, {src = src, dst = dst})
-                end
+				if file.Exists(dst, "DATA") then
+					if allowReplace and FilesDiffer(src, dst) then
+						table.insert(result.replace, {src = src, dst = dst})
+					end
+				else
+					if allowNew then
+						table.insert(result.new, {src = src, dst = dst})
+					end
+				end
             end
         end
     end
@@ -80,13 +84,15 @@ local function ScanImportData(folder)
         local src = dvbase .. filename
         local dst = "decentvehicle/" .. filename
 
-        if file.Exists(dst, "DATA") then
-            if FilesDiffer(src, dst) then
-                table.insert(result.replace, {src = src, dst = dst, type = "waypoints"})
-            end
-        else
-            table.insert(result.new, {src = src, dst = dst, type = "waypoints"})
-        end
+		if file.Exists(dst, "DATA") then
+			if allowReplace and FilesDiffer(src, dst) then
+				table.insert(result.replace, {src = src, dst = dst, type = "waypoints"})
+			end
+		else
+			if allowNew then
+				table.insert(result.new, {src = src, dst = dst, type = "waypoints"})
+			end
+		end
     end
 
     return result
@@ -243,11 +249,13 @@ local function BuildEntryText(counts)
     return table.concat(t, "\n")
 end
 
-local function ScanFoldersAsync(folders, onDone)
+local function ScanFoldersAsync(folders, enableImport, enableReplace, onDone)
     local allNew = {}
     local allReplace = {}
 
     local i = 1
+
+	timer.Remove("UV_ImportScan")
 
     timer.Create("UV_ImportScan", 0, 0, function()
         local folder = folders[i]
@@ -257,7 +265,7 @@ local function ScanFoldersAsync(folders, onDone)
             return
         end
 
-        local scan = ScanImportData(folder)
+		local scan = ScanImportData(folder, enableImport, enableReplace)
 
         table.Add(allNew, scan.new)
         table.Add(allReplace, scan.replace)
@@ -266,18 +274,46 @@ local function ScanFoldersAsync(folders, onDone)
     end)
 end
 
+local function BroadcastPendingState()
+    local has = UV_PendingReplace and #UV_PendingReplace > 0
+
+    net.Start("UV_HasPendingReplace")
+    net.WriteBool(has)
+    net.Broadcast()
+end
+
 function UV_StartImportFlow()
+    if not game.SinglePlayer() then
+        -- print("[UV] Client import disabled in multiplayer.")
+        return
+    end
+	
+    local enableImport = GetConVar("uvmenu_enabledataimport"):GetBool()
+    local enableReplace = GetConVar("uvmenu_enabledatareplace"):GetBool()
+
+    -- If BOTH are disabled → do nothing at all
+	if not enableImport and not enableReplace then
+		-- print("[UV] Import + Replace disabled. Skipping entirely.")
+		return
+	end
+	
     local _, folders = file.Find(IMPORT_ROOT .. "*", "GAME")
 
-    ScanFoldersAsync(folders or {}, function(allNew, allReplace)
+	ScanFoldersAsync(folders or {}, enableImport, enableReplace, function(allNew, allReplace)
 
-        print("[UV] New:", #allNew, "Replace:", #allReplace)
+		if not enableImport then
+			allNew = {} -- wipe new data completely
+		end
+
+		if not enableReplace then
+			allReplace = {} -- wipe replace data completely
+		end
 
         local function OpenReplaceMenu()
-            if GetConVar("uvmenu_disabledatareplace"):GetBool() then
-                PrintImportSummary("Replace disabled (skipped):", allReplace)
-                return
-            end
+			if not enableReplace then
+				PrintImportSummary("Replace disabled (skipped):", allReplace)
+				return
+			end
 
             if #allReplace == 0 then return end
 
@@ -296,7 +332,7 @@ function UV_StartImportFlow()
             UVMenu.OpenMenu(UVMenu.ImportReplace, true)
         end
 
-        if #allNew > 0 and not GetConVar("uvmenu_disabledataimport"):GetBool() then
+        if #allNew > 0 and enableImport then
             local counts = CountEntries(allNew)
             local text = BuildEntryText(counts)
 
@@ -320,10 +356,132 @@ function UV_StartImportFlow()
     end)
 end
 
+function UV_StartImportFlow_Server()
+	local enableReplace = GetConVar("uvmenu_enabledatareplace_server"):GetBool()
+	local enableImport = true -- always allow new data on server
+
+    if not enableImport and not enableReplace then return end
+
+    local _, folders = file.Find(IMPORT_ROOT .. "*", "GAME")
+
+    ScanFoldersAsync(folders or {}, enableImport, enableReplace, function(allNew, allReplace)
+
+        if enableImport and #allNew > 0 then
+            ImportNew(allNew)
+            PrintImportSummary("SERVER: Imported NEW data:", allNew)
+        end
+
+		if enableReplace and #allReplace > 0 then
+			UV_PendingReplace = allReplace
+			PrintImportSummary("SERVER: Pending replacements:", allReplace)
+
+			BroadcastPendingState()
+
+			for _, ply in ipairs(player.GetAll()) do
+				if ply:IsAdmin() then
+					ply:ChatPrint("[UV] Altered data detected. Use the menu to review it.")
+				end
+			end
+		else
+			UV_PendingReplace = nil
+			BroadcastPendingState()
+		end
+    end)
+end
+
 if CLIENT and game.SinglePlayer() then
     hook.Add("InitPostEntity", "UV_RunImportFlow", function()
         timer.Simple(1, function()
             UV_StartImportFlow()
         end)
     end)
+end
+
+if SERVER then
+    hook.Add("Initialize", "UV_RunImportFlow_Server", function()
+        timer.Simple(1, function()
+            UV_StartImportFlow_Server()
+        end)
+    end)
+	
+	hook.Add("PlayerInitialSpawn", "UV_NotifyPendingReplace", function(ply)
+		if not ply:IsAdmin() then return end
+
+		timer.Simple(1, function()
+			if not IsValid(ply) then return end
+
+			local has = UV_PendingReplace and #UV_PendingReplace > 0
+
+			net.Start("UV_HasPendingReplace")
+			net.WriteBool(has)
+			net.Send(ply)
+		end)
+
+		if UV_PendingReplace and #UV_PendingReplace > 0 then
+			timer.Simple(2, function()
+				if IsValid(ply) then
+					ply:ChatPrint("[UV] Altered data is pending replacement.")
+				end
+			end)
+		end
+	end)
+
+    net.Receive("UV_RequestServerReplace", function(len, ply)
+        if not IsValid(ply) or not ply:IsAdmin() then return end
+
+        if not UV_PendingReplace or #UV_PendingReplace == 0 then
+            ply:ChatPrint("[UV] No pending replacements.")
+            return
+        end
+
+        -- Send summary UI trigger (optional)
+		local counts = CountEntries(UV_PendingReplace)
+
+		net.Start("UV_OpenReplaceMenu")
+		net.WriteTable(counts)
+		net.Send(ply)
+    end)
+
+	net.Receive("UV_ConfirmServerReplace", function(len, ply)
+		if not IsValid(ply) or not ply:IsAdmin() then return end
+		
+		if not UV_PendingReplace or #UV_PendingReplace == 0 then return end
+
+		ImportReplace(UV_PendingReplace)
+		PrintImportSummary("SERVER: Replaced data:", UV_PendingReplace)
+
+		for _, admin in ipairs(player.GetAll()) do
+			if admin:IsAdmin() then
+				admin:ChatPrint("[UV] Server data has been replaced.")
+			end
+		end
+
+		UV_PendingReplace = nil
+		BroadcastPendingState()
+	end)
+end
+
+if CLIENT then
+    UV_HasPendingReplace = false
+
+    net.Receive("UV_HasPendingReplace", function()
+        UV_HasPendingReplace = net.ReadBool()
+    end)
+
+    net.Receive("UV_OpenReplaceMenu", function()
+		local counts = net.ReadTable()
+		local text = BuildEntryText(counts)
+
+        UVMenu.ImportDataText = text
+
+        UVMenu.ImportOnConfirm = function()
+            net.Start("UV_ConfirmServerReplace")
+            net.SendToServer()
+        end
+
+        UVMenu.ImportOnSkip = function() end
+
+        UVMenu.OpenMenu(UVMenu.ImportReplace, true)
+    end)
+
 end
