@@ -616,6 +616,9 @@ UVMenu.Settings = function()
 				end },
 				
 				{ type = "bool", text = "uv.ui.racertags", desc = "uv.ui.racertags.desc", convar = "unitvehicle_racertags" },
+				{ type = "slider", text = "uv.ui.racertags.thickness", desc = "uv.ui.racertags.thickness.desc", convar = "unitvehicle_racertags_thickness", requireparentconvar = "unitvehicle_racertags", min = 0, max = 3, decimals = 1 },
+				{ type = "slider", text = "uv.ui.racertags.distance", desc = "uv.ui.racertags.distance.desc", convar = "unitvehicle_racertags_distance", requireparentconvar = "unitvehicle_racertags", min = 50, max = 500, decimals = 0 },
+				{ type = "slider", text = "uv.ui.racertags.maxnr", desc = "uv.ui.racertags.maxnr.desc", convar = "unitvehicle_racertags_max", requireparentconvar = "unitvehicle_racertags", min = 1, max = 20, decimals = 0 },
 				{ type = "bool", text = "uv.ui.preracepopup", desc = "uv.ui.preracepopup.desc", convar = "unitvehicle_preraceinfo" },
 				{ type = "combo", text = "uv.ui.unitstype", desc = "uv.ui.unitstype.desc", convar = "unitvehicle_unitstype", content = {
 						{ "uv.ui.unitstype.meter", 0 },

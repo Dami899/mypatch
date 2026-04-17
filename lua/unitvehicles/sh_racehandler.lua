@@ -2881,7 +2881,7 @@ else -- CLIENT stuff
 				return a.dist < b.dist
 			end)
 
-			local maxSquares = 4
+			local maxSquares = RacerTagsMaxNr:GetInt() or 3
 			local count = math.min(#renderQueue, maxSquares)
 
 			for i = count, 1, -1 do

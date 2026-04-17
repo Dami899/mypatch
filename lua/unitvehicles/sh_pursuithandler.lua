@@ -3064,6 +3064,9 @@ else -- CLIENT Settings | HUD/Options
 	LVSAlwaysFullThrottle = CreateConVar( "unitvehicle_lvsalwaysfullthrottle", 0, {FCVAR_ARCHIVE, FCVAR_USERINFO}, "LVS Always Full Throttle." )
 
 	RacerTags = CreateClientConVar("unitvehicle_racertags", 1, true, false, "Unit Vehicles: If set to 1, Racers and Commander Units will have name tags above their vehicles.")
+	RacerTagsThickness = CreateClientConVar("unitvehicle_racertags_thickness", 1.5, true, false, "Unit Vehicles: Sets the thickness of the name tags, capped at 3.")
+	RacerTagsDistance = CreateClientConVar("unitvehicle_racertags_distance", 100, true, false, "Unit Vehicles: Sets the distance the tags start to fade out.")
+	RacerTagsMaxNr = CreateClientConVar("unitvehicle_racertags_max", 3, true, false, "Unit Vehicles: Sets the maximum amount of name tags on-screen at once.")
 
 	UVControllerMode = CreateClientConVar("unitvehicle_controllermode", 0, true, false, "Unit Vehicles: If set to 1, certain actions in the UV Menu are swapped to work with more controller-friendly alternatives, such as JUMP instead of MOUSE1.")
 	UVGlyphOverride = CreateClientConVar("unitvehicle_glyph_override", 0, true, false, "Unit Vehicles: If set to 1, it enables an override to display specified glyphs in the UV Menu and certain other elements rather than their accurate ones.")
@@ -4562,7 +4565,7 @@ else -- CLIENT Settings | HUD/Options
 					return a.dist < b.dist
 				end)
 
-				local maxSquares = 4
+				local maxSquares = RacerTagsMaxNr:GetInt() or 3
 				local numToRender = math.min(#renderQueue, maxSquares)
 
 				-- Render farthest first so closest overlays on top
