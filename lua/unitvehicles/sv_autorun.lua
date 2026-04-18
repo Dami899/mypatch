@@ -520,8 +520,16 @@ concommand.Add("uv_startpursuit", function(ply, cmd, args)
 end)
 
 function UV_StopPursuit(ply)
-	UVCooldownTimerProgress = 1
-	UVCounterActive = false
+	UV_DespawnVehicles()
+	
+	timer.Simple(0, function()
+		for _, v in pairs(UVPursuitScopes) do
+			v.InPursuit = false
+
+			local ent = Entity(v.EntIndex)
+			if IsValid(ent) then ent.inunitview = false end
+		end	
+	end)
 end
 
 concommand.Add("uv_stoppursuit", function(ply)

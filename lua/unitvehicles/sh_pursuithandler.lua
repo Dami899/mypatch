@@ -2371,9 +2371,18 @@ if SERVER then
 				if vScope.InPursuit then
 					vScope.Losing = 0
 				elseif not vScope.IsBeingPulledOver then
-					-- if a player cop has siren lights on, we want to initiate a traffic stop
-					if isClosestCopPlayer and UVGetELS( v.closestunit ) and not isPursuable then
-						UVInitiateTrafficStop( v.closestunit, v )
+					-- if the closest unit is a player, we let them decide whether to target or not
+					-- we use their ELS system to decide this.
+					if isClosestCopPlayer then
+						local canInitiate = UVGetELS( v.closestunit )
+						
+						if canInitiate then
+							if not isPursuable then
+								UVInitiateTrafficStop( v.closestunit, v )
+							end
+						else
+							isPursuable = false
+						end
 					end
 				end
 			else

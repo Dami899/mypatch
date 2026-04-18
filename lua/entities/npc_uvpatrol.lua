@@ -154,7 +154,7 @@ if SERVER then
 		local t = UVWantedTableVehicle
 		local distance, nearest = math.huge, nil --The nearest enemy is the target.
 		for k, v in pairs(t) do
-			if self:Validate(v) and ((not v.TargetingUnit and v.inunitview) or (v.TargetingUnit == self.v)) then --Target conditions
+			if self:Validate(v) and ((not v.TargetingUnit and v.closestunit == self.v) or (v.TargetingUnit == self.v)) then --Target conditions
 				local d = v:WorldSpaceCenter():DistToSqr(self.v:WorldSpaceCenter())
 				if distance > d then
 					distance = d
