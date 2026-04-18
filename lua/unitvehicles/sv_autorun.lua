@@ -2304,10 +2304,9 @@ hook.Add( "EntityRemoved", "UVExplosionGlide", function( vehicle, fullUpdate )
 		local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
 
 		if occupied then
-			if #UVWantedTableVehicle > 0 then
-				for _, v in pairs(UVWantedTableVehicle) do
-					UVAddInfraction(v, 'homicide')
-				end
+			for _, v in pairs(UVWantedTableVehicle) do
+				local dist = v:GetPos():Distance2DSqr(vehicle:GetPos())
+				if dist < 1000000 then UVAddInfraction(v, 'homicide') end
 			end
 		end
 	end
@@ -2325,10 +2324,9 @@ hook.Add( "simfphysOnDestroyed", "UVExplosionSimfphys", function(vehicle, gib)
 	local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
 
 	if occupied then
-		if #UVWantedTableVehicle > 0 then
-			for _, v in pairs(UVWantedTableVehicle) do
-				UVAddInfraction(v, 'homicide')
-			end
+		for _, v in pairs(UVWantedTableVehicle) do
+			local dist = v:GetPos():Distance2DSqr(vehicle:GetPos())
+			if dist < 1000000 then UVAddInfraction(v, 'homicide') end
 		end
 	end
 end)
@@ -2345,10 +2343,9 @@ hook.Add("VC_engineExploded", "UVExplosionVCMod", function(vehicle, silent)
 	local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
 
 	if occupied then
-		if #UVWantedTableVehicle > 0 then
-			for _, v in pairs(UVWantedTableVehicle) do
-				UVAddInfraction(v, 'homicide')
-			end
+		for _, v in pairs(UVWantedTableVehicle) do
+			local dist = v:GetPos():Distance2DSqr(vehicle:GetPos())
+			if dist < 1000000 then UVAddInfraction(v, 'homicide') end
 		end
 	end
 end)

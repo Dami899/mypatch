@@ -2034,10 +2034,9 @@ if SERVER then
 					UVResourcePointsTimerMax = UVBackupTimerMax
 					UVBackupUnderway = true
 
-					if #UVWantedTableVehicle > 0 then
-						for _, v in pairs(UVWantedTableVehicle) do
-							UVAddInfraction(v, 'resource', true)
-						end
+					for _, v in pairs(UVWantedTableVehicle) do
+						local scope = UVGetScope(v)
+						if scope.InPursuit then UVAddInfraction(v, 'resource', true) end
 					end
 
 					timer.Simple(1, function()

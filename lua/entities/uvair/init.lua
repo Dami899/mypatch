@@ -931,15 +931,12 @@ function ENT:Explode()
 		if scope then
 			scope.Wrecks = scope.Wrecks + 1
 			scope.Bounty = scope.Bounty + bountyplus
+
+			UVAddInfraction( self:GetTarget(), 'homicide' )
 		end
 		self.crashing = true
 		UVBounty = (UVBounty+bountyplus)
 		UVComboBounty = UVComboBounty + 1
-		if #UVWantedTableVehicle > 0 then
-			for _, v in pairs(UVWantedTableVehicle) do
-				UVAddInfraction(v, 'homicide')
-			end
-		end
 	end
 end
 
