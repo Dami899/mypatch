@@ -1141,7 +1141,7 @@ if SERVER then
 		for _, v in ents.Iterator() do
 			if not table.HasValue(UVRaceCurrentParticipants, v) then
 				if (v.IsGlideVehicle or v.IsSimfphyscar or v:GetClass() == "prop_vehicle_jeep" or v.LVS) and not v.wrecked and not v.UnitVehicle then
-					local driver = v:GetDriver()
+					local driver = UVGetDriver(v)
 					if IsValid(driver) and driver:IsPlayer() and driver == ply then
 						UVRaceAddParticipant(v, nil, true)
 					end
@@ -1159,7 +1159,7 @@ if SERVER then
 
 		local function processBatch(batch)
 			for _, v in ipairs(batch) do
-				local driver = v:GetDriver()
+				local driver = UVGetDriver(v)
 
 				if cffunctions then 
 					CFtoggleNitrous(v, false)
@@ -1216,7 +1216,7 @@ if SERVER then
 			if not table.HasValue(UVRaceCurrentParticipants, v) then
 				if (v.IsGlideVehicle or v.IsSimfphyscar or v:GetClass() == "prop_vehicle_jeep" or v.LVS) and not v.wrecked and not v.UnitVehicle and not v.uvbusted then
 
-					local driver = v:GetDriver()
+					local driver = UVGetDriver(v)
 					local is_player = IsValid(driver) and driver:IsPlayer()
 
 					if not v.raceinvited and (v.RacerVehicle or (is_player and driver ~= ply)) then
