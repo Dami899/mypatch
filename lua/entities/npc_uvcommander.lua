@@ -228,7 +228,7 @@ if SERVER then
 
 		if not UVPassConVarFilter(v) then return false end
 		local scope = UVGetScope(v)
-		if not scope.InPursuit then return false end
+		if UVTargeting and not scope.InPursuit then return false end
 
 		return true
 	end

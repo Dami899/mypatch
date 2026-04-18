@@ -3554,6 +3554,8 @@ function UVBustEnemy(self, enemy, finearrest)
 			end
 			enemy.UVFinedCount = enemy.UVFinedCount + 1
 			if enemy.UVFinedCount >= 3 then
+				net.Start( "UVHUDStopBusting" )
+				net.Send(occupants)
 				UVBustEnemy(self, enemy, true)
 				return
 			end
