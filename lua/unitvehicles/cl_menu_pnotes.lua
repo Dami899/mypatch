@@ -13,7 +13,9 @@ Date = { year = 2026, month = 4, day = 19 },
 Type = "Minor",
 Text = [[
 **New Features**
-- UVPD: Added the *Dodge Viper SRT-10 ACR Command Interceptor '11*
+- UVPD: Added two new vehicles to the fleet:
+      |-- Dodge Viper SRT-10 ACR Command Interceptor '11
+      |-- Dodge Charger SRT8 Super Bee (LX) '07
 
 - Pursuits: Replaced the global pursuit system with an *individual pursuit system*
       |-- Racers can now hide, evade and join pursuits individually
