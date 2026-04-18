@@ -230,7 +230,7 @@ if SERVER then
             [-1] = 3.2,
             [0] = 0,
             [1] = 3.50,
-            [2] = 2.0,
+            [2] = 2.2,
             [3] = 1.5,
             [4] = 1.15,
             [5] = 0.9,
@@ -267,9 +267,9 @@ if SERVER then
         self:SetBrakePower( 3000 )
         
         self:SetMinRPM( 800 ) 
-        self:SetMaxRPM( 16000 ) 
-        self:SetMinRPMTorque( 4200 )
-        self:SetMaxRPMTorque( 4600 )
+        self:SetMaxRPM( 17000 ) 
+        self:SetMinRPMTorque( 5000 )
+        self:SetMaxRPMTorque( 4400 )
         
         self:SetMaxSteerAngle( 45 )
         self:SetSteerConeChangeRate( 8 )

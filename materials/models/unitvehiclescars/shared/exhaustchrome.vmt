@@ -1,0 +1,19 @@
+VertexLitGeneric
+{
+	$basetexture		"models\unitvehiclescars\shared\exhaust.vtf"
+
+	$nocull 1
+
+	$color2				"[1 1 1]"
+	$envmap				env_cubemap
+	$envmaptint 		"[3 3 3]"
+
+	Proxies
+	{
+		Equals
+		{
+			srcVar1		$color2
+			resultVar	$color
+		}
+	}
+}

@@ -1,0 +1,31 @@
+VertexLitGeneric
+{
+	$basetexture		"models\unitvehiclescars\shared\carbonfibre.vtf"
+
+	$nocull 1
+
+    	$detail "models\nfsuc\shared\car_scratch"
+    	//$detailscale 1
+   	$detailblendfactor 0.8
+    	$detailblendmode 2
+
+	$bumpmap			"models\unitvehiclescars\shared\damage_n.vtf"
+	"$nodecal" "1"
+	"$phong" 1
+	"$phongexponent" 12
+	"$phongboost" .3
+	"$phongfresnelranges" "[1 1 1]"
+	"$colorfix" "{255 255 255}"
+	"$envmap" "env_cubemap"
+	"$envmaptint" "[.05 .05 .05]"
+	"$envmapfresnel" "1"
+	"Proxies"
+	{
+		"Equals"
+		{
+			srcVar1 $colorfix
+			resultVar $color
+		}
+
+	}
+}

@@ -1,0 +1,17 @@
+VertexLitGeneric
+{
+	$basetexture		"models\unitvehiclescars\shared\grill_2.vtf"
+
+	$nodecal			1
+
+	$color2				"[1 1 1]"
+
+	Proxies
+	{
+		Equals
+		{
+			srcVar1		$color2
+			resultVar	$color
+		}
+	}
+}
