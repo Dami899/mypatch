@@ -11,13 +11,13 @@ template_path = os.path.join(script_dir, "_cuttemplate.png")
 
 # Output folders for each size
 output_folders = {
-    "256": os.path.join(script_dir, "Cut 256"),
+    # "256": os.path.join(script_dir, "Cut 256"),
     "512": os.path.join(script_dir, "Cut 512"),
 }
 
 # Output sizes
 sizes = {
-    "256": (256, 256),
+    # "256": (256, 256),
     "512": (512, 512),
 }
 

@@ -1,0 +1,15 @@
+VertexLitGeneric
+{
+	$basetexture			"models\unitvehiclescars\shared\skin_0.vtf"
+
+	$nocull 1
+	$blendtintbybasealpha	1
+
+	$rimlight 1
+	$rimlightboost 0.5
+	$envmap					env_cubemap
+	$envmapsaturation		0.5
+	$envmaptint 			"[.2 .2 .2]"
+	$normalmapalphaenvmapmask 1
+	$phongfix "{1 1 1}"
+}

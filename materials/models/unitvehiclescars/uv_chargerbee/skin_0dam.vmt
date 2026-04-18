@@ -1,0 +1,23 @@
+VertexLitGeneric
+{
+	$basetexture			"models\unitvehiclescars\uv_chargerbee\skin_0.vtf"
+
+	$nocull 1
+
+	$bumpmap "models\unitvehiclescars\shared\damage_n.vtf"
+	"$phong" "1"
+	"$phongboost" "2"
+	"$phongexponent" "200"
+	"$phongfresnelranges" "[.3 1 8]"
+
+	"$envmap" "env_cubemap"
+	"$envmaptint" "[0.15 0.15 0.15]"
+	"$envmapfresnel" "1"
+
+	"$halflambert" "1"
+	"$lightwarptexture" "models/unitvehiclescars/shared/lightwarp"
+	"$rimlight" "1"
+	"$rimlightexponent" "8"
+	"$rimlightboost" "0"
+}
+
