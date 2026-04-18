@@ -2180,7 +2180,13 @@ if SERVER then
 						elseif car.LVS then
 							car.UnitVehicle:EnterVehicle(car:GetDriverSeat())
 						end
+						net.Start("UVHUDAddUV")
+						net.WriteInt(car:EntIndex(), 32)
+						net.WriteInt(car:GetCreationID(), 32)
+						net.WriteString("unit")
+						net.Broadcast()
 					end
+					
 					table.RemoveByValue(UVVehicleInitializing, car)
 				end
 			end
@@ -2190,11 +2196,7 @@ if SERVER then
 
 		--Player-controlled Unit Vehicles
 		if next(UVPlayerUnitTableVehicle) ~= nil then
-			for k, car in pairs(UVPlayerUnitTableVehicle) do
-				if not UVUnitVehicles[car] and car.UnitVehicle then
-					UVUnitVehicles[car] = car
-				end
-				
+			for k, car in pairs(UVPlayerUnitTableVehicle) do				
 				if IsValid(car) and not car.wrecked and
 					(car:Health() <= 0 and car:GetClass() == "prop_vehicle_jeep" or --No health 
 						car.uvclasstospawnon ~= "npc_uvcommander" and CanWreck:GetBool() and car:GetPhysicsObject():GetAngles().z > 90 and car:GetPhysicsObject():GetAngles().z < 270 and car.rammed --[[or car:GetVelocity():LengthSqr() < 10000)]] or --Flipped
@@ -2256,15 +2258,6 @@ if SERVER then
 
 		UVUnitsHavePlayers = playerUnitActive
 
-		if next(ents.FindByClass("npc_uv*")) ~= nil then
-			for k, unit in pairs(ents.FindByClass("npc_uv*")) do
-				if not unit.v then return end
-				if not UVUnitVehicles[unit.v] then
-					UVUnitVehicles[unit.v] = unit.v
-				end
-			end
-		end
-
 		local visible_suspects = {}
 
 		if next(UVUnitVehicles) ~= nil then
@@ -2288,15 +2281,15 @@ if SERVER then
 				
 				v.closestunit = nil
 				v.closestdistancetounit = nil
+				v.inunitview = false
 				--local check = false
 
 				-- Visibility check for helicopter, should they have busting enabled.
 				for _, j in pairs(ents.FindByClass("uvair")) do
 					if (not (j.Downed and j.disengaging and j.crashing)) and j:GetTarget() == v then
 						v.inunitview = true
-						--check = true
-						visible_suspects[v] = true
-						
+						vScope.UnitsChasing = vScope.UnitsChasing + 1
+						--check = true						
 						local closestunit = v.closestunit
 						local closestdistancetounit = v.closestdistancetounit
 
@@ -2314,10 +2307,9 @@ if SERVER then
 					for unit, _ in pairs(UVUnitVehicles) do
 						local dist = unit:GetPos():DistToSqr(v:GetPos())
 						local withinRange = dist < visualrange
-						if withinRange and UVVisualOnTarget(unit, v) then
+						if withinRange and ( v.inunitview or UVVisualOnTarget( unit, v ) ) then
 							vScope.UnitsChasing = vScope.UnitsChasing + 1
 							v.inunitview = true
-							visible_suspects[v] = true
 							
 							local closestunit = v.closestunit
 							local closestdistancetounit = v.closestdistancetounit
@@ -2328,10 +2320,6 @@ if SERVER then
 								if unit.UnitVehicle and unit.UnitVehicle:IsPlayer() then
 									unit.e = v
 								end
-							end
-						else
-							if not visible_suspects[v] then
-								v.inunitview = false 
 							end
 						end
 					end
@@ -2373,13 +2361,14 @@ if SERVER then
 						v.TrafficStopTimeout = v.TrafficStopTimeout - FrameTime() 
 					end
 
-					if v.TrafficStopTimeout <= 0 then
+					-- If the traffic stop timeout is reached or the Unit has despawned (usually due to being too far), 
+					-- we end the traffic stop and mark the vehicle as pursuable.
+					if v.TrafficStopTimeout <= 0 or not IsValid( v.TargetingUnit ) then
 						UVEndTrafficStop(v)
 						isPursuable = true
 					end
 
-					-- Also checking for whether Unit might be too far, we end the traffic stop in that case.
-					if UVTargeting or not IsValid(v.TargetingUnit) then 
+					if UVTargeting then 
 						UVEndTrafficStop(v) 
 					end
 				end

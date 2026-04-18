@@ -801,26 +801,22 @@ if SERVER then
 				end
 				timer.Simple(SoundDuration(emergencyFile or ""), function()
 					if ChatterLastPlay ~= initTime then return 5 end
-					if not UVEnemyEscaping then return end
 					if breakawayFile then
 						UVRelayToClients(initTime, breakawayFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
 					end
 					timer.Simple(SoundDuration(breakawayFile or ""), function()
 						if ChatterLastPlay ~= initTime then return 5 end
-						if not UVEnemyEscaping then return end
 						if locationFile then
 							UVRelayToClients(initTime, locationFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
 						end
 						timer.Simple(SoundDuration(locationFile or ""), function()
 							if ChatterLastPlay ~= initTime then return 5 end
-							if not UVEnemyEscaping then return end
 							if quadrantFile then
 								UVRelayToClients(initTime, quadrantFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
 							end
 							timer.Simple(SoundDuration(quadrantFile or ""), function()
 								if radioOffFile then
 									if ChatterLastPlay ~= initTime then return 5 end
-									if not UVEnemyEscaping then return end
 									UVRelayToClients(initTime, radioOffFile, parameters, true)
 								end
 							end)
@@ -913,6 +909,7 @@ if SERVER then
 			end
 
 			local vehicle = select(2, ...)
+			if not IsValid(vehicle) then return 5 end
 
 			local vehicleModel = vehicle.UVVehicleModel or string.Explode( "[ -.]", UVGetVehicleMakeAndModel(vehicle), true )
 			local vehicleColor = ( vehicle.UVVehicleColor and {name = vehicle.UVVehicleColor} ) or UVColor(vehicle)

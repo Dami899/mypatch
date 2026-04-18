@@ -3111,11 +3111,11 @@ function UVGetIfSomeoneDriving()
 end
 
 function UVAddToPlayerUnitListVehicle(vehicle, ply)
-	net.Start("UVHUDAddUV")
-	net.WriteInt(vehicle:EntIndex(), 32)
-	net.WriteInt(vehicle:GetCreationID(), 32)
-	net.WriteString("unit")
-	net.Broadcast()
+	-- net.Start("UVHUDAddUV")
+	-- net.WriteInt(vehicle:EntIndex(), 32)
+	-- net.WriteInt(vehicle:GetCreationID(), 32)
+	-- net.WriteString("unit")
+	-- net.Broadcast()
 	
 	if not table.HasValue(UVPlayerUnitTableVehicle, vehicle) then
 		if vehicle.IsSimfphyscar then
@@ -3874,13 +3874,7 @@ function UVCheckIfBeingBusted(enemy)
 	local btimeout = BustedTimer:GetFloat()
 	local closestunit
 	local closestdistancetounit
-	
-	local units = {}
-	local airUnits = ents.FindByClass("uvair")
-
-	table.Add( units, airUnits )
-	table.Add( units, UVUnitVehicles )
-	
+		
 	local closestunit = enemy.closestunit or nil
 	local closestdistancetounit = enemy.closestdistancetounit or math.huge
 	
