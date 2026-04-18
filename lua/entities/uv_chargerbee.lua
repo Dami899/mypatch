@@ -70,30 +70,24 @@ if CLIENT then
     }
 
     ENT.LightSprites = {
-        { type = "headlight", offset = Vector(98.33,33.81,25.32),color = Color(100,165,255), dir = Vector( 1, 0, 0 ),beamType = "low",size = 40 },
-        { type = "headlight", offset = Vector(98.33,33.81,25.32),color = Color(180,210,255), dir = Vector( 1, 0, 0 ),beamType = "low",size = 13 },
-        { type = "headlight", offset = Vector(98.33,-33.81,25.32),color = Color(100,165,255), dir = Vector( 1, 0, 0 ),beamType = "low",size = 40 },
-        { type = "headlight", offset = Vector(98.33,-33.81,25.32),color = Color(180,210,255), dir = Vector( 1, 0, 0 ),beamType = "low",size = 13 },
+        { type = "headlight", offset = Vector(98.33,33.81,25.32),color = Color(215,240,255), dir = Vector( 1, 0, 0 ),beamType = "low",size = 40 },
+        { type = "headlight", offset = Vector(98.33,-33.81,25.32),color = Color(215,240,255), dir = Vector( 1, 0, 0 ),beamType = "low",size = 40 },
 
-        { type = "headlight", offset = Vector(98.33,33.81,25.32),color = Color(100,165,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 40 },
-        { type = "headlight", offset = Vector(98.33,33.81,25.32),color = Color(180,210,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 13 },
-        { type = "headlight", offset = Vector(98.33,-33.81,25.32),color = Color(100,165,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 40 },
-        { type = "headlight", offset = Vector(98.33,-33.81,25.32),color = Color(180,210,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 13 },
+        { type = "headlight", offset = Vector(98.33,33.81,25.32),color = Color(215,240,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 40 },
+        { type = "headlight", offset = Vector(98.33,-33.81,25.32),color = Color(215,240,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 40 },
 
-        { type = "headlight", offset = Vector(101.99,27.79,24.44),color = Color(100,165,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 40 },
-        { type = "headlight", offset = Vector(101.99,27.79,24.44),color = Color(180,210,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 13 },
-        { type = "headlight", offset = Vector(101.99,-27.79,24.44),color = Color(100,165,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 40 },
-        { type = "headlight", offset = Vector(101.99,-27.79,24.44),color = Color(180,210,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 13 },
+        { type = "headlight", offset = Vector(101.99,27.79,24.44),color = Color(215,240,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 40 },
+        { type = "headlight", offset = Vector(101.99,-27.79,24.44),color = Color(215,240,255), dir = Vector( 1, 0, 0 ),beamType = "high",size = 40 },
 
-        { type = "taillight", offset = Vector(-103.7,26.83,35.59),color = Color(255,0,0,50), dir = Vector( -1, 0, 0 ),size = 30 },
-        { type = "taillight", offset = Vector(-103.7,-26.83,35.59),color = Color(255,0,0,50), dir = Vector( -1, 0, 0 ),size = 30 },
-        { type = "taillight", offset = Vector(-101.1,32.64,35.34),color = Color(255,0,0,50), dir = Vector( -1, 0, 0 ),size = 25 },
-        { type = "taillight", offset = Vector(-101.1,-32.64,35.34),color = Color(255,0,0,50), dir = Vector( -1, 0, 0 ),size = 25 },
+        { type = "taillight", offset = Vector(-103.7,26.83,35.59),color = Color(255,0,0,55), dir = Vector( -1, 0, 0 ),size = 30 },
+        { type = "taillight", offset = Vector(-103.7,-26.83,35.59),color = Color(255,0,0,55), dir = Vector( -1, 0, 0 ),size = 30 },
+        { type = "taillight", offset = Vector(-101.1,32.64,35.34),color = Color(255,0,0,55), dir = Vector( -1, 0, 0 ),size = 25 },
+        { type = "taillight", offset = Vector(-101.1,-32.64,35.34),color = Color(255,0,0,55), dir = Vector( -1, 0, 0 ),size = 25 },
 
-        { type = "brake", offset = Vector(-103.7,26.83,35.59),color = Color(255,0,0,50), dir = Vector( -1, 0, 0 ),size = 30 },
-        { type = "brake", offset = Vector(-103.7,-26.83,35.59),color = Color(255,0,0,50), dir = Vector( -1, 0, 0 ),size = 30 },
-        { type = "brake", offset = Vector(-101.1,32.64,35.34),color = Color(255,0,0,50), dir = Vector( -1, 0, 0 ),size = 25 },
-        { type = "brake", offset = Vector(-101.1,-32.64,35.34),color = Color(255,0,0,50), dir = Vector( -1, 0, 0 ),size = 25 },
+        { type = "brake", offset = Vector(-103.7,26.83,35.59),color = Color(255,0,0,150), dir = Vector( -1, 0, 0 ),size = 30 },
+        { type = "brake", offset = Vector(-103.7,-26.83,35.59),color = Color(255,0,0,150), dir = Vector( -1, 0, 0 ),size = 30 },
+        { type = "brake", offset = Vector(-101.1,32.64,35.34),color = Color(255,0,0,150), dir = Vector( -1, 0, 0 ),size = 25 },
+        { type = "brake", offset = Vector(-101.1,-32.64,35.34),color = Color(255,0,0,150), dir = Vector( -1, 0, 0 ),size = 25 },
 
         { type = "reverse", offset = Vector(-104.09,33.01,30.42), dir = Vector( -1, 0, 0 ),size = 25},
         { type = "reverse", offset = Vector(-104.09,-33.01,30.42), dir = Vector( -1, 0, 0 ),size = 25},
@@ -128,21 +122,21 @@ if CLIENT then
         { offset = Vector(113.15,-10.07,23), ifBodygroupId = 1, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
 
         { offset = Vector(-113.81,14.67,18.83), ifBodygroupId = 2, ifSubModelId = 0, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-114.87,14.09,18.3), ifBodygroupId = 2, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-117.92,12.47,14.5), ifBodygroupId = 2, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-114.8,14.18,17.61), ifBodygroupId = 2, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-118.22,12.38,14.19), ifBodygroupId = 2, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
 
-        { offset = Vector(-16.2,22.25,62.39), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(-16.2,15.92,62.39), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(-16.2,-22.25,62.39), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(-16.2,-15.92,62.39), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(-8.54,22.25,62.39), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(-8.54,15.92,62.39), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(-8.54,-22.25,62.39), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(-8.54,-15.92,62.39), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(-16.2,22.25,62.39),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
-        { offset = Vector(-16.2,-22.25,62.39),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
-        { offset = Vector(-8.54,22.25,62.39),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
-        { offset = Vector(-8.54,-22.25,62.39),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector(-16.2,22.25,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-16.2,15.92,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-16.2,-22.25,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-16.2,-15.92,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-8.54,22.25,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-8.54,15.92,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-8.54,-22.25,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-8.54,-15.92,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-16.2,22.25,62.36),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector(-16.2,-22.25,62.36),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector(-8.54,22.25,62.36),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector(-8.54,-22.25,62.36),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
 
 	-- BLUE
 
@@ -151,25 +145,36 @@ if CLIENT then
         { offset = Vector(111.2,10.91,23.77), ifBodygroupId = 1, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
 
         { offset = Vector(-113.81,-14.67,18.83), ifBodygroupId = 2, ifSubModelId = 0, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-114.43,-15.14,19.14), ifBodygroupId = 2, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-115.76,-16.55,16.81), ifBodygroupId = 2, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-114.38,-15.14,18.49), ifBodygroupId = 2, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-115.65,-16.66,16.95), ifBodygroupId = 2, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
         
-        { offset = Vector(-16.2,9.53,62.39), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(-16.2,3.24,62.39), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(-8.54,9.53,62.39), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(-8.54,3.24,62.39), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(-16.2,-9.53,62.39), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(-16.2,-3.24,62.39), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(-8.54,-9.53,62.39), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(-8.54,-3.24,62.39), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(-16.2,0,62.39),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
-        { offset = Vector(-8.54,0,62.39),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+        { offset = Vector(-16.2,9.53,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-16.2,3.24,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-8.54,9.53,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-8.54,3.24,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-16.2,-9.53,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-16.2,-3.24,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-8.54,-9.53,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-8.54,-3.24,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-16.2,0,62.36),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+        { offset = Vector(-8.54,0,62.36),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
 
     }
 
     function ENT:OnCreateEngineStream( stream )
         stream:LoadPreset( "uvdodgechargerbee" )
     end
+
+    function ENT:OnUpdateMisc()
+		local path = "models/unitvehiclescars/uv_chargerbee/"
+		local eo, hl, br = self:IsEngineOn(), self:GetHeadlightState(), self:IsBraking()
+		BaseClass.OnUpdateMisc( self )
+
+		self:SetSubMaterial(23, "")
+		if eo and br then -- Rear Centre Lights
+			self:SetSubMaterial(23, path .. "brakelightlit")
+		end
+	end
 end
 
 
