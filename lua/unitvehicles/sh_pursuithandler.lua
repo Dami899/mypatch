@@ -314,6 +314,8 @@ function UV_InitiatePursuit( target )
 	scope.Losing = 0
 	if not target.FinesDue then target.FinesDue = 0 end
 	scope.PursuitStart = CurTime()
+
+	hook.Run('PursuitEventHook', 'onSuspectSpotted', target)
 end
 
 --Sound spam check--
@@ -1812,6 +1814,11 @@ if SERVER then
 
 		-- pursuit just ended
 		if ( not anyInPursuit ) and UVTargeting then
+			timer.Simple(0, function()
+				for k, v in pairs(ents.FindByClass("npc_uv*")) do
+					v:ForgetEnemy()
+				end	
+			end)
 			if anyBusted then
 				hook.Run( 'PursuitEventHook', 'onPursuitEnd', 'Busted' )
 			elseif anyEscaped then
@@ -1929,12 +1936,8 @@ if SERVER then
 		print(type, result)
 		if type == 'onPursuitEnd' then
 			if result == 'Busted' then
-				-- idek
+				
 			elseif result == 'Escaped' then
-				for k, v in pairs(ents.FindByClass("npc_uv*")) do
-					v:ForgetEnemy()
-				end
-
 				for k, v in pairs(ents.FindByClass("uvair")) do
 					v.disengaging = true
 				end
@@ -2357,12 +2360,15 @@ if SERVER then
 				
 				-- If the traffic stop timeout is reached or the Unit has despawned (usually due to being too far), 
 				-- we end the traffic stop and mark the vehicle as pursuable.
-				if v.TrafficStopTimeout <= 0 or not IsValid( v.TargetingUnit ) then
+				if v.TrafficStopTimeout <= 0 then
+					if v.TargetingUnit and v.TargetingUnit.UnitVehicle:IsNPC() then
+						UVChatterPursuitStartRanAway( v.TargetingUnit.UnitVehicle, v )
+					end
 					UVEndTrafficStop(v)
-					isPursuable = true
+					UV_InitiatePursuit(v)
 				end
 				
-				if UVTargeting then 
+				if UVTargeting or not IsValid( v.TargetingUnit ) then 
 					UVEndTrafficStop(v) 
 				end
 			end

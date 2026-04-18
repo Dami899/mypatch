@@ -1151,17 +1151,17 @@ if SERVER then
 		return
 	end
 	
-	function UVChatterPursuitStartRanAway(self)
+	function UVChatterPursuitStartRanAway(self, target)
 		local timecheck = 0.1
 		if randomno == 1 then
 			timecheck = UVSoundChatter(self, self.voice, "finearrest", 2)
 		else
 			timecheck = UVSoundChatter(self, self.voice, "pursuitstartranaway", 4)
 		end
+		target = target or self.e
 		timer.Simple(timecheck, function()
-			if IsValid(self) and IsValid(self.e) then
-				local e = UVGetVehicleMakeAndModel(self.e)
-				UVChatterVehicleDescription(self, self.e, e)
+			if IsValid(self) and IsValid(target) then
+				UVChatterVehicleDescription(self, target)
 			end
 		end)
 		return
