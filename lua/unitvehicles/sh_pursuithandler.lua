@@ -2686,7 +2686,7 @@ if SERVER then
 
 				local debrieftable = {
 					["Deploys"] = UVDeploys,
-					["Bounty"] = UVBounty or 0,
+					["Bounty"] = string.Comma( UVBounty or 0 ),
 					["Tags"] = UVTags or 0,
 					["Wrecks"] = UVWrecks or 0,
 					["Roadblocks"] = UVRoadblocksDodged or 0,
