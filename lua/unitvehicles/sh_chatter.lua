@@ -1441,7 +1441,8 @@ if SERVER then
 	
 	function UVChatterLost(self)
 		local timecheck = 5
-		timecheck = UVSoundChatter(self, self.voice, "lost")
+		local a = {"DISPATCH", nil}; local selected = a[math.random(1, #a)]
+		timecheck = UVSoundChatter(self, self.voice, "lost", 1, selected)
 		timer.Simple(timecheck, function()
 			UVSoundChatter(Entity(1), 1, "lostacknowledge", 1, "DISPATCH")
 		end)
