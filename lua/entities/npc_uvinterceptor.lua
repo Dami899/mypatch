@@ -804,7 +804,7 @@ if SERVER then
 			end
 		end
 		
-		return bestWaypoint + (vector_up * 50)
+		return bestWaypoint
 	end
 	
 	function ENT:FindPatrol()
