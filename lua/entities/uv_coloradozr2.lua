@@ -404,7 +404,7 @@ if SERVER then
                 self.frontdamaged = 2
             elseif self.frontdamaged < 3 then
                 self:SetBodygroup( 1, 3 )
-                self:SetSubMaterial(20, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(21, "models/unitvehiclescars/shared/windowdamage")
                 local gibmodels = {
                     "models/unitvehiclescars/uv_coloradozr2/frbumper.mdl",
                 }
@@ -413,7 +413,7 @@ if SERVER then
                 end)
                 self.frontdamaged = 3
             elseif self.frontdamaged < 4 then
-                self:SetSubMaterial(20, "models/unitvehiclescars/shared/windowdamage1")
+                self:SetSubMaterial(21, "models/unitvehiclescars/shared/windowdamage1")
                 self.frontdamaged = 4
             end
         end
@@ -434,7 +434,7 @@ if SERVER then
                 self.reardamaged = 2
             elseif self.reardamaged < 3 then
                 self:SetBodygroup( 3, 3 )
-                self:SetSubMaterial(21, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(22, "models/unitvehiclescars/shared/windowdamage")
                 local gibmodels = {
                     "models/unitvehiclescars/uv_coloradozr2/rebumper.mdl",
                 }
@@ -443,7 +443,7 @@ if SERVER then
                 end)
                 self.reardamaged = 3
             elseif self.reardamaged < 4 then
-                self:SetSubMaterial(21, "models/unitvehiclescars/shared/windowdamage1")
+                self:SetSubMaterial(22, "models/unitvehiclescars/shared/windowdamage1")
                 self.reardamaged = 4
             end
         end
@@ -451,7 +451,7 @@ if SERVER then
         if lefthit then --LEFT
             if speed < 600 and self.leftdamaged < 1 then
                 self:SetBodygroup( 5, 1 )
-                self:SetSubMaterial(13, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage")
                 self.leftdamaged = 1
             elseif self.leftdamaged < 2 then
                 self:SetBodygroup( 5, 2 )
@@ -462,7 +462,7 @@ if SERVER then
                 timer.Simple(0, function()
                     self:DetachGibs(gibmodels)
                 end)
-                self:SetSubMaterial(13, "models/unitvehiclescars/shared/windowdamage1")
+                self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage1")
                 self.leftdamaged = 2
             end
         end
@@ -470,7 +470,7 @@ if SERVER then
         if righthit then --RIGHT
             if speed < 600 and self.rightdamaged < 1 then
                 self:SetBodygroup( 6, 1 )
-                self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage")
                 self.rightdamaged = 1
             elseif self.rightdamaged < 2 then
                 self:SetBodygroup( 6, 2 )
@@ -481,7 +481,7 @@ if SERVER then
                 timer.Simple(0, function()
                     self:DetachGibs(gibmodels)
                 end)
-                self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage1")
+                self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage1")
                 self.rightdamaged = 2
             end
         end
