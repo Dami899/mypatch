@@ -346,13 +346,9 @@ end)
 
 concommand.Add( "uv_setheat", function( ply, cmd, args )
 	if ply and not ply:IsSuperAdmin() then return end
-	for _, v in pairs( UVWantedTableVehicle ) do
-		local scope = UVGetScope(v)
-
-		if scope then
-			scope.Heat = math.Clamp( (tonumber(args[1]) or 1), 1, MAX_HEAT_LEVEL )
-			_highestHeatLevel = scope.Heat
-		end
+	for _, v in pairs( UVPursuitScopes ) do
+		scope.Heat = math.Clamp( (tonumber(args[1]) or 1), 1, MAX_HEAT_LEVEL )
+		_highestHeatLevel = scope.Heat
 	end
 
 	if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVTargeting then
@@ -3302,18 +3298,6 @@ function UVInitiateTrafficStop( unit, target )
 	target.TargetingUnit = unit
 	target.TrafficStopTimeout = 10
 	unit.TargetingVehicle = target
-
-	-- timer.Create( target._trafficStopKey, 15, 1, function()
-	-- 	if not table.HasValue( UVWantedTableVehicle, target ) then return end
-	-- 	if targetScope and targetScope.IsBeingPulledOver and not targetScope.InPursuit then
-	-- 		UVEndTrafficStop( target )
-	-- 		UV_InitiatePursuit(target)
-
-	-- 		if IsValid( unit ) and unit.UnitVehicle:IsNPC() then
-	-- 			UVChatterPursuitStartRanAway( unit.UnitVehicle )
-	-- 		end
-	-- 	end
-	-- end)
 end
 
 function UVBustEnemy(self, enemy, finearrest)

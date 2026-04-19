@@ -2359,7 +2359,7 @@ if SERVER then
 					v.TrafficStopTimeout = v.TrafficStopTimeout - FrameTime() 
 				end
 				
-				-- If the traffic stop timeout is reached or the Unit has despawned (usually due to being too far), 
+				-- If the traffic stop timeout is reached, 
 				-- we end the traffic stop and mark the vehicle as pursuable.
 				if v.TrafficStopTimeout <= 0 then
 					if v.TargetingUnit and v.TargetingUnit.UnitVehicle:IsNPC() then
@@ -2369,8 +2369,11 @@ if SERVER then
 					UV_InitiatePursuit(v)
 				end
 				
-				if UVTargeting or not IsValid( v.TargetingUnit ) then 
-					UVEndTrafficStop(v) 
+				if UVTargeting then 
+					local isUnitPlayer = IsValid(v.TargetingUnit) and v.TargetingUnit.UnitVehicle:IsPlayer()
+					if not isUnitPlayer then
+						UVEndTrafficStop(v) 
+					end
 				end
 			end
 			
@@ -2380,7 +2383,7 @@ if SERVER then
 				elseif not vScope.IsBeingPulledOver then
 					-- if the closest unit is a player, we let them decide whether to target or not
 					-- we use their ELS system to decide this.
-					if isClosestCopPlayer and not UVTargeting then
+					if isClosestCopPlayer then
 						local canInitiate = UVGetELS( v.closestunit )
 						
 						if canInitiate then
