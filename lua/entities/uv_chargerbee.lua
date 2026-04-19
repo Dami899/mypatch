@@ -248,12 +248,12 @@ if SERVER then
         self:SetSteerConeMaxAngle( 0.25 )
 		self:SetCounterSteer ( 0.8 )
         
-        self:SetForwardTractionMax( 5000 )
-        self:SetForwardTractionBias( 0.00 )
-        self:SetSideTractionMultiplier( 20 )
+        self:SetForwardTractionMax( 6000 )
+        self:SetForwardTractionBias( 0 )
+        self:SetSideTractionMultiplier( 30 )
         self:SetSideTractionMaxAng( 30 )
-        self:SetSideTractionMax( 3500 ) 
-        self:SetSideTractionMin( 1200 )
+        self:SetSideTractionMax( 4500 ) 
+        self:SetSideTractionMin( 1250 )
 
 		self:SetTurboCharged( false )
 		self:SetFastTransmission( false ) 

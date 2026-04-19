@@ -90,6 +90,12 @@ if CLIENT then
         { offset = Vector( 100.45,-33.79,29.08 ), color = Color(215,240,255), dir = Vector( 1, 0, 0 ), time = 0.5, duration = 0.5, size = 50, },
 
 	-- RED
+
+        { offset = Vector(113.85,-14.53,27), ifBodygroupId = 1, ifSubModelId = 0, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(117.57,-13.73,23.69), ifBodygroupId = 1, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(120.86,-12.41,20.34), ifBodygroupId = 1, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+
+        { offset = Vector(-123.77,17.56,35.8), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
     
         { offset = Vector(-5.56,-22.52,70.34), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
         { offset = Vector(-5.56,-16.12,70.34), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
@@ -105,6 +111,12 @@ if CLIENT then
         { offset = Vector(-5.56,22.52,70.34),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
 
 	-- BLUE
+
+        { offset = Vector(113.85,14.53,27), ifBodygroupId = 1, ifSubModelId = 0, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(115.96,15.25,25.38), ifBodygroupId = 1, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(117.7,16.48,23.4), ifBodygroupId = 1, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+
+        { offset = Vector(-123.77,-17.56,35.8), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
 
         { offset = Vector(-5.56,-9.76,70.34), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
         { offset = Vector(-5.56,9.76,70.34), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
@@ -302,10 +314,10 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(13, "models/unitvehiclescars/shared/headlightglass")
         self:SetSubMaterial(14, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(20, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial(15, "models/unitvehiclescars/shared/headlightglass")
         self:SetSubMaterial(21, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial(22, "models/unitvehiclescars/shared/headlightglass")
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
