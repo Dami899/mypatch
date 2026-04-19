@@ -3081,6 +3081,8 @@ end
 
 function UVAddInfraction(vehicle, infraction, reported)
 	if not infraction or not IsValid(vehicle) or not UVPassConVarFilter(vehicle) then return end
+
+	UVAddToWantedListVehicle(vehicle)
 	
 	if not reported and not UVIsSeenByUnit(vehicle) then --Pre Infraction system
 		updatepreinfraction(vehicle, infraction)
@@ -3116,11 +3118,11 @@ function UVGetIfSomeoneDriving()
 end
 
 function UVAddToPlayerUnitListVehicle(vehicle, ply)
-	-- net.Start("UVHUDAddUV")
-	-- net.WriteInt(vehicle:EntIndex(), 32)
-	-- net.WriteInt(vehicle:GetCreationID(), 32)
-	-- net.WriteString("unit")
-	-- net.Broadcast()
+	net.Start("UVHUDAddUV")
+	net.WriteInt(vehicle:EntIndex(), 32)
+	net.WriteInt(vehicle:GetCreationID(), 32)
+	net.WriteString("unit")
+	net.Broadcast()
 	
 	if not table.HasValue(UVPlayerUnitTableVehicle, vehicle) then
 		if vehicle.IsSimfphyscar then
@@ -3550,6 +3552,7 @@ function UVBustEnemy(self, enemy, finearrest)
 		if not UVTargeting then
 			enemy.UVHUDBusting = nil
 			enemy.UVHUDBustingDelayed = nil
+			enemy.Infractions = {}
 
 			if enemyScope then enemyScope.Bounty = 0 end
 		end

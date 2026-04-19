@@ -190,7 +190,7 @@ if SERVER then
 		local availableEnemies = {}
 		for k, v in pairs(t) do
 			local scope = UVGetScope(v)
-			if scope.InPursuit then availableEnemies[#availableEnemies+1] = v end
+			if scope.InPursuit then table.insert(availableEnemies, v) end
 			if self:Validate(v) and not scope.InCooldown then --Target conditions
 				local d = v:WorldSpaceCenter():DistToSqr(self.v:WorldSpaceCenter())
 				if distance > d then
@@ -200,12 +200,13 @@ if SERVER then
 			end
 		end
 
-		if not nearest and #availableEnemies > 0 then
+		if (not nearest) and #availableEnemies > 0 then
 			nearest = availableEnemies[math.random(1, #availableEnemies)]
 		end
 		
 		return nearest
 	end
+
 	
 	function ENT:ForgetEnemy()
 		if IsValid(self.e) then

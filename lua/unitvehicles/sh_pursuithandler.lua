@@ -2187,6 +2187,7 @@ if SERVER then
 						net.WriteInt(car:GetCreationID(), 32)
 						net.WriteString("unit")
 						net.Broadcast()
+						UVUnitVehicles[car] = car
 					end
 					
 					table.RemoveByValue(UVVehicleInitializing, car)
@@ -2379,7 +2380,7 @@ if SERVER then
 				elseif not vScope.IsBeingPulledOver then
 					-- if the closest unit is a player, we let them decide whether to target or not
 					-- we use their ELS system to decide this.
-					if isClosestCopPlayer then
+					if isClosestCopPlayer and not UVTargeting then
 						local canInitiate = UVGetELS( v.closestunit )
 						
 						if canInitiate then
