@@ -254,10 +254,10 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(12, "models/unitvehiclescars/shared/headlightglass")
         self:SetSubMaterial(13, "models/unitvehiclescars/shared/headlightglass")
         self:SetSubMaterial(14, "models/unitvehiclescars/shared/headlightglass")
         self:SetSubMaterial(15, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial(16, "models/unitvehiclescars/shared/headlightglass")
         self:SetBodygroup( 1, 0 )
 
         self.frontdamaged = 0
@@ -328,31 +328,31 @@ if SERVER then
                 self:SetBodygroup( 1, 1 )
                 self.frontdamaged = 1
             elseif self.frontdamaged < 2 then
-                self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(16, "models/unitvehiclescars/shared/windowdamage")
                 self.frontdamaged = 2
             elseif self.frontdamaged < 3 then
-                self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage1")
+                self:SetSubMaterial(16, "models/unitvehiclescars/shared/windowdamage1")
                 self.frontdamaged = 3
             end
         end
 
         if rearhit then --REAR
             if self.reardamaged < 1 then
-                self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(13, "models/unitvehiclescars/shared/windowdamage")
                 self.reardamaged = 1
             end
         end
 
         if lefthit then --LEFT
             if speed < 600 and self.leftdamaged < 1 then
-                self:SetSubMaterial(13, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage")
                 self.leftdamaged = 1
             end
         end
 
         if righthit then --RIGHT
             if speed < 600 and self.rightdamaged < 1 then
-                self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage")
                 self.rightdamaged = 1
             end
         end

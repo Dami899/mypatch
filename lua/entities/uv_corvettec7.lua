@@ -151,28 +151,28 @@ if CLIENT then
     local Lights = {
         ['Off'] = {
             [18] = "",
-            [15] = "",
+            [16] = "",
         },
         ['On'] = {},
         ['Brake'] = {
             [18] = lightsPath .. "brakelightlit",
-            [15] = lightsPath .. "brakelightlit",
+            [16] = lightsPath .. "brakelightlit",
         },
         ['Beams'] = {
             ['Off'] = {
                 [18] = "",
                 [21] = "",
-                [15] = "",
+                [16] = "",
             },
             [1] = {
                 [18] = lightsPath .. "brakelightlit",
                 [21] = lightsPath .. "lit2",
-                [15] = "",
+                [16] = "",
             },
             [2] = {
                 [18] = lightsPath .. "brakelightlit",
                 [21] = lightsPath .. "lit2",
-                [15] = "",
+                [16] = "",
             }
         }
     }
@@ -286,7 +286,7 @@ if SERVER then
         self:SetCounterSteer ( 0.6 )
         
         self:SetForwardTractionMax( 6800 )
-        self:SetForwardTractionBias( 0.00 )
+        self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 35 )
         self:SetSideTractionMaxAng( 30 )
         self:SetSideTractionMax( 5000 ) 
