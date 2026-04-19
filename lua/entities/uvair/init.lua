@@ -238,7 +238,6 @@ function ENT:Think()
 		
 		if self.CloseToTarget and self:IsSeeTarget() and not self.spotted then
 			self.spotted = true
-			-- if eScope then eScope.Losing = CurTime() end
 			timer.Simple(20, function() self.cooldown = nil end)
 
 			if not UVTargeting then
@@ -432,11 +431,7 @@ function ENT:PhysicsUpdate()
 		if self:Health()<=0 then
 			self:StartCrush()
 		end
-		
-		-- if isValidTarget and self:IsSeeTarget() and UVTargeting then
-		-- 	if eScope then eScope.Losing = CurTime() end
-		-- end
-		
+				
 		--Bounty
 		local botimeout = 10
 		if CurTime() > self.bountytimer + botimeout and isValidTarget and self:IsSeeTarget() and UVTargeting then
@@ -936,15 +931,12 @@ function ENT:Explode()
 		if scope then
 			scope.Wrecks = scope.Wrecks + 1
 			scope.Bounty = scope.Bounty + bountyplus
+
+			UVAddInfraction( self:GetTarget(), 'homicide' )
 		end
 		self.crashing = true
 		UVBounty = (UVBounty+bountyplus)
 		UVComboBounty = UVComboBounty + 1
-		if #UVWantedTableVehicle > 0 then
-			for _, v in pairs(UVWantedTableVehicle) do
-				UVAddInfraction(v, 'homicide')
-			end
-		end
 	end
 end
 

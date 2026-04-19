@@ -134,7 +134,7 @@ if SERVER then
         local SpeedTable = {}
         
         for k, v in pairs(UVPotentialSuspects) do
-            local speed = v:GetVelocity():LengthSqr()
+            local speed = v:GetVelocity():Length2DSqr()
             table.insert(SpeedTable, speed)
         end
         

@@ -520,8 +520,16 @@ concommand.Add("uv_startpursuit", function(ply, cmd, args)
 end)
 
 function UV_StopPursuit(ply)
-	UVCooldownTimerProgress = 1
-	UVCounterActive = false
+	UV_DespawnVehicles()
+	
+	timer.Simple(0, function()
+		for _, v in pairs(UVPursuitScopes) do
+			v.InPursuit = false
+
+			local ent = Entity(v.EntIndex)
+			if IsValid(ent) then ent.inunitview = false end
+		end	
+	end)
 end
 
 concommand.Add("uv_stoppursuit", function(ply)
@@ -2304,10 +2312,9 @@ hook.Add( "EntityRemoved", "UVExplosionGlide", function( vehicle, fullUpdate )
 		local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
 
 		if occupied then
-			if #UVWantedTableVehicle > 0 then
-				for _, v in pairs(UVWantedTableVehicle) do
-					UVAddInfraction(v, 'homicide')
-				end
+			for _, v in pairs(UVWantedTableVehicle) do
+				local dist = v:GetPos():Distance2DSqr(vehicle:GetPos())
+				if dist < 1000000 then UVAddInfraction(v, 'homicide') end
 			end
 		end
 	end
@@ -2325,10 +2332,9 @@ hook.Add( "simfphysOnDestroyed", "UVExplosionSimfphys", function(vehicle, gib)
 	local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
 
 	if occupied then
-		if #UVWantedTableVehicle > 0 then
-			for _, v in pairs(UVWantedTableVehicle) do
-				UVAddInfraction(v, 'homicide')
-			end
+		for _, v in pairs(UVWantedTableVehicle) do
+			local dist = v:GetPos():Distance2DSqr(vehicle:GetPos())
+			if dist < 1000000 then UVAddInfraction(v, 'homicide') end
 		end
 	end
 end)
@@ -2345,10 +2351,9 @@ hook.Add("VC_engineExploded", "UVExplosionVCMod", function(vehicle, silent)
 	local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
 
 	if occupied then
-		if #UVWantedTableVehicle > 0 then
-			for _, v in pairs(UVWantedTableVehicle) do
-				UVAddInfraction(v, 'homicide')
-			end
+		for _, v in pairs(UVWantedTableVehicle) do
+			local dist = v:GetPos():Distance2DSqr(vehicle:GetPos())
+			if dist < 1000000 then UVAddInfraction(v, 'homicide') end
 		end
 	end
 end)
@@ -3076,6 +3081,8 @@ end
 
 function UVAddInfraction(vehicle, infraction, reported)
 	if not infraction or not IsValid(vehicle) or not UVPassConVarFilter(vehicle) then return end
+
+	UVAddToWantedListVehicle(vehicle)
 	
 	if not reported and not UVIsSeenByUnit(vehicle) then --Pre Infraction system
 		updatepreinfraction(vehicle, infraction)
@@ -3545,6 +3552,7 @@ function UVBustEnemy(self, enemy, finearrest)
 		if not UVTargeting then
 			enemy.UVHUDBusting = nil
 			enemy.UVHUDBustingDelayed = nil
+			enemy.Infractions = {}
 
 			if enemyScope then enemyScope.Bounty = 0 end
 		end
@@ -3557,6 +3565,8 @@ function UVBustEnemy(self, enemy, finearrest)
 			end
 			enemy.UVFinedCount = enemy.UVFinedCount + 1
 			if enemy.UVFinedCount >= 3 then
+				net.Start( "UVHUDStopBusting" )
+				net.Send(occupants)
 				UVBustEnemy(self, enemy, true)
 				return
 			end
@@ -3874,13 +3884,7 @@ function UVCheckIfBeingBusted(enemy)
 	local btimeout = BustedTimer:GetFloat()
 	local closestunit
 	local closestdistancetounit
-	
-	local units = {}
-	local airUnits = ents.FindByClass("uvair")
-
-	table.Add( units, airUnits )
-	table.Add( units, UVUnitVehicles )
-	
+		
 	local closestunit = enemy.closestunit or nil
 	local closestdistancetounit = enemy.closestdistancetounit or math.huge
 	

@@ -154,7 +154,7 @@ if SERVER then
 		local t = UVWantedTableVehicle
 		local distance, nearest = math.huge, nil --The nearest enemy is the target.
 		for k, v in pairs(t) do
-			if self:Validate(v) and ((not v.TargetingUnit and v.inunitview) or (v.TargetingUnit == self.v)) then --Target conditions
+			if self:Validate(v) and ((not v.TargetingUnit and v.closestunit == self.v) or (v.TargetingUnit == self.v)) then --Target conditions
 				local d = v:WorldSpaceCenter():DistToSqr(self.v:WorldSpaceCenter())
 				if distance > d then
 					distance = d
@@ -172,7 +172,7 @@ if SERVER then
 		local availableEnemies = {}
 		for k, v in pairs(t) do
 			local scope = UVGetScope(v)
-			if scope.InPursuit then availableEnemies[#availableEnemies+1] = v end
+			if scope.InPursuit then table.insert(availableEnemies, v) end
 			if self:Validate(v) and not scope.InCooldown then --Target conditions
 				local d = v:WorldSpaceCenter():DistToSqr(self.v:WorldSpaceCenter())
 				if distance > d then
@@ -182,13 +182,13 @@ if SERVER then
 			end
 		end
 
-		if not nearest and #availableEnemies > 0 then
+		if (not nearest) and #availableEnemies > 0 then
 			nearest = availableEnemies[math.random(1, #availableEnemies)]
 		end
 		
 		return nearest
 	end
-	
+		
 	function ENT:ForgetEnemy()
 		if IsValid(self.e) then
 			self.e.TargetingUnit = nil
@@ -210,7 +210,7 @@ if SERVER then
 
 		if not UVPassConVarFilter(v) then return false end
 		local scope = UVGetScope(v)
-		if not scope.InPursuit then return false end
+		if UVTargeting and not scope.InPursuit then return false end
 
 		return true
 	end
@@ -805,7 +805,7 @@ if SERVER then
 			end
 		end
 		
-		return bestWaypoint + (vector_up * 50)
+		return bestWaypoint
 	end
 
 	function ENT:FindPatrol()
@@ -1332,8 +1332,6 @@ if SERVER then
 					if not enemy.UVWanted then
 						enemy.UVWanted = enemy
 					end
-
-					enemy.TargetingUnit = self
 
 					self.moving = CurTime()
 					self.idle = nil
@@ -2229,7 +2227,6 @@ if SERVER then
 			--Losing conditions
 			local visualrange = (eScope and eScope.Hiding) and 1000000 or 25000000
 			if visualOnEnemy and eedistSqr < visualrange then
-				--if eScope then eScope.Losing = CurTime() end
 				self:ApplyUnitDifficulty()
 				if not table.HasValue(UVUnitsChasing, self) then
 					table.insert(UVUnitsChasing, self)
@@ -2537,6 +2534,10 @@ if SERVER then
 		
 		self.__spawn_time = CurTime()
 		self.__entIndex = self:EntIndex()
+
+		if not UVUnitVehicles[self.v] then
+			UVUnitVehicles[self.v] = self.v
+		end
 
 		net.Start("UVHUDAddUV")
 		net.WriteInt(self.v:EntIndex(), 32)
