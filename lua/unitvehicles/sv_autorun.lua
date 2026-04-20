@@ -347,8 +347,8 @@ end)
 concommand.Add( "uv_setheat", function( ply, cmd, args )
 	if ply and not ply:IsSuperAdmin() then return end
 	for _, v in pairs( UVPursuitScopes ) do
-		scope.Heat = math.Clamp( (tonumber(args[1]) or 1), 1, MAX_HEAT_LEVEL )
-		_highestHeatLevel = scope.Heat
+		v.Heat = math.Clamp( (tonumber(args[1]) or 1), 1, MAX_HEAT_LEVEL )
+		_highestHeatLevel = v.Heat
 	end
 
 	if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVTargeting then
@@ -2394,6 +2394,8 @@ function UVRamVehicle(vehicle)
 end
 
 function UVAddToWantedListVehicle(vehicle)
+	if not vehicle:IsValid() then return end
+
 	if not vehicle.UVWanted then
 		vehicle.UVWanted = vehicle
 	end
@@ -4430,7 +4432,7 @@ function UVNavigateDVWaypointOptimized( self, vectors )
 	return self.tableroutetoenemy
 end
 
-function UVNavigateDVWaypoint(self, vectors)
+function UVNavigateDVWaypoint(self, vectors, full)
 	if UVEnemyEscaping then
 		vectors = dvd.Waypoints[math.random(#dvd.Waypoints)].Target
 	end
@@ -4463,7 +4465,7 @@ function UVNavigateDVWaypoint(self, vectors)
 	if operationStack then
 		self.tableroutetoenemy = {}
 
-		local maxNewWaypoints = 30
+		local maxNewWaypoints = full and math.huge or 30
 		local added = 0
 
 		for i, v in ipairs( operationStack ) do

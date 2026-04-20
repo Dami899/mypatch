@@ -262,18 +262,20 @@ if SERVER then
             timecheck = UVChatterCallRequestDescription(unit)
             timer.Simple(timecheck, function()
                 if not IsValid(suspectvehicle) or UVTargeting then return end
+                local scope = UVGetScope(suspectvehicle)
+                if scope.IsBeingPulledOver then return end
                 local timecheck2 = 5
                 local mathdescription = math.random(1,2)
                 if mathdescription == 1 then --Known description
                     if next(ents.FindByClass("npc_uv*" )) ~= nil and GetConVar("unitvehicle_chatter"):GetBool() then
                         local e = UVGetVehicleMakeAndModel(suspectvehicle)
                         local units = ents.FindByClass("npc_uv*" )
-                        local random_entry = math.random(#units)	
+                        local random_entry = math.random(#units)
                         local unit = units[random_entry]
                         UVChatterDispatchCallVehicleDescription(unit, suspectvehicle, e)
                     end
+                    UVCallRespond(suspectvehicle)
                     timer.Simple(timecheck2 or 5, function()
-                        UVCallRespond(suspectvehicle)
                         UVCallLocation = calllocation
                     end)
                 else --Unknown description
@@ -283,8 +285,8 @@ if SERVER then
                         local unit = units[random_entry]
                         UVChatterDispatchCallUnknownDescription(unit)
                     end
+                    UVCallRespond(suspectvehicle, true)
                     timer.Simple(timecheck2 or 5, function()
-                        UVCallRespond(suspectvehicle)
                         UVCallLocation = calllocation
                     end)
                 end
@@ -293,7 +295,7 @@ if SERVER then
         
     end
     
-    function UVCallRespond(suspectvehicle)
+    function UVCallRespond(suspectvehicle, unknown)
 
         uvcallexists = nil
         
@@ -308,7 +310,9 @@ if SERVER then
             UVChatterCallResponding(unit)
         end
 
-        UVAddToWantedListVehicle(suspectvehicle)
+        -- if not unknown then
+        --     UVAddToWantedListVehicle(suspectvehicle)
+        -- end
     end
     
 else
