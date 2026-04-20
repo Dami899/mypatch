@@ -22,6 +22,7 @@ ENT.NitrousRegenRate = 0.2
 ENT.SirenTable = {
     ")uvcars/federal sig rumbler/emv_wail.wav",
     ")uvcars/federal sig rumbler/emv_yelp.wav",
+    ")uvcars/federal sig rumbler/emv_priority.wav",
     ")uvcars/federal sig rumbler/emv_hilo.wav",
 }
 
@@ -30,7 +31,7 @@ if CLIENT then
     ENT.SirenVolume = 1
 
     ENT.SirenLoopSound = ")uvcars/federal sig rumbler/emv_wail.wav"
-    ENT.SirenLoopAltSound = ")uvcars/federal sig rumbler/emv_priority.wav"
+    ENT.SirenLoopAltSound = ")uvcars/federal sig rumbler/emv_horn.wav"
     ENT.HornSound = ")uvcars/federal sig rumbler/emv_horn.wav"
 
     ENT.CameraOffset = Vector( -220, 0, 65 )

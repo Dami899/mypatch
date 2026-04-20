@@ -130,6 +130,8 @@ function ENT:Initialize()
 	self.UVAir = self
 	self.UnitVehicle = self
 
+	self:ChangeAltitude()
+
 	local weaponchoices = {}
 
 	if Barrels:GetBool() then
@@ -146,7 +148,7 @@ function ENT:Initialize()
 		self.aggressive = true
 	end
 		
-	timer.Simple((math.random(60,180)), function() 
+	timer.Simple((math.random(60,300)), function() 
 		if IsValid(self) and not self.Downed then --Fuel is randomized 
 			if Chatter:GetBool() and not (self.crashing or self.disengaging) then
 				if IsValid(self:GetTarget()) then
@@ -457,6 +459,8 @@ function ENT:PhysicsUpdate()
 						UVChatterPassive(self) 
 					end
 				end
+				
+				self:ChangeAltitude()
 			end
 			if isValidTarget and Chatter:GetBool() and not (self.crashing or self.disengaging) and target:GetVelocity():LengthSqr() > 100000 and self:IsSeeTarget() and MathAggressive ~= 1 then
 				UVChatterCloseToEnemy(self, target)
@@ -596,16 +600,40 @@ function ENT:ApplyAngles()
 	self.phys:SetVelocity(absvel)
 end
 
+function ENT:ChangeAltitude()
+
+	local altitude = {
+		200,
+		300,
+		400,
+		500,
+		600,
+		700,
+		800,
+		900,
+		1000
+	}
+
+	self.Altitude = altitude[math.random(1, #altitude)]
+end
+
 function ENT:ApplyHeight(height)
 	local target = self:GetTarget()
 	local isValidTarget = IsValid(target)
+
+	if not self.Altitude then
+		self:ChangeAltitude()
+	end
 	
 	height = height or self:CheckWorldHeight()
+
+	local altmin = self.Altitude - 10
+	local altmax = self.Altitude + 10
 	
 	if (not height or height=="stop") and isValidTarget then
 		local d = self:GetPos().z-self:GetTargetPos().z
 		
-		height = d<(self.StayInAir and 250 or 300) and "up" or d>(self.StayInAir and 1000 or 950) and height~="stop" and "down" or false
+		height = d<(altmin) and "up" or d>(altmax) and height~="stop" and "down" or false
 	end
 	
 	local vel = self.phys:GetVelocity()
@@ -724,6 +752,9 @@ end
 
 function ENT:CheckWorldHeight()
 
+	local altmin = self.Altitude - 10
+	local altmax = self.Altitude + 10
+
 	if self.engaging and IsValid(self:GetTarget()) then
 		local d = self:GetPos().z-(self:GetTargetPos()).z
 		local velocityz = (self.phys:GetVelocity().z * -1)
@@ -737,9 +768,9 @@ function ENT:CheckWorldHeight()
 		end
 	end
 
-	local floor = util.TraceLine({start = self:GetPos(),endpos = self:GetPos()-Vector(0,0,self.StayInAir and 1000 or 950),filter = self,mask = MASK_ALL})
+	local floor = util.TraceLine({start = self:GetPos(),endpos = self:GetPos()-Vector(0,0,altmax),filter = self,mask = MASK_ALL})
 	if floor.Hit then
-		if self:GetPos().z-floor.HitPos.z>(self.StayInAir and 250 or 300) then
+		if self:GetPos().z-floor.HitPos.z>(altmin) then
 			return "stop"
 		else
 			return "up"

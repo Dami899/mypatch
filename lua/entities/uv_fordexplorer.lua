@@ -68,7 +68,10 @@ if CLIENT then
 
     ENT.LightSprites = {
 
-        { type = "brake", offset = Vector(-96.72,0,62.43), size = 50, color = Color(255,0,0,255), dir = Vector( -1, 0, 0 ) },
+        { type = "brake", offset = Vector(-96.72,0,62.43), ifBodygroupId = 7, ifSubModelId = 0, size = 50, color = Color(255,0,0,255), dir = Vector( -1, 0, 0 ) },
+        { type = "brake", offset = Vector(-96.43,0.01,63.71), ifBodygroupId = 7, ifSubModelId = 1, size = 50, color = Color(255,0,0,255), dir = Vector( -1, 0, 0 ) },
+        { type = "brake", offset = Vector(-96.43,0.01,69.62), ifBodygroupId = 7, ifSubModelId = 2, size = 50, color = Color(255,0,0,255), dir = Vector( -1, 0, 0 ) },
+
         { type = "brake", offset = Vector(-101.48,34.27,34.81), size = 50, color = Color(255,0,0,50), dir = Vector( -1, 0.5, 0 ) },
         { type = "brake", offset = Vector(-101.48,-34.27,34.81), size = 50, color = Color(255,0,0,50), dir = Vector( -1, -0.5, 0 ) },
         { type = "taillight", offset = Vector(-101.48,34.27,34.81), size = 50, color = Color(255,0,0,50), dir = Vector( -1, 0.5, 0 ) },
