@@ -3439,7 +3439,7 @@ else -- CLIENT Settings | HUD/Options
 				local data = util.JSONToTable( file.Read( 'data/unitvehicles/preset_import/uvunitmanager/' .. impFile, 'GAME' ) )
 				
 				if type(data) == 'table' and (data.Name and data.Data) then
-					if presets.Exists and presets.Exists("units", data.Name) then return end
+					-- if presets.Exists("units", data.Name) then return end
 					presets.Add( 'units', data.Name, data.Data )
 				else
 					error('Malformed JSON data!')
