@@ -284,7 +284,7 @@ if SERVER then
                         UVChatterDispatchCallUnknownDescription(unit)
                     end
                     timer.Simple(timecheck2 or 5, function()
-                        UVCallRespond(suspectvehicle)
+                        UVCallRespond(suspectvehicle, true)
                         UVCallLocation = calllocation
                     end)
                 end
@@ -293,7 +293,7 @@ if SERVER then
         
     end
     
-    function UVCallRespond(suspectvehicle)
+    function UVCallRespond(suspectvehicle, unknown)
 
         uvcallexists = nil
         
@@ -308,7 +308,9 @@ if SERVER then
             UVChatterCallResponding(unit)
         end
 
-        --UVAddToWantedListVehicle(suspectvehicle)
+        if not unknown then
+            UVAddToWantedListVehicle(suspectvehicle)
+        end
     end
     
 else

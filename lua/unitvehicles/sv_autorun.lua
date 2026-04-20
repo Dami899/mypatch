@@ -2394,6 +2394,8 @@ function UVRamVehicle(vehicle)
 end
 
 function UVAddToWantedListVehicle(vehicle)
+	if not vehicle:IsValid() then return end
+
 	if not vehicle.UVWanted then
 		vehicle.UVWanted = vehicle
 	end
