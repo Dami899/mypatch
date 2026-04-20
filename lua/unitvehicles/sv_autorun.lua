@@ -347,8 +347,8 @@ end)
 concommand.Add( "uv_setheat", function( ply, cmd, args )
 	if ply and not ply:IsSuperAdmin() then return end
 	for _, v in pairs( UVPursuitScopes ) do
-		scope.Heat = math.Clamp( (tonumber(args[1]) or 1), 1, MAX_HEAT_LEVEL )
-		_highestHeatLevel = scope.Heat
+		v.Heat = math.Clamp( (tonumber(args[1]) or 1), 1, MAX_HEAT_LEVEL )
+		_highestHeatLevel = v.Heat
 	end
 
 	if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVTargeting then

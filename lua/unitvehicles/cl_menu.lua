@@ -698,7 +698,6 @@ UVMenu.Settings = function()
 
 			{ TabName = "uv.pursuit", Icon = "unitvehicles/icons/milestone_pursuit.png", sv = true,
 				{ type = "label", text = "uv.pursuit.heatlevels", sv = true },
-				{ type = "bool", text = "uv.pursuit.heatlevels.enable", desc = "uv.pursuit.heatlevels.enable.desc", convar = "unitvehicle_heatlevels", sv = true },
 				{ type = "bool", text = "uv.pursuit.heatlevels.aiunits", desc = "uv.pursuit.heatlevels.aiunits.desc", convar = "unitvehicle_spawnmainunits", sv = true },
 				
 				{ type = "label", text = "uv.response", sv = true },

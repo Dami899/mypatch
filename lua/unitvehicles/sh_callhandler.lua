@@ -308,7 +308,7 @@ if SERVER then
             UVChatterCallResponding(unit)
         end
 
-        UVAddToWantedListVehicle(suspectvehicle)
+        --UVAddToWantedListVehicle(suspectvehicle)
     end
     
 else
