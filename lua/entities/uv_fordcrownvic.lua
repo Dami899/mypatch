@@ -85,11 +85,11 @@ if CLIENT then
         { type = "reverse", ifBodygroupId = 9, ifSubModelId = 2, offset = Vector(-113.71,10.82,47.66), dir = Vector( -1, 0, 0 ),size = 30 },
         { type = "reverse", ifBodygroupId = 9, ifSubModelId = 2, offset = Vector(-113.09,-11.29,48.52), dir = Vector( -1, 0, 0 ),size = 30 },
 
-		{ type = "signal_left", ifBodygroupId = 6, ifSubModelId = 0, offset = Vector( 99.83,38.95,22.57 ), dir = Vector( 1, 1, 0 ), color = Glide.DEFAULT_TURN_SIGNAL_COLOR,size = 25 },
-        { type = "signal_right", ifBodygroupId = 6, ifSubModelId = 0, offset = Vector( 99.83,-38.95,22.57 ), dir = Vector( 1, -1, 0 ), color = Glide.DEFAULT_TURN_SIGNAL_COLOR,size = 25 },
+		{ type = "signal_left", ifBodygroupId = 6, ifSubModelId = 0, offset = Vector(111.79,22.19,22.54), dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0),size = 25 },
+        { type = "signal_right", ifBodygroupId = 6, ifSubModelId = 0, offset = Vector(111.79,-22.19,22.54), dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0),size = 25 },
 
-        { type = "signal_left", ifBodygroupId = 6, ifSubModelId = 0, offset = Vector( -113.87,30.67,25.15 ), dir = Vector( -1, 0, 0 ), color = Glide.DEFAULT_TURN_SIGNAL_COLOR,size = 25 },
-        { type = "signal_right", ifBodygroupId = 6, ifSubModelId = 0, offset = Vector( -113.87,-30.67,25.15 ), dir = Vector( -1, 0, 0 ), color = Glide.DEFAULT_TURN_SIGNAL_COLOR,size = 25 },
+        { type = "signal_left", ifBodygroupId = 6, ifSubModelId = 0, offset = Vector(-113,31.84,29.1), dir = Vector( -1, 0, 0 ), color = Color(255,0,0),size = 40 },
+        { type = "signal_right", ifBodygroupId = 6, ifSubModelId = 0, offset = Vector(-113,-31.84,29.1), dir = Vector( -1, 0, 0 ), color = Color(255,0,0),size = 40 },
 
     }
 

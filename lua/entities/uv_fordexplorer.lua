@@ -77,8 +77,15 @@ if CLIENT then
         { type = "headlight", offset = Vector(99.21,-30.14,29.56), size = 40, color = Color(215,240,255), dir = Vector( 1, 0, 0 ) },
         { type = "reverse", offset = Vector(-99.94,35.2,40.17), dir = Vector( -1, 0, 0 ),size = 30 },
         { type = "reverse", offset = Vector(-99.94,-35.2,40.17), dir = Vector( -1, 0, 0 ),size = 30 },
-		{ type = "signal_left", offset = Vector( 95.88,33.1,34.92 ), dir = Vector( 1, 0.5, 0 ), color = Glide.DEFAULT_TURN_SIGNAL_COLOR,size = 25 },
-        { type = "signal_right", offset = Vector( 95.88,-33.1,34.92 ), dir = Vector( 1, -0.5, 0 ), color = Glide.DEFAULT_TURN_SIGNAL_COLOR,size = 25 },
+
+		{ type = "signal_left", offset = Vector( 95.88,33.1,34.92 ), dir = Vector( 1, 0.5, 0 ), color = Color(255, 192, 0),size = 25 },
+        { type = "signal_right", offset = Vector( 95.88,-33.1,34.92 ), dir = Vector( 1, -0.5, 0 ), color = Color(255, 192, 0),size = 25 },
+
+        { type = "signal_left", offset = Vector(-101.48,34.27,34.81), size = 30, color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ) },
+        { type = "signal_right", offset = Vector(-101.48,-34.27,34.81), size = 30, color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ) },
+
+        { type = "signal_left", offset = Vector(36.27,49.84,44.45), size = 30, color = Color(255, 192, 0), dir = Vector( 1, 1, 0 ) },
+        { type = "signal_right", offset = Vector(36.27,-49.84,44.45), size = 30, color = Color(255, 192, 0), dir = Vector( 1, -1, 0 ) },
 
     }
 
