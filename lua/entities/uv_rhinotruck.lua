@@ -64,15 +64,20 @@ if CLIENT then
         { type = "headlight", offset = Vector(102.48,44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ), },
         { type = "headlight", offset = Vector(102.48,-44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
 
-        { type = "taillight", offset = Vector(-126.13,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
-        { type = "taillight", offset = Vector(-126.13,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
+        { type = "taillight", offset = Vector(-125.27,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
+        { type = "taillight", offset = Vector(-125.27,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
 
-        { type = "brake", offset = Vector(-126.13,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
-        { type = "brake", offset = Vector(-126.13,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
+        { type = "brake", offset = Vector(-125.27,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
+        { type = "brake", offset = Vector(-125.27,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
 
         { type = "reverse", offset = Vector(-126.74,43.74,51.35), size = 30, color = Color(255,255,255), dir = Vector( -1, 0, 0 ), },
         { type = "reverse", offset = Vector(-126.74,-43.74,51.35), size = 30, color = Color(255,255,255), dir = Vector( -1, 0, 0 ), }, 
 
+        { type = "signal_left", offset = Vector(98.12,49.27,39), dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0), size = 30 },
+        { type = "signal_right", offset = Vector(98.12,-49.27,39), dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0), size = 30 },
+
+        { type = "signal_left", offset = Vector(-125.27,46.57,31.94), color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ), size = 30 },
+        { type = "signal_right", offset = Vector(-125.27,-46.57,31.94), color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ), size = 30 },
     }
 
     ENT.SirenCycle = 0.3

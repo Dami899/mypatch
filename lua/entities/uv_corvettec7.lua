@@ -87,6 +87,11 @@ if CLIENT then
         { type = "reverse", offset = Vector(-95.64,18,33.83), size = 30, color = Color(255,255,255),ifBodygroupId = 11, ifSubModelId = 0, dir = Vector( -1, 0, 0 ), },
         { type = "reverse", offset = Vector(-95.64,-18,33.83), size = 30, color = Color(255,255,255),ifBodygroupId = 11, ifSubModelId = 0, dir = Vector( -1, 0, 0 ), }, 
         
+        { type = "signal_left", offset = Vector(74.84,36.21,26.25), dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0), size = 30 },
+        { type = "signal_right", offset = Vector(74.84,-36.21,26.25), dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0), size = 30 },
+
+        { type = "signal_left", offset = Vector(-91.65,27.1,34.1), color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ), size = 30 },
+        { type = "signal_right", offset = Vector(-91.65,-27.1,34.1), color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ), size = 30 },
     }
 
     ENT.SirenCycle = 0.3

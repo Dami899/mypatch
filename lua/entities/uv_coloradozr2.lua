@@ -75,6 +75,15 @@ if CLIENT then
 
         { type = "reverse", offset = Vector(-120.49,35.11,34.48), dir = Vector( -1, 0, 0 ),size = 30 },
         { type = "reverse", offset = Vector(-120.49,-35.11,34.48), dir = Vector( -1, 0, 0 ),size = 30 },
+
+        { type = "signal_left", offset = Vector(-118.22,34.98,29.74),color = Color(255,0,0),dir = Vector( -1, 0, 0 ),size = 30, },
+        { type = "signal_right", offset = Vector(-118.22,-34.98,29.74),color = Color(255,0,0),dir = Vector( -1, 0, 0 ),size = 30, },
+        { type = "signal_left", offset = Vector(-118.22,34.78,39.41),color = Color(255,0,0),dir = Vector( -1, 0, 0 ),size = 30, },
+        { type = "signal_right", offset = Vector(-118.22,-34.78,39.41),color = Color(255,0,0),dir = Vector( -1, 0, 0 ),size = 30, },
+        
+        { type = "signal_left", offset = Vector(103.89,27.33,24.48),color = Color(255, 192, 0),dir = Vector( 1, 0, 0 ),size = 30, },
+        { type = "signal_right", offset = Vector(103.89,-27.33,24.48),color = Color(255, 192, 0),dir = Vector( 1, 0, 0 ),size = 30, },
+
     }
 
     ENT.SirenCycle = 0.3
