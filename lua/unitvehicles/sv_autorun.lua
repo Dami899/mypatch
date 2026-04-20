@@ -4432,7 +4432,7 @@ function UVNavigateDVWaypointOptimized( self, vectors )
 	return self.tableroutetoenemy
 end
 
-function UVNavigateDVWaypoint(self, vectors)
+function UVNavigateDVWaypoint(self, vectors, full)
 	if UVEnemyEscaping then
 		vectors = dvd.Waypoints[math.random(#dvd.Waypoints)].Target
 	end
@@ -4465,7 +4465,7 @@ function UVNavigateDVWaypoint(self, vectors)
 	if operationStack then
 		self.tableroutetoenemy = {}
 
-		local maxNewWaypoints = 30
+		local maxNewWaypoints = full and math.huge or 30
 		local added = 0
 
 		for i, v in ipairs( operationStack ) do
