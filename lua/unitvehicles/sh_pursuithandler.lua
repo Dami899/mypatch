@@ -2399,7 +2399,11 @@ if SERVER then
 				end
 			else
 				if vScope.InPursuit then
-					vScope.Losing = math.Clamp( vScope.Losing + FrameTime(), 0, 5 )
+					if NeverEvade:GetBool() or ( ( (not UVUCommanderEvade:GetBool()) and UVOneCommanderActive ) and not scope.EnemyEscaping ) then
+						scope.Losing = 0
+					else
+						vScope.Losing = math.Clamp( vScope.Losing + FrameTime(), 0, 5 )
+					end
 				end
 			end
 			
