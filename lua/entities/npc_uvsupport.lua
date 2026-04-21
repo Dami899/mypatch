@@ -1246,38 +1246,28 @@ if SERVER then
 		end
 		
 		--Target nearest enemy/remove when marked for deletion
-		if IsValid(self.e) then
+		if IsValid(self.e) and UVTargeting then
 			local closestsuspect
 			local closestdistancetosuspect
+			local closestscope
 			local suspects = UVWantedTableVehicle
 			local r = math.huge
 			local closestdistancetosuspect, closestsuspect = r^2
 			local unitpos = self.v:WorldSpaceCenter()
 			for i, w in pairs(suspects) do
-				local distance = unitpos:DistToSqr(w:WorldSpaceCenter())
-				if distance < closestdistancetosuspect then
-					closestdistancetosuspect, closestsuspect = distance, w
+				local scope = UVGetScope(w)
+				if scope.InPursuit then
+					local distance = unitpos:DistToSqr(w:WorldSpaceCenter())
+					if distance < closestdistancetosuspect then
+						closestdistancetosuspect, closestsuspect = distance, w
+						closestscope = scope
+					end
 				end
 			end
-			local straightToEnemy = self:StraightToTarget(closestsuspect)
+			local straightToEnemy = closestsuspect and closestsuspect.inunitview
 			if closestsuspect ~= self.e and straightToEnemy then
 				self.e = closestsuspect
-				eScope = IsValid(self.e) and UVGetScope(self.e) or nil
-			
-				if not closestsuspect.UVWanted then
-					closestsuspect.UVWanted = closestsuspect
-				end
-				local driver = UVGetDriver(self.e)
-				if isfunction(self.e.GetDriver) and IsValid(driver) and driver:IsPlayer() then 
-					self.edriver = driver
-					
-				else
-					self.edriver = nil
-				end
-				if not self.spawncooldown then
-					self.v:SetNoDraw(false)
-					self.v:SetCollisionGroup(0)
-				end
+				eScope = closestscope
 				UVCalm = nil
 				local chatterchance = math.random(1,10)
 				if chatterchance == 1 and Chatter:GetBool() and IsValid(self.v) then
@@ -1325,13 +1315,6 @@ if SERVER then
 				
 					if not enemy.UVWanted then
 						enemy.UVWanted = enemy
-					end
-					local driver = UVGetDriver(self.e)
-					if isfunction(self.e.GetDriver) and IsValid(driver) and driver:IsPlayer() then 
-						self.edriver = driver
-						
-					else
-						self.edriver = nil
 					end
 					self.moving = CurTime()
 					self.toofar = nil 

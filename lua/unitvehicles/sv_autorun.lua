@@ -547,7 +547,9 @@ concommand.Add("uv_clearbounty", function(ply)
 	if ply and not ply:IsSuperAdmin() then return end
 	PrintMessage( HUD_PRINTTALK, "Bounty cleared" )
 	
-	UVBounty = 0
+	for _, v in pairs(UVPursuitScopes) do
+		v.Bounty = 0
+	end
 end)
 
 function UVApplyHeatLevel()
@@ -3078,8 +3080,6 @@ end
 
 function UVAddInfraction(vehicle, infraction, reported)
 	if not infraction or not IsValid(vehicle) or not UVPassConVarFilter(vehicle) then return end
-
-	UVAddToWantedListVehicle(vehicle)
 	
 	if not reported and not UVIsSeenByUnit(vehicle) then --Pre Infraction system
 		updatepreinfraction(vehicle, infraction)
