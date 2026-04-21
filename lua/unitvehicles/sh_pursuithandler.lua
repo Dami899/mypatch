@@ -174,10 +174,8 @@ function UVScopeKey(veh)
 end
 
 function UVGetScope(veh)
-	print(SysTime())
 	local key = UVScopeKey(veh)
 	if not key then return nil end
-	print(SysTime())
 	return UVPursuitScopes[key]
 end
 
