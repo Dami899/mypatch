@@ -1323,7 +1323,7 @@ if SERVER then
 			else
 				local enemy = self:TargetEnemy() --Find an enemy.
 				local scope = UVGetScope(enemy)
-				local isPursuable = scope and scope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and v.FinesDue >= 500 )
+				local isPursuable = scope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and scope.FinesDue >= 500 )
 				if IsValid(enemy) and not isPursuable then
 					self.e = enemy
 					eScope = IsValid(self.e) and UVGetScope(self.e) or nil

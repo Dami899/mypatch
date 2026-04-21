@@ -135,6 +135,7 @@ UV_SCOPE_DEFAULTS = {
 	Losing = 0,
 	TimeTillNextHeatEnd = 0,
 	Hiding = false,
+	FinesDue = 0,
 }
 
 UV_SCOPE_REPLICATED_KEYS = {
@@ -163,7 +164,8 @@ UV_SCOPE_REPLICATED_KEYS = {
 	["Losing"] = true,
 	["TimeTillNextHeatEnd"] = true,
 	["Hiding"] = true,
-	["IsBeingPulledOver"] = true
+	["IsBeingPulledOver"] = true,
+	["FinesDue"] = true
 }
 
 function UVScopeKey(veh)
@@ -312,7 +314,6 @@ function UV_InitiatePursuit( target )
 	scope.Wrecks = 0
 	scope.Tags = 0
 	scope.Losing = 0
-	if not target.FinesDue then target.FinesDue = 0 end
 	scope.PursuitStart = CurTime()
 
 	hook.Run('PursuitEventHook', 'onSuspectSpotted', target)
@@ -1739,7 +1740,7 @@ if SERVER then
 						["Wrecks"] = scope.Wrecks or 0,
 					}
 					local infractionstable = IsValid( veh ) and veh.Infractions or {}
-					local finesdue = IsValid( veh ) and veh.FinesDue or 0
+					local finesdue = scope.FinesDue
 
 					net.Start( "UVHUDEscapedDebrief" )
 					net.WriteTable( escapedtable )

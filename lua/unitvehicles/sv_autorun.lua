@@ -3068,12 +3068,11 @@ local function updateinfraction(vehicle, infraction)
 		end
     end
 
-	if not vehicle.FinesDue then
-		vehicle.FinesDue = 0
-	end
+	local scope = UVGetScope(vehicle)
+	if not scope then return end
 
 	for k, v in pairs(vehicle.Infractions) do
-		vehicle.FinesDue = vehicle.FinesDue + (UVINFRACTION_FINE[k] or 0) * (UVHeatLevel / 10)
+		scope.FinesDue = scope.FinesDue + (UVINFRACTION_FINE[k] or 0) * (UVHeatLevel / 10)
 	end
 end
 
@@ -3331,7 +3330,6 @@ function UVBustEnemy(self, enemy, finearrest)
 
 	local timeacknowledge = 5
 	local enemyDriver = UVGetDriver(enemy)
-	local finesdue = enemy.FinesDue or 0
 
 	local enemyScope = UVGetScope(enemy)
 	if not enemyScope then return end
@@ -3466,19 +3464,14 @@ function UVBustEnemy(self, enemy, finearrest)
 				end
 			end
 		end)
-		local enemyScope = UVGetScope(enemy)
-		if enemyScope then
-			enemyScope.EnemyBusted = true
-			timer.Simple(1, function()
-				if enemyScope then
-					enemyScope.InPursuit = false
-				end
-			end)
-			--enemyScope.InPursuit = false
-			enemyScope.EnemyEscaping = false
-			enemyScope.InCooldown = false
-			enemyScope.IsEvading = false
-		end
+		enemyScope.EnemyBusted = true
+		timer.Simple(1, function()
+			enemyScope.InPursuit = false
+		end)
+		--enemyScope.InPursuit = false
+		enemyScope.EnemyEscaping = false
+		enemyScope.InCooldown = false
+		enemyScope.IsEvading = false
 		if enemyDriver and enemyDriver:IsPlayer() and not enemy.DecentVehicle and not enemy.TrafficVehicle then
 			local driver = enemyDriver
 			local bustedtable = {}
@@ -3495,7 +3488,7 @@ function UVBustEnemy(self, enemy, finearrest)
 					net.Start( "UVHUDBustedDebrief" )
 					net.WriteTable(bustedtable)
 					net.WriteTable(infractionstable)
-					net.WriteInt(finesdue, 32)
+					net.WriteInt(enemyScope.FinesDue, 32)
 					net.Send(driver)
 				end
 				UVRemoveScope(enemy)
@@ -3527,20 +3520,16 @@ function UVBustEnemy(self, enemy, finearrest)
 		self.displaybusting = nil
 	else --Fine
 		local stoppedUnits = {}
-		local enemyScope = UVGetScope(enemy)
-		if enemyScope then
-			--enemyScope.EnemyBusted = true
-			enemyScope.InPursuit = false
-			enemyScope.EnemyEscaping = false
-			enemyScope.IsEvading = false
-			enemyScope.InCooldown = false
-		end
+		enemyScope.InPursuit = false
+		enemyScope.EnemyEscaping = false
+		enemyScope.IsEvading = false
+		enemyScope.InCooldown = false
 		if not UVTargeting then
 			enemy.UVHUDBusting = nil
 			enemy.UVHUDBustingDelayed = nil
 			enemy.Infractions = {}
 
-			if enemyScope then enemyScope.Bounty = 0 end
+			enemyScope.Bounty = 0
 		end
 		UVEndTrafficStop( enemy )
 		local occupants = UVGetVehicleOccupants( enemy )
@@ -3582,7 +3571,7 @@ function UVBustEnemy(self, enemy, finearrest)
 			table.Add( occupants, (self and self:IsPlayer() and UVGetVehicleOccupants( UVGetVehicle( self ) )) or {} )
 			net.Start( "UVFined" )
 			net.WriteUInt( enemy.UVFinedCount, 3 )
-			net.WriteInt(finesdue, 32)
+			net.WriteInt(enemyScope.FinesDue, 32)
 			net.Send(occupants)
 		end)
 		if driver then
@@ -3595,13 +3584,11 @@ function UVBustEnemy(self, enemy, finearrest)
 				k:ForgetEnemy()
 			end
 			enemy.uvbusted = nil
-			local fineScope = UVGetScope(enemy)
-			if fineScope then
-				--fineScope.EnemyBusted = false
-				fineScope.Bounty = 0
-				fineScope.Heat = 1
-				fineScope.TimeTillNextHeatEnd = 0
-			end
+			enemyScope.FinesDue = 0
+			--enemyScope.EnemyBusted = false
+			enemyScope.Bounty = 0
+			enemyScope.Heat = 1
+			enemyScope.TimeTillNextHeatEnd = 0
 		end)
 	end
 
@@ -3613,7 +3600,6 @@ function UVBustEnemy(self, enemy, finearrest)
 	end
 
 	--Clear record
-	enemy.FinesDue = 0
 	enemy.Infractions = {}
 
 end
