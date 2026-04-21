@@ -2346,7 +2346,7 @@ if SERVER then
 			-- 2. The vehicle has fines due of at least $500 ONLY IF there is an active pursuit going on.
 			-- This might change in the future, but for now this is the logic for pursuing vehicles during existing pursuits.
 			-- I was considering making only certain infractions immediately start a pursuit, but meh...
-			local isPursuable = vScope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and v.FinesDue >= 500 )
+			local isPursuable = vScope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and vScope.FinesDue >= 500 )
 			local isClosestCopPlayer = v.closestunit and v.closestunit.UnitVehicle:IsPlayer()
 			
 			-- If a suspect is being pulled over, we don't want the timeout to be reached even if the vehicle is complying.
