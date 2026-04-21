@@ -174,8 +174,10 @@ function UVScopeKey(veh)
 end
 
 function UVGetScope(veh)
+	print(SysTime())
 	local key = UVScopeKey(veh)
 	if not key then return nil end
+	print(SysTime())
 	return UVPursuitScopes[key]
 end
 
@@ -2400,7 +2402,7 @@ if SERVER then
 			else
 				if vScope.InPursuit then
 					if NeverEvade:GetBool() or ( ( (not UVUCommanderEvade:GetBool()) and UVOneCommanderActive ) and not vScope.EnemyEscaping ) then
-						scope.Losing = 0
+						vScope.Losing = 0
 					else
 						vScope.Losing = math.Clamp( vScope.Losing + FrameTime(), 0, 5 )
 					end
