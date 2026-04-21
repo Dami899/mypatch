@@ -1345,37 +1345,39 @@ if SERVER then
 				end
 			else
 				local enemy = self:TargetEnemy() --Find an enemy.
-				local scope = UVGetScope(enemy)
-				local isPursuable = scope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and scope.FinesDue >= 500 )
-				if IsValid(enemy) and not isPursuable then
-					self.e = enemy
-					eScope = IsValid(self.e) and UVGetScope(self.e) or nil
-				
-					if not enemy.UVWanted then
-						enemy.UVWanted = enemy
-					end
-
+				if enemy then
+					local scope = UVGetScope(enemy)
+					local isPursuable = scope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and scope.FinesDue >= 500 )
+					if IsValid(enemy) and not isPursuable then
+						self.e = enemy
+						eScope = IsValid(self.e) and UVGetScope(self.e) or nil
 					
-
-					self.moving = CurTime()
-					self.idle = nil
-					self.toofar = nil
-					self.aggressive = nil
-
-					if not UVCalm then
-						UVCalm = true
-					end
-
-					UVInitiateTrafficStop( self.v, self.e )
-					if not self.v.rammed then
-						if Chatter:GetBool() then
-							UVChatterTrafficStopSpeeding(self)
+						if not enemy.UVWanted then
+							enemy.UVWanted = enemy
 						end
-					else
-						if Chatter:GetBool() then
-							UVChatterTrafficStopRammed(self) 
+	
+						
+	
+						self.moving = CurTime()
+						self.idle = nil
+						self.toofar = nil
+						self.aggressive = nil
+	
+						if not UVCalm then
+							UVCalm = true
 						end
-					end
+	
+						UVInitiateTrafficStop( self.v, self.e )
+						if not self.v.rammed then
+							if Chatter:GetBool() then
+								UVChatterTrafficStopSpeeding(self)
+							end
+						else
+							if Chatter:GetBool() then
+								UVChatterTrafficStopRammed(self) 
+							end
+						end
+					end	
 				end
 			end 
 			
