@@ -297,7 +297,9 @@ if SERVER then
     
     function UVCallRespond(suspectvehicle, unknown)
 
-        uvcallexists = nil
+        timer.Simple(20, function()
+            uvcallexists = nil
+        end)
         
         if UVTargeting then return end
         
