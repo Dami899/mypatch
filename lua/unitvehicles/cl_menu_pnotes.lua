@@ -59,6 +59,10 @@ The content importer will check all your UV content to see if anything is mismat
       |-- If there's no players ahead (only AI), then they'll never rubberband
 - Altered the appearance of all UVPD vehicles
 - Altered the appearance of the Racing and Pursuit Name Tags
+- <color=255,255,100>Creator: Units</color> Tool: Removed the Optional Settings when creating a Unit
+- <color=255,255,100>Heat Manager</color>: Removed 'Enable Heat Levels' option; Now always enabled
+- Racers are no longer added to the 'Wanted List' if Dispatch calls out 'Unknown model'
+- The Air Unit now sets their own altitude
 
 **Fixes**
 - Fixed a consistent error on the Race Information prompt, where the "Host" status was given to any Admin and/or Superadmin that was in a car
