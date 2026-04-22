@@ -538,9 +538,12 @@ if SERVER then
         return IsValid(Leader) and Leader
     end
 
-    function UVOptimizeRespawn( vehicle, rhino, commander, suspectwaypoint )
-        if UVOptimizeRespawnDelayed and not suspectwaypoint then return end
+    function UVOptimizeRespawn( vehicle )
+        if UVOptimizeRespawnDelayed then return end
         if UVJammerDeployed then return end
+
+        local rhino = vehicle.rhino
+        local commander = vehicle.uvclasstospawnon == "npc_uvcommander" or vehicle.UVCommander
 
         UVOptimizeRespawnDelayed = true
         timer.Simple(1, function()
@@ -635,11 +638,6 @@ if SERVER then
 	    	uvspawnpointwaypoint = dvd.Waypoints[math.random(#dvd.Waypoints)]
 	    	uvspawnpoint = uvspawnpointwaypoint["Target"]
 	    end
-
-        if suspectwaypoint then
-            uvspawnpointwaypoint = suspectwaypoint
-            uvspawnpoint = uvspawnpointwaypoint["Target"]
-        end
 
 	    local neighbor = dvd.Waypoints[uvspawnpointwaypoint.Neighbors[math.random(#uvspawnpointwaypoint.Neighbors)]]
 
@@ -831,27 +829,6 @@ if SERVER then
 				vehicle.UVBustingPenaltyMult = 1
 			end)
 		end
-
-        --Prevent abuse during pursuits by teleporting a Unit ahead
-        -- timer.Simple(delay, function()
-            -- if UVTargeting and not UVHUDCooldown then
-                -- local units = ents.FindByClass("npc_uv*")
-                -- if #units == 0 then return end
-
-                -- for k, unit in pairs(units) do
-                    -- if IsValid(unit) and unit.e and unit.e == vehicle then
-                        -- local enemywaypoint = dvd.GetNearestWaypoint( vehicle:GetPos() )
-                        -- if not enemywaypoint.Neighbors or next(enemywaypoint.Neighbors) == nil then return end
-                        -- local neighbor = dvd.Waypoints[enemywaypoint.Neighbors[math.random(#enemywaypoint.Neighbors)]]
-
-                        -- if neighbor and unit.v then
-                            -- UVOptimizeRespawn( unit.v, unit.v.rhino, unit.v.uvclasstospawnon == "npc_uvcommander", neighbor )
-                            -- break
-                        -- end
-                    -- end
-                -- end
-            -- end
-        -- end)
     end
     
     net.Receive("UVResetPosition", function(len, ply)

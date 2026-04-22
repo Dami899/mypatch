@@ -602,20 +602,7 @@ function ENT:ApplyAngles()
 end
 
 function ENT:ChangeAltitude()
-
-	local altitude = {
-		200,
-		300,
-		400,
-		500,
-		600,
-		700,
-		800,
-		900,
-		1000
-	}
-
-	self.Altitude = altitude[math.random(1, #altitude)]
+	self.Altitude = math.random(300, 2000)
 end
 
 function ENT:ApplyHeight(height)
