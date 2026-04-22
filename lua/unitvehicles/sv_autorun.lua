@@ -2952,7 +2952,6 @@ function UVIsSeenByUnit(vehicle)
 		local seen = UVVisualOnTarget(w, vehicle)
 
 		if seen then
-			UVAddToWantedListVehicle(vehicle)
 			return true
 		end
 	end
@@ -2963,7 +2962,6 @@ function UVIsSeenByUnit(vehicle)
 
 		local seen = UVVisualOnTarget(w, vehicle)
 		if seen then
-			UVAddToWantedListVehicle(vehicle)
 			return true
 		end
 	end
@@ -3097,6 +3095,8 @@ function UVAddInfraction(vehicle, infraction, reported)
 		updatepreinfraction(vehicle, infraction)
 		return
 	end
+
+	UVAddToWantedListVehicle(vehicle)
 
 	if not vehicle.Infractions then vehicle.Infractions = {} end
 
