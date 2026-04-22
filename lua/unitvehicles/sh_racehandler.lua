@@ -2120,6 +2120,13 @@ else -- CLIENT stuff
 	UVRaceStarting = false
 
 	net.Receive( "uvrace_end", function()
+		UVRaceCountdown = nil
+		UVRaceCinematicOverlay = nil
+
+		UVHUDRaceFinishCountdownStarted = false
+		UVHUDRaceFinishEndTime = nil
+		UVRaceStarting = false
+
 		if not UVHUDRace then return end
 
 		UVHUDRace = false
@@ -2127,16 +2134,8 @@ else -- CLIENT stuff
 		for vehicle, array in pairs( UVHUDRaceInfo.Participants ) do
 			if IsValid( vehicle ) and vehicle:GetDriver() == LocalPlayer() then array.LocalPlayer = true end
 		end
-
-		UVRaceCountdown = nil
-		UVRaceCinematicOverlay = nil
-
-		UVHUDRaceFinishCountdownStarted = false
-		UVHUDRaceFinishEndTime = nil
 		
 		UVHUD_CloseTimedBar( "race_end" )
-
-		UVRaceStarting = false
 
 		UVWorldCountdown = nil
 		hook.Remove("HUDPaint", "UV_Countdown_World")
