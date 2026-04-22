@@ -380,6 +380,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups
+        self:SetBodygroup( 0, 0 )
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
@@ -423,6 +424,12 @@ if SERVER then
         self.reardamaged = self.reardamaged or 0
         self.leftdamaged = self.leftdamaged or 0
         self.rightdamaged = self.rightdamaged or 0
+
+        local enginehealth = self:GetEngineHealth()
+
+        if enginehealth < .5 then --BASE
+            self:SetBodygroup( 0, 1 )
+        end
 
         if fronthit then --FRONT
             if speed < 3000 and self.frontdamaged < 1 then
