@@ -672,7 +672,7 @@ if SERVER then
 		local unitpos = self.v:WorldSpaceCenter()
 		local forward = self.v.IsSimfphyscar and self.v:LocalToWorldAngles(self.v.VehicleData.LocalAngForward):Forward() or self.v:GetForward()
 		
-		local waypoints = table.Copy( self.tableroutetoenemy )
+		local waypoints = self.tableroutetoenemy
 		if not waypoints or next(waypoints) == nil then 
 			return IsValid(self.e) and self.e:WorldSpaceCenter() or unitpos + (forward * 100)
 		end
@@ -721,8 +721,8 @@ if SERVER then
 			local dist = math.sqrt(distSqr)
 			local toWaypointNormalized = toWaypoint:GetNormalized()
 			
-			local hasLineOfSight = InfMap or UVStraightToWaypoint(unitpos, waypointpos)
-			-- local hasLineOfSight = true
+			--local hasLineOfSight = InfMap or UVStraightToWaypoint(unitpos, waypointpos)
+			local hasLineOfSight = true
 			
 			local score = 0
 			
@@ -774,7 +774,7 @@ if SERVER then
 			end
 		end
 		
-		local needOffset = false
+		-- local needOffset = false
 		-- local searchRadius = 800
 		-- local aheadMaxDistSq = 500000
 		-- local onWaypointRadiusSq = 40000
@@ -803,7 +803,8 @@ if SERVER then
 		-- 			bestWaypoint = bestWaypoint - right * offsetAmount
 		-- 		end
 		-- 	end
-		-- end		
+		-- end
+		
 		return bestWaypoint
 	end
 
@@ -1994,8 +1995,8 @@ if SERVER then
 					self.invincible = true
 					self.stuck = true
 					self.moving = CurTime()
-					timer.Simple(2, function() if IsValid(self.v) then self.invincible = nil end end)
-					timer.Simple(1, function() if IsValid(self.e) then self.stuck = nil self:PathFindToEnemy(self.e:WorldSpaceCenter()) end end)
+					timer.Simple(1, function() if IsValid(self.v) then self.invincible = nil end end)
+					timer.Simple(1, function() if IsValid(self.v) then self.stuck = nil end end)
 				end
 			end
 

@@ -4295,7 +4295,7 @@ else -- CLIENT Settings | HUD/Options
 			UVTimer = UVDisplayTime(UVTimerProgress)
 			--UVCooldownTimerProgress = _activeScope.CooldownTimerProgress
 			UVTimeTillNextHeat = _activeScope.TimeTillNextHeatEnd > 0 and math.max(0, _activeScope.TimeTillNextHeatEnd - CurTime()) or nil
-			if _activeScope.Losing and _activeScope.Losing > 0 then
+			if _activeScope.Losing then
 				UVEvadingProgress = math.Clamp(_activeScope.Losing / 5, 0, 1)
 			end
 			if _activeScope.PursuitStart > 0 then
