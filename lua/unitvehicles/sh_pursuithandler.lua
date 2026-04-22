@@ -4270,7 +4270,6 @@ else -- CLIENT Settings | HUD/Options
 				UVDeploys = domScope.Deploys
 				UVWrecks = domScope.Wrecks
 				UVTags = domScope.Tags
-				UVFinesDue = string.Comma(domScope.UVFinesDue)
 				UVUnitsChasing = domScope.UnitsChasing
 				UVTimeTillNextHeat = domScope.TimeTillNextHeatEnd > 0 and math.max(0, domScope.TimeTillNextHeatEnd - CurTime()) or nil
 				UVTimerProgress = CurTime() - domScope.PursuitStart

@@ -1012,7 +1012,7 @@ local function original_pursuit_main( ... )
         draw.DrawText( UVBounty, "UVFont2",w/1.005, h/10, Color( 255, 255, 255), TEXT_ALIGN_RIGHT )
 
         -- Fines due
-        if UVFinesDue then
+        if UVFinesDue and not UVHUDCopMode then
             draw.DrawText(
                 UVString("uv.results.chase.fines") .. ": $" .. UVFinesDue .. " ",
                 "UVFont4",
