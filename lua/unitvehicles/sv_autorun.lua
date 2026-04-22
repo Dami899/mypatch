@@ -3581,7 +3581,9 @@ function UVBustEnemy(self, enemy, finearrest)
 		timer.Simple(10, function()
 			for k, v in pairs(stoppedUnits) do
 				if k.stopped then k.stopped = nil end
-				k:ForgetEnemy()
+				if IsValid(k) then
+					k:ForgetEnemy()
+				end
 			end
 			enemy.uvbusted = nil
 			enemyScope.FinesDue = 0

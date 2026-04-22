@@ -505,10 +505,11 @@ function ENT:PhysicsUpdate()
 		if UVTargeting then
 			if not isValidTarget or target.uvbusted then
 				if next(UVWantedTableVehicle) ~= nil then -- Look for remaining suspects
-					local suspecttable = UVWantedTableVehicle
-					for k, v in pairs(suspecttable) do
-						if v.uvbusted then
-							table.remove(suspecttable, k)
+					local suspecttable = {}
+					for k, v in pairs(UVWantedTableVehicle) do
+						local scope = UVGetScope(v)
+						if scope.InPursuit then
+							table.insert(suspecttable, v)
 						end
 					end
 					local randomsuspect = suspecttable[math.random(1, #suspecttable)]
