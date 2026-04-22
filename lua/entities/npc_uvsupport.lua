@@ -799,36 +799,36 @@ if SERVER then
 			end
 		end
 		
-		-- local needOffset = false
-		-- local searchRadius = 800
-		-- local aheadMaxDistSq = 500000
-		-- local onWaypointRadiusSq = 40000
-		-- local forwardDotMin = 0.2
-		-- for veh, _ in pairs( UVUnitVehicles ) do
-		-- 	if veh ~= self.v and IsValid(veh) then 
-		-- 		local otherPos = veh:WorldSpaceCenter()
-		-- 		local toOther = otherPos - unitpos
-		-- 		local distSq = toOther:LengthSqr()
-		-- 		local fwdDot = toOther:GetNormalized():Dot(forward)
-		-- 		local distToWpSq = (otherPos - bestWaypoint):LengthSqr()
-		-- 		if ((fwdDot > forwardDotMin and distSq < aheadMaxDistSq) or (distToWpSq < onWaypointRadiusSq)) and velocitySqr > veh:GetVelocity():LengthSqr() then
-		-- 			needOffset = true
-		-- 			break
-		-- 		end
-		-- 	end
-		-- end
-		-- if needOffset then
-		-- 	local right = forward:Cross(vector_up)
-		-- 	if right:LengthSqr() > 0.01 then
-		-- 		right:Normalize()
-		-- 		local offsetAmount = 10
-		-- 		if self.__entIndex % 2 == 0 then
-		-- 			bestWaypoint = bestWaypoint + right * offsetAmount
-		-- 		else
-		-- 			bestWaypoint = bestWaypoint - right * offsetAmount
-		-- 		end
-		-- 	end
-		-- end
+		local needOffset = false
+		local searchRadius = 800
+		local aheadMaxDistSq = 500000
+		local onWaypointRadiusSq = 40000
+		local forwardDotMin = 0.2
+		for veh, _ in pairs( UVUnitVehicles ) do
+			if veh ~= self.v and IsValid(veh) then 
+				local otherPos = veh:WorldSpaceCenter()
+				local toOther = otherPos - unitpos
+				local distSq = toOther:LengthSqr()
+				local fwdDot = toOther:GetNormalized():Dot(forward)
+				local distToWpSq = (otherPos - bestWaypoint):LengthSqr()
+				if ((fwdDot > forwardDotMin and distSq < aheadMaxDistSq) or (distToWpSq < onWaypointRadiusSq)) and velocitySqr > veh:GetVelocity():LengthSqr() then
+					needOffset = true
+					break
+				end
+			end
+		end
+		if needOffset then
+			local right = forward:Cross(vector_up)
+			if right:LengthSqr() > 0.01 then
+				right:Normalize()
+				local offsetAmount = 10
+				if self.__entIndex % 2 == 0 then
+					bestWaypoint = bestWaypoint + right * offsetAmount
+				else
+					bestWaypoint = bestWaypoint - right * offsetAmount
+				end
+			end
+		end
 		
 		return bestWaypoint
 	end

@@ -971,7 +971,6 @@ function UVreconstruct_path( cameFrom, current )
 	
 	-- If we hit the max length, something went wrong
 	if pathLength >= maxPathLength then
-		print("grrr")
 		return false
 	end
 
@@ -4025,7 +4024,7 @@ function UVCheckIfBeingBusted(enemy)
 	end
 	
 	if UVCheckIfWrecked(enemy) or not enemy.uvbusted and enemy:WaterLevel() > 2 or IsValid(UVGetDriver(enemy)) and UVGetDriver(enemy):Health() <= 0 then --Bust conditions.
-		UVBustEnemy(closestunit.UnitVehicle, enemy)
+		UVBustEnemy(enemy, enemy)
 	end
 	
 	local enemyph = enemy:GetPhysicsObject()
