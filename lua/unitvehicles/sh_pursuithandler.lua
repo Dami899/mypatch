@@ -1935,7 +1935,6 @@ if SERVER then
 	UVUnitVehicles = {}
 
 	hook.Add('PursuitEventHook', 'onPursuitEvent', function( type, result )
-		print(type, result)
 		if type == 'onPursuitEnd' then
 			if result == 'Busted' then
 				
@@ -4271,6 +4270,7 @@ else -- CLIENT Settings | HUD/Options
 				UVDeploys = domScope.Deploys
 				UVWrecks = domScope.Wrecks
 				UVTags = domScope.Tags
+				UVFinesDue = string.Comma(domScope.UVFinesDue)
 				UVUnitsChasing = domScope.UnitsChasing
 				UVTimeTillNextHeat = domScope.TimeTillNextHeatEnd > 0 and math.max(0, domScope.TimeTillNextHeatEnd - CurTime()) or nil
 				UVTimerProgress = CurTime() - domScope.PursuitStart
@@ -4287,6 +4287,7 @@ else -- CLIENT Settings | HUD/Options
 			UVDeploys = _activeScope.Deploys
 			UVWrecks = _activeScope.Wrecks
 			UVTags = _activeScope.Tags
+			UVFinesDue = string.Comma(_activeScope.FinesDue)
 			UVUnitsChasing = _activeScope.UnitsChasing
 			UVHUDDisplayPursuit = _activeScope.InPursuit
 			UVHUDDisplayCooldown = _activeScope.InCooldown

@@ -348,7 +348,6 @@ if SERVER then
         self:SetSubMaterial(11, "models/unitvehiclescars/shared/defroster")
         self:SetSubMaterial(17, "models/unitvehiclescars/shared/headlightglass")
         self:SetSubMaterial(18, "models/unitvehiclescars/shared/headlightglass")
-        self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
         self:SetBodygroup( 4, 0 )

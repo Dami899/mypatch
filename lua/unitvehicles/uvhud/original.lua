@@ -335,12 +335,11 @@ UV_UI.pursuit.original.events = {
             draw.SimpleText( spikestripsdodged, "UVFont2", w*0.99, h*0.75, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
             
             -- Time remaining and closing
-            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big")
+            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue") .. " (" .. math.max(0, timeremaining) .. ")", "Big")
             --draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. UVString("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
             local markuptext = "<color=255,255,255><font=UVFont2>".. contenttext .. "</font></color>"
             markup.Parse(markuptext):Draw(w*0.01, h*0.85, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
             
-            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2", w*0.99, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
@@ -453,12 +452,11 @@ UV_UI.pursuit.original.events = {
             draw.SimpleText( spikestripsdodged, "UVFont2", w*0.99, h*0.75, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
             
             -- Time remaining and closing
-            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big")
+            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue") .. " (" .. math.max(0, timeremaining) .. ")", "Big")
             --draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. UVString("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
             local markuptext = "<color=255,255,255><font=UVFont2>".. contenttext .. "</font></color>"
             markup.Parse(markuptext):Draw(w*0.01, h*0.85, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 
-            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2", w*0.99, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
                 self:Close()
@@ -506,6 +504,7 @@ UV_UI.pursuit.original.events = {
         local bounty = escapedtable["Bounty"] or 0
         local tags = escapedtable["Tags"] or 0
         local wrecks = escapedtable["Wrecks"] or 0
+        local finesdue = UVFinesDue or 0
 
         -- Tip
         local TipsPanel = vgui.Create("DFrame")
@@ -519,9 +518,14 @@ UV_UI.pursuit.original.events = {
         TipsPanel:MakePopup()
         TipsPanel:SetKeyboardInputEnabled(false)
         TipsPanel:SetMouseInputEnabled( false )
+
+        local bly = (h / 2) + (math.Round(h*0.56)/2)
         
         TipsPanel.Paint = function(self, w, h)
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+            local finesduetext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVString("uv.results.chase.fines") .. ": $" .. UVFinesDue .. "</font></color>"
+            markup.Parse(finesduetext, w):Draw((w / 2), bly, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 
 		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
 		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
@@ -571,12 +575,10 @@ UV_UI.pursuit.original.events = {
             draw.SimpleText( spikestripsdodged, "UVFont2", w*0.99, h*0.75, Color(255, 255, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
             
             -- Time remaining and closing
-            
-            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue"), "Big")
+            local contenttext = UVReplaceKeybinds("[+jump] " .. UVString("uv.results.continue") .. " (" .. math.max(0, timeremaining) .. ")", "Big")
             --draw.DrawText( "[ " .. UVBindButton("+jump") .. " ] " .. UVString("uv.results.continue"), "UVFont2", w*0.01, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT )
             local markuptext = "<color=255,255,255><font=UVFont2>".. contenttext .. "</font></color>"
             markup.Parse(markuptext):Draw(w*0.01, h*0.85, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
-            draw.DrawText( string.format( UVString("uv.results.autoclose"), math.max(0, timeremaining) ), "UVFont2", w*0.99, h*0.85, Color( 255, 255, 255 ), TEXT_ALIGN_RIGHT )
 			
             if timeremaining < 1 then
                 hook.Remove("CreateMove", "JumpKeyCloseDebrief")
@@ -624,6 +626,7 @@ UV_UI.pursuit.original.events = {
         local bounty = bustedtable["Bounty"] or 0
         local tags = bustedtable["Tags"] or 0
         local wrecks = bustedtable["Wrecks"] or 0
+        local finesdue = UVFinesDue or 0
 
         -- Tip
         local TipsPanel = vgui.Create("DFrame")
@@ -637,9 +640,14 @@ UV_UI.pursuit.original.events = {
         TipsPanel:MakePopup()
         TipsPanel:SetKeyboardInputEnabled(false)
         TipsPanel:SetMouseInputEnabled( false )
+
+        local bly = (h / 2) + (math.Round(h*0.56)/2)
         
         TipsPanel.Paint = function(self, w, h)
             draw.RoundedBox(2, 0, 0, w, h, Color(0,0,0,225))
+
+            local finesduetext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVString("uv.results.chase.fines") .. ": $" .. UVFinesDue .. "</font></color>"
+            markup.Parse(finesduetext, w):Draw((w / 2), bly, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 
 		    local tiptext = "<color=255,255,255><font=UVFont2-Smaller>" .. UVReplaceKeybinds( string.format(UVString("uv.tip"), UVString(randomTipText) ), "Big") .. "</font></color>"
 		    markup.Parse(tiptext, w):Draw(w*0.5, h, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
@@ -831,13 +839,14 @@ local function original_racing_main( ... )
 
     -- Timer
     draw.DrawText(
-    string.format(UVString("uv.race.hud.time.ug")).." "..(current_time or UVDisplayTimeRace( 0 )).." \n"
-    ..string.format(UVString("uv.race.hud.best.ug")).." "..(UVDisplayTimeRace(my_array.BestLapTime or 0)).." ",
-    "UVFont4",
-    w,
-    h / 7,
-    Color(255, 255, 255),
-    TEXT_ALIGN_RIGHT)
+        "\n"..string.format(UVString("uv.race.hud.time.ug")).." "..(current_time or UVDisplayTimeRace( 0 )).." \n"
+        ..string.format(UVString("uv.race.hud.best.ug")).." "..(UVDisplayTimeRace(my_array.BestLapTime or 0)).." ",
+        "UVFont4",
+        w,
+        h / 7,
+        Color(255, 255, 255),
+        TEXT_ALIGN_RIGHT
+    )
     
     -- Racer List
     -- for i = 1, math.Clamp(racer_count, 1, GetConVar("uvhud_original_race_raceramount"):GetString()), 1 do
@@ -1001,6 +1010,18 @@ local function original_pursuit_main( ... )
         surface.SetTextPos( w/1.35, h/10 ) 
         surface.DrawText( UVString("uv.hud.bounty") )
         draw.DrawText( UVBounty, "UVFont2",w/1.005, h/10, Color( 255, 255, 255), TEXT_ALIGN_RIGHT )
+
+        -- Fines due
+        if UVFinesDue then
+            draw.DrawText(
+                UVString("uv.results.chase.fines") .. ": $" .. UVFinesDue .. " ",
+                "UVFont4",
+                w,
+                h / 7,
+                Color(255, 255, 255),
+                TEXT_ALIGN_RIGHT
+            )
+        end
         
         -- if UVHeatLevel == 1 then
         --     UVHeatBountyMin = UVUHeatMinimumBounty1:GetInt()

@@ -2289,7 +2289,7 @@ if SERVER then
 		end
 
 		local vehiclePhysics = IsValid(self.v) and self.v:GetPhysicsObject() or nil
-		if not IsValid(self.v) or not IsValid(vehiclePhysics) then print("no vehicle") SafeRemoveEntity(self) return end --When there's no vehicle, remove Unit Vehicle.
+		if not IsValid(self.v) or not IsValid(vehiclePhysics) then SafeRemoveEntity(self) return end --When there's no vehicle, remove Unit Vehicle.
 		UVDeploys = UVDeploys + 1
 		for _, v in pairs(UVPursuitScopes) do
 			if v.InPursuit then
