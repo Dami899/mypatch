@@ -71,6 +71,7 @@ The content importer will check all your UV content to see if anything is mismat
 - Fixed a consistent error on the Race Information prompt, where the "Host" status was given to any Admin and/or Superadmin that was in a car
 - Fixed that the Speedometer speed values would become jittery when playing for a longer period of time
 - Fixed that the Speedometer's health value could go to "inf" if *Unlimited Durability* was enabled
+- Fixed that Pursuit Tech notifications were pushed up during police chatter
 ]],
 },
 
