@@ -199,41 +199,6 @@ if CLIENT then
 		end
 	end
 
-	function ENT:NFSW_UpdateRearBrakeLights(rearOn, brakeOn)
-		if not self.LightSubMaterials or not self.LightMaterials then return end
-
-		local rearIDs = self.LightSubMaterials.Rearlights or {}
-		local brakeIDs = self.LightSubMaterials.Brakelights or {}
-
-		local rearLookup = {}
-		for i, id in ipairs(rearIDs) do
-			rearLookup[id] = i
-		end
-
-		local brakeLookup = {}
-		for i, id in ipairs(brakeIDs) do
-			brakeLookup[id] = i
-		end
-
-		local allIDs = {}
-		for _, id in ipairs(rearIDs) do allIDs[id] = true end
-		for _, id in ipairs(brakeIDs) do allIDs[id] = true end
-
-		for id, _ in pairs(allIDs) do
-			local mat = ""
-
-			if brakeOn and brakeLookup[id] then
-				local i = brakeLookup[id]
-				mat = self.LightMaterials.Brakelights[i] or ""
-			elseif rearOn and rearLookup[id] then
-				local i = rearLookup[id]
-				mat = self.LightMaterials.Rearlights[i] or ""
-			end
-
-			self:SetSubMaterial(id, mat)
-		end
-	end
-
 	function ENT:NFSW_UpdateLights()
 		if not self.LightMaterials then return end
 
