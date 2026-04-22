@@ -9,7 +9,7 @@ UV = UV or {}
 
 UV.PNotes = {
 ["1.6.0"] = {
-Date = { year = 2026, month = 4, day = 19 },
+Date = { year = 2026, month = 4, day = 24 },
 Type = "Minor",
 Text = [[
 **New Features**
@@ -57,12 +57,15 @@ The content importer will check all your UV content to see if anything is mismat
 - Improved AI Racer Rubberband:
       |-- Now checks for actual players ahead of them before rubberbanding
       |-- If there's no players ahead (only AI), then they'll never rubberband
+- Player Units can now initiate pullovers and pursuits
+      |-- When they see a racer perform an infraction, they can enable their siren to pull them over/start a pursuit
 - Altered the appearance of all UVPD vehicles
 - Altered the appearance of the Racing and Pursuit Name Tags
 - <color=255,255,100>Creator: Units</color> Tool: Removed the Optional Settings when creating a Unit
 - <color=255,255,100>Heat Manager</color>: Removed 'Enable Heat Levels' option; Now always enabled
 - Racers are no longer added to the 'Wanted List' if Dispatch calls out 'Unknown model'
 - The Air Unit now sets their own altitude
+- Default voice preset has been changed to provide more variety
 
 **Fixes**
 - Fixed a consistent error on the Race Information prompt, where the "Host" status was given to any Admin and/or Superadmin that was in a car
