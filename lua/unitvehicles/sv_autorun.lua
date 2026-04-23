@@ -2946,6 +2946,7 @@ function UVIsSeenByUnit(vehicle)
 	local visualrange = (vScope and vScope.Hiding) and 1000000 or 25000000
 
 	for w, _ in pairs(units) do
+		if not IsValid(w) then continue end
 		local withinRange = w:GetPos():DistToSqr(vehicle:GetPos()) < visualrange
 		if not withinRange then continue end
 
@@ -2957,6 +2958,7 @@ function UVIsSeenByUnit(vehicle)
 	end
 
 	for _, w in pairs(airUnits) do
+		if not IsValid(w) then continue end
 		local withinRange = w:GetPos():DistToSqr(vehicle:GetPos()) < visualrange
 		if not withinRange then continue end
 
