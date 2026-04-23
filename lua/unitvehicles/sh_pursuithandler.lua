@@ -4160,7 +4160,9 @@ else -- CLIENT Settings | HUD/Options
 
 		if not UVHeatPlayIntro then
 			UVStopSound()
-			UVHeatPlayTransition = true
+			if UVHUDDisplayPursuit then
+				UVHeatPlayTransition = true
+			end
 		end
 
 		UVLastHeatLevel = UVSelectedHeatTrack
