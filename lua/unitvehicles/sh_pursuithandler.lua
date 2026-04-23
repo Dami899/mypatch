@@ -5325,19 +5325,19 @@ else -- CLIENT Settings | HUD/Options
 					".bullhorn.",
 				}
 
-				local shouldUpdate = true
-				for _, substr in ipairs(excludeSubstrings) do
-					if string.find(key, substr, 1, true) then
-						shouldUpdate = false
-						break
-					end
-				end
+				-- local shouldUpdate = true
+				-- for _, substr in ipairs(excludeSubstrings) do
+					-- if string.find(key, substr, 1, true) then
+						-- shouldUpdate = false
+						-- break
+					-- end
+				-- end
 
-				if shouldUpdate then
-					UV_CurrentSubtitle = key
-					UV_SubtitleEnd = CurTime() + source:GetLength()
-					UV_CurrentSubtitleCallsign = callsign
-				end
+				-- if shouldUpdate then
+					-- UV_CurrentSubtitle = key
+					-- UV_SubtitleEnd = CurTime() + source:GetLength()
+					-- UV_CurrentSubtitleCallsign = callsign
+				-- end
 			end
 		end)
 	end)
