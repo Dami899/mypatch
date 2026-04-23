@@ -3133,6 +3133,8 @@ function UVAddToPlayerUnitListVehicle(vehicle, ply)
 	net.WriteInt(vehicle:GetCreationID(), 32)
 	net.WriteString("unit")
 	net.Broadcast()
+
+	UVUnitVehicles[vehicle] = vehicle
 	
 	if not table.HasValue(UVPlayerUnitTableVehicle, vehicle) then
 		if vehicle.IsSimfphyscar then
