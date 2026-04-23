@@ -9,7 +9,7 @@ UV = UV or {}
 
 UV.PNotes = {
 ["1.6.0"] = {
-Date = { year = 2026, month = 4, day = 23 },
+Date = { year = 2026, month = 4, day = 24 },
 Type = "Minor",
 Text = [[
 **New Features**
