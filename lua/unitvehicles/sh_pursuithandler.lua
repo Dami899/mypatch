@@ -4247,6 +4247,9 @@ else -- CLIENT Settings | HUD/Options
 					UVResetRandomHeatTrack()
 				end
 			end
+		else
+			UVHeatPlayTransition = false
+			UVHeatPlayIntro = true
 		end
 
 		UVHUDWantedSuspectsNumber = UV_GetInPursuitCount()
