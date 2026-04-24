@@ -4,7 +4,8 @@ ENT.Type = "anim"
 ENT.Base = "base_glide_car"
 ENT.Author = "Sergeant Armstrong"
 
-ENT.PrintName = "Chevrolet Corvette Grand Sport (C7) Police Cruiser"
+-- ENT.PrintName = "Chevrolet Corvette Grand Sport (C7) Police Cruiser"
+ENT.PrintName = "#uv.veh.corvette"
 
 ENT.VehicleName = "uv_corvettec7" -- Change this to the class name of your vehicle
 ENT.EntityModelName = "uv_corvettec7" -- Change this to the model name of your vehicle
@@ -70,8 +71,8 @@ if CLIENT then
     }
     
     ENT.LightSprites = {
-        { type = "headlight", offset = Vector(82.13,30.39,23.2), size = 30, color = Color(215,240,255,155),ifBodygroupId = 12, ifSubModelId = 0, dir = Vector( 1, 0, 0 ), },
-        { type = "headlight", offset = Vector(82.13,-30.39,23.2), size = 30, color = Color(215,240,255,155),ifBodygroupId = 12, ifSubModelId = 0, dir = Vector( 1, 0, 0 ), },
+        { type = "headlight", offset = Vector(82.13,30.39,23.2), size = 30, color = Color(215,240,255),ifBodygroupId = 12, ifSubModelId = 0, dir = Vector( 1, 0, 0 ), },
+        { type = "headlight", offset = Vector(82.13,-30.39,23.2), size = 30, color = Color(215,240,255),ifBodygroupId = 12, ifSubModelId = 0, dir = Vector( 1, 0, 0 ), },
 
         { type = "taillight", offset = Vector(-93.69,27.14,32.45), size = 35, color = Color(255,0,0,50),ifBodygroupId = 11, ifSubModelId = 0, dir = Vector( -1, 0, 0 ), },
         { type = "taillight", offset = Vector(-93.69,-27.14,32.45), size = 35, color = Color(255,0,0,50),ifBodygroupId = 11, ifSubModelId = 0, dir = Vector( -1, 0, 0 ), },
@@ -86,6 +87,11 @@ if CLIENT then
         { type = "reverse", offset = Vector(-95.64,18,33.83), size = 30, color = Color(255,255,255),ifBodygroupId = 11, ifSubModelId = 0, dir = Vector( -1, 0, 0 ), },
         { type = "reverse", offset = Vector(-95.64,-18,33.83), size = 30, color = Color(255,255,255),ifBodygroupId = 11, ifSubModelId = 0, dir = Vector( -1, 0, 0 ), }, 
         
+        { type = "signal_left", offset = Vector(74.84,36.21,26.25), ifBodygroupId = 11, ifSubModelId = 0, dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0), size = 30 },
+        { type = "signal_right", offset = Vector(74.84,-36.21,26.25), ifBodygroupId = 11, ifSubModelId = 0, dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0), size = 30 },
+
+        { type = "signal_left", offset = Vector(-91.65,27.1,34.1), ifBodygroupId = 11, ifSubModelId = 0, color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ), size = 30 },
+        { type = "signal_right", offset = Vector(-91.65,-27.1,34.1), ifBodygroupId = 11, ifSubModelId = 0, color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ), size = 30 },
     }
 
     ENT.SirenCycle = 0.3
@@ -97,38 +103,46 @@ if CLIENT then
 
     -- WIG-WAG
 
-        { offset = Vector(82.13,30.39,23.2), time = 0, duration = 0.5,  size = 30, color = Color(215,240,255,155), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(82.13,-30.39,23.2), time = 0.5, duration = 0.5, size = 30, color = Color(215,240,255,155), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(82.13,30.39,23.2), time = 0, duration = 0.5,  size = 50, color = Color(215,240,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(82.13,-30.39,23.2), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255), dir = Vector( 1, 0, 0 ), },
 
 	-- RED
+
+        { offset = Vector(98.32,-13.73,12.45), ifBodygroupId = 1, ifSubModelId = 0, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(103.56,-12.08,10.69), ifBodygroupId = 1, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(105.82,-11.03,8.95), ifBodygroupId = 1, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
     
-        { offset = Vector(-98.38,-10.61,20.18), time = 0, duration = 0.5, size = 30, color = Color(255,30,0,175), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-22.01,19.92,53.04), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), },
-        { offset = Vector(-22.01,-19.92,53.04), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), },
-        { offset = Vector(-22.01,14.26,53.04), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), },
-        { offset = Vector(-22.01,-14.26,53.04), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), },
-        { offset = Vector(-14.72,19.92,53.04), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), },
-        { offset = Vector(-14.72,-19.92,53.04), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), },
-        { offset = Vector(-14.72,14.26,53.04), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), },
-        { offset = Vector(-14.72,-14.26,53.04), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), },
-        { offset = Vector(-22.01,19.92,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0,125), },
-        { offset = Vector(-22.01,-19.92,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0,125), },
-        { offset = Vector(-14.72,19.92,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0,125), },
-        { offset = Vector(-14.72,-19.92,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0,125), },
+        { offset = Vector(-98.38,10.61,20.18), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-22.01,19.92,53.04), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-22.01,-19.92,53.04), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-22.01,14.26,53.04), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-22.01,-14.26,53.04), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-14.72,19.92,53.04), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-14.72,-19.92,53.04), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-14.72,14.26,53.04), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-14.72,-14.26,53.04), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(-22.01,19.92,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector(-22.01,-19.92,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector(-14.72,19.92,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
+        { offset = Vector(-14.72,-19.92,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
 
 	-- BLUE
 
-        { offset = Vector(-98.38,10.61,20.18), time = 0.5, duration = 0.5, size = 30, color = Color(0,115,255,175), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-22.01,8.6,53.04), time = 0.5, duration = 0.5, size = 90, color = Color(0,115,255,175), },
-        { offset = Vector(-22.01,2.91,53.04), time = 0.5, duration = 0.5, size = 90, color = Color(0,115,255,175), },
-        { offset = Vector(-22.01,-8.6,53.04), time = 0.5, duration = 0.5, size = 90, color = Color(0,115,255,175), },
-        { offset = Vector(-22.01,-2.91,53.04), time = 0.5, duration = 0.5, size = 90, color = Color(0,115,255,175), },
-        { offset = Vector(-14.72,8.6,53.04), time = 0.5, duration = 0.5, size = 90, color = Color(0,115,255,175), },
-        { offset = Vector(-14.72,2.91,53.04), time = 0.5, duration = 0.5, size = 90, color = Color(0,115,255,175), },
-        { offset = Vector(-14.72,-8.6,53.04), time = 0.5, duration = 0.5, size = 90, color = Color(0,115,255,175), },
-        { offset = Vector(-14.72,-2.91,53.04), time = 0.5, duration = 0.5, size = 90, color = Color(0,115,255,175), },
-        { offset = Vector(-22.01,0,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255,175), },
-        { offset = Vector(-14.72,0,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255,175), },
+        { offset = Vector(98.32,13.73,12.45), ifBodygroupId = 1, ifSubModelId = 0, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(101.03,14.71,11.56), ifBodygroupId = 1, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(101.98,15.64,11.02), ifBodygroupId = 1, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+
+        { offset = Vector(-98.38,-10.61,20.18), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-22.01,8.6,53.04), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-22.01,2.91,53.04), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-22.01,-8.6,53.04), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-22.01,-2.91,53.04), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-14.72,8.6,53.04), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-14.72,2.91,53.04), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-14.72,-8.6,53.04), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-14.72,-2.91,53.04), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(-22.01,0,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
+        { offset = Vector(-14.72,0,53.04),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
 
     }
     
@@ -142,28 +156,28 @@ if CLIENT then
     local Lights = {
         ['Off'] = {
             [18] = "",
-            [15] = "",
+            [16] = "",
         },
         ['On'] = {},
         ['Brake'] = {
             [18] = lightsPath .. "brakelightlit",
-            [15] = lightsPath .. "brakelightlit",
+            [16] = lightsPath .. "brakelightlit",
         },
         ['Beams'] = {
             ['Off'] = {
                 [18] = "",
                 [21] = "",
-                [15] = "",
+                [16] = "",
             },
             [1] = {
                 [18] = lightsPath .. "brakelightlit",
                 [21] = lightsPath .. "lit2",
-                [15] = "",
+                [16] = "",
             },
             [2] = {
                 [18] = lightsPath .. "brakelightlit",
                 [21] = lightsPath .. "lit2",
-                [15] = "",
+                [16] = "",
             }
         }
     }
@@ -229,7 +243,7 @@ if SERVER then
             [-1] = 3.2,
             [0] = 0,
             [1] = 3.50,
-            [2] = 2.0,
+            [2] = 2.2,
             [3] = 1.5,
             [4] = 1.15,
             [5] = 0.9,
@@ -266,9 +280,9 @@ if SERVER then
         self:SetBrakePower( 3000 )
         
         self:SetMinRPM( 800 ) 
-        self:SetMaxRPM( 16000 ) 
-        self:SetMinRPMTorque( 4200 )
-        self:SetMaxRPMTorque( 4600 )
+        self:SetMaxRPM( 17000 ) 
+        self:SetMinRPMTorque( 5000 )
+        self:SetMaxRPMTorque( 4400 )
         
         self:SetMaxSteerAngle( 45 )
         self:SetSteerConeChangeRate( 8 )
@@ -277,7 +291,7 @@ if SERVER then
         self:SetCounterSteer ( 0.6 )
         
         self:SetForwardTractionMax( 6800 )
-        self:SetForwardTractionBias( 0.00 )
+        self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 35 )
         self:SetSideTractionMaxAng( 30 )
         self:SetSideTractionMax( 5000 ) 

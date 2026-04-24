@@ -30,6 +30,14 @@ UVRaceReverseCatchupGap = CreateConVar( "unitvehicle_racercatchup_rev_gap", 2, {
 
 UVMenuFirstCreate = CreateConVar( "unitvehicle_uvmenu_firstsetup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, whenever you open the UV Menu via the Context Menu, you'll be prompted to go through the first-time setup." )
 
+-- Data Import
+UVMenuDataReplaceSV = CreateConVar( "uvmenu_enabledatareplace_server", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If enabled, allows the server to replace data available through third-party addons." )
+
+if CLIENT then
+	CreateClientConVar("uvmenu_enabledataimport", 1, true, false)
+	CreateClientConVar("uvmenu_enabledatareplace", 1, true, false)
+end
+
 function UVFormLeaderboard(racers, overrideVehicle)
 	local lPr = CLIENT and LocalPlayer()
 	local sorted_table = {}
@@ -239,7 +247,6 @@ function UVFormLeaderboard(racers, overrideVehicle)
 	return sorted_table, leaderboardLines
 end
 
-
 if SERVER then	
 	UVRaceTable = {}
 	UVRaceCurrentParticipants = {}
@@ -315,7 +322,7 @@ if SERVER then
 
 		-- Inject host dynamically
 		for _, ply in ipairs(player.GetAll()) do
-			if ply:IsAdmin() or ply:IsSuperAdmin() and (UVRace_CurrentTrackHost and ply:Nick() == UVRace_CurrentTrackHost) then
+			if UVRaceCurrentHost and ply == UVRaceCurrentHost then
 				local veh = UVGetVehicle(ply)
 				if IsValid(veh) then
 					local id = veh:EntIndex()
@@ -621,6 +628,7 @@ if SERVER then
 		uvbestlaptime = nil
 		UVRaceInEffect = nil
 		UVRaceInProgress = nil
+		UVRaceCurrentHost = nil
 		UVRaceFirstSplitTriggered = nil
 		UVRace_UsingNodes = nil
 		
@@ -868,22 +876,22 @@ if SERVER then
 		UVValidateParticipants()
 	end)
 	
-	local lastHostVeh
+	-- local lastHostVeh
 
-	hook.Add("Think", "UVRaceHostVehicleWatch", function()
-		if not UVRaceInEffect then return end
+	-- hook.Add("Think", "UVRaceHostVehicleWatch", function()
+	-- 	if not UVRaceInEffect then return end
 
-		for _, ply in ipairs(player.GetAll()) do
-			if ply:IsSuperAdmin() then
-				local veh = ply:GetVehicle()
-				if IsValid(veh) and veh ~= lastHostVeh then
-					lastHostVeh = veh
-					UVBroadcastRacerList()
-				end
-				break
-			end
-		end
-	end)
+	-- 	for _, ply in ipairs(player.GetAll()) do
+	-- 		if ply:IsSuperAdmin() then
+	-- 			local veh = ply:GetVehicle()
+	-- 			if IsValid(veh) and veh ~= lastHostVeh then
+	-- 				lastHostVeh = veh
+	-- 				UVBroadcastRacerList()
+	-- 			end
+	-- 			break
+	-- 		end
+	-- 	end
+	-- end)
 
 	hook.Add( "Think", "UVRacing", function( ply )
 		if not UVRaceInEffect then return end
@@ -1123,7 +1131,7 @@ if SERVER then
 		RunConsoleCommand("uv_despawnvehicles")
 
 		
-		for k, v in pairs( UVUnitVehicles ) do
+		for v, _ in pairs( UVUnitVehicles ) do
 			if IsValid(v) then
 				v:Remove()
 			end
@@ -1133,7 +1141,7 @@ if SERVER then
 		for _, v in ents.Iterator() do
 			if not table.HasValue(UVRaceCurrentParticipants, v) then
 				if (v.IsGlideVehicle or v.IsSimfphyscar or v:GetClass() == "prop_vehicle_jeep" or v.LVS) and not v.wrecked and not v.UnitVehicle then
-					local driver = v:GetDriver()
+					local driver = UVGetDriver(v)
 					if IsValid(driver) and driver:IsPlayer() and driver == ply then
 						UVRaceAddParticipant(v, nil, true)
 					end
@@ -1151,7 +1159,7 @@ if SERVER then
 
 		local function processBatch(batch)
 			for _, v in ipairs(batch) do
-				local driver = v:GetDriver()
+				local driver = UVGetDriver(v)
 
 				if cffunctions then 
 					CFtoggleNitrous(v, false)
@@ -1208,7 +1216,7 @@ if SERVER then
 			if not table.HasValue(UVRaceCurrentParticipants, v) then
 				if (v.IsGlideVehicle or v.IsSimfphyscar or v:GetClass() == "prop_vehicle_jeep" or v.LVS) and not v.wrecked and not v.UnitVehicle and not v.uvbusted then
 
-					local driver = v:GetDriver()
+					local driver = UVGetDriver(v)
 					local is_player = IsValid(driver) and driver:IsPlayer()
 
 					if not v.raceinvited and (v.RacerVehicle or (is_player and driver ~= ply)) then
@@ -1367,6 +1375,7 @@ if SERVER then
 
 				UVRaceEnd()
 				UVCounterActive = false
+				UVRaceCurrentHost = nil
 		
 				net.Start( "uvrace_end" )
 				net.Broadcast()
@@ -1376,10 +1385,12 @@ if SERVER then
 
 			local tname = args[1]:Split(".")[2]
 
+			UVRaceCurrentHost = ply
+
 			net.Start("UVRace_TrackReady")
 			net.WriteString(trackName:Replace("_", " "))
 			net.WriteString(author)
-			net.WriteString(ply:Nick())
+			net.WritePlayer(ply)
 			net.Broadcast()
 			UVBroadcastRacerList()
 		end)
@@ -2109,6 +2120,13 @@ else -- CLIENT stuff
 	UVRaceStarting = false
 
 	net.Receive( "uvrace_end", function()
+		UVRaceCountdown = nil
+		UVRaceCinematicOverlay = nil
+
+		UVHUDRaceFinishCountdownStarted = false
+		UVHUDRaceFinishEndTime = nil
+		UVRaceStarting = false
+
 		if not UVHUDRace then return end
 
 		UVHUDRace = false
@@ -2116,16 +2134,8 @@ else -- CLIENT stuff
 		for vehicle, array in pairs( UVHUDRaceInfo.Participants ) do
 			if IsValid( vehicle ) and vehicle:GetDriver() == LocalPlayer() then array.LocalPlayer = true end
 		end
-
-		UVRaceCountdown = nil
-		UVRaceCinematicOverlay = nil
-
-		UVHUDRaceFinishCountdownStarted = false
-		UVHUDRaceFinishEndTime = nil
 		
 		UVHUD_CloseTimedBar( "race_end" )
-
-		UVRaceStarting = false
 
 		UVWorldCountdown = nil
 		hook.Remove("HUDPaint", "UV_Countdown_World")
@@ -2496,6 +2506,8 @@ else -- CLIENT stuff
 		end
 	end)
 
+	local smoothedSpeed = 0
+
 	hook.Add("HUDPaint", "UVHUDRace", function()
 		local w, h = ScrW(), ScrH()
 		local hudyes = GetConVar("cl_drawhud"):GetBool()
@@ -2506,8 +2518,14 @@ else -- CLIENT stuff
 		if UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.speedometer[speedotype] and UV_UI.speedometer[speedotype].main) and table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, Glide.currentVehicle.BaseClass.ClassName ) then
 			local speed = Glide.currentVehicle:GetVelocity():Length()
 
-			local kmh = math.floor(speed * 3600 * 0.0000254 * 0.75)
-			local mph = math.floor(speed * 3600 / 63360 * 0.75)
+			-- smooth it (adjust 8–12 for responsiveness)
+			smoothedSpeed = Lerp(FrameTime() * 10, smoothedSpeed, speed)
+
+			local kmh = math.floor(smoothedSpeed * 3600 * 0.0000254 * 0.75)
+			local mph = math.floor(smoothedSpeed * 3600 / 63360 * 0.75)
+
+			-- local kmh = math.floor(speed * 3600 * 0.0000254 * 0.75)
+			-- local mph = math.floor(speed * 3600 / 63360 * 0.75)
 
 			local gear = Glide.currentVehicle:GetGear()
 			local rpm = math.floor(Glide.currentVehicle:GetEngineRPM())
@@ -2526,6 +2544,7 @@ else -- CLIENT stuff
 			local redlinestrength = (Glide.currentVehicle.stream and Glide.currentVehicle.stream.redlineFrequency) or 0
 			
 			local health = Glide.currentVehicle:GetEngineHealth()
+			health = math.max(0, math.min(1, health))
 			
 			local cfnitrousenabled = Glide.currentVehicle:GetNWBool( 'NitrousEnabled' )
 			local cfsbenabled = Glide.currentVehicle:GetNWBool( 'SpeedbreakerEnabled' )
@@ -2861,7 +2880,7 @@ else -- CLIENT stuff
 				return a.dist < b.dist
 			end)
 
-			local maxSquares = 4
+			local maxSquares = RacerTagsMaxNr:GetInt() or 3
 			local count = math.min(#renderQueue, maxSquares)
 
 			for i = count, 1, -1 do
@@ -2937,7 +2956,7 @@ else -- CLIENT stuff
 	net.Receive("UVRace_TrackReady", function()
 		local name = net.ReadString()
 		local author = net.ReadString()
-		local hostedby = net.ReadString()
+		local plr = net.ReadPlayer()
 
 		if name == "?" and author == "?" then
 			UVRace_CurrentTrackName = nil
@@ -2946,7 +2965,7 @@ else -- CLIENT stuff
 		else
 			UVRace_CurrentTrackName = name
 			UVRace_CurrentTrackAuthor = author
-			UVRace_CurrentTrackHost = hostedby
+			UVRace_CurrentTrackHost = plr
 		end
 	end)
 
@@ -2964,7 +2983,7 @@ else -- CLIENT stuff
 			if not IsValid(ply) then return false end
 
 			-- Host always sees it
-			if UVRace_CurrentTrackHost and ply:Nick() == UVRace_CurrentTrackHost then
+			if UVRace_CurrentTrackHost and ply == UVRace_CurrentTrackHost then
 				return true
 			end
 

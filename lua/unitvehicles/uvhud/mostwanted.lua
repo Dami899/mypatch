@@ -328,8 +328,8 @@ UV_UI.racing.mostwanted.events = {
     ShowResults = function(sortedRacers) -- Most Wanted
         local debriefcolor = Color(255, 183, 61)
         
-        local w = ScrW()
-        local h = ScrH()
+		local w = UV_GetW()
+		local h = UV_GetH()
         
         --------------------------------------
         
@@ -990,8 +990,8 @@ UV_UI.pursuit.mostwanted.events = {
 			unservedinfractions = count
 		end
 
-        local w = ScrW()
-        local h = ScrH()
+		local w = UV_GetW()
+		local h = UV_GetH()
         
         --------------------------------------
         
@@ -1000,9 +1000,9 @@ UV_UI.pursuit.mostwanted.events = {
         local deploys = debriefdata["Deploys"]
         local roadblocksdodged = debriefdata["Roadblocks"]
         local spikestripsdodged = debriefdata["Spikestrips"]
-        local bounty = UVBounty or 0
-        local tags = UVTags or 0
-        local wrecks = UVWrecks or 0
+        local bounty = debriefdata["Bounty"] or 0
+        local tags = debriefdata["Tags"] or 0
+        local wrecks = debriefdata["Wrecks"] or 0
         local suspects = UVHUDWantedSuspectsNumber or 0
         
         local ResultPanel = vgui.Create("DFrame")
@@ -1491,7 +1491,7 @@ UV_UI.pursuit.mostwanted.events = {
 	end,
 	onPullOverRequest = function(...)
 		UV_UI.racing.mostwanted.events.CenterNotification({
-			text = UVString("uv.hud.fine.pullover"),
+			text = UVHUDCopMode and UVString("uv.hud.fine.pullover.unit") or UVString("uv.hud.fine.pullover"),
 			textNoFall = true,
 			noIcon = true,
 			immediate = true,
@@ -1499,7 +1499,7 @@ UV_UI.pursuit.mostwanted.events = {
 	end,
 	onFined = function( finenr, finesdue )
 		UV_UI.racing.mostwanted.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finenr),
+			text = string.format( UVHUDCopMode and UVString("uv.hud.fine.fined.unit") or UVString("uv.hud.fine.fined"), finenr),
 			textNoFall = true,
 			noIcon = true,
 			immediate = true,
@@ -1800,8 +1800,8 @@ UV_UI.pursuit.mostwanted.scanner = ScannerCode
 
 -- Functions
 local function mw_racing_main( ... )
-	local w = ScrW()
-	local h = ScrH()
+	local w = UV_GetW()
+	local h = UV_GetH()
 
 	local scale = math.Clamp(UVHUDXScale:GetFloat(), 0.1, 1)
 	local deadzone = math.Clamp(UVHUDXDeadzone:GetFloat(), 0, 500)
@@ -1818,39 +1818,39 @@ local function mw_racing_main( ... )
     -- Timer
     surface.SetMaterial(UVMaterials["RACE_BG_TIME"])
     surface.SetDrawColor(0, 0, 0, 255)
-    surface.DrawTexturedRect( UV_UI.X(w * 0.8), h * 0.096, UV_UI.W(w * 0.19), h * 0.055 )
+    surface.DrawTexturedRect( UV_UI.X(w * 0.8), UV_UI.Y(h * 0.096), UV_UI.W(w * 0.19), h * 0.055 )
 
-    DrawIcon( UVMaterials["CLOCK"], UV_UI.X(w * 0.815), h * 0.124, 0.05, UVColors.MW_Accent )
+    DrawIcon( UVMaterials["CLOCK"], UV_UI.X(w * 0.815), UV_UI.Y(h * 0.124), 0.05, UVColors.MW_Accent )
 
     draw.DrawText(
         Carbon_FormatRaceTime((UVHUDRaceInfo.Info.Started and (CurTime() - UVHUDRaceInfo.Info.Time)) or 0),
-		"UVFont5UI", UV_UI.X(w * 0.965), h * 0.1075, UVColors.MW_Accent, TEXT_ALIGN_RIGHT
+		"UVFont5UI", UV_UI.X(w * 0.965), UV_UI.Y(h * 0.1075), UVColors.MW_Accent, TEXT_ALIGN_RIGHT
 	)
 
     -- Lap & Checkpoint Counter
     surface.SetDrawColor(0, 0, 0, 175)
     surface.DrawRect(
         UV_UI.X(w * 0.8),
-        h * 0.155,
+        UV_UI.Y(h * 0.155),
         UV_UI.W(w * 0.174),
         h * 0.05
     )
 
     if UVHUDRaceInfo.Info.Laps > 1 then
         draw.DrawText(UVString("uv.race.hud.lap"),"UVFont5UI",
-            UV_UI.X(w * 0.805), h * 0.16, Color(255,255,255), TEXT_ALIGN_LEFT)
+            UV_UI.X(w * 0.805), UV_UI.Y(h * 0.16), Color(255,255,255), TEXT_ALIGN_LEFT)
 
         draw.DrawText(my_array.Lap .. "/" .. UVHUDRaceInfo.Info.Laps,"UVFont5UI",
-            UV_UI.X(w * 0.97), h * 0.16, Color(255,255,255), TEXT_ALIGN_RIGHT)
+            UV_UI.X(w * 0.97), UV_UI.Y(h * 0.16), Color(255,255,255), TEXT_ALIGN_RIGHT)
     else
         draw.DrawText(UVString("uv.race.hud.complete"),"UVFont5UI",
-            UV_UI.X(w * 0.805), h * 0.16, Color(255,255,255), TEXT_ALIGN_LEFT)
+            UV_UI.X(w * 0.805), UV_UI.Y(h * 0.16), Color(255,255,255), TEXT_ALIGN_LEFT)
 
         draw.DrawText(
             math.floor(((checkpoint_count / GetGlobalInt("uvrace_checkpoints")) * 100)) .. "%",
             "UVFont5UI",
             UV_UI.X(w * 0.97),
-            h * 0.16,
+            UV_UI.Y(h * 0.16),
             Color(255,255,255),
             TEXT_ALIGN_RIGHT
         )
@@ -1862,7 +1862,7 @@ local function mw_racing_main( ... )
         surface.SetDrawColor(0, 0, 0, 255)
         surface.DrawTexturedRect(
             UV_UI.X(w * 0.7175),
-            h * 0.094,
+            UV_UI.Y(h * 0.094),
             UV_UI.W(w * 0.08),
             h * 0.112
         )
@@ -1870,16 +1870,16 @@ local function mw_racing_main( ... )
         surface.SetDrawColor(255, 255, 255, 255)
         surface.DrawRect(
             UV_UI.X(w * 0.745),
-            h * 0.15,
+            UV_UI.Y(h * 0.15),
             UV_UI.W(w * 0.04),
             h * 0.005
         )
 
         draw.DrawText(UVHUDRaceCurrentPos,"UVFont5",
-            UV_UI.X(w * 0.765), h * 0.107, UVColors.MW_Accent, TEXT_ALIGN_CENTER)
+            UV_UI.X(w * 0.765), UV_UI.Y(h * 0.107), UVColors.MW_Accent, TEXT_ALIGN_CENTER)
 
         draw.DrawText(UVHUDRaceCurrentParticipants,"UVFont5",
-            UV_UI.X(w * 0.765), h * 0.155, Color(255,255,255), TEXT_ALIGN_CENTER)
+            UV_UI.X(w * 0.765), UV_UI.Y(h * 0.155), Color(255,255,255), TEXT_ALIGN_CENTER)
     end
 
     -- Racer List
@@ -1941,7 +1941,7 @@ local function mw_racing_main( ... )
         end
 
         draw.NoTexture()
-        surface.DrawRect( UV_UI.X(w * 0.7275), h * 0.185 + racercount, UV_UI.W(w * 0.2475), h * 0.025 )
+        surface.DrawRect( UV_UI.X(w * 0.7275), UV_UI.Y(h * 0.185) + racercount, UV_UI.W(w * 0.2475), h * 0.025 )
 
         local text = alt and (status_text) or (racer_name)
 
@@ -1955,8 +1955,8 @@ local function mw_racing_main( ... )
 			text = text .. "..."
 		end
 
-		draw.SimpleTextOutlined( i, "UVMostWantedLeaderboardFont", UV_UI.X(w * 0.73), (h * 0.185) + racercount, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 0.75, Color(0, 0, 0, 75) )
-		draw.SimpleTextOutlined( text, "UVMostWantedLeaderboardFont", UV_UI.X(w * 0.97), (h * 0.185) + racercount, color, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 0.75, Color(0, 0, 0, 75) )
+		draw.SimpleTextOutlined( i, "UVMostWantedLeaderboardFont", UV_UI.X(w * 0.73), UV_UI.Y(h * 0.185) + racercount, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 0.75, Color(0, 0, 0, 75) )
+		draw.SimpleTextOutlined( text, "UVMostWantedLeaderboardFont", UV_UI.X(w * 0.97), UV_UI.Y(h * 0.185) + racercount, color, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 0.75, Color(0, 0, 0, 75) )
     end
 end
 
@@ -1969,8 +1969,8 @@ local function mw_pursuit_main( ... )
     
     local vehicle = LocalPlayer():GetVehicle()
     
-    local w = ScrW()
-    local h = ScrH()
+	local w = UV_GetW()
+	local h = UV_GetH()
 	
 	local scale = math.Clamp(UVHUDXScale:GetFloat(), 0.1, 1)
 	local deadzone = math.Clamp(UVHUDXDeadzone:GetFloat(), 0, 500)
@@ -2044,45 +2044,45 @@ local function mw_pursuit_main( ... )
         surface.SetDrawColor(223, 184, 127, 100 * math.abs(math.sin(RealTime() * 2.75))) -- Main border
     end
     surface.SetMaterial(UVMaterials["PURSUIT_BG_PULSE"])
-    surface.DrawTexturedRect(UV_UI.X(w * 0.7), h * 0.101, UV_UI.W(w * 0.275), h * 0.1175)
+    surface.DrawTexturedRect(UV_UI.X(w * 0.7), UV_UI.Y(h * 0.101), UV_UI.W(w * 0.275), h * 0.1175)
     
     surface.SetDrawColor(0, 0, 0, 255) -- Timer BG
     surface.SetMaterial(UVMaterials["PURSUIT_BG_TOP"])
-    surface.DrawTexturedRect(UV_UI.X(w * 0.7125), h * 0.1075, UV_UI.W(w * 0.2575), h * 0.05)
+    surface.DrawTexturedRect(UV_UI.X(w * 0.7125), UV_UI.Y(h * 0.1075), UV_UI.W(w * 0.2575), h * 0.05)
     
     surface.SetDrawColor(0, 0, 0, 255) -- Bounty BG
     surface.SetMaterial(UVMaterials["PURSUIT_BG_BOTTOM"])
-    surface.DrawTexturedRect(UV_UI.X(w * 0.707), h * 0.16, UV_UI.W(w * 0.2625), h * 0.05)
+    surface.DrawTexturedRect(UV_UI.X(w * 0.707), UV_UI.Y(h * 0.16), UV_UI.W(w * 0.2625), h * 0.05)
     
     local milestoneamount = 0
     local milestoneh = 0
     
     if milestoneamount > 0 and not UVHUDCopMode then
         surface.SetDrawColor(0, 0, 0, 150) -- Milestone BG
-        surface.DrawRect(UV_UI.X(w * 0.71), h * 0.215, UV_UI.W(w * 0.2575), h * 0.035)
+        surface.DrawRect(UV_UI.X(w * 0.71), UV_UI.Y(h * 0.215), UV_UI.W(w * 0.2575), h * 0.035)
         
-        draw.DrawText(UVString("uv.hud.milestones"),"UVFont5UI",UV_UI.X(w * 0.7125),h * 0.2125,Color(255, 255, 255),TEXT_ALIGN_LEFT) -- Bounty Text
-        draw.DrawText(milestoneamount, "UVFont5UI", UV_UI.X(w * 0.965), h * 0.2125, Color(255, 255, 255), TEXT_ALIGN_RIGHT) -- Bounty Counter
+        draw.DrawText(UVString("uv.hud.milestones"),"UVFont5UI",UV_UI.X(w * 0.7125),UV_UI.Y(h * 0.2125),Color(255, 255, 255),TEXT_ALIGN_LEFT) -- Bounty Text
+        draw.DrawText(milestoneamount, "UVFont5UI", UV_UI.X(w * 0.965), UV_UI.Y(h * 0.2125), Color(255, 255, 255), TEXT_ALIGN_RIGHT) -- Bounty Counter
         
         for i = 1, math.min(milestoneamount, 5) do
             surface.SetDrawColor(223, 184, 127, 150) -- Milestone Icon BG's
-            surface.DrawRect(UV_UI.X(w * 0.71 + (i - 1) * (w * 0.05175)), h * 0.25, UV_UI.W(w * 0.05075), h * 0.065)
-            DrawIcon(UVMaterials["CLOCK_BG"], UV_UI.X(w * 0.735 + (i - 1) * (w * 0.05175)), h * 0.28, .075, Color(255, 255, 255, 100))
+            surface.DrawRect(UV_UI.X(w * 0.71 + (i - 1) * (w * 0.05175)), UV_UI.Y(h * 0.25), UV_UI.W(w * 0.05075), h * 0.065)
+            DrawIcon(UVMaterials["CLOCK_BG"], UV_UI.X(w * 0.735 + (i - 1) * (w * 0.05175)), UV_UI.Y(h * 0.28), .075, Color(255, 255, 255, 100))
         end
-        milestoneh = h * 0.1025
+        milestoneh = UV_UI.Y(h * 0.1025)
     end
     
     -- Timer
-    DrawIcon(UVMaterials["CLOCK"], UV_UI.X(w * 0.735), h * 0.1325, .0625, UVHUDCopMode and UVColors.MW_Cop or UVColors.MW_Accent) -- Icon
-    draw.DrawText(UVTimer, "UVFont5UI", UV_UI.X(w * 0.965), h * 0.115, UVHUDCopMode and UVColors.MW_Cop or UVColors.MW_Accent, TEXT_ALIGN_RIGHT)
+    DrawIcon(UVMaterials["CLOCK"], UV_UI.X(w * 0.735), UV_UI.Y(h * 0.1325), .0625, UVHUDCopMode and UVColors.MW_Cop or UVColors.MW_Accent) -- Icon
+    draw.DrawText(UVTimer, "UVFont5UI", UV_UI.X(w * 0.965), UV_UI.Y(h * 0.115), UVHUDCopMode and UVColors.MW_Cop or UVColors.MW_Accent, TEXT_ALIGN_RIGHT)
     
     -- Bounty
-    draw.DrawText(UVString("uv.hud.bounty"),"UVFont5UI", UV_UI.X(w * 0.7175), h * 0.1625, Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Bounty Text
-    draw.DrawText(UVBounty, "UVFont5UI", UV_UI.X(w * 0.965), h * 0.1625, Color(255, 255, 255), TEXT_ALIGN_RIGHT) -- Bounty Counter
+    draw.DrawText(UVString("uv.hud.bounty"),"UVFont5UI", UV_UI.X(w * 0.7175), UV_UI.Y(h * 0.1625), Color(255, 255, 255), TEXT_ALIGN_LEFT) -- Bounty Text
+    draw.DrawText(UVBounty, "UVFont5UI", UV_UI.X(w * 0.965), UV_UI.Y(h * 0.1625), Color(255, 255, 255), TEXT_ALIGN_RIGHT) -- Bounty Counter
     
     -- Heat Level
     surface.SetDrawColor(0, 0, 0, 200)
-    surface.DrawRect(UV_UI.X(w * 0.71), h * 0.2175 + milestoneh, UV_UI.W(w * 0.036), h * 0.035)
+    surface.DrawRect(UV_UI.X(w * 0.71), UV_UI.Y(h * 0.2175) + milestoneh, UV_UI.W(w * 0.036), h * 0.035)
 
     local UVHeatMinConVar = GetConVar( 'unitvehicle_unit_heatminimumbounty' .. UVHeatLevel )
     local UVHeatMaxConVar = GetConVar( 'unitvehicle_unit_heatminimumbounty' .. UVHeatLevel + 1 )
@@ -2090,11 +2090,11 @@ local function mw_pursuit_main( ... )
     UVHeatBountyMin = ( UVHeatMinConVar and UVHeatMinConVar:GetInt() ) or math.huge
     UVHeatBountyMax = ( UVHeatMaxConVar and UVHeatMaxConVar:GetInt() ) or math.huge
     
-    DrawIcon(UVMaterials["HEAT"], UV_UI.X(w * 0.7175), h * 0.2325 + milestoneh, .0375, Color(255, 255, 255)) -- Icon
-    draw.DrawText(UVHeatLevel, "UVFont5UI", UV_UI.X(w * 0.733), h * 0.214 + milestoneh, Color(255, 255, 255), TEXT_ALIGN_CENTER)
+    DrawIcon(UVMaterials["HEAT"], UV_UI.X(w * 0.7175), UV_UI.Y(h * 0.2325) + milestoneh, .0375, Color(255, 255, 255)) -- Icon
+    draw.DrawText(UVHeatLevel, "UVFont5UI", UV_UI.X(w * 0.733), UV_UI.Y(h * 0.214) + milestoneh, Color(255, 255, 255), TEXT_ALIGN_CENTER)
     
     surface.SetDrawColor(Color(109, 109, 109, 200))
-    surface.DrawRect(UV_UI.X(w * 0.7475), h * 0.2175 + milestoneh, UV_UI.W(w * 0.22), h * 0.035)
+    surface.DrawRect(UV_UI.X(w * 0.7475), UV_UI.Y(h * 0.2175) + milestoneh, UV_UI.W(w * 0.22), h * 0.035)
     surface.SetDrawColor(Color(255, 255, 255))
     local HeatProgress = 0
     if MaxHeatLevel:GetInt() ~= UVHeatLevel then
@@ -2126,7 +2126,7 @@ local function mw_pursuit_main( ... )
         surface.SetDrawColor(Color(255, 0, 0))
     end
     
-    surface.DrawRect(UV_UI.X(w * 0.7475), h * 0.2175 + milestoneh, B, h * 0.035)
+    surface.DrawRect(UV_UI.X(w * 0.7475), UV_UI.Y(h * 0.2175) + milestoneh, B, UV_UI.Y(h * 0.035))
     
     -- [[ Commander Stuff ]]
     if UVOneCommanderActive then
@@ -2196,7 +2196,7 @@ local function mw_pursuit_main( ... )
         bottomyplus = -(h * 0.075)
     end
 
-    local bottomy = h * 0.8 + bottomyplus
+    local bottomy = UV_UI.Y(h * 0.8) + bottomyplus
 
     local middlergb = {
         r = 255,
@@ -2339,7 +2339,7 @@ local function mw_pursuit_main( ... )
             lbtext = string.format(lang("uv.chase.backupin"), UVBackupTimer)
         end
         
-        draw.DrawText(lbtext,"UVFont5UI", w * 0.5, bottomy + h * 0.11 * 1.001,UVBackupColor,TEXT_ALIGN_CENTER)
+        draw.DrawText(lbtext,"UVFont5UI", UV_UI.X(w * 0.5), bottomy + h * 0.11 * 1.001,UVBackupColor,TEXT_ALIGN_CENTER)
     else
         -- Lower Box
         -- Evade Box, All BG (Moved to inner if clauses)

@@ -394,18 +394,31 @@ if CLIENT then
 	-- Size-related stuff
 	UV.BaseW = 1920
 	UV.BaseH = 1080
-
+	
+	local uiscale = 1
 	UV.DebugRes = nil
+	
+	-- UV.DebugRes = { w = ScrW(), h = ScrH() }
+	
 	-- Uncomment if you want to debug certain screen resolutions. Below are the resolutions for 16:9:
 	-- UV.DebugRes = { w = 1280, h = 720 } -- 16:9 720p (!! Bare Minimum !!)
 	-- UV.DebugRes = { w = 640, h = 480 } -- 16:9 480p (For testing - never work with this as a baseline)
 	
+	-- UV.DebugRes = { w = 1280, h = 1024 } -- 4:3 (For testing - never work with this as a baseline)
+	
+	-- UV.DebugRes = { w = 3440, h = 1440 } -- Ultrawide fuckery
+	-- uiscale = 0.5
+	
+	UV.UIScale = math.Clamp(uiscale, 0.25, 1)
+
 	function UV_GetW()
-		return UV.DebugRes and UV.DebugRes.w or ScrW()
+		local w = UV.DebugRes and UV.DebugRes.w or ScrW()
+		return w * (UV.UIScale or 1)
 	end
 
 	function UV_GetH()
-		return UV.DebugRes and UV.DebugRes.h or ScrH()
+		local h = UV.DebugRes and UV.DebugRes.h or ScrH()
+		return h * (UV.UIScale or 1)
 	end
 
 	function UV.ScaleW(px)
@@ -420,116 +433,126 @@ if CLIENT then
 		return math.Round(px * (math.min(UV_GetH(), UV.BaseH) / UV.BaseH))
 	end
 
-	-- Original HUD & General
-	hook.Add( "UV-OnResolutionChange", "UV.UpdateFonts", function()
-		surface.CreateFont("UVFont", { font = "Arial", size = UV.ScaleH(50), weight = 500, italic = true, extended = true })
-		surface.CreateFont("UVFont-Shadow", { font = "Arial", size = UV.ScaleH(50), weight = 500, italic = true, shadow = true, extended = true })
-		surface.CreateFont("UVFont-Smaller", { font = "Arial", size = UV.ScaleH(46), weight = 500, italic = true, extended = true })
-		surface.CreateFont("UVFont-Bolder", { font = "Arial", size = UV.ScaleH(46), weight = 1000, italic = false, shadow = true, extended = true })
-		surface.CreateFont("UVFont2", { font = "Arial", size = UV.ScaleH(50), weight = 500, extended = true })
-		surface.CreateFont("UVFont2-Smaller", { font = "Arial", size = UV.ScaleH(40), weight = 500, extended = true })
-		surface.CreateFont("UVFont3", { font = "Arial", size = UV.ScaleH(50), weight = 500, shadow = true, extended = true })
-		surface.CreateFont("UVFont3Big", { font = "Arial", size = UV.ScaleH(92), weight = 500, extended = true })
-		surface.CreateFont("UVFont3Bigger", { font = "Arial", size = UV.ScaleH(130), weight = 500, extended = true })
-		surface.CreateFont("UVFont4", { font = "Arial", size = UV.ScaleH(25), weight = 1100, shadow = true, extended = true })
-		surface.CreateFont("UVFont7", { font = "VCR OSD Mono", size = UV.ScaleH(110), weight = 500, shadow = true, })
-		surface.CreateFont("UVFont7Smaller", { font = "VCR OSD Mono", size = UV.ScaleH(64), weight = 500, shadow = true, })
-		surface.CreateFont("UVFont7Tiny", { font = "VCR OSD Mono", size = UV.ScaleH(48), weight = 500, shadow = true, })
+	-- Fonts
+	function UV.CreateFonts()
+		local scale = UV.ScaleH
+	
+		surface.CreateFont("UVFont", { font = "Arial", size = scale(50), weight = 500, italic = true, extended = true })
+		surface.CreateFont("UVFont-Shadow", { font = "Arial", size = scale(50), weight = 500, italic = true, shadow = true, extended = true })
+		surface.CreateFont("UVFont-Smaller", { font = "Arial", size = scale(46), weight = 500, italic = true, extended = true })
+		surface.CreateFont("UVFont-Bolder", { font = "Arial", size = scale(46), weight = 1000, italic = false, shadow = true, extended = true })
+		surface.CreateFont("UVFont2", { font = "Arial", size = scale(50), weight = 500, extended = true })
+		surface.CreateFont("UVFont2-Smaller", { font = "Arial", size = scale(40), weight = 500, extended = true })
+		surface.CreateFont("UVFont3", { font = "Arial", size = scale(50), weight = 500, shadow = true, extended = true })
+		surface.CreateFont("UVFont3Big", { font = "Arial", size = scale(92), weight = 500, extended = true })
+		surface.CreateFont("UVFont3Bigger", { font = "Arial", size = scale(130), weight = 500, extended = true })
+		surface.CreateFont("UVFont4", { font = "Arial", size = scale(25), weight = 1100, shadow = true, extended = true })
+		surface.CreateFont("UVFont7", { font = "VCR OSD Mono", size = scale(110), weight = 500, shadow = true, })
+		surface.CreateFont("UVFont7Smaller", { font = "VCR OSD Mono", size = scale(64), weight = 500, shadow = true, })
+		surface.CreateFont("UVFont7Tiny", { font = "VCR OSD Mono", size = scale(48), weight = 500, shadow = true, })
 	
 		-- CTU
-		surface.CreateFont("UVFont4BiggerItalic", { font = "Arial", size = UV.ScaleH(27), weight = 1100, shadow = true, extended = true, italic = true })
-		surface.CreateFont("UVFont4BiggerItalic2", { font = "Arial", size = UV.ScaleH(32), weight = 1100, shadow = true, extended = true, italic = true })
-		surface.CreateFont("UVFont4BiggerItalic3", { font = "Arial", size = UV.ScaleH(70), weight = 1100, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVFont4BiggerItalic", { font = "Arial", size = scale(27), weight = 1100, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVFont4BiggerItalic2", { font = "Arial", size = scale(32), weight = 1100, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVFont4BiggerItalic3", { font = "Arial", size = scale(70), weight = 1100, shadow = true, extended = true, italic = true })
 	
 		-- Carbon Fonts
-		surface.CreateFont("UVCarbonFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(46), shadow = true, weight = 1000, extended = true })
-		surface.CreateFont("UVCarbonFont-Larger", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(64), shadow = true, weight = 1000, extended = true, bold = true })
-		surface.CreateFont("UVCarbonFont-Smaller", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(38), shadow = true, weight = 1000, extended = true })
-		surface.CreateFont("UVCarbonMonoFont", { font = "Carbon Mono", size = UV.ScaleH(46), shadow = true, weight = 1000, extended = true })
-		surface.CreateFont("UVCarbonMonoFont-Smaller", { font = "Carbon Mono", size = UV.ScaleH(38), shadow = true, weight = 1000, extended = true })
-		surface.CreateFont("UVCarbonMonoFont7", { font = "Carbon Mono ", size = UV.ScaleH(100), shadow = true, weight = 0, extended = true })
-		surface.CreateFont("UVCarbonMonoFont7Smaller", { font = "Carbon Mono ", size = UV.ScaleH(64), shadow = true, weight = 0, extended = true })
+		surface.CreateFont("UVCarbonFont", { font = "HelveticaNeue LT 57 Cn", size = scale(46), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonFont-Larger", { font = "HelveticaNeue LT 57 Cn", size = scale(64), shadow = true, weight = 1000, extended = true, bold = true })
+		surface.CreateFont("UVCarbonFont-Smaller", { font = "HelveticaNeue LT 57 Cn", size = scale(38), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonMonoFont", { font = "Carbon Mono", size = scale(46), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonMonoFont-Smaller", { font = "Carbon Mono", size = scale(38), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVCarbonMonoFont7", { font = "Carbon Mono ", size = scale(100), shadow = true, weight = 0, extended = true })
+		surface.CreateFont("UVCarbonMonoFont7Smaller", { font = "Carbon Mono ", size = scale(64), shadow = true, weight = 0, extended = true })
 	
 		-- Undercover Fonts
-		surface.CreateFont("UVUndercoverAccentFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(36), shadow = true, weight = 1000, extended = true })
-		surface.CreateFont("UVUndercoverLeaderboardFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(32), shadow = true, weight = 1000, extended = true })
-		surface.CreateFont("UVUndercoverWhiteFont", { font = "Aquarius Six", size = UV.ScaleH(51), shadow = true, weight = 1, extended = true })
-		surface.CreateFont("UVCarbonLeaderboardFont", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(25), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVUndercoverAccentFont", { font = "HelveticaNeue LT 57 Cn", size = scale(36), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVUndercoverLeaderboardFont", { font = "HelveticaNeue LT 57 Cn", size = scale(32), shadow = true, weight = 1000, extended = true })
+		surface.CreateFont("UVUndercoverWhiteFont", { font = "Aquarius Six", size = scale(51), shadow = true, weight = 1, extended = true })
+		surface.CreateFont("UVCarbonLeaderboardFont", { font = "HelveticaNeue LT 57 Cn", size = scale(25), shadow = true, weight = 1000, extended = true })
 	
 		-- Most Wanted Fonts
-		surface.CreateFont("UVFont5", { font = "EurostileBold", size = UV.ScaleH(46), weight = 500, extended = true })
-		surface.CreateFont("UVFont5UI", { font = "EurostileBold", size = UV.ScaleH(38), weight = 500, extended = true })
-		surface.CreateFont("UVFont5UI-BottomBar", { font = "EurostileBold", size = UV.ScaleH(44), weight = 500, extended = true })
-		surface.CreateFont("UVFont5WeightShadow", { font = "EurostileBold", size = UV.ScaleH(46), weight = 500, shadow = true, extended = true })
-		surface.CreateFont("UVFont5Shadow", { font = "EurostileBold", size = UV.ScaleH(32), weight = 350, shadow = true, extended = true })
-		surface.CreateFont("UVFont5ShadowLarge", { font = "EurostileBold", size = UV.ScaleH(64), weight = 500, shadow = true, extended = true })
-		surface.CreateFont("UVFont5ShadowBig", { font = "EurostileBold", size = UV.ScaleH(108), weight = 500, shadow = true, extended = true })
-		surface.CreateFont("UVMostWantedLeaderboardFont", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true })
-		surface.CreateFont("UVMostWantedLeaderboardFont2", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true })
-		surface.CreateFont("UVMWFont7", { font = "DS-Digital", size = UV.ScaleH(110), weight = 500, shadow = false, extended = false })
-		surface.CreateFont("UVMWFont7Smaller", { font = "DS-Digital", size = UV.ScaleH(64), weight = 500, shadow = false, extended = false })
-		surface.CreateFont("UVMWFont7Tiny", { font = "DS-Digital", size = UV.ScaleH(48), weight = 500, shadow = false, extended = false })
+		surface.CreateFont("UVFont5", { font = "EurostileBold", size = scale(46), weight = 500, extended = true })
+		surface.CreateFont("UVFont5UI", { font = "EurostileBold", size = scale(38), weight = 500, extended = true })
+		surface.CreateFont("UVFont5UI-BottomBar", { font = "EurostileBold", size = scale(44), weight = 500, extended = true })
+		surface.CreateFont("UVFont5WeightShadow", { font = "EurostileBold", size = scale(46), weight = 500, shadow = true, extended = true })
+		surface.CreateFont("UVFont5Shadow", { font = "EurostileBold", size = scale(32), weight = 350, shadow = true, extended = true })
+		surface.CreateFont("UVFont5ShadowLarge", { font = "EurostileBold", size = scale(64), weight = 500, shadow = true, extended = true })
+		surface.CreateFont("UVFont5ShadowBig", { font = "EurostileBold", size = scale(108), weight = 500, shadow = true, extended = true })
+		surface.CreateFont("UVMostWantedLeaderboardFont", { font = "EurostileBold", size = scale(25), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVMostWantedLeaderboardFont2", { font = "EurostileBold", size = scale(18), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVMWFont7", { font = "DS-Digital", size = scale(110), weight = 500, shadow = false, extended = false })
+		surface.CreateFont("UVMWFont7Smaller", { font = "DS-Digital", size = scale(64), weight = 500, shadow = false, extended = false })
+		surface.CreateFont("UVMWFont7Tiny", { font = "DS-Digital", size = scale(48), weight = 500, shadow = false, extended = false })
 	
 		-- World Fonts
-		surface.CreateFont("UVWorldFont1", { font = "HelveticaNeue LT 57 Cn", size = UV.ScaleH(16), shadow = false, weight = 1000, extended = true })
-		surface.CreateFont("UVWorldFont2", { font = "Reg-B-I", size = UV.ScaleH(43), shadow = false, weight = 1000, extended = true })
-		surface.CreateFont("UVWorldFont3", { font = "Reg-B-I", size = UV.ScaleH(27), shadow = false, weight = 1000, extended = true })
-		surface.CreateFont("UVWorldFont4", { font = "Reg-B-I", size = UV.ScaleH(38), shadow = false, weight = 1000, extended = true })
-		surface.CreateFont("UVWorldFont5", { font = "Reg-B-I", size = UV.ScaleH(162), shadow = false, weight = 1000, extended = true })
-		surface.CreateFont("UVWorldFont6", { font = "Reg-B-I", size = UV.ScaleH(24), shadow = false, weight = 1000, extended = true })
-		surface.CreateFont("UVWorldFont7", { font = "Reg-B-I", size = UV.ScaleH(19), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont1", { font = "HelveticaNeue LT 57 Cn", size = scale(16), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont2", { font = "Reg-B-I", size = scale(43), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont3", { font = "Reg-B-I", size = scale(27), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont4", { font = "Reg-B-I", size = scale(38), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont5", { font = "Reg-B-I", size = scale(162), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont6", { font = "Reg-B-I", size = scale(24), shadow = false, weight = 1000, extended = true })
+		surface.CreateFont("UVWorldFont7", { font = "Reg-B-I", size = scale(19), shadow = false, weight = 1000, extended = true })
 	
 		-- World Fonts Backup (for specific languages)
-		surface.CreateFont("UVWorldFont1-Alt", { font = "Arial", size = UV.ScaleH(16), shadow = false, weight = 1000, italic = true, extended = true })
-		surface.CreateFont("UVWorldFont2-Alt", { font = "Arial", size = UV.ScaleH(40), shadow = false, weight = 1000, italic = true, extended = true })
-		surface.CreateFont("UVWorldFont3-Alt", { font = "Arial", size = UV.ScaleH(26), shadow = false, weight = 1000, italic = true, extended = true })
-		surface.CreateFont("UVWorldFont4-Alt", { font = "Arial", size = UV.ScaleH(38), shadow = false, weight = 1000, italic = true, extended = true })
-		surface.CreateFont("UVWorldFont5-Alt", { font = "Arial", size = UV.ScaleH(151), shadow = false, weight = 1000, italic = true, extended = true })
-		surface.CreateFont("UVWorldFont6-Alt", { font = "Arial", size = UV.ScaleH(24), shadow = false, weight = 1000, italic = true, extended = true })
-		surface.CreateFont("UVWorldFont7-Alt", { font = "Arial", size = UV.ScaleH(19), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont1-Alt", { font = "Arial", size = scale(16), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont2-Alt", { font = "Arial", size = scale(40), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont3-Alt", { font = "Arial", size = scale(26), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont4-Alt", { font = "Arial", size = scale(38), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont5-Alt", { font = "Arial", size = scale(151), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont6-Alt", { font = "Arial", size = scale(24), shadow = false, weight = 1000, italic = true, extended = true })
+		surface.CreateFont("UVWorldFont7-Alt", { font = "Arial", size = scale(19), shadow = false, weight = 1000, italic = true, extended = true })
 
 		-- NIGHTRUNNERS Fonts
-		surface.CreateFont("UVNightRunnersFont-Small", { font = "Karma Suture", size = UV.ScaleH(40), shadow = true, weight = 500, extended = true, italic = true })
-		surface.CreateFont("UVNightRunnersFont-Smaller", { font = "Karma Suture", size = UV.ScaleH(56), shadow = true, weight = 500, extended = true, italic = true })
-		surface.CreateFont("UVNightRunnersFont", { font = "Karma Suture", size = UV.ScaleH(64), shadow = true, weight = 500, extended = true, italic = true })
-		surface.CreateFont("UVNightRunnersFont-Bigger", { font = "Karma Suture", size = UV.ScaleH(72), shadow = true, weight = 500, extended = true, italic = true })
-		surface.CreateFont("UVNightRunnersFont-Big", { font = "Karma Suture", size = UV.ScaleH(108), shadow = true, weight = 500, extended = true, italic = true })
-		surface.CreateFont("UVNightRunnersLCDFont-Tiny1", { font = "LCDMono", size = UV.ScaleH(32), shadow = true, weight = 500, extended = true })
-    	surface.CreateFont("UVNightRunnersLCDFont-Tiny2NoShadow", { font = "LCDBold", size = UV.ScaleH(20), shadow = false, weight = 500, extended = true })
-    	surface.CreateFont("UVNightRunnersLCDFont-ThinTiny2", { font = "LCDBold", size = UV.ScaleH(11), shadow = false, weight = 500, extended = true })
-		surface.CreateFont("UVNightRunnersLCDFont-Tiny1", { font = "LCDMono", size = UV.ScaleH(32), shadow = true, weight = 500, extended = true })
-    	surface.CreateFont("UVNightRunnersLCDFont-Tiny2NoShadow", { font = "LCDBold", size = UV.ScaleH(20), shadow = false, weight = 500, extended = true })
-    	surface.CreateFont("UVNightRunnersLCDFont-ThinTiny2", { font = "LCDBold", size = UV.ScaleH(11), shadow = false, weight = 500, extended = true })
-		surface.CreateFont("UVNightRunnersLCDFont-Small", { font = "LCDMono", size = UV.ScaleH(40), shadow = true, weight = 500, extended = true })
-		surface.CreateFont("UVNightRunnersLCDFont-Smaller", { font = "LCDMono", size = UV.ScaleH(56), shadow = true, weight = 500, extended = true })
-		surface.CreateFont("UVNightRunnersLCDFont", { font = "LCDMono", size = UV.ScaleH(64), shadow = true, weight = 500, extended = true })
-		surface.CreateFont("UVNightRunnersLCDFont-Bigger", { font = "LCDMono", size = UV.ScaleH(72), shadow = true, weight = 500, extended = true })
-		surface.CreateFont("UVNightRunnersLCDFont-Big", { font = "LCDMono", size = UV.ScaleH(108), shadow = true, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersFont-Small", { font = "Karma Suture", size = scale(40), shadow = true, weight = 500, extended = true, italic = true })
+		surface.CreateFont("UVNightRunnersFont-Smaller", { font = "Karma Suture", size = scale(56), shadow = true, weight = 500, extended = true, italic = true })
+		surface.CreateFont("UVNightRunnersFont", { font = "Karma Suture", size = scale(64), shadow = true, weight = 500, extended = true, italic = true })
+		surface.CreateFont("UVNightRunnersFont-Bigger", { font = "Karma Suture", size = scale(72), shadow = true, weight = 500, extended = true, italic = true })
+		surface.CreateFont("UVNightRunnersFont-Big", { font = "Karma Suture", size = scale(108), shadow = true, weight = 500, extended = true, italic = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Tiny1", { font = "LCDMono", size = scale(32), shadow = true, weight = 500, extended = true })
+    	surface.CreateFont("UVNightRunnersLCDFont-Tiny2NoShadow", { font = "LCDBold", size = scale(20), shadow = false, weight = 500, extended = true })
+    	surface.CreateFont("UVNightRunnersLCDFont-ThinTiny2", { font = "LCDBold", size = scale(11), shadow = false, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Tiny1", { font = "LCDMono", size = scale(32), shadow = true, weight = 500, extended = true })
+    	surface.CreateFont("UVNightRunnersLCDFont-Tiny2NoShadow", { font = "LCDBold", size = scale(20), shadow = false, weight = 500, extended = true })
+    	surface.CreateFont("UVNightRunnersLCDFont-ThinTiny2", { font = "LCDBold", size = scale(11), shadow = false, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Small", { font = "LCDMono", size = scale(40), shadow = true, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Smaller", { font = "LCDMono", size = scale(56), shadow = true, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont", { font = "LCDMono", size = scale(64), shadow = true, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Bigger", { font = "LCDMono", size = scale(72), shadow = true, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-Big", { font = "LCDMono", size = scale(108), shadow = true, weight = 500, extended = true })
 		
-		surface.CreateFont("UVNightRunnersLCDFont-ODOMETERUNIT2", { font = "LCDBold", size = UV.ScaleH(9), shadow = false, weight = 500, extended = true })
-		surface.CreateFont("UVNightRunnersLCDFont-ODOMETERVALUE2", { font = "LCDBold", size = UV.ScaleH(18), shadow = false, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-ODOMETERUNIT2", { font = "LCDBold", size = scale(9), shadow = false, weight = 500, extended = true })
+		surface.CreateFont("UVNightRunnersLCDFont-ODOMETERVALUE2", { font = "LCDBold", size = scale(18), shadow = false, weight = 500, extended = true })
 
-    	surface.CreateFont("UVNightRunnersFont-SmallNonItalic", { font = "Karma Suture", size = UV.ScaleH(40), shadow = true, weight = 500, extended = true, italic = false  })
-    	surface.CreateFont("UVNightRunnersFont-SmallerNonItalic", { font = "Karma Suture", size = UV.ScaleH(56), shadow = true, weight = 500, extended = true, italic = false })
-    	surface.CreateFont("UVNightRunnersFontNonItalic", { font = "Karma Suture", size = UV.ScaleH(64), shadow = true, weight = 500, extended = true, italic = false })
-    	surface.CreateFont("UVNightRunnersFont-BiggerNonItalic", { font = "Karma Suture", size = UV.ScaleH(72), shadow = true, weight = 500, extended = true, italic = false })
-    	surface.CreateFont("UVNightRunnersFont-BigNonItalic", { font = "Karma Suture", size = UV.ScaleH(108), shadow = true, weight = 500, extended = true, italic = false })
+    	surface.CreateFont("UVNightRunnersFont-SmallNonItalic", { font = "Karma Suture", size = scale(40), shadow = true, weight = 500, extended = true, italic = false  })
+    	surface.CreateFont("UVNightRunnersFont-SmallerNonItalic", { font = "Karma Suture", size = scale(56), shadow = true, weight = 500, extended = true, italic = false })
+    	surface.CreateFont("UVNightRunnersFontNonItalic", { font = "Karma Suture", size = scale(64), shadow = true, weight = 500, extended = true, italic = false })
+    	surface.CreateFont("UVNightRunnersFont-BiggerNonItalic", { font = "Karma Suture", size = scale(72), shadow = true, weight = 500, extended = true, italic = false })
+    	surface.CreateFont("UVNightRunnersFont-BigNonItalic", { font = "Karma Suture", size = scale(108), shadow = true, weight = 500, extended = true, italic = false })
 			
 		-- Settings Fonts
-		surface.CreateFont("UVSettingsFont", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true })
-		surface.CreateFont("UVSettingsFont-Italic", { font = "EurostileBold", size = UV.ScaleH(25), weight = 1000, shadow = true, extended = true, italic = true })
-		surface.CreateFont("UVSettingsFontBig", { font = "EurostileBold", size = UV.ScaleH(35), weight = 1000, shadow = true, extended = true })
-		surface.CreateFont("UVSettingsFontBig-Italic", { font = "EurostileBold", size = UV.ScaleH(35), weight = 1000, shadow = true, extended = true, italic = true })
-		surface.CreateFont("UVSettingsFontSmall", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true })
-		surface.CreateFont("UVSettingsFontSmall-Italic", { font = "EurostileBold", size = UV.ScaleH(18), weight = 1000, shadow = true, extended = true, italic = true })
-		surface.CreateFont("UVSettingsFontSmall-Bold", { font = "EurostileBold", size = UV.ScaleH(22), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVSettingsFont", { font = "EurostileBold", size = scale(25), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVSettingsFont-Italic", { font = "EurostileBold", size = scale(25), weight = 1000, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVSettingsFontBig", { font = "EurostileBold", size = scale(35), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVSettingsFontBig-Italic", { font = "EurostileBold", size = scale(35), weight = 1000, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVSettingsFontSmall", { font = "EurostileBold", size = scale(18), weight = 1000, shadow = true, extended = true })
+		surface.CreateFont("UVSettingsFontSmall-Italic", { font = "EurostileBold", size = scale(18), weight = 1000, shadow = true, extended = true, italic = true })
+		surface.CreateFont("UVSettingsFontSmall-Bold", { font = "EurostileBold", size = scale(22), weight = 1000, shadow = true, extended = true })
 	
 		-- Keybind Fonts
-		surface.CreateFont("UVKeybindFont", { font = "Destiny Keys", size = UV.ScaleH(25), weight = 500, extended = true })
-		surface.CreateFont("UVKeybindFontBig", { font = "Destiny Keys", size = UV.ScaleH(35), weight = 500, extended = true })
-		surface.CreateFont("UVKeybindFontSmall", { font = "Destiny Keys", size = UV.ScaleH(17.5), weight = 500, extended = true })	
-	end )
-
+		surface.CreateFont("UVKeybindFont", { font = "Destiny Keys", size = scale(25), weight = 500, extended = true })
+		surface.CreateFont("UVKeybindFontBig", { font = "Destiny Keys", size = scale(35), weight = 500, extended = true })
+		surface.CreateFont("UVKeybindFontSmall", { font = "Destiny Keys", size = scale(17.5), weight = 500, extended = true })	
+	end
+	
+	hook.Add("UV-OnResolutionChange", "UV.UpdateFonts", function()
+		UV.CreateFonts()
+	end)
+	
+	-- hook.Add("Initialize", "UV.InitFonts", function()
+		UV.CreateFonts()
+	-- end)
+	
 	local screenW = ScrW()
 	local screenH = ScrH()
 
@@ -1318,6 +1341,24 @@ end
 
 UV_UI = UV_UI or {}
 
+function UV_GetOffsetX()
+    if not UV.DebugRes then return 0 end
+
+    local realW = ScrW()
+    local debugW = UV_GetW()
+
+    return (realW - debugW) * 0.5
+end
+
+function UV_GetOffsetY()
+    if not UV.DebugRes then return 0 end
+
+    local realH = ScrH()
+    local debugH = UV_GetH()
+
+    return (realH - debugH) * 0.5
+end
+
 function UV_UI.GetSide(x, screenW)
     if x > screenW * 0.55 then return 1 end
     if x < screenW * 0.45 then return -1 end
@@ -1347,17 +1388,34 @@ function UV_UI.ScaleW(width, scale)
 end
 
 function UV_UI.X(x)
-    local w = ScrW()
+    local w = UV_GetW()
     local scale = math.Clamp(UVHUDXScale:GetFloat(), 0.1, 1)
     local deadzone = math.Clamp(UVHUDXDeadzone:GetFloat(), 0, 500)
-    return UV_UI.ResolveX(x, scale, deadzone, w)
+
+    local resolved = UV_UI.ResolveX(x, scale, deadzone, w)
+
+    return UV_GetOffsetX() + resolved
 end
 
-function UV_UI.XScaled(x) -- For centered elements
-    local w = ScrW()
+function UV_UI.XScaled(x)
+    local w = UV_GetW()
     local scale = math.Clamp(UVHUDXScale:GetFloat(), 0.1, 1)
+
     local centerX = w * 0.5
-    return centerX + (x - centerX) * scale
+    local result = centerX + (x - centerX) * scale
+
+    return UV_GetOffsetX() + result
+end
+
+function UV_UI.Y(y)
+    return UV_GetOffsetY() + y
+end
+
+function UV_UI.YScaled(y)
+    local h = UV_GetH()
+    local centerY = h * 0.5
+
+    return UV_GetOffsetY() + (centerY + (y - centerY))
 end
 
 function UV_UI.W(width)
@@ -1460,22 +1518,22 @@ function UVRenderCommander(ent)
 		local textX = screenPos.x
 		local textY = screenPos.y - 120 -- This is in pixels and stays consistent
 		
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         local dist = localPlayer:GetPos():Distance(ent:GetPos())
         local distInMeters = dist * 0.01905
 
         -- Distance in meters
         local fadeAlpha = 255
-        local fadeDist = 200
+        local fadeDist = RacerTagsDistance:GetInt() or 100
         
         if distInMeters <= fadeDist then
             fadeAlpha = 255 * ((fadeDist - distInMeters) / 25)
         elseif distInMeters > fadeDist then
             fadeAlpha = 0
         end
-        		
+
 		-- Edge fade (screen position based)
 		local edgeFadeAlpha = 255
 
@@ -1539,27 +1597,30 @@ function UVRenderCommander(ent)
 
 			surface.SetFont("UVFont4")
 			local textWidth, textHeight = surface.GetTextSize(cname)
-			local padding = 8
+			local textWidthDist, textHeightDist = surface.GetTextSize(bustdist)
+			local padding = 10
+			local distpadding = 5
 
-			local rectywidth = math.max(textWidth + padding, 75)
+			local rectywidth = math.max(textWidthDist + textWidth + padding, 0)
 			local rectxpos = textX - (rectywidth / 2)
 			local rectypos = textY + 22.5
-			
-			surface.SetDrawColor( 0, 161, 255, fadeAlpha )
-			surface.DrawRect( rectxpos - 3, rectypos - 2, 4, 59) -- Left
-			surface.DrawRect( rectxpos + rectywidth - 1, rectypos - 2, 4, 59) -- Right
-			surface.DrawRect( rectxpos, rectypos - 2, rectywidth, 3) -- Up
-			surface.DrawRect( rectxpos, rectypos + 54, rectywidth, 3) -- Down
-			
+
+			local thickness = RacerTagsThickness:GetInt() or 2
+
+			surface.SetDrawColor( box_color.r, box_color.g, box_color.b, fadeAlpha )
+			surface.DrawOutlinedRect( rectxpos - thickness, rectypos - thickness, rectywidth + (thickness * 2), textHeight + thickness, thickness )
+
 			surface.SetMaterial(UVMaterials["ARROW_CARBON"])
-			surface.DrawTexturedRectRotated( textX, textY + 87.5 + 5, 17.5, 17.5, -90)
-			
+			surface.DrawTexturedRectRotated( textX, textY + 57.5, 15, 15, -90)
+
 			surface.SetDrawColor( 0, 0, 0, math.min(200, fadeAlpha) )
-			surface.DrawRect( rectxpos, rectypos, rectywidth, 54)
-			
-			draw.DrawText(cname, "UVFont4", textX, textY + 20 + 5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_CENTER)
-			
-			draw.DrawText(bustdist, "UVFont4", textX, textY + 42.5 + 5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_CENTER)
+			surface.DrawRect( rectxpos, rectypos, rectywidth, textHeight - thickness)
+
+			draw.RoundedBox( 0, rectxpos - thickness, rectypos - thickness, textWidthDist + distpadding, textHeight + thickness, Color( box_color.r, box_color.g, box_color.b, math.Clamp(fadeAlpha, 0, 100) ) )
+
+			draw.SimpleTextOutlined(cname, "UVFont4", rectxpos + textWidthDist + distpadding, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
+			draw.SimpleTextOutlined(bustdist, "UVFont4", rectxpos, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
+
         cam.End2D()
     end
 end
@@ -1594,10 +1655,21 @@ function UVRenderEnemySquare(ent)
 	if IsValid(ent) then
 		if not (UVHUDDisplayPursuit or UVHUDDisplayRacing) then return end
 
-		if (UVHUDCopMode and UVHUDDisplayCooldown) or
-		   (UVHUDCopMode and (tonumber(UVUnitsChasing) <= 0 or not ent.inunitview) and 
-		   not ((not GetConVar("unitvehicle_unit_onecommanderevading"):GetBool()) and UVOneCommanderActive))
-		then return end
+		-- Unfucked, clarified logic: hide enemy square as cop during cooldown, or if there are no units chasing or out of unit view,
+		-- except when one-commander-evading is actually active (and one commander is active)
+		if UVHUDCopMode then
+			if UVHUDDisplayCooldown then
+				return
+			end
+
+			local oneCommanderEvading = GetConVar("unitvehicle_unit_onecommanderevading"):GetBool()
+			if not ent.inunitview then
+				-- Only hide if either one-commander-evading is off or commander is NOT active
+				if not oneCommanderEvading or not UVOneCommanderActive then
+					return
+				end
+			end
+		end
 
 		if UVHUDRaceInfo and UVHUDRaceInfo.Participants and UVHUDRaceInfo.Participants[ent] then
 			local pdata = UVHUDRaceInfo.Participants[ent]
@@ -1645,7 +1717,8 @@ function UVRenderEnemySquare(ent)
 					if racerInfo then
 						local pos = GetRacerPositionForEntity(ent)
 						if pos then
-							enemypos = UVString("uv.race.pos.num." .. pos)
+							-- enemypos = UVString("uv.race.pos.num." .. pos)
+							enemypos = pos
 						end
 						if racerInfo.Name then
 							enemycallsign = racerInfo.Name
@@ -1664,14 +1737,14 @@ function UVRenderEnemySquare(ent)
 
 		-- Fixed screen offset (so it doesn’t drift with distance)
 		local textX = screenPos.x
-		local textY = screenPos.y - 120 -- This is in pixels and stays consistent
+		local textY = screenPos.y - 90 -- This is in pixels and stays consistent
 
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         -- Distance in meters
         local fadeAlpha = 255
-        local fadeDist = 100
+        local fadeDist = RacerTagsDistance:GetInt() or 100
 
         local dist = localPlayer:GetPos():Distance(ent:GetPos())
         local distInMeters = dist * 0.01905
@@ -1713,12 +1786,9 @@ function UVRenderEnemySquare(ent)
 		-- Combine with distance fade
 		fadeAlpha = math.min(fadeAlpha, edgeFadeAlpha)
 
-		local xheight = 0
-		-- if not UVHUDCopMode then xheight = h * 0 end
-
-		-- if #enemycallsign > 20 then -- If too long
-			-- enemycallsign = string.sub(enemycallsign, 1, 20 - 3) .. "..."
-		-- end
+		if #enemycallsign > 20 then -- If too long
+			enemycallsign = string.sub(enemycallsign, 1, 20 - 3) .. "..."
+		end
 
 		ent._bustAlpha = ent._bustAlpha or 0
 		ent._bustOffset = ent._bustOffset or 0
@@ -1745,21 +1815,25 @@ function UVRenderEnemySquare(ent)
 			local pos = ent:GetPos() + Vector(0, 0, 80)
 			local bustpro = math.Clamp(math.floor((((ent.UVBustingProgress or 0) / BustedTimer:GetInt()) * 100) + .5), 0, 100)
 			local bustdist = math.Round(distInMeters) .. " m"
-						
-			local bustdist = string.format( displayString, math.Round(displayDist) )
+
+			bustdist = string.format( displayString, math.Round(displayDist) )
 
 			enemypos = enemypos or bustdist
 
 			surface.SetFont("UVFont4")
 			local textWidth, textHeight = surface.GetTextSize(enemycallsign)
-			local padding = 8
+			local textWidthDist, textHeightDist = surface.GetTextSize(enemypos)
+			local padding = 10
+			local distpadding = 5
 
-			local rectywidth = math.max(textWidth + padding, 75)
+			local rectywidth = math.max(textWidth + textWidthDist + padding, 0)
 			local rectxpos = textX - (rectywidth / 2)
 			local rectypos = textY + 17.5
-			
+
 			local targetAlpha = bustpro >= 4 and 1 or 0
 			local targetOffset = bustpro >= 2 and -20 or -40
+
+			local thickness = RacerTagsThickness:GetInt() or 2
 
 			-- Smoothly approach the target alpha and offset
 			ent._bustAlpha = math.Approach(ent._bustAlpha, fadeAlpha * targetAlpha, FrameTime() * 600)
@@ -1777,27 +1851,39 @@ function UVRenderEnemySquare(ent)
 					surface.DrawRect(rectxpos, rectypos + ent._bustOffset, T, h * 0.0125)
 				end
 
-				draw.DrawText(UVString("uv.chase.busting.other"), "UVFont4", textX, textY + ent._bustOffset - (h * 0.01), Color(box_color.r, box_color.g, box_color.b, ent._bustAlpha), TEXT_ALIGN_CENTER)
+				draw.SimpleTextOutlined( UVString("uv.chase.busting.other"), "UVFont4", textX, textY + ent._bustOffset - (h * 0.01), Color(box_color.r, box_color.g, box_color.b, ent._bustAlpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_LEFT, 2, Color(0, 0, 0, ent._bustAlpha) )
 			end
 
-			surface.SetDrawColor( box_color.r, box_color.g, box_color.b, fadeAlpha )
-			surface.DrawRect( rectxpos - 3, rectypos - 2, 4, 59 + xheight) -- Left
-			surface.DrawRect( rectxpos + rectywidth - 1, rectypos - 2, 4, 59 + xheight) -- Right
-			surface.DrawRect( rectxpos, rectypos - 2, rectywidth, 3) -- Up
-			surface.DrawRect( rectxpos, rectypos + 54 + xheight, rectywidth, 3) -- Down
-			
-			surface.SetMaterial(UVMaterials["ARROW_CARBON"])
-			surface.DrawTexturedRectRotated( textX, textY + 87.5 + xheight, 17.5, 17.5, -90)
-			
-			surface.SetDrawColor( 0, 0, 0, math.min(200, fadeAlpha) )
-			surface.DrawRect( rectxpos, rectypos, rectywidth, 54 + xheight)
-
-			draw.DrawText(enemycallsign, "UVFont4", textX, textY + 20, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_CENTER)
-			
 			if UVHUDRaceInfo and UVHUDRaceInfo.Participants then
-				draw.DrawText(enemypos or bustdist, "UVFont4", textX, textY + 42.5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_CENTER)
+
+				surface.SetDrawColor( box_color.r, box_color.g, box_color.b, fadeAlpha )
+				surface.DrawOutlinedRect( rectxpos - thickness, rectypos - thickness, rectywidth + (thickness * 2), textHeight + thickness, thickness )
+				
+				surface.SetMaterial(UVMaterials["ARROW_CARBON"])
+				surface.DrawTexturedRectRotated( textX, textY + 57.5, 15, 15, -90)
+
+				surface.SetDrawColor( 0, 0, 0, math.min(200, fadeAlpha) )
+				surface.DrawRect( rectxpos, rectypos, rectywidth, textHeight - thickness)
+				draw.RoundedBox( 0, rectxpos - thickness, rectypos - thickness, textWidthDist + distpadding, textHeight + thickness, Color( 255, 255, 255, fadeAlpha ) )
+
+				draw.SimpleTextOutlined(enemycallsign, "UVFont4", rectxpos + textWidthDist + distpadding, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.5, Color(0, 0, 0, fadeAlpha) )
+				draw.SimpleTextOutlined(enemypos or busdist, "UVFont4", rectxpos - (thickness * 0.5), rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.5, Color(0, 0, 0, fadeAlpha) )
+				
 			else
-				draw.DrawText(bustdist, "UVFont4", textX, textY + 42.5, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_CENTER)
+
+				surface.SetDrawColor( box_color.r, box_color.g, box_color.b, fadeAlpha )
+				surface.DrawOutlinedRect( rectxpos - thickness, rectypos - thickness, rectywidth + (thickness * 2), textHeight + thickness, thickness )
+				
+				surface.SetMaterial(UVMaterials["ARROW_CARBON"])
+				surface.DrawTexturedRectRotated( textX, textY + 57.5, 15, 15, -90)
+
+				surface.SetDrawColor( 0, 0, 0, math.min(200, fadeAlpha) )
+				surface.DrawRect( rectxpos, rectypos, rectywidth, textHeight - thickness)
+				draw.RoundedBox( 0, rectxpos - thickness, rectypos - thickness, textWidthDist + distpadding, textHeight + thickness, Color( box_color.r, box_color.g, box_color.b, math.Clamp(fadeAlpha, 0, 255) ) )
+
+				draw.SimpleTextOutlined(enemycallsign, "UVFont4", rectxpos + textWidthDist + distpadding, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
+				draw.SimpleTextOutlined(bustdist, "UVFont4", rectxpos, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
+
 			end
         cam.End2D()
     end
@@ -1928,3 +2014,34 @@ local function onEvent(type, eventName, ...)
 end
 
 hook.Add( "UIEventHook", "UI_Event", onEvent )
+
+hook.Add("HUDPaint", "UV.DebugResolutionBox", function()
+	if not UV.DebugRes then return end
+
+	local realW, realH = ScrW(), ScrH()
+
+	-- Apply UIScale to debug resolution
+	local scaleMul = UV.UIScale or 1
+	local debugW = UV.DebugRes.w * scaleMul
+	local debugH = UV.DebugRes.h * scaleMul
+
+	-- Center the box WITHOUT auto-fitting to screen
+	local x = (realW - debugW) * 0.5
+	local y = (realH - debugH) * 0.5
+
+	-- Border
+	surface.SetDrawColor(255, 0, 0, 200)
+	surface.DrawOutlinedRect(x, y, debugW, debugH)
+
+	-- Darken outside area
+	surface.SetDrawColor(0, 0, 0, 150)
+
+	-- Top
+	surface.DrawRect(0, 0, realW, y)
+	-- Bottom
+	surface.DrawRect(0, y + debugH, realW, realH - (y + debugH))
+	-- Left
+	surface.DrawRect(0, y, x, debugH)
+	-- Right
+	surface.DrawRect(x + debugW, y, realW - (x + debugW), debugH)
+end)

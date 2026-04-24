@@ -49,8 +49,8 @@ UVMenu.CustomizeSpeedo.mostwanted = function()
 end
 
 local function mostwanted_speedometer( ... )
-	local w = ScrW()
-	local h = ScrH()
+	local w = UV_GetW()
+	local h = UV_GetH()
 
     local speed = select(1, ...)
     local speedname = select(2, ...)
@@ -71,8 +71,8 @@ local function mostwanted_speedometer( ... )
 	elseif gear == 0 then gearText = "N" end
 
 	local speedopos = {
-		x = w * GetConVar("uvspeedo_mostwanted_x"):GetString(),
-		y = h * GetConVar("uvspeedo_mostwanted_y"):GetString(),
+		x = UV_UI.XScaled( w * GetConVar("uvspeedo_mostwanted_x"):GetString() ),
+		y = UV_UI.Y( h * GetConVar("uvspeedo_mostwanted_y"):GetString() ),
 	}
 
 	local cvs = {

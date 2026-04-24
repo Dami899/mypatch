@@ -132,6 +132,10 @@ if SERVER then
 	--Spam check--
 	
 	function UVRelayToClients( init_time, sound_name, param, can_skip, players, callsign )
+		if not players and UVTargeting then
+			players = UVGetPursuitRecipients()
+		end
+
 		if players and type(players) == "table" then
 			if #players == 0 then return end
 		end
@@ -153,16 +157,23 @@ if SERVER then
 		end
 	end
 	
-	function UVRelaySoundToClients( sound_name, can_skip )
+	function UVRelaySoundToClients( sound_name, can_skip, players )
+		if not players then
+			players = UVGetPursuitRecipients()
+		end
+
 		local array = {
 			['FileName'] = sound_name,
 			['CanSkip'] = can_skip
 		}
 		net.Start('UV_Sound')
 		net.WriteTable(array)
-		--net.WriteBool(can_skip)
-		--net.WriteInt(tonumber(param))
-		net.Broadcast()
+
+		if players and type(players) == "table" then
+			net.Send(players)
+		else
+			net.Broadcast()
+		end
 	end
 	
 	function UVDelayChatter(seconds)
@@ -355,7 +366,7 @@ if SERVER then
 					_init()
 				end)
 			end
-			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2)))
+			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random()))
 		end
 
 		-- 	--[[Parameters
@@ -455,7 +466,7 @@ if SERVER then
 			end)
 			
 			
-			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(staticFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2))
+			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(staticFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random())
 			
 		elseif parameters == 4 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/*", "GAME")
@@ -467,8 +478,12 @@ if SERVER then
 			
 			ChatterLastPlay = initTime
 
-			local emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/copresponse.mp3"
-			local emergencyDuration = SoundDuration(emergencyFile)
+			local emergencyFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/emergency/*", "GAME")
+			table.Shuffle(emergencyFiles)
+			local emergencyFile
+			if next(emergencyFiles) ~= nil then
+				emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/"..emergencyFiles[1]
+			end
 
 			local radioOnFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/radioon/*", "GAME")
 			table.Shuffle(radioOnFiles)
@@ -488,22 +503,25 @@ if SERVER then
 			table.Shuffle(chirpGenericFiles)
 			local chirpGenericFile
 			
-			UVRelayToClients(initTime, emergencyFile, parameters, false)
-			timer.Simple(SoundDuration(emergencyFile or ""), function()
-				if radioOnFile then
-					if ChatterLastPlay ~= initTime then return 5 end
-					UVRelayToClients(initTime, radioOnFile, parameters, false)
-				else
-					if next(chirpGenericFiles) ~= nil then
-						chirpGenericFile = "chatter2/"..miscVoiceProfile.."/misc/chirpgeneric/"..chirpGenericFiles[1]
-					end
-			
-					if chirpGenericFile then
-						if ChatterLastPlay ~= initTime then return 5 end
-						UVRelayToClients(initTime, chirpGenericFile, parameters, false)
-					end
+			if radioOnFile then
+				if ChatterLastPlay ~= initTime then return 5 end
+				UVRelayToClients(initTime, radioOnFile, parameters, false)
+			else
+				if next(chirpGenericFiles) ~= nil then
+					chirpGenericFile = "chatter2/"..miscVoiceProfile.."/misc/chirpgeneric/"..chirpGenericFiles[1]
 				end
-				timer.Simple(radioOnFile and SoundDuration(radioOnFile) or (chirpGenericFile and 0.1 or 0), function()
+		
+				if chirpGenericFile then
+					if ChatterLastPlay ~= initTime then return 5 end
+					UVRelayToClients(initTime, chirpGenericFile, parameters, false)
+				end
+			end
+			timer.Simple(radioOnFile and SoundDuration(radioOnFile) or (chirpGenericFile and 0.1 or 0), function()
+				if ChatterLastPlay ~= initTime then return 5 end
+				if emergencyFile then
+					UVRelayToClients(initTime, emergencyFile, parameters, false)
+				end
+				timer.Simple(SoundDuration(emergencyFile or ""), function()
 					if ChatterLastPlay ~= initTime then return 5 end
 					UVRelayToClients(initTime, soundFile, parameters, false, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
 					timer.Simple(SoundDuration(soundFile or ""), function()
@@ -515,7 +533,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter((SoundDuration(soundFile or "") + emergencyDuration + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2)))
+			return UVDelayChatter((SoundDuration(soundFile or "") + SoundDuration(emergencyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random()))
 			
 		elseif parameters == 5 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/*", "GAME")
@@ -578,7 +596,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(identifyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2))
+			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(identifyFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random())
 			
 		elseif parameters == 6 then
 
@@ -592,7 +610,12 @@ if SERVER then
 
 			ChatterLastPlay = initTime
 			
-			local emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/copresponse.mp3"
+			local emergencyFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/emergency/*", "GAME")
+			table.Shuffle(emergencyFiles)
+			local emergencyFile
+			if next(emergencyFiles) ~= nil then
+				emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/"..emergencyFiles[1]
+			end
 						
 			local addressFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/dispatch/addressgroup_map/"..game.GetMap().."/*", "GAME")
 			table.Shuffle(addressFiles)
@@ -661,22 +684,25 @@ if SERVER then
 			local soundDuration_radioOnFile = SoundDuration(radioOnFile or "")
 			local soundDuration_chirpGenericFile
 
-			UVRelayToClients(initTime, emergencyFile, parameters, false)
-			timer.Simple(soundDuration_emergencyFile, function()
-				if radioOnFile then
-					UVRelayToClients(initTime, radioOnFile, parameters, false)
-				else
-					if next(chirpGenericFiles) ~= nil then
-						chirpGenericFile = "chatter2/"..miscVoiceProfile.."/misc/chirpgeneric/"..chirpGenericFiles[1]
-						soundDuration_chirpGenericFile = 0.1
-					end
-	
-					if chirpGenericFile then
-						if ChatterLastPlay ~= initTime then return 5 end
-						UVRelayToClients(initTime, chirpGenericFile, parameters, true)
-					end
+			if radioOnFile then
+				UVRelayToClients(initTime, radioOnFile, parameters, false)
+			else
+				if next(chirpGenericFiles) ~= nil then
+					chirpGenericFile = "chatter2/"..miscVoiceProfile.."/misc/chirpgeneric/"..chirpGenericFiles[1]
+					soundDuration_chirpGenericFile = 0.1
 				end
-				timer.Simple(soundDuration_radioOnFile or soundDuration_chirpGenericFile or 0, function()
+
+				if chirpGenericFile then
+					if ChatterLastPlay ~= initTime then return 5 end
+					UVRelayToClients(initTime, chirpGenericFile, parameters, true)
+				end
+			end
+			timer.Simple(soundDuration_radioOnFile or soundDuration_chirpGenericFile or 0, function()
+				if ChatterLastPlay ~= initTime then return 5 end
+				if emergencyFile then
+					UVRelayToClients(initTime, emergencyFile, parameters, false)
+				end
+				timer.Simple(soundDuration_emergencyFile, function()
 					if ChatterLastPlay ~= initTime then return 5 end
 					UVRelayToClients(initTime, addressFile or "", parameters, false, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
 					timer.Simple(soundDuration_addressFile, function()
@@ -699,7 +725,7 @@ if SERVER then
 					end)
 				end)
 			end)
-			return UVDelayChatter((soundDuration_soundFile + soundDuration_emergencyFile + soundDuration_addressFile + soundDuration_locationFile + soundDuration_requestFile + soundDuration_radioOffFile + soundDuration_radioOnFile + (soundDuration_chirpGenericFile or 0) + math.random(1, 2)))
+			return UVDelayChatter((soundDuration_soundFile + soundDuration_emergencyFile + soundDuration_addressFile + soundDuration_locationFile + soundDuration_requestFile + soundDuration_radioOffFile + soundDuration_radioOnFile + (soundDuration_chirpGenericFile or 0) + math.random(0.5, 2) + math.random()))
 			
 		elseif parameters == 7 then
 			if not UVEnemyEscaping then return 5 end
@@ -707,7 +733,13 @@ if SERVER then
 			voice = "dispatch"
 			unitVoiceProfile = GetConVar("unitvehicle_unit_dispatch_voiceprofile"):GetString()
 			
-			local emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/copresponse.mp3"
+			local emergencyFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/emergency/*", "GAME")
+			table.Shuffle(emergencyFiles)
+			local emergencyFile
+			if next(emergencyFiles) ~= nil then
+				emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/"..emergencyFiles[1]
+			end
+			
 			local breakawayFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/dispatch/dispbreakaway/*", "GAME")
 			table.Shuffle(breakawayFiles)
 			local breakawayFile
@@ -749,43 +781,42 @@ if SERVER then
 
 			ChatterLastPlay = initTime
 
-			UVRelayToClients(initTime, emergencyFile, parameters, true)
-			timer.Simple(SoundDuration(emergencyFile or ""), function()
-				if radioOnFile then
-					if ChatterLastPlay ~= initTime then return 5 end
-					UVRelayToClients(initTime, radioOnFile, parameters, true)
-				else
-					if next(chirpGenericFiles) ~= nil then
-						chirpGenericFile = "chatter2/"..miscVoiceProfile.."/misc/chirpgeneric/"..chirpGenericFiles[1]
-					end
-	
-					if chirpGenericFile then
-						if ChatterLastPlay ~= initTime then return 5 end
-						UVRelayToClients(initTime, chirpGenericFile, parameters, true)
-					end
+			if radioOnFile then
+				if ChatterLastPlay ~= initTime then return 5 end
+				UVRelayToClients(initTime, radioOnFile, parameters, true)
+			else
+				if next(chirpGenericFiles) ~= nil then
+					chirpGenericFile = "chatter2/"..miscVoiceProfile.."/misc/chirpgeneric/"..chirpGenericFiles[1]
 				end
-				timer.Simple(radioOnFile and SoundDuration(radioOnFile) or (chirpGenericFile and 0.1 or 0), function()
+
+				if chirpGenericFile then
 					if ChatterLastPlay ~= initTime then return 5 end
-					if not UVEnemyEscaping then return end
+					UVRelayToClients(initTime, chirpGenericFile, parameters, true)
+				end
+			end
+			timer.Simple(radioOnFile and SoundDuration(radioOnFile) or (chirpGenericFile and 0.1 or 0), function()
+				if ChatterLastPlay ~= initTime then return 5 end
+				if emergencyFile then
+					UVRelayToClients(initTime, emergencyFile, parameters, true)
+				end
+				timer.Simple(SoundDuration(emergencyFile or ""), function()
+					if ChatterLastPlay ~= initTime then return 5 end
 					if breakawayFile then
 						UVRelayToClients(initTime, breakawayFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
 					end
 					timer.Simple(SoundDuration(breakawayFile or ""), function()
 						if ChatterLastPlay ~= initTime then return 5 end
-						if not UVEnemyEscaping then return end
 						if locationFile then
 							UVRelayToClients(initTime, locationFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
 						end
 						timer.Simple(SoundDuration(locationFile or ""), function()
 							if ChatterLastPlay ~= initTime then return 5 end
-							if not UVEnemyEscaping then return end
 							if quadrantFile then
 								UVRelayToClients(initTime, quadrantFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
 							end
 							timer.Simple(SoundDuration(quadrantFile or ""), function()
 								if radioOffFile then
 									if ChatterLastPlay ~= initTime then return 5 end
-									if not UVEnemyEscaping then return end
 									UVRelayToClients(initTime, radioOffFile, parameters, true)
 								end
 							end)
@@ -794,7 +825,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter((SoundDuration(emergencyFile or "") + SoundDuration(breakawayFile or "") + SoundDuration(locationFile or "") + SoundDuration(quadrantFile or "") + SoundDuration(radioOnFile or "") + SoundDuration(radioOffFile or "") + math.random(1, 2)))
+			return UVDelayChatter((SoundDuration(emergencyFile or "") + SoundDuration(breakawayFile or "") + SoundDuration(locationFile or "") + SoundDuration(quadrantFile or "") + SoundDuration(radioOnFile or "") + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random()))
 			
 		elseif parameters == 8 then
 			local soundFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/*", "GAME")
@@ -802,7 +833,12 @@ if SERVER then
 			table.Shuffle(soundFiles)
 			local soundFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/"..chattertype.."/"..soundFiles[1]
 			
-			local emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/copresponse.mp3"
+			local emergencyFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/emergency/*", "GAME")
+			table.Shuffle(emergencyFiles)
+			local emergencyFile
+			if next(emergencyFiles) ~= nil then
+				emergencyFile = "chatter2/"..miscVoiceProfile.."/misc/emergency/"..emergencyFiles[1]
+			end
 
 			ChatterLastPlay = initTime
 
@@ -824,22 +860,25 @@ if SERVER then
 			table.Shuffle(chirpGenericFiles)
 			local chirpGenericFile
 			
-			UVRelayToClients(initTime, emergencyFile, parameters, true)
-			timer.Simple(SoundDuration(emergencyFile or ""), function()
-				if radioOnFile then
-					if ChatterLastPlay ~= initTime then return 5 end
-					UVRelayToClients(initTime, radioOnFile, parameters, true)
-				else
-					if next(chirpGenericFiles) ~= nil then
-						chirpGenericFile = "chatter2/"..miscVoiceProfile.."/misc/chirpgeneric/"..chirpGenericFiles[1]
-					end
-	
-					if chirpGenericFile then
-						if ChatterLastPlay ~= initTime then return 5 end
-						UVRelayToClients(initTime, chirpGenericFile, parameters, true)
-					end
+			if radioOnFile then
+				if ChatterLastPlay ~= initTime then return 5 end
+				UVRelayToClients(initTime, radioOnFile, parameters, true)
+			else
+				if next(chirpGenericFiles) ~= nil then
+					chirpGenericFile = "chatter2/"..miscVoiceProfile.."/misc/chirpgeneric/"..chirpGenericFiles[1]
 				end
-				timer.Simple(radioOnFile and SoundDuration(radioOnFile) or (chirpGenericFile and 0.1 or 0), function()
+
+				if chirpGenericFile then
+					if ChatterLastPlay ~= initTime then return 5 end
+					UVRelayToClients(initTime, chirpGenericFile, parameters, true)
+				end
+			end
+			timer.Simple(radioOnFile and SoundDuration(radioOnFile) or (chirpGenericFile and 0.1 or 0), function()
+				if ChatterLastPlay ~= initTime then return 5 end
+				if emergencyFile then
+					UVRelayToClients(initTime, emergencyFile, parameters, true)
+				end
+				timer.Simple(SoundDuration(emergencyFile or ""), function()
 					if ChatterLastPlay ~= initTime then return 5 end
 					UVRelayToClients(initTime, soundFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
 					timer.Simple(SoundDuration(soundFile or ""), function()
@@ -851,7 +890,7 @@ if SERVER then
 				end)
 			end)
 			
-			return UVDelayChatter((SoundDuration(soundFile) + SoundDuration(emergencyFile) + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2)))
+			return UVDelayChatter((SoundDuration(soundFile) + SoundDuration(emergencyFile) + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random()))
 		elseif parameters == 9 then -- in person chatter
 			local players = select(1, ...)
 
@@ -870,6 +909,7 @@ if SERVER then
 			end
 
 			local vehicle = select(2, ...)
+			if not IsValid(vehicle) then return 5 end
 
 			local vehicleModel = vehicle.UVVehicleModel or string.Explode( "[ -.]", UVGetVehicleMakeAndModel(vehicle), true )
 			local vehicleColor = ( vehicle.UVVehicleColor and {name = vehicle.UVVehicleColor} ) or UVColor(vehicle)
@@ -953,7 +993,7 @@ if SERVER then
 				end)
 			end)
 
-			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(1, 2))
+			return UVDelayChatter(SoundDuration(soundFile or "") + SoundDuration(radioOnFile or "") + (chirpGenericFile and 0.1 or 0) + SoundDuration(radioOffFile or "") + math.random(0.5, 2) + math.random())
 		end
 		
 		return HandleCallSounds()
@@ -994,7 +1034,7 @@ if SERVER then
 	end
 	
 	function UVChatterArrestAcknowledge(self)
-		if #UVWantedTableVehicle > 0 then return end
+		if UV_GetInPursuitCount() > 0 then return end
 		return UVSoundChatter(self, self.voice, "arrestacknowledge", 1, "DISPATCH")
 	end
 
@@ -1013,7 +1053,7 @@ if SERVER then
 	end
 	
 	function UVChatterWreck(self)
-		if self:GetClass() ~= "uvair" and UVChatterDelayed or not UVTargeting then return end --Air Unit gets priority
+		if (self:GetClass() ~= "uvair" and UVChatterDelayed) or not UVTargeting then return end --Air Unit gets priority
 		if self:GetClass() == "uvair" then UVResetChatterQueue() end
 		return UVSoundChatter(self, self.voice, "wreck", 3)
 	end
@@ -1034,7 +1074,12 @@ if SERVER then
 		local randomno = math.random(1,2)
 		local a = {"DISPATCH", nil}; local selected = a[math.random(1, #a)]
 		if randomno == 1 then
-			return UVSoundChatter(self, self.voice, "roadblockhit")
+			if next(ents.FindByClass("npc_uv*")) ~= nil then
+				local units = ents.FindByClass("npc_uv*")
+				local random_entry = math.random(#units)	
+				local unit = units[random_entry]
+				return UVSoundChatter(unit, unit.voice, "roadblockhit")
+			end
 		else
 			return UVSoundChatter(self, self.voice, "roadblockhit", 1, selected)
 		end
@@ -1084,7 +1129,6 @@ if SERVER then
 			timeCheck = UVSoundChatter(self, self.voice, "heat" .. heat, 8)
 		end
 		
-		timer.Simple(timeCheck, function()
 			if next(ents.FindByClass("npc_uv*")) ~= nil and not UVEnemyBusted then
 				local units = ents.FindByClass("npc_uv*")
 				local random_entry = math.random(#units)	
@@ -1095,32 +1139,29 @@ if SERVER then
 					timeCheck = UVSoundChatter(self, self.voice, "heat" .. heat .. "acknowledge", 1)
 				elseif next(ents.FindByClass("npc_uvspecial")) ~= nil then
 					timeCheck = UVSoundChatter(self, self.voice, "heat" .. heat .. "argue", 1)
-					timer.Simple(timeCheck, function()
 						if next(ents.FindByClass("npc_uv*")) ~= nil and not UVEnemyBusted then
 							local units = ents.FindByClass("npc_uv*")
 							local random_entry = math.random(#units)	
 							local unit = units[random_entry]
 							UVSoundChatter(self, self.voice, "heat" .. heat .. "reassure", nil, "DISPATCH")
 						end
-					end)
 				end
 			end
-		end)
 		
 		return
 	end
 	
-	function UVChatterPursuitStartRanAway(self)
+	function UVChatterPursuitStartRanAway(self, target)
 		local timecheck = 0.1
 		if randomno == 1 then
 			timecheck = UVSoundChatter(self, self.voice, "finearrest", 2)
 		else
 			timecheck = UVSoundChatter(self, self.voice, "pursuitstartranaway", 4)
 		end
+		target = target or self.e
 		timer.Simple(timecheck, function()
-			if IsValid(self) and IsValid(self.e) then
-				local e = UVGetVehicleMakeAndModel(self.e)
-				UVChatterVehicleDescription(self, self.e, e)
+			if IsValid(self) and IsValid(target) then
+				UVChatterVehicleDescription(self, target)
 			end
 		end)
 		return
@@ -1400,7 +1441,8 @@ if SERVER then
 	
 	function UVChatterLost(self)
 		local timecheck = 5
-		timecheck = UVSoundChatter(self, self.voice, "lost")
+		local a = {"DISPATCH", nil}; local selected = a[math.random(1, #a)]
+		timecheck = UVSoundChatter(self, self.voice, "lost", 1, selected)
 		timer.Simple(timecheck, function()
 			UVSoundChatter(Entity(1), 1, "lostacknowledge", 1, "DISPATCH")
 		end)
@@ -1448,7 +1490,7 @@ if SERVER then
 			local random_entry = math.random(#airUnits)	
 			local unit = airUnits[random_entry]
 			if not (unit.crashing or unit.disengaging) and airrandomno == 1 then
-				return UVSoundChatter(unit, unit.voice, "ptspikestriphit", 1, "DISPATCH")
+				return UVSoundChatter(unit, unit.voice, "ptspikestriphit", 1)
 			end
 		end
 		local randomno = math.random(1,2)
@@ -1456,7 +1498,7 @@ if SERVER then
 		if randomno == 1 then
 			return UVSoundChatter(unit, unit.voice, "ptspikestriphit")
 		else
-			return UVSoundChatter(unit, unit.voice, "ptspikestriphit", 1, selected)
+			return UVSoundChatter(unit, unit.voice, selected == "DISPATCH" and "spikestriphit" or "ptspikestriphit", 1, selected)
 		end
 	end
 	
@@ -1594,24 +1636,41 @@ if SERVER then
 	function UVChatterRequestBackup(self)
 		local timecheck = 5
 		local airrandomno = math.random(1,2)
+		local decisionrandomno = math.random(1,2)
 		local airUnits = ents.FindByClass("uvair")
+		local reportingUnit = nil
 		if next(airUnits) ~= nil then
 			local random_entry = math.random(#airUnits)	
 			local unit = airUnits[random_entry]
 			if not (unit.crashing or unit.disengaging) and airrandomno == 1 then
 				timecheck = UVSoundChatter(unit, unit.voice, "requestbackup", 1)
+				reportingUnit = unit
 			else
 				timecheck = UVSoundChatter(self, self.voice, "requestbackup", 1)
+				reportingUnit = self
 			end
 		else
 			timecheck = UVSoundChatter(self, self.voice, "requestbackup", 1)
+			reportingUnit = self
 		end
-		timer.Simple(timecheck, function()
-			if IsValid(self) then
-				UVChatterBackupOnTheWay(self)
-			end
-		end)
+		if decisionrandomno == 1 then
+			UVChatterBackupOnTheWay(reportingUnit)
+		else
+			UVChatterDenyBackup(reportingUnit)
+		end
 		return
+	end
+
+	function UVChatterDenyBackup(self)
+		local randomno = math.random(1,2)
+		UVSoundChatter(self, self.voice, "denybackup", 1, "DISPATCH")
+		if randomno == 1 then
+			return UVChatterDenyBackupAcknowledge(self)
+		end
+	end
+
+	function UVChatterDenyBackupAcknowledge(self)
+		return UVSoundChatter(self, self.voice, "denybackupacknowledge", 1)
 	end
 	
 	function UVChatterOnScene(self)
@@ -1833,15 +1892,15 @@ if SERVER then
 		else
 			timecheck = UVSoundChatter(self, self.voice, "requestdisengage")
 		end
-		timer.Simple(timecheck, function()
+		--timer.Simple(timecheck, function()
 			if next(ents.FindByClass("npc_uv*")) ~= nil and not UVEnemyBusted then
 				local units = ents.FindByClass("npc_uv*")
-				local random_entry = math.random(#units)	
+				local random_entry = math.random(#units)
 				local unit = units[random_entry]
 				if unit == self then return end
 				UVChatterDoNotDisengage(unit, self)
 			end
-		end)
+		--end)
 		return
 	end
 	
@@ -1886,11 +1945,11 @@ if SERVER then
 		return UVSoundChatter(self, self.voice, "callresponded")
 	end
 	
-	function UVChatterPursuitStartWanted(self)
+	function UVChatterPursuitStartWanted(self, vehicle)
 		local timecheck = 5
 		timecheck = UVSoundChatter(self, self.voice, "pursuitstartwanted", 4)
-		local e = UVGetVehicleMakeAndModel(self.e)
-		UVChatterVehicleDescription(self, self.e, e)
+		local e = UVGetVehicleMakeAndModel(self.e or vehicle)
+		UVChatterVehicleDescription(self, self.e or vehicle, e)
 		return
 	end
 	

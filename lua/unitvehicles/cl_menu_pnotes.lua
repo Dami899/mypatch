@@ -9,13 +9,46 @@ UV = UV or {}
 
 UV.PNotes = {
 ["1.6.0"] = {
-Date = { year = 2026, month = 4, day = 14 },
+Date = { year = 2026, month = 4, day = 24 },
 Type = "Minor",
 Text = [[
 **New Features**
+- UVPD: Added two new vehicles to the fleet:
+      |-- Dodge Viper SRT-10 ACR Command Interceptor '11
+      |-- Dodge Charger SRT8 Super Bee (LX) '07
+
+- Pursuits: Replaced the global pursuit system with an *individual pursuit system*
+      |-- Racers can now hide, evade and join pursuits individually
+      |-- Vehicles have their own heat level, bounty, infractions, etc.
+      |-- Units will spawn as units from the highest heat level racer's pool
+
 - AI Racers: Added a new *Inverted Rubberband* feature
       |-- AI that are ahead of players will gradually slow down
       |-- Does not apply during Pursuits, or if they are rubberbanding up to another player
+
+- Added a new content importer
+      |-- Prompts the user if data from Workshop addons (such as the starter pack) is not present in their data folder
+      |-- Also prompts the user if data from Workshop addons already exist, but differ in any way
+      |-- Will have the option to accept the import and/or replacement, or skip it
+      |-- Checks for: 
+            |-- <color=255,255,100>Racer Names</color>
+            |-- <color=255,255,100>Pursuit Breakers</color>
+            |-- <color=255,255,100>Races</color>
+            |-- <color=255,255,100>Repair Shops</color>
+            |-- <color=255,255,100>Roadblocks</color>
+            |-- <color=255,255,100>DV Waypoints</color>
+            |-- <color=255,255,100>Nav Meshes</color>
+            |-- <color=255,255,100>Unit Presets</color>
+            |-- <color=255,255,100>Glide/Simfphys/LVS/HL2 Jeep Vehicles</color>
+      |-- Can be disabled, or triggered manually, in the new *UV Menu / Settings / UV Settings* tab
+
+- Added new Name Tag settings:
+      |-- *Outline Thickness*
+      |-- *Fade-out Distance*
+      |-- *Max Nr. On-Screen*
+
+**Please Note**
+The content importer will check all your UV content to see if anything is mismatched. Due to this, you can experience a hickup when going in-game. You can disable the import and/or replacement functions in the new UV Settings submenu inside the Settings menu.
 
 **Changes**
 - Improved AI Racer behaviour during races:
@@ -24,6 +57,21 @@ Text = [[
 - Improved AI Racer Rubberband:
       |-- Now checks for actual players ahead of them before rubberbanding
       |-- If there's no players ahead (only AI), then they'll never rubberband
+- Player Units can now initiate pullovers and pursuits
+      |-- When they see a racer perform an infraction, they can enable their siren to pull them over/start a pursuit
+- Altered the appearance of all UVPD vehicles
+- Altered the appearance of the Racing and Pursuit Name Tags
+- <color=255,255,100>Creator: Units</color> Tool: Removed the Optional Settings when creating a Unit
+- <color=255,255,100>Heat Manager</color>: Removed 'Enable Heat Levels' option; Now always enabled
+- Racers are no longer added to the 'Wanted List' if Dispatch calls out 'Unknown model'
+- The Air Unit now sets their own altitude
+- Default voice preset has been changed to provide more variety
+
+**Fixes**
+- Fixed a consistent error on the Race Information prompt, where the "Host" status was given to any Admin and/or Superadmin that was in a car
+- Fixed that the Speedometer speed values would become jittery when playing for a longer period of time
+- Fixed that the Speedometer's health value could go to "inf" if *Unlimited Durability* was enabled
+- Fixed that Pursuit Tech notifications were pushed up during police chatter
 ]],
 },
 

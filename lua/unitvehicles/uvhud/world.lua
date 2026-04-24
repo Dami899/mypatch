@@ -892,8 +892,8 @@ UV_UI.pursuit.world.events = {
 		local debriefunitspawn = params.spawnAsUnit or false
 		local debvriefbustedbg = params.bustedBG or false
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
@@ -902,9 +902,9 @@ UV_UI.pursuit.world.events = {
         local deploys = debriefdata["Deploys"]
         local roadblocksdodged = debriefdata["Roadblocks"]
         local spikestripsdodged = debriefdata["Spikestrips"]
-        local bounty = UVBounty or 0
-        local tags = UVTags or 0
-        local wrecks = UVWrecks or 0
+        local bounty = debriefdata["Bounty"] or 0
+        local tags = debriefdata["Tags"] or 0
+        local wrecks = debriefdata["Wrecks"] or 0
         local suspects = UVHUDWantedSuspectsNumber or 0
 
 		--------------------------------------
@@ -1204,7 +1204,7 @@ UV_UI.pursuit.world.events = {
 	end,
 	onPullOverRequest = function(...)
 		UV_UI.racing.world.events.CenterNotification({
-			text = UVString("uv.hud.fine.pullover"),
+			text = UVHUDCopMode and UVString("uv.hud.fine.pullover.unit") or UVString("uv.hud.fine.pullover"),
 			color = Color( 137, 242, 248 ),
 			colorbg = Color(66, 194, 222, 50),
 			immediate = true,
@@ -1213,7 +1213,7 @@ UV_UI.pursuit.world.events = {
 	end,
 	onFined = function( finenr, finesdue )
 		UV_UI.racing.world.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finenr),
+			text = string.format( UVHUDCopMode and UVString("uv.hud.fine.fined.unit") or UVString("uv.hud.fine.fined"), finenr),
 			color = Color( 137, 242, 248 ),
 			colorbg = Color(66, 194, 222, 50),
 			immediate = true,
@@ -1250,8 +1250,8 @@ function UVDisplayTimeRaceWorld(time) -- include milliseconds in the string
 end
 
 local function world_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)
@@ -1457,8 +1457,8 @@ local function world_pursuit_main( ... )
     
     local vehicle = LocalPlayer():GetVehicle()
     
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)

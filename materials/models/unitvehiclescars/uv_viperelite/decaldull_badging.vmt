@@ -1,0 +1,16 @@
+VertexLitGeneric
+{
+	"$basetexture"	"models\unitvehiclescars\uv_viperelite\Textures\viperelite_badging"
+	"$bumpmap"	"models\unitvehiclescars\uv_viperelite\Textures\viperelite_badging_n"
+	"$translucent"	"1"
+	"$color2"	"[1 1 1]"
+
+	Proxies
+	{
+		Equals
+		{
+			srcVar1				$color2
+			resultVar			$color
+		}
+	}
+}

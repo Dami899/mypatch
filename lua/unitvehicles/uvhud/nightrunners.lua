@@ -30,8 +30,8 @@ end
 UV_UI.racing.nightrunners = UV_UI.racing.nightrunners or {}
 
 local function nightrunners_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)
@@ -163,8 +163,8 @@ UV_UI.racing.nightrunners.events = {
 	end,
 
     ShowResults = function(sortedRacers)
-		local h = ScrH()
-		local w = ScrW()
+		local h = UV_GetH()
+		local w = UV_GetW()
 		local lPlr = LocalPlayer()
 		
 		local resultPanel = vgui.Create("DFrame")

@@ -1,0 +1,21 @@
+VertexLitGeneric
+{
+	"$basetexture"	"models\unitvehiclescars\uv_viperelite\VIPERELITE_tire"
+    "$envmap" "env_cubemap"
+    "$envmaptint" "[1 1 1]"
+    "$phong" "1"
+    "$phongexponent" "15"
+    "$phongboost" "1"
+    "$phongfresnelranges" "[0.05 0.5 1]"
+    "$basemapalphaphongmask" "1"
+	"$color2"	"[1 1 1]"
+
+	Proxies
+	{
+		Equals
+		{
+			srcVar1				$color2
+			resultVar			$color
+		}
+	}
+}

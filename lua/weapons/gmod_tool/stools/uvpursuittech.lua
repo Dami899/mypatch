@@ -251,7 +251,6 @@ end
 
 local function IsSupportedVehicle(ent)
     if not IsValid(ent) then return false end
-    print(ent.LVS)
     return (ent.IsGlideVehicle or ent.IsSimfphyscar or ent:GetClass() == "prop_vehicle_jeep" or ent.LVS)
 end
 
@@ -323,7 +322,7 @@ if CLIENT then
 		file.CreateDir( 'unitvehicles/preset_import/uvpursuittech' )
 	end
 
-	timer.Simple(1, function()
+	timer.Simple(0, function()
 		local importFiles, _ = file.Find( 'data/unitvehicles/preset_import/uvpursuittech/*', 'GAME' )
 		
 		for _, impFile in pairs( importFiles ) do

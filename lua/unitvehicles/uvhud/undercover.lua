@@ -190,8 +190,8 @@ UV_UI.racing.undercover.events = {
     ShowResults = function(sortedRacers) -- Undercover
         if UVHUDDisplayRacing then return end
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
@@ -771,8 +771,8 @@ UV_UI.pursuit.undercover.events = {
     ShowDebrief = function(params) -- Undercover
         if UVHUDDisplayRacing then return end
         
-        local w = ScrW()
-        local h = ScrH()
+        local w = UV_GetW()
+        local h = UV_GetH()
         
         --------------------------------------
         
@@ -785,9 +785,9 @@ UV_UI.pursuit.undercover.events = {
         local deploys = debriefdata["Deploys"]
         local roadblocksdodged = debriefdata["Roadblocks"]
         local spikestripsdodged = debriefdata["Spikestrips"]
-        local bounty = UVBounty or 0
-        local tags = UVTags or 0
-        local wrecks = UVWrecks or 0
+        local bounty = debriefdata["Bounty"] or 0
+        local tags = debriefdata["Tags"] or 0
+        local wrecks = debriefdata["Wrecks"] or 0
         local suspects = UVHUDWantedSuspectsNumber or 0
         
         local lineData = {
@@ -1174,14 +1174,14 @@ UV_UI.pursuit.undercover.events = {
 
 	onPullOverRequest = function(...)
 		UV_UI.racing.undercover.events.CenterNotification({
-			text = UVString("uv.hud.fine.pullover"),
+			text = UVHUDCopMode and UVString("uv.hud.fine.pullover.unit") or UVString("uv.hud.fine.pullover"),
 			color = Color(0,194,255),
 			immediate = true,
 		})
 	end,
 	onFined = function( finenr, finesdue )
 		UV_UI.racing.undercover.events.CenterNotification({
-			text = string.format( UVString("uv.hud.fine.fined"), finenr),
+			text = string.format( UVHUDCopMode and UVString("uv.hud.fine.fined.unit") or UVString("uv.hud.fine.fined"), finenr),
 			color = Color(0,194,255),
 			immediate = true,
 		})
@@ -1194,8 +1194,8 @@ UV_UI.pursuit.undercover.events = {
 }
 
 local function undercover_racing_main( ... )
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     
     local my_vehicle = select(1, ...)
     local my_array = select(2, ...)
@@ -1329,8 +1329,8 @@ local function undercover_pursuit_main( ... )
 
     local vehicle = LocalPlayer():GetVehicle()
     
-    local w = ScrW()
-    local h = ScrH()
+    local w = UV_GetW()
+    local h = UV_GetH()
     local lang = UVString
     
     local UnitsChasing = tonumber(UVUnitsChasing)

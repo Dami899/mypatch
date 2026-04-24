@@ -45,6 +45,10 @@ function UVGetELS(vehicle)
 		return vehicle.SirenIsOn
 	elseif vehicle.IsSimfphyscar then
 		return vehicle:GetEMSEnabled()
+    elseif vehicle.LVS or vehicle.LVS_GUNNER then
+        return isfunction(vehicle.GetSirenMode) and vehicle:GetSirenMode() >= 0
+    elseif vehicle.IsGlideVehicle then
+        return vehicle:GetSirenState() >= 1
 	elseif Photon2
     and isfunction(vehicle.GetPhotonControllerFromAncestor) then
         local pc = vehicle:GetPhotonControllerFromAncestor()
@@ -67,6 +71,10 @@ function UVGetELSSound(vehicle)
 		return vehicle.SirenIsOn
 	elseif vehicle.IsSimfphyscar then
 		return vehicle.ems and vehicle.ems:IsPlaying()
+    elseif vehicle.LVS or vehicle.LVS_GUNNER then
+        return isfunction(vehicle.GetSirenMode) and vehicle:GetSirenMode() >= 0
+    elseif vehicle.IsGlideVehicle then
+        return vehicle:GetSirenState() == 2
 	elseif Photon2
     and isfunction(vehicle.GetPhotonControllerFromAncestor) then
         local pc = vehicle:GetPhotonControllerFromAncestor()
@@ -530,9 +538,12 @@ if SERVER then
         return IsValid(Leader) and Leader
     end
 
-    function UVOptimizeRespawn( vehicle, rhino, commander, suspectwaypoint )
-        if UVOptimizeRespawnDelayed and not suspectwaypoint then return end
+    function UVOptimizeRespawn( vehicle )
+        if UVOptimizeRespawnDelayed then return end
         if UVJammerDeployed then return end
+
+        local rhino = vehicle.rhino
+        local commander = vehicle.uvclasstospawnon == "npc_uvcommander" or vehicle.UVCommander
 
         UVOptimizeRespawnDelayed = true
         timer.Simple(1, function()
@@ -628,11 +639,6 @@ if SERVER then
 	    	uvspawnpoint = uvspawnpointwaypoint["Target"]
 	    end
 
-        if suspectwaypoint then
-            uvspawnpointwaypoint = suspectwaypoint
-            uvspawnpoint = uvspawnpointwaypoint["Target"]
-        end
-
 	    local neighbor = dvd.Waypoints[uvspawnpointwaypoint.Neighbors[math.random(#uvspawnpointwaypoint.Neighbors)]]
 
 	    if neighbor then
@@ -696,8 +702,8 @@ if SERVER then
             end)
         end
 
-        if NPC.metwithenemy and not UVResourcePointsRefreshing and UVResourcePoints > 1 and not UVOneCommanderActive and not vehicle.roadblocking then
-			UVResourcePoints = (UVResourcePoints - 1)
+        if NPC.metwithenemy and not UVResourcePointsRefreshing and UVGlobalPursuit.ResourcePoints > 1 and not UVOneCommanderActive and not vehicle.roadblocking then
+			UVUpdateGlobalPursuit('ResourcePoints', UVGlobalPursuit.ResourcePoints - 1)
 		end
 
         if vehicle.roadblocking then
@@ -823,27 +829,6 @@ if SERVER then
 				vehicle.UVBustingPenaltyMult = 1
 			end)
 		end
-
-        --Prevent abuse during pursuits by teleporting a Unit ahead
-        -- timer.Simple(delay, function()
-            -- if UVTargeting and not UVHUDCooldown then
-                -- local units = ents.FindByClass("npc_uv*")
-                -- if #units == 0 then return end
-
-                -- for k, unit in pairs(units) do
-                    -- if IsValid(unit) and unit.e and unit.e == vehicle then
-                        -- local enemywaypoint = dvd.GetNearestWaypoint( vehicle:GetPos() )
-                        -- if not enemywaypoint.Neighbors or next(enemywaypoint.Neighbors) == nil then return end
-                        -- local neighbor = dvd.Waypoints[enemywaypoint.Neighbors[math.random(#enemywaypoint.Neighbors)]]
-
-                        -- if neighbor and unit.v then
-                            -- UVOptimizeRespawn( unit.v, unit.v.rhino, unit.v.uvclasstospawnon == "npc_uvcommander", neighbor )
-                            -- break
-                        -- end
-                    -- end
-                -- end
-            -- end
-        -- end)
     end
     
     net.Receive("UVResetPosition", function(len, ply)
@@ -1986,8 +1971,8 @@ if SERVER then
                 local attachVictim = false
                 --if object.UnitVehicle then
                     damage = (table.HasValue(UVCommanders, object) and UVPTShockwaveCommanderDamage:GetFloat()) or damage
-                    local phmass = math.Round(objectphys:GetMass())
-                    UVBounty = UVBounty+phmass
+                    -- local phmass = math.Round(objectphys:GetMass())
+                    -- UVBounty = UVBounty+phmass
                     UVDamage(object, damage)
                     attachVictim = true
 
@@ -2043,7 +2028,7 @@ if SERVER then
             end
         end)
         
-        for k, unit in pairs(UVUnitVehicles) do
+        for unit, _ in pairs(UVUnitVehicles) do
             UVDeactivateESF(unit)
             UVDeactivateKillSwitch(unit)
             UVDeactivateGrappler(unit)
@@ -2188,8 +2173,6 @@ if SERVER then
                 
                 local attachVictim = false
                 --if object.UnitVehicle then
-                    local phmass = math.Round(objectphys:GetMass())
-                    UVBounty = UVBounty+phmass
                     UVDamage(object, damage)
                     attachVictim = true
                 --end

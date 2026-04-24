@@ -130,6 +130,8 @@ function ENT:Initialize()
 	self.UVAir = self
 	self.UnitVehicle = self
 
+	self:ChangeAltitude()
+
 	local weaponchoices = {}
 
 	if Barrels:GetBool() then
@@ -146,7 +148,7 @@ function ENT:Initialize()
 		self.aggressive = true
 	end
 		
-	timer.Simple((math.random(60,180)), function() 
+	timer.Simple((math.random(60,300)), function() 
 		if IsValid(self) and not self.Downed then --Fuel is randomized 
 			if Chatter:GetBool() and not (self.crashing or self.disengaging) then
 				if IsValid(self:GetTarget()) then
@@ -164,6 +166,12 @@ function ENT:Initialize()
 	end
 
 	UVDeploys = UVDeploys + 1
+
+	for _, v in pairs(UVPursuitScopes) do
+		if v.InPursuit then
+			v.Deploys = v.Deploys + 1
+		end
+	end
 
 	net.Start("UVHUDAddUV")
 	net.WriteInt(self:EntIndex(), 32)
@@ -226,11 +234,12 @@ function ENT:Think()
 		end
 	end
 
+	local eScope = isValidTarget and UVGetScope(target) or nil
+
 	if isValidTarget then
 		
 		if self.CloseToTarget and self:IsSeeTarget() and not self.spotted then
 			self.spotted = true
-			UVLosing = CurTime()
 			timer.Simple(20, function() self.cooldown = nil end)
 
 			if not UVTargeting then
@@ -424,15 +433,11 @@ function ENT:PhysicsUpdate()
 		if self:Health()<=0 then
 			self:StartCrush()
 		end
-		
-		if isValidTarget and self:IsSeeTarget() and UVTargeting then
-			UVLosing = CurTime()
-		end
-		
+				
 		--Bounty
 		local botimeout = 10
 		if CurTime() > self.bountytimer + botimeout and isValidTarget and self:IsSeeTarget() and UVTargeting then
-			UVBounty = UVBounty+(UVBountyTime or 0)
+			--if eScope then eScope.Bounty = eScope.Bounty + (eScope.BountyTime or 0) end
 			self.bountytimer = CurTime()
 			local MathAggressive = math.random(1,10) 
 			if MathAggressive == 1 then
@@ -454,6 +459,8 @@ function ENT:PhysicsUpdate()
 						UVChatterPassive(self) 
 					end
 				end
+				
+				self:ChangeAltitude()
 			end
 			if isValidTarget and Chatter:GetBool() and not (self.crashing or self.disengaging) and target:GetVelocity():LengthSqr() > 100000 and self:IsSeeTarget() and MathAggressive ~= 1 then
 				UVChatterCloseToEnemy(self, target)
@@ -498,10 +505,11 @@ function ENT:PhysicsUpdate()
 		if UVTargeting then
 			if not isValidTarget or target.uvbusted then
 				if next(UVWantedTableVehicle) ~= nil then -- Look for remaining suspects
-					local suspecttable = UVWantedTableVehicle
-					for k, v in pairs(suspecttable) do
-						if v.uvbusted then
-							table.remove(suspecttable, k)
+					local suspecttable = {}
+					for k, v in pairs(UVWantedTableVehicle) do
+						local scope = UVGetScope(v)
+						if scope.InPursuit then
+							table.insert(suspecttable, v)
 						end
 					end
 					local randomsuspect = suspecttable[math.random(1, #suspecttable)]
@@ -516,7 +524,7 @@ function ENT:PhysicsUpdate()
 			end
 		end
 		
-		if isValidTarget and not UVEnemyEscaping and not UVJammerDeployed then
+		if isValidTarget and not (eScope and eScope.EnemyEscaping) and not UVJammerDeployed then
 			if self:GetVelocity():LengthSqr() <= (self:DistIgnoreZ((targetpos+target:GetVelocity()))^2) and not (self:DistIgnoreZ(targetpos) <= 500 and self:IsSeeTarget()) then
 				self:FlyTo(targetpos)
 			else
@@ -593,16 +601,27 @@ function ENT:ApplyAngles()
 	self.phys:SetVelocity(absvel)
 end
 
+function ENT:ChangeAltitude()
+	self.Altitude = math.random(300, 2000)
+end
+
 function ENT:ApplyHeight(height)
 	local target = self:GetTarget()
 	local isValidTarget = IsValid(target)
+
+	if not self.Altitude then
+		self:ChangeAltitude()
+	end
 	
 	height = height or self:CheckWorldHeight()
+
+	local altmin = self.Altitude - 10
+	local altmax = self.Altitude + 10
 	
 	if (not height or height=="stop") and isValidTarget then
 		local d = self:GetPos().z-self:GetTargetPos().z
 		
-		height = d<(self.StayInAir and 250 or 300) and "up" or d>(self.StayInAir and 1000 or 950) and height~="stop" and "down" or false
+		height = d<(altmin) and "up" or d>(altmax) and height~="stop" and "down" or false
 	end
 	
 	local vel = self.phys:GetVelocity()
@@ -721,6 +740,9 @@ end
 
 function ENT:CheckWorldHeight()
 
+	local altmin = self.Altitude - 10
+	local altmax = self.Altitude + 10
+
 	if self.engaging and IsValid(self:GetTarget()) then
 		local d = self:GetPos().z-(self:GetTargetPos()).z
 		local velocityz = (self.phys:GetVelocity().z * -1)
@@ -734,9 +756,9 @@ function ENT:CheckWorldHeight()
 		end
 	end
 
-	local floor = util.TraceLine({start = self:GetPos(),endpos = self:GetPos()-Vector(0,0,self.StayInAir and 1000 or 950),filter = self,mask = MASK_ALL})
+	local floor = util.TraceLine({start = self:GetPos(),endpos = self:GetPos()-Vector(0,0,altmax),filter = self,mask = MASK_ALL})
 	if floor.Hit then
-		if self:GetPos().z-floor.HitPos.z>(self.StayInAir and 250 or 300) then
+		if self:GetPos().z-floor.HitPos.z>(altmin) then
 			return "stop"
 		else
 			return "up"
@@ -770,7 +792,8 @@ function ENT:IsSeeTarget()
 
 	if isValidSuspect then
 		local tr = util.TraceLine({start = self:WorldSpaceCenter(), endpos = suspect:WorldSpaceCenter(), mask = MASK_OPAQUE, filter = {self, suspect}}).Fraction==1
-		if UVHiding then
+		local tScope = UVGetScope(suspect)
+		if tScope and tScope.Hiding then
 			return tobool(tr) and self:DistIgnoreZ(self:GetTargetPos()) <= 2000
 		else
 			return tobool(tr) and self:DistIgnoreZ(self:GetTargetPos()) <= 10000
@@ -836,6 +859,11 @@ function ENT:StartCrush()
 			end 
 		end
 		UVWrecks = UVWrecks + 1
+		local scope = UVGetScope(self:GetTarget())
+		if scope then
+			scope.Wrecks = scope.Wrecks + 1
+			scope.Bounty = scope.Bounty + bountyplus
+		end
 		self.crashing = true
 		self:EmitSound( "npc/attack_helicopter/aheli_damaged_alarm1.wav" )
 		self:EmitSound( "npc/combine_gunship/gunship_crashing1.wav" )
@@ -918,14 +946,16 @@ function ENT:Explode()
 			end 
 		end
 		UVWrecks = UVWrecks + 1
+		local scope = UVGetScope(self:GetTarget())
+		if scope then
+			scope.Wrecks = scope.Wrecks + 1
+			scope.Bounty = scope.Bounty + bountyplus
+
+			UVAddInfraction( self:GetTarget(), 'homicide' )
+		end
 		self.crashing = true
 		UVBounty = (UVBounty+bountyplus)
 		UVComboBounty = UVComboBounty + 1
-		if #UVWantedTableVehicle > 0 then
-			for _, v in pairs(UVWantedTableVehicle) do
-				UVAddInfraction(v, 'homicide')
-			end
-		end
 	end
 end
 

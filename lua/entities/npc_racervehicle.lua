@@ -565,7 +565,7 @@ if SERVER then
 				Vector(-sideDist, -sideDist, -50),
 				Vector(sideDist, sideDist, 50),
 				Angle(0, forward:Angle().y, 0),
-				0.3,
+				0.1,
 				Color(0,255,0,20)
 			)
 
@@ -575,7 +575,7 @@ if SERVER then
 				Vector(-sideDist * 0.5, -sideDist * 0.5, -50),
 				Vector(sideDist * 0.5, sideDist * 0.5, 50),
 				Angle(0, forward:Angle().y, 0),
-				0.3,
+				0.1,
 				Color(255,0,0,20)
 			)
 
@@ -584,7 +584,7 @@ if SERVER then
 				pos,
 				Vector(-sideDist, -sideDist, -50),
 				Vector(sideDist, sideDist, 50),
-				0.3,
+				0.1,
 				Color(0,100,255,20)
 			)
 
@@ -592,7 +592,7 @@ if SERVER then
 			debugoverlay.Line(
 				pos,
 				pos + forward * forwardDist,
-				0.3,
+				0.1,
 				Color(255,255,0),
 				true
 			)
@@ -1071,11 +1071,6 @@ if SERVER then
 
 			speedLimit = speedLimit * difficultyScale
 
-			-- Apply reverse catchup penalty
-			if self.__reverse_catchup_mult and self.__reverse_catchup_mult < 0.9 then
-				speedLimit = speedLimit * self.__reverse_catchup_mult
-			end
-
 			local throttle = 1
 			local cornerDist = 400
 
@@ -1109,20 +1104,25 @@ if SERVER then
 				local desiredSpeed = math.max(targetSpeed * OVERTAKE_BOOST, MIN_SPEED)
 
 				if mySpeed > desiredSpeed then -- If we're too fast, slow down
-					throttle = math.min(throttle, 0.4)
+					throttle = math.min(throttle, 0.1)
 
 					if mySpeed > desiredSpeed * 1.25 then
 						throttle = -0.6
 					end
 				else -- If target is VERY slow, try overtaking instead of matching forever
 					if targetSpeed < MIN_SPEED * 0.75 then
-						throttle = math.max(throttle, 0.8)
+						throttle = math.max(throttle, 0.1)
 					end
 				end
 			end
 
 			if mySpeed < MIN_SPEED and throttle >= 0 then -- Minimum throttle
 				throttle = math.max(throttle, 0.6)
+			end
+
+			-- Apply reverse catchup penalty
+			if self.__reverse_catchup_mult and self.__reverse_catchup_mult < 0.9 then
+				throttle = throttle * self.__reverse_catchup_mult
 			end
 
 			-- Traction control
@@ -1292,10 +1292,6 @@ if SERVER then
 
 			self.Speeding = self.Speeding * difficultyScale
 
-			if self.__reverse_catchup_mult then
-				self.Speeding = self.Speeding * self.__reverse_catchup_mult
-			end
-
 			local throttleInput = nil
 			local brakeInput = nil
 			self.maxTurn = 0
@@ -1332,14 +1328,14 @@ if SERVER then
 				local desiredSpeed = math.max(targetSpeed * OVERTAKE_BOOST, MIN_SPEED)
 
 				if mySpeed > desiredSpeed then -- If we're too fast, slow down
-					throttle = math.min(throttle, 0.4)
+					throttle = math.min(throttle, 0.1)
 
 					if mySpeed > desiredSpeed * 1.25 then
 						throttle = -0.6
 					end
 				else -- If target is VERY slow, try overtaking instead of matching forever
 					if targetSpeed < MIN_SPEED * 0.75 then
-						throttle = math.max(throttle, 0.8)
+						throttle = math.max(throttle, 0.1)
 					end
 				end
 			end
@@ -1351,6 +1347,11 @@ if SERVER then
 			if self:ObstaclesNearby() and not self.v.uvraceparticipant and not (self.v.UVWanted and UVTargeting) then
 				throttle = throttle * -1
 			end --Slow down when free roaming
+
+			-- Apply reverse catchup penalty
+			if self.__reverse_catchup_mult and self.__reverse_catchup_mult < 0.9 then
+				throttle = throttle * self.__reverse_catchup_mult
+			end
 
 			-- Traction control
 			if GetConVar("unitvehicle_tractioncontrol"):GetBool() and selfvelocity > 10000 and not self.stuck then
@@ -1814,6 +1815,12 @@ if SERVER then
 		e:SetEntity(self.v)
 		util.Effect("propspawn", e) --Perform a spawn effect.
 		self.v:EmitSound( "beams/beamstart5.wav" )
+		
+		if not UVNames then
+			file.AsyncRead('unitvehicles/names/Names.json', 'DATA', function( _, _, status, data )
+				UVNames = util.JSONToTable(data)
+			end, true)
+		end
 		
 		if not self.v.racer and UVNames then
 			self.v.racer = UVNames.Racers[math.random(1, #UVNames.Racers)]

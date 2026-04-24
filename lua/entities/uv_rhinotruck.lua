@@ -4,7 +4,8 @@ ENT.Type = "anim"
 ENT.Base = "base_glide_car"
 ENT.Author = "Sergeant Armstrong"
 
-ENT.PrintName = "Rhino Truck"
+-- ENT.PrintName = "Rhino Truck"
+ENT.PrintName = "#uv.veh.rhino"
 
 ENT.GlideCategory = "unitvehiclesglide"
 ENT.ChassisModel = "models/unitvehiclescars/uv_rhinotruck/uv_rhinotruck.mdl"
@@ -16,6 +17,7 @@ DEFINE_BASECLASS( "base_glide_car" )
 ENT.SirenTable = {
     ")uvcars/federal sig rumbler/emv_wail.wav",
     ")uvcars/federal sig rumbler/emv_yelp.wav",
+    ")uvcars/federal sig rumbler/emv_priority.wav",
     ")uvcars/federal sig rumbler/emv_hilo.wav",
 }
 
@@ -26,7 +28,7 @@ if CLIENT then
     ENT.SirenVolume = 1
 
     ENT.SirenLoopSound = ")uvcars/federal sig rumbler/emv_wail.wav"
-    ENT.SirenLoopAltSound = ")uvcars/federal sig rumbler/emv_priority.wav"
+    ENT.SirenLoopAltSound = ")uvcars/federal sig rumbler/emv_horn.wav"
     ENT.HornSound = ")uvcars/federal sig rumbler/emv_horn.wav"
 
     ENT.ExhaustOffsets = {
@@ -63,15 +65,20 @@ if CLIENT then
         { type = "headlight", offset = Vector(102.48,44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ), },
         { type = "headlight", offset = Vector(102.48,-44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
 
-        { type = "taillight", offset = Vector(-126.13,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
-        { type = "taillight", offset = Vector(-126.13,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
+        { type = "taillight", offset = Vector(-125.27,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
+        { type = "taillight", offset = Vector(-125.27,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
 
-        { type = "brake", offset = Vector(-126.13,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
-        { type = "brake", offset = Vector(-126.13,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
+        { type = "brake", offset = Vector(-125.27,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
+        { type = "brake", offset = Vector(-125.27,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
 
         { type = "reverse", offset = Vector(-126.74,43.74,51.35), size = 30, color = Color(255,255,255), dir = Vector( -1, 0, 0 ), },
         { type = "reverse", offset = Vector(-126.74,-43.74,51.35), size = 30, color = Color(255,255,255), dir = Vector( -1, 0, 0 ), }, 
 
+        { type = "signal_left", offset = Vector(98.12,49.27,39), dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0), size = 30 },
+        { type = "signal_right", offset = Vector(98.12,-49.27,39), dir = Vector( 1, 0, 0 ), color = Color(255, 192, 0), size = 30 },
+
+        { type = "signal_left", offset = Vector(-125.27,46.57,31.94), color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ), size = 30 },
+        { type = "signal_right", offset = Vector(-125.27,-46.57,31.94), color = Color(255, 192, 0), dir = Vector( -1, 0, 0 ), size = 30 },
     }
 
     ENT.SirenCycle = 0.3
@@ -85,49 +92,48 @@ if CLIENT then
         { offset = Vector(106.5,35.38,37.53), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ), },
         { offset = Vector(106.5,-35.38,37.53), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
 
-        { offset = Vector(102.48,44.13,38.4), time = 0, duration = 0.5, size = 40, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ),},
-        { offset = Vector(102.48,-44.13,38.4), time = 0.5, duration = 0.5, size = 40, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
+        { offset = Vector(102.48,44.13,38.4), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ),},
+        { offset = Vector(102.48,-44.13,38.4), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
 
         -- RED
 
-        { offset = Vector(-128.34,37.15,95.42), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-128.34,-37.15,95.42), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-128.34,37.15,95.42), time = 0, duration = 0.5, size = 40, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(71.77,-55.07,45.74), time = 0, duration = 0.5, size = 40, color = Color(255,30,0), dir = Vector( 0, -1, 0 ), },
+        { offset = Vector(116.58,-25.56,37.53), time = 0, duration = 0.5, size = 40, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
 
-        { offset = Vector(71.77,55.07,45.74), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), dir = Vector( 0, 1, 0 ), },
-        { offset = Vector(71.77,-55.07,45.74), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), dir = Vector( 0, -1, 0 ), },
+        { offset = Vector(-3.71,-36.36,104.23), spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 220, color = Color(255,30,0), },
+        { offset = Vector(-3.71,-25.96,104.23), time = 0, duration = 0.5, size = 80, color = Color(255,30,0), },
 
-        { offset = Vector(116.58,25.56,37.53), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(116.58,-25.56,37.53), time = 0, duration = 0.5, size = 40, color = Color(255,30,0,175), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(-3.71,36.36,104.23), spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 220, color = Color(255,30,0), },
+        { offset = Vector(-3.71,25.96,104.23), time = 0, duration = 0.5, size = 80, color = Color(255,30,0), },
 
-        { offset = Vector(-3.71,-36.36,104.23), spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 220, color = Color(255,30,0,175), },
-        { offset = Vector(-3.71,-25.96,104.23), time = 0, duration = 0.5, size = 80, color = Color(255,30,0,175), },
+        { offset = Vector(13.77,-36.36,104.23), spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 220, color = Color(255,30,0), },
+        { offset = Vector(13.77,-25.96,104.23), time = 0, duration = 0.5, size = 80, color = Color(255,30,0), },
 
-        { offset = Vector(-3.71,36.36,104.23), spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 220, color = Color(255,30,0,175), },
-        { offset = Vector(-3.71,25.96,104.23), time = 0, duration = 0.5, size = 80, color = Color(255,30,0,175), },
-
-        { offset = Vector(13.77,-36.36,104.23), spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 220, color = Color(255,30,0,175), },
-        { offset = Vector(13.77,-25.96,104.23), time = 0, duration = 0.5, size = 80, color = Color(255,30,0,175), },
-
-        { offset = Vector(13.77,36.36,104.23), spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 220, color = Color(255,30,0,175), },
-        { offset = Vector(13.77,25.96,104.23), time = 0, duration = 0.5, size = 80, color = Color(255,30,0,175), },
+        { offset = Vector(13.77,36.36,104.23), spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 220, color = Color(255,30,0), },
+        { offset = Vector(13.77,25.96,104.23), time = 0, duration = 0.5, size = 80, color = Color(255,30,0), },
 
         -- BLUE
 
-        { offset = Vector(-3.71,15.6,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255,175), },
-        { offset = Vector(-3.71,-15.6,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255,175), },
+        { offset = Vector(-128.34,-37.15,95.42), time = 0.5, duration = 0.5, size = 40, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(71.77,55.07,45.74), time = 0.5, duration = 0.5, size = 40, color = Color(0,115,255), dir = Vector( 0, 1, 0 ), },
+        { offset = Vector(116.58,25.56,37.53), time = 0.5, duration = 0.5, size = 40, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
 
-        { offset = Vector(-3.71,5.17,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255,175), },
-        { offset = Vector(-3.71,-5.17,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255,175), },
+        { offset = Vector(-3.71,15.6,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255), },
+        { offset = Vector(-3.71,-15.6,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255), },
 
-        { offset = Vector(13.77,15.6,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255,175), },
-        { offset = Vector(13.77,-15.6,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255,175), },
+        { offset = Vector(-3.71,5.17,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255), },
+        { offset = Vector(-3.71,-5.17,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255), },
 
-        { offset = Vector(13.77,5.17,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255,175), },
-        { offset = Vector(13.77,-5.17,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255,175), },
+        { offset = Vector(13.77,15.6,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255), },
+        { offset = Vector(13.77,-15.6,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255), },
 
-        { offset = Vector(-3.71,0,104.23),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 220, color = Color(0,115,255,175), },
+        { offset = Vector(13.77,5.17,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255), },
+        { offset = Vector(13.77,-5.17,104.23), time = 0.5, duration = 0.5, size = 80, color = Color(0,115,255), },
 
-        { offset = Vector(13.77,0,104.23),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 220, color = Color(0,115,255,175), },
+        { offset = Vector(-3.71,0,104.23),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 220, color = Color(0,115,255), },
+
+        { offset = Vector(13.77,0,104.23),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 220, color = Color(0,115,255), },
 
     }
 
@@ -254,10 +260,10 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(12, "models/unitvehiclescars/shared/headlightglass")
         self:SetSubMaterial(13, "models/unitvehiclescars/shared/headlightglass")
         self:SetSubMaterial(14, "models/unitvehiclescars/shared/headlightglass")
         self:SetSubMaterial(15, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial(16, "models/unitvehiclescars/shared/headlightglass")
         self:SetBodygroup( 1, 0 )
 
         self.frontdamaged = 0
@@ -328,31 +334,31 @@ if SERVER then
                 self:SetBodygroup( 1, 1 )
                 self.frontdamaged = 1
             elseif self.frontdamaged < 2 then
-                self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(16, "models/unitvehiclescars/shared/windowdamage")
                 self.frontdamaged = 2
             elseif self.frontdamaged < 3 then
-                self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage1")
+                self:SetSubMaterial(16, "models/unitvehiclescars/shared/windowdamage1")
                 self.frontdamaged = 3
             end
         end
 
         if rearhit then --REAR
             if self.reardamaged < 1 then
-                self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(13, "models/unitvehiclescars/shared/windowdamage")
                 self.reardamaged = 1
             end
         end
 
         if lefthit then --LEFT
             if speed < 600 and self.leftdamaged < 1 then
-                self:SetSubMaterial(13, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage")
                 self.leftdamaged = 1
             end
         end
 
         if righthit then --RIGHT
             if speed < 600 and self.rightdamaged < 1 then
-                self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage")
+                self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage")
                 self.rightdamaged = 1
             end
         end
