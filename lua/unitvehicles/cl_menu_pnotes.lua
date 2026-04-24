@@ -8,6 +8,13 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
+["1.6.1"] = {
+      Date = { year = 2026, month = 4, day = 24 },
+      Text = [[
+      **Fixes**
+      - Fixed improper bit count when sending the Fined event, resulting in the paid fine having an incorrect value.
+      ]],
+},
 ["1.6.0"] = {
 Date = { year = 2026, month = 4, day = 24 },
 Type = "Minor",
