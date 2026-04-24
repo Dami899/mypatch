@@ -3541,7 +3541,6 @@ function UVBustEnemy(self, enemy, finearrest)
 		enemyScope.InCooldown = false
 		enemy.UVHUDBusting = nil
 		enemy.UVHUDBustingDelayed = nil
-		enemyScope.Bounty = 0
 		UVEndTrafficStop( enemy )
 		local occupants = UVGetVehicleOccupants( enemy )
 		if enemy:IsVehicle() then
@@ -3578,12 +3577,16 @@ function UVBustEnemy(self, enemy, finearrest)
 			net.Broadcast()
 		end)
 		local driver = (enemyDriver and enemyDriver:IsPlayer()) and enemyDriver or nil
-		timer.Simple(0.1, function()				
+		timer.Simple(0, function()				
 			table.Add( occupants, (self and self:IsPlayer() and UVGetVehicleOccupants( UVGetVehicle( self ) )) or {} )
 			net.Start( "UVFined" )
-			net.WriteUInt( enemy.UVFinedCount, 3 )
-			net.WriteInt(enemyScope.FinesDue, 32)
+			net.WriteUInt( enemy.UVFinedCount, 2 )
+			net.WriteUInt( enemyScope.FinesDue, 32 )
 			net.Send(occupants)
+			enemyScope.FinesDue = 0
+			enemyScope.Bounty = 0
+			enemyScope.Heat = 1
+			enemyScope.TimeTillNextHeatEnd = 0
 		end)
 		if driver then
 			driver:EmitSound("ui/pursuit/fined.wav", 0, 100, 0.5)
@@ -3597,11 +3600,6 @@ function UVBustEnemy(self, enemy, finearrest)
 				end
 			end
 			enemy.uvbusted = nil
-			enemyScope.FinesDue = 0
-			--enemyScope.EnemyBusted = false
-			enemyScope.Bounty = 0
-			enemyScope.Heat = 1
-			enemyScope.TimeTillNextHeatEnd = 0
 		end)
 	end
 

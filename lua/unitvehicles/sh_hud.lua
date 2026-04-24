@@ -1653,15 +1653,12 @@ function UVRenderEnemySquare(ent)
 	ent._bustOffset = ent._bustOffset or 0
 
 	if IsValid(ent) then
-		if not (UVHUDDisplayPursuit or UVHUDDisplayRacing) then return end
+		local scope = UVGetScope(ent)
+		if not UVHUDCopMode and not (UVHUDDisplayPursuit or UVHUDDisplayRacing) then return end
 
 		-- Unfucked, clarified logic: hide enemy square as cop during cooldown, or if there are no units chasing or out of unit view,
 		-- except when one-commander-evading is actually active (and one commander is active)
 		if UVHUDCopMode then
-			if UVHUDDisplayCooldown then
-				return
-			end
-
 			local oneCommanderEvading = GetConVar("unitvehicle_unit_onecommanderevading"):GetBool()
 			if not ent.inunitview then
 				-- Only hide if either one-commander-evading is off or commander is NOT active
@@ -1675,6 +1672,18 @@ function UVRenderEnemySquare(ent)
 			local pdata = UVHUDRaceInfo.Participants[ent]
 			if (not UVHUDCopMode) and pdata.Finished or pdata.Disqualified or pdata.Busted then
 				return
+			end
+		end
+
+		if UVHUDCopMode then
+			if not scope.InPursuit then
+				box_color = Color( 255, 207, 63)
+			end
+			if scope.IsBeingPulledOver then
+				local red = math.Remap( math.sin(SysTime() * 8), -1, 1, 0, 255 )
+				local blue = math.Remap( math.sin(SysTime() * 8), -1, 1, 255, 0 )
+
+				box_color = Color( red, 0, blue )
 			end
 		end
 		
@@ -1883,7 +1892,9 @@ function UVRenderEnemySquare(ent)
 
 				draw.SimpleTextOutlined(enemycallsign, "UVFont4", rectxpos + textWidthDist + distpadding, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
 				draw.SimpleTextOutlined(bustdist, "UVFont4", rectxpos, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
-
+				draw.SimpleTextOutlined("HEAT LEVEL: " .. scope.Heat, "UVFont4", rectxpos - (thickness * 0.5), (rectypos - textHeight) - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
+				draw.SimpleTextOutlined("BOUNTY: " .. scope.Bounty, "UVFont4", rectxpos - (thickness * 0.5), (rectypos - (textHeight * 2)) - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
+				draw.SimpleTextOutlined("FINES DUE: $" .. scope.FinesDue, "UVFont4", rectxpos - (thickness * 0.5), (rectypos - (textHeight * 3)) - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
 			end
         cam.End2D()
     end

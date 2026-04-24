@@ -3867,7 +3867,7 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive( "UVFined", function()
 		local finenr = net.ReadUInt(2)
-		local finesdue = net.ReadInt(32)
+		local finesdue = net.ReadUInt(32)
 		hook.Run( 'UIEventHook', 'pursuit', 'onFined', finenr, finesdue )
 	end)
 
