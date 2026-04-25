@@ -1639,6 +1639,7 @@ end
 
 local function UVDrawBustAndDistance(ent, textX, textY, fadeAlpha, box_color, h)
     if not GetConVar("cl_drawhud"):GetBool() then return end
+	if BustedTimer:GetInt() == 0 then return end
 	
     local scope = UVGetScope(ent)
 	
