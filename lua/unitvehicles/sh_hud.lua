@@ -1711,6 +1711,9 @@ function UVRenderEnemySquare(ent)
 
 	if IsValid(ent) then
 		local scope = UVGetScope(ent)
+		
+		if not scope then return end
+		
 		if not UVHUDCopMode and not (UVHUDDisplayPursuit or UVHUDDisplayRacing) then return end
 
 		-- Unfucked, clarified logic: hide enemy square as cop during cooldown, or if there are no units chasing or out of unit view,
