@@ -3319,7 +3319,7 @@ end
 function UVBustEnemy(self, enemy, finearrest)
 	if not IsValid(self) or not IsValid(enemy) or (enemy.uvbusted and not finearrest) then return end
 
-	local callsign = self:IsPlayer() and self:Nick() or ( self.callsign or "the Unit Vehicles" )
+	local callsign = self:IsPlayer() and self:Nick() or ( self.callsign or "uv.unitvehicles" )
 
 	enemy.uvbusted = true
 	enemy.UVBustingProgress = 0
