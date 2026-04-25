@@ -118,7 +118,7 @@ if SERVER then
 					objectphys:ApplyForceCenter(angle:Forward()*force)
 					UVRamVehicle(object)
 					damage = (table.HasValue(UVCommanders, object) and UVPTStunMineCommanderDamage:GetFloat()) or damage
-					UVDamage( vehicle, damage )
+					UVDamage( object, damage )
 					
 						-- if self.racerdeployed then
 						-- 	if not UVGetDriver(self.racerdeployed) then continue end
