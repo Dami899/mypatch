@@ -1186,7 +1186,6 @@ CanExitVehicle = CreateConVar("unitvehicle_canexitvehicle", 0, {FCVAR_ARCHIVE, F
 UnitDifficulty = CreateConVar( "unitvehicle_unitdifficulty", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Increases Unit AI difficulty." )
 UnitCatchup = CreateConVar( "unitvehicle_unitcatchup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit AI catch-up." )
 
-UVUOneCommander = CreateConVar("unitvehicle_unit_onecommander", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUOneCommanderHealth = CreateConVar("unitvehicle_unit_onecommanderhealth", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUCommanderRepair = CreateConVar("unitvehicle_unit_commanderrepair", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED},"Unit Vehicles: If set to 1, Commander Units can utilize the Repair Shop to repair themselves.")
 
@@ -1958,7 +1957,7 @@ if SERVER then
 
 		--One Commander Active
 		if UVOneCommanderActive then
-			if not UVCommanderRespawning and ( UVUOneCommander:GetInt() ~= 1 or next(UVCommanders) == nil ) then
+			if not UVCommanderRespawning and next(UVCommanders) == nil then
 				UVOneCommanderActive = nil
 				UVCommanderLastHealth = nil
 				UVCommanderLastEngineHealth = nil
@@ -1972,7 +1971,7 @@ if SERVER then
 			end
 		end
 
-		if UVUOneCommander:GetInt() == 1 and next(UVCommanders) ~= nil then
+		if next(UVCommanders) ~= nil then
 			UVOneCommanderActive = true
 			net.Start("UVHUDOneCommander")
 			net.WriteEntity(UVCommanders[1])

@@ -900,7 +900,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			end
 		end
 		
-		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
+		if Ent.uvclasstospawnon == "npc_uvcommander" then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
 			Ent.uvlasthealth = UVCommanderLastHealth
@@ -1183,7 +1183,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			end
 		end
 		
-		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
+		if Ent.uvclasstospawnon == "npc_uvcommander" then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
 			Ent.uvlasthealth = UVCommanderLastHealth
@@ -1543,7 +1543,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			end
 		end
 		
-		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
+		if Ent.uvclasstospawnon == "npc_uvcommander" then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
 			Ent.uvlasthealth = UVCommanderLastHealth
@@ -1778,7 +1778,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			end
 		end
 		
-		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
+		if Ent.uvclasstospawnon == "npc_uvcommander" then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
 			Ent.uvlasthealth = UVCommanderLastHealth
