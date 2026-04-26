@@ -3138,7 +3138,6 @@ else -- CLIENT Settings | HUD/Options
 	conVarList["selected_heat"] = 1
 	
 	conVarList["vehiclebase"] = 3
-	conVarList["onecommander"] = 1
 	conVarList["commanderrepair"] = 1
 	conVarList["onecommanderhealth"] = 5000
 	conVarList["helicoptermodel"] = "Default"
