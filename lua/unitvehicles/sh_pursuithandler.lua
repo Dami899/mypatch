@@ -1186,7 +1186,6 @@ CanExitVehicle = CreateConVar("unitvehicle_canexitvehicle", 0, {FCVAR_ARCHIVE, F
 UnitDifficulty = CreateConVar( "unitvehicle_unitdifficulty", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Increases Unit AI difficulty." )
 UnitCatchup = CreateConVar( "unitvehicle_unitcatchup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit AI catch-up." )
 
-UVUCommanderEvade = CreateConVar("unitvehicle_unit_onecommanderevading", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If enabled, will allow racers to escape while commander is on scene.")
 UVUOneCommander = CreateConVar("unitvehicle_unit_onecommander", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUOneCommanderHealth = CreateConVar("unitvehicle_unit_onecommanderhealth", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUCommanderRepair = CreateConVar("unitvehicle_unit_commanderrepair", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED},"Unit Vehicles: If set to 1, Commander Units can utilize the Repair Shop to repair themselves.")
@@ -1655,7 +1654,7 @@ if SERVER then
 				end
 
 				-- Never evade option
-				if NeverEvade:GetBool() or ( ( (not UVUCommanderEvade:GetBool()) and UVOneCommanderActive ) and not scope.EnemyEscaping ) then
+				if NeverEvade:GetBool() and not scope.EnemyEscaping then
 					scope.Losing = 0
 				end
 			end
@@ -2398,7 +2397,7 @@ if SERVER then
 				end
 			else
 				if vScope.InPursuit then
-					if NeverEvade:GetBool() or ( ( (not UVUCommanderEvade:GetBool()) and UVOneCommanderActive ) and not vScope.EnemyEscaping ) then
+					if NeverEvade:GetBool() and not vScope.EnemyEscaping then
 						vScope.Losing = 0
 					else
 						vScope.Losing = math.Clamp( vScope.Losing + FrameTime(), 0, 5 )
@@ -3142,7 +3141,6 @@ else -- CLIENT Settings | HUD/Options
 	conVarList["vehiclebase"] = 3
 	conVarList["onecommander"] = 1
 	conVarList["commanderrepair"] = 1
-	conVarList["onecommanderevading"] = 0
 	conVarList["onecommanderhealth"] = 5000
 	conVarList["helicoptermodel"] = "Default"
 	conVarList["helicopterbarrels"] = 1
@@ -4612,10 +4610,7 @@ else -- CLIENT Settings | HUD/Options
 							local curblip = GMinimap:FindBlipByID("UVBlip" .. ent:EntIndex())
 							if not curblip then continue end
 
-							if ((UVHUDCopMode and UVHUDDisplayCooldown) or 
-								(not ent.inunitview) and 
-								not ((not GetConVar("unitvehicle_unit_onecommanderevading"):GetBool()) and UVOneCommanderActive)) 
-							then
+							if (UVHUDCopMode and UVHUDDisplayCooldown) or not ent.inunitview then
 								curblip.alpha = 0
 							else
 								curblip.alpha = 255

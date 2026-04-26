@@ -1566,7 +1566,6 @@ UVMenu.HeatManager = function()
 
 		{ type = "label", text = "uv.hm.commander" },
 		{ type = "bool", text = "uv.hm.commander.solo", desc = "uv.hm.commander.solo.desc", convar = "unitvehicle_unit_onecommander", sv = true },
-		{ type = "bool", text = "uv.hm.commander.evade", desc = "uv.hm.commander.evade.desc", convar = "unitvehicle_unit_onecommanderevading", requireparentconvar = "unitvehicle_unit_onecommander", sv = true },
 		{ type = "bool", text = "uv.hm.commander.norepair", desc = "uv.hm.commander.norepair.desc", convar = "unitvehicle_unit_commanderrepair", requireparentconvar = "unitvehicle_unit_onecommander", sv = true },
 		{ type = "slider", text = "uv.hm.commander.health", desc = "uv.hm.commander.health.desc", convar = "unitvehicle_unit_onecommanderhealth", requireparentconvar = "unitvehicle_unit_onecommander", min = 1000, max = 10000, sv = true },
 		
