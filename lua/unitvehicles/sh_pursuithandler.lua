@@ -3219,7 +3219,7 @@ else -- CLIENT Settings | HUD/Options
 	local unitsheat3 = {
 		"default_crownvic.json", --Patrol
 		"default_explorer.json", --Support
-		"", --Pursuit
+		"default_chargerbee.json", --Pursuit
 		"", --Interceptor
 		"", --Special
 		"", --Commander
@@ -3229,7 +3229,7 @@ else -- CLIENT Settings | HUD/Options
 	local unitsheat4 = {
 		"", --Patrol
 		"default_explorer.json", --Support
-		"", --Pursuit
+		"default_chargerbee.json", --Pursuit
 		"default_corvettec7.json", --Interceptor
 		"", --Special
 		"", --Commander
@@ -3239,10 +3239,10 @@ else -- CLIENT Settings | HUD/Options
 	local unitsheat5 = {
 		"", --Patrol
 		"", --Support
-		"", --Pursuit
+		"default_chargerbee.json", --Pursuit
 		"default_corvettec7.json", --Interceptor
 		"default_coloradozr2.json", --Special
-		"", --Commander
+		"default_viperelite.json", --Commander
 		"default_rhinotruck.json" --Rhino
 	}
 	
@@ -3252,7 +3252,7 @@ else -- CLIENT Settings | HUD/Options
 		"", --Pursuit
 		"default_corvettec7.json", --Interceptor
 		"default_coloradozr2.json", --Special
-		"", --Commander
+		"default_viperelite.json", --Commander
 		"default_rhinotruck.json" --Rhino
 	}
 	
