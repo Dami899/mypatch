@@ -2913,7 +2913,8 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 									{ type = "infosimple", text = string.format( UVString("uv.hm.presets.confirm"), preset ) },
 									{ type = "button", text = "openurl.yes", prompts = {"uv.prompt.confirm"}, func = 
 									function(self2)
-										net.Start("UVUnitPresets_Load")
+										net.Start("UVPresets_Load")
+										net.WriteString('uvunitmanager')
 										net.WriteString(name)
 										net.SendToServer()
 										--UVUnitManagerLoadPresetV2(name, preset)
@@ -3110,7 +3111,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 					if string.Trim(presetName) ~= "" then
 						net.Start("UVPresets_Save")
-						net.WriteString(st.preset)
+						net.WriteString('uvunitmanager')
 						net.WriteString(presetName)
 						net.SendToServer()
 						--presets.Add(st.preset, presetName, data)
@@ -3252,10 +3253,10 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		end
 
 		local vehicleBases = {
-			{ id = 1, name = "HL2",      path = "unitvehicles/prop_vehicle_jeep/units/", type = "txt"  },
-			{ id = 2, name = "Simfphys", path = "unitvehicles/simfphys/units/",           type = "txt"  },
-			{ id = 3, name = "Glide",    path = "unitvehicles/glide/units/",               type = "json" },
-			{ id = 4, name = "LVS",      path = "unitvehicles/lvs/units/",                 type = "json" }
+			{ id = 1, name = "HL2",      path = "prop_vehicle_jeep>>units", type = "txt"  },
+			{ id = 2, name = "Simfphys", path = "simfphys>>units",           type = "txt"  },
+			{ id = 3, name = "Glide",    path = "glide>>units",               type = "json" },
+			{ id = 4, name = "LVS",      path = "lvs>>units",                 type = "json" }
 		}
 		
 		local activeFilterBaseId = 0 -- 0 = show all
@@ -3354,7 +3355,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			local entries = {}
 
 			for _, base in ipairs(vehicleBases) do
-				local files = file.Find(base.path .. "*." .. base.type, "DATA") or {}
+				local files = UV_GetFiles( base.path ) or {}
 				for _, filename in ipairs(files) do
 					table.insert(entries, {
 						filename = filename, -- stored value
