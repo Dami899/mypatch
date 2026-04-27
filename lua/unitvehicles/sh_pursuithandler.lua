@@ -1513,6 +1513,35 @@ if SERVER then
 		net.WriteString(data.Name or fileName)
 		net.Broadcast()
 	end
+
+	function UV_SavePreset( type, name, data )
+		if not data then
+			data = {}
+
+			for key, _ in pairs( PRESET_MAP[type] ) do
+				local newKey = 'unitvehicle_unit_' .. key
+				local convar = GetConVar(newKey)
+				if convar then
+					data[newKey] = convar:GetString()
+				end
+			end
+		end
+
+		local jsonArray = {
+			['Name'] = name,
+			['Data'] = data
+		}
+
+		if not file.IsDir( 'unitvehicles/preset_import', 'DATA' ) then
+			file.CreateDir( 'unitvehicles/preset_import' )
+		end
+
+		if not file.IsDir( 'unitvehicles/preset_import/' .. type, 'DATA' ) then
+			file.CreateDir( 'unitvehicles/preset_import/' .. type )
+		end
+
+		file.Write( 'unitvehicles/preset_import/' .. type .. '/' .. string.lower( name ) .. '.json', util.TableToJSON( jsonArray ) )
+	end
 	
 	function UV_RemovePreset( type, fileName )
 		if UVPresets[type] then UVPresets[type][fileName] = nil end
@@ -1580,6 +1609,13 @@ if SERVER then
 		if not data then return end
 
 		UVUnitLoadPreset( data.Data )
+	end)
+
+	net.Receive("UVPresets_Save", function()
+		local type = net.ReadString()
+		local name = net.ReadString()
+
+		UV_SavePreset(type, name)
 	end)
 
 	local function _setConVar( cvar, value )
@@ -3532,28 +3568,29 @@ else -- CLIENT Settings | HUD/Options
 		file.CreateDir( 'unitvehicles/preset_import/uvunitmanager' )
 	end
 
+	-- Exporting presets from presets lib into preset_import (new system)
 	timer.Simple(0, function()
-		local importFiles, _ = file.Find( 'data/unitvehicles/preset_import/uvunitmanager/*', 'GAME' )
-		
-		for _, impFile in pairs( importFiles ) do
-			local success = ProtectedCall(function()
-				local data = util.JSONToTable( file.Read( 'data/unitvehicles/preset_import/uvunitmanager/' .. impFile, 'GAME' ) )
-				
-				if type(data) == 'table' and (data.Name and data.Data) then
-					-- if presets.Exists("units", data.Name) then return end
-					presets.Add( 'units', data.Name, data.Data )
-				else
-					error('Malformed JSON data!')
-				end
-				
-				-- file.Delete( 'unitvehicles/preset_import/uvunitmanager/' .. impFile, 'DATA' )
-			end)
+		if not LocalPlayer():IsListenServerHost() then return end
 
-			-- if success then
-				-- MsgC( Color(0, 255, 0), "[Unit Vehicles (uvunitmanager)]: Added \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
-			-- else
-				-- MsgC( Color(255, 0, 0), "[Unit Vehicles (uvunitmanager)]: Failed to add \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
-			-- end
+		local oldPresets = presets.GetTable("units")
+		local shownWarn = false
+
+		for name, data in pairs(oldPresets) do
+			if not shownWarn then
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Unit Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!")
+				shownWarn = true
+			end
+
+			local presetData = {
+				Name = name,
+				Data = data
+			}
+
+			if not file.IsDir( 'unitvehicles/preset_import/uvunitmanager', 'DATA' ) then
+				file.CreateDir( 'unitvehicles/preset_import/uvunitmanager' )
+			end
+
+			file.Write( 'unitvehicles/preset_import/uvunitmanager/' .. string.lower( name ) .. '.json', util.TableToJSON( presetData ) )
 		end
 	end)
 

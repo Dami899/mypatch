@@ -297,6 +297,7 @@ NETWORK_STRINGS = {
 	-- Presets
 	"UVPresets_Add",
 	"UVPresets_Remove",
+	"UVPresets_Save",
 	"UVPresets_Set",
 
 	-- Unit Preset Load

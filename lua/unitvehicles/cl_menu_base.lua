@@ -2978,58 +2978,58 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 		refreshButtons()
 
-		local exportPanel
-		if not st.importonly then
-			exportPanel = vgui.Create("DButton", panel)
-			exportPanel:Dock(BOTTOM)
-			exportPanel:DockMargin(6, 6, 6, 6)
-			exportPanel:SetWide(UV.ScaleW(450))
-			exportPanel:SetText(" ")
-			function exportPanel:PerformLayout()
-				local text = UVString("uv.hm.presets.export")
-				local w = self:GetWide()
-				if w <= 0 then return end
-				local newTall = math.max(UV.ScaleH(30), GetDynamicTall(text, w * 0.95))
-				if self:GetTall() ~= newTall then self:SetTall(newTall) end
-			end
-			exportPanel.Paint = function(self, w, h)
-				local hovered = self:IsHovered()
-				local default = Color( 
-					GetConVar("uvmenu_col_button_r"):GetInt(),
-					GetConVar("uvmenu_col_button_g"):GetInt(),
-					GetConVar("uvmenu_col_button_b"):GetInt(),
-					GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
-				)
-				local hover = Color( 
-					GetConVar("uvmenu_col_button_hover_r"):GetInt(),
-					GetConVar("uvmenu_col_button_hover_g"):GetInt(),
-					GetConVar("uvmenu_col_button_hover_b"):GetInt(),
-					GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
-				)
-				draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
-				if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
-				DrawWrappedText(self, UVString("uv.hm.presets.export"), w * 0.95, w*0.5, nil, true, nil, nil, 
-				presetName == "" and Color(255,255,255,50) or nil)
-			end
+		-- local exportPanel
+		-- if not st.importonly then
+		-- 	exportPanel = vgui.Create("DButton", panel)
+		-- 	exportPanel:Dock(BOTTOM)
+		-- 	exportPanel:DockMargin(6, 6, 6, 6)
+		-- 	exportPanel:SetWide(UV.ScaleW(450))
+		-- 	exportPanel:SetText(" ")
+		-- 	function exportPanel:PerformLayout()
+		-- 		local text = UVString("uv.hm.presets.export")
+		-- 		local w = self:GetWide()
+		-- 		if w <= 0 then return end
+		-- 		local newTall = math.max(UV.ScaleH(30), GetDynamicTall(text, w * 0.95))
+		-- 		if self:GetTall() ~= newTall then self:SetTall(newTall) end
+		-- 	end
+		-- 	exportPanel.Paint = function(self, w, h)
+		-- 		local hovered = self:IsHovered()
+		-- 		local default = Color( 
+		-- 			GetConVar("uvmenu_col_button_r"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_g"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_b"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
+		-- 		)
+		-- 		local hover = Color( 
+		-- 			GetConVar("uvmenu_col_button_hover_r"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_hover_g"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_hover_b"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
+		-- 		)
+		-- 		draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
+		-- 		if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
+		-- 		DrawWrappedText(self, UVString("uv.hm.presets.export"), w * 0.95, w*0.5, nil, true, nil, nil, 
+		-- 		presetName == "" and Color(255,255,255,50) or nil)
+		-- 	end
 
-			exportPanel.OnCursorEntered = function()
-				if descPanel then descPanel.Desc = "uv.hm.presets.export.desc" end
-				if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.export" } end
-			end
+		-- 	exportPanel.OnCursorEntered = function()
+		-- 		if descPanel then descPanel.Desc = "uv.hm.presets.export.desc" end
+		-- 		if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.export" } end
+		-- 	end
 			
-			exportPanel.OnCursorExited = function()
-				if descPanel then descPanel.Desc = "" end
-				if promptBar then promptBar.Prompts = nil end
-			end
+		-- 	exportPanel.OnCursorExited = function()
+		-- 		if descPanel then descPanel.Desc = "" end
+		-- 		if promptBar then promptBar.Prompts = nil end
+		-- 	end
 			
-			exportPanel.DoClick = function(self)
-				if string.Trim(presetName) ~= "" then
-					UVUnitManagerExportPreset(presetName)
-				else
-					notification.AddLegacy(UVString("uv.hm.presets.presetname.require"), NOTIFY_UNDO, 5)
-				end
-			end
-		end
+		-- 	exportPanel.DoClick = function(self)
+		-- 		if string.Trim(presetName) ~= "" then
+		-- 			UVUnitManagerExportPreset(presetName)
+		-- 		else
+		-- 			notification.AddLegacy(UVString("uv.hm.presets.presetname.require"), NOTIFY_UNDO, 5)
+		-- 		end
+		-- 	end
+		-- end
 
 		--
 
@@ -3100,16 +3100,20 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 				if st.preset == 'uvunitmanager' then
 					local data = {}
 
-					for key, value in pairs(UVUnitsConVars) do
-						local newKey = 'unitvehicle_unit_' .. key
-						local convar = GetConVar(newKey)
-						if convar then
-							data[newKey] = convar:GetString()
-						end
-					end
+					-- for key, value in pairs(UVUnitsConVars) do
+					-- 	local newKey = 'unitvehicle_unit_' .. key
+					-- 	local convar = GetConVar(newKey)
+					-- 	if convar then
+					-- 		data[newKey] = convar:GetString()
+					-- 	end
+					-- end
 
 					if string.Trim(presetName) ~= "" then
-						presets.Add(st.preset, presetName, data)
+						net.Start("UVPresets_Save")
+						net.WriteString(st.preset)
+						net.WriteString(presetName)
+						net.SendToServer()
+						--presets.Add(st.preset, presetName, data)
 						presetArray[presetName] = data
 						refreshButtons()
 						notification.AddLegacy(string.format(UVString("uv.tool.saved"), presetName), NOTIFY_UNDO, 5)
