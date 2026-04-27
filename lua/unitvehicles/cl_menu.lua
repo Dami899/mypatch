@@ -805,28 +805,7 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.ui.menu.hideprompts", desc = "uv.ui.menu.hideprompts.desc", convar = "uvmenu_hide_prompts" },
 				{ type = "slider", text = "uv.ui.menu.openspeed", desc = "uv.ui.menu.openspeed.desc", convar = "uvmenu_open_speed", min = 0.1, max = 1, decimals = 2 },
 				{ type = "slider", text = "uv.ui.menu.closespeed", desc = "uv.ui.menu.closespeed.desc", convar = "uvmenu_close_speed", min = 0.1, max = 1, decimals = 2 },
-				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
-				
-				{ type = "label", text = "uv.ui.dataimport", desc = "uv.ui.dataimport.desc", sv = true, sp = true },
-
-				{ type = "bool", text = "uv.ui.dataimport.enableimport", desc = "uv.ui.dataimport.enableimport.desc", convar = "uvmenu_enabledataimport", sv = true, sp = true },
-				{ type = "bool", text = "uv.ui.dataimport.enablereplace", desc = "uv.ui.dataimport.enablereplace.desc", convar = "uvmenu_enabledatareplace", sv = true, sp = true },
-				{ type = "button", text = "uv.ui.dataimport.scan", desc = "uv.ui.dataimport.scan.desc", sv = true, sp = true, playsfx = "clickopen", prompts = {"uv.prompt.confirm"}, func = function() UV_StartImportFlow() end,
-				cond = function()
-					return (GetConVar("uvmenu_enabledataimport"):GetBool() or GetConVar("uvmenu_enabledatareplace"):GetBool())
-				end
-				},
-				{ type = "button", text = "uv.ui.dataimport.replaceserver", desc = "uv.ui.dataimport.replaceserver.desc", sv = true, playsfx = "clickopen", prompts = {"uv.prompt.confirm"},
-				func = function()
-					net.Start("UV_RequestServerReplace")
-					net.SendToServer()
-				end,
-				cond = function()
-					return not game.SinglePlayer()
-						and GetConVar("uvmenu_enabledatareplace_server"):GetBool()
-						and UV_HasPendingReplace
-				end
-				},
+				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },				
 			},
 
 			{ TabName = "uv.addons", Icon = "unitvehicles/icons/generic_cart.png", sv = true,
