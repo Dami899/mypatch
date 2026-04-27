@@ -28,11 +28,172 @@ local UIElements = {}
 
 UVUnitManagerTool = UVUnitManagerTool or {}
 
+local vehicleBases = {
+	{ id = 1, name = "HL2",      path = "prop_vehicle_jeep>>units", type = "txt"  },
+	{ id = 2, name = "Simfphys", path = "simfphys>>units",           type = "txt"  },
+	{ id = 3, name = "Glide",    path = "glide>>units",               type = "json" },
+	{ id = 4, name = "LVS",      path = "lvs>>units",               type = "json" },
+}
+
 if SERVER then
 	
 	net.Receive("UVUnitManagerGetUnitInfo", function( length, ply )
-		ply.UVTOOLMemory = net.ReadTable()
+		local filename = net.ReadString()
+		local vehicleBase = net.ReadUInt(3)
+
+		local vehicleBaseData = vehicleBases[vehicleBase]
+		if not vehicleBaseData then return end
+
+		local data = UV_LoadFile(vehicleBaseData.path, filename)
+		if not data then return end
+
+		ply.UVTOOLMemory = {}
+
+		if vehicleBaseData.type == "json" then
+			ply.UVTOOLMemory = util.JSONToTable(
+				data, true
+			)
+		else
+			local DataString = data
+			local words, decoded = string.Explode("", DataString), {}
+
+			for k, v in pairs(words) do
+				decoded[k] = string.char(string.byte(v) - 20)
+			end
+
+			local Data = string.Explode("#", string.Implode("", decoded))
+			table.Empty(ply.UVTOOLMemory)
+
+			for _, v in pairs(Data) do
+				local Var = string.Explode("=", v)
+				local name, variable = Var[1], Var[2]
+
+				if name and variable then
+					if name == "SubMaterials" then
+						ply.UVTOOLMemory[name] = {}
+						local submats = string.Explode(",", variable)
+						for i = 0, table.Count(submats) - 1 do
+							ply.UVTOOLMemory[name][i] = submats[i + 1]
+						end
+					else
+						ply.UVTOOLMemory[name] = variable
+					end
+				end
+			end
+		end
+
 		ply:SelectWeapon( "gmod_tool" )
+	end)
+
+
+	local function SaveVehicle(ply, filename)
+		if next(ply.UVTOOLMemory) == nil then return end
+		
+		local Name = filename
+		if Name == "" then return end
+		
+		local vehicleBase = ply.UVTOOLMemory.VehicleBase
+		
+		local charArray = string.Explode( "", string.Trim( Name ) )
+		for k, v in pairs(charArray) do
+			if v == string.char( 32 ) then
+				charArray[k] = string.char( 95 )
+			end
+		end
+
+		Name = table.concat( charArray )
+
+		if vehicleBase == "gmod_sent_vehicle_fphysics_base" then
+			local DataString = ""
+
+			for k,v in pairs(ply.UVTOOLMemory) do
+				if k == "SubMaterials" then
+					local mats = ""
+					local first = true
+					for k, v in pairs( v ) do
+						if first then
+							first = false
+							mats = mats..v
+						else
+							mats = mats..","..v
+						end
+					end
+					DataString = DataString..k.."="..mats.."#"
+				else
+					DataString = DataString..k.."="..tostring( v ).."#"
+				end
+			end
+
+			local words = string.Explode( "", DataString )
+			local shit = {}
+
+			for k, v in pairs( words ) do
+				shit[k] =  string.char( string.byte( v ) + 20 )
+			end
+
+			file.Write("unitvehicles/simfphys/units/"..Name..".txt", string.Implode("",shit) )
+			UV_AddFile( "simfphys>>units", Name .. ".txt", "unitvehicles/simfphys/units/", "DATA" )
+		elseif vehicleBase == "base_glide_car" or vehicleBase == "base_glide_motorcycle" then
+			local jsondata = util.TableToJSON(ply.UVTOOLMemory)
+			file.Write("unitvehicles/glide/units/"..Name..".json", jsondata )
+			UV_AddFile( "glide>>units", Name .. ".json", "unitvehicles/glide/units/", "DATA" )
+		elseif vehicleBase == "prop_vehicle_jeep" then
+			local DataString = ""
+
+			for k,v in pairs(ply.UVTOOLMemory) do
+				if k == "SubMaterials" then
+					local mats = ""
+					local first = true
+					for k, v in pairs( v ) do
+						if first then
+							first = false
+							mats = mats..v
+						else
+							mats = mats..","..v
+						end
+					end
+					DataString = DataString..k.."="..mats.."#"
+				else
+					DataString = DataString..k.."="..tostring( v ).."#"
+				end
+			end
+
+			local words = string.Explode( "", DataString )
+			local shit = {}
+
+			for k, v in pairs( words ) do
+				shit[k] =  string.char( string.byte( v ) + 20 )
+			end
+
+			file.Write("unitvehicles/prop_vehicle_jeep/units/"..Name..".txt", string.Implode("",shit) )
+			UV_AddFile( "prop_vehicle_jeep>>units", Name .. ".txt", "unitvehicles/prop_vehicle_jeep/units/", "DATA" )
+		elseif vehicleBase == "LVS" then
+			local jsondata = util.TableToJSON(ply.UVTOOLMemory)
+			file.Write("unitvehicles/lvs/units/"..Name..".json", jsondata )
+			UV_AddFile( "lvs>>units", Name .. ".json", "unitvehicles/lvs/units/", "DATA" )
+		end
+	end
+
+	net.Receive("UVUnitManagerSaveUnit", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+		if next(ply.UVTOOLMemory) == nil then return end
+
+		local filename = net.ReadString()
+		SaveVehicle(ply, filename)
+	end)
+
+	net.Receive("UVUnitManagerDeleteFile", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local path = net.ReadString()
+		local fileName = net.ReadString()
+
+		local file = UV_GetFile(path, fileName)
+		if not file then return end
+
+		if not UV_IsWorkshop( path, fileName ) then
+			UV_RemoveFile( path, fileName )
+		end
 	end)
 
 	if not file.Exists( "unitvehicles/glide/units", "DATA" ) then
@@ -48,6 +209,11 @@ if SERVER then
 	if not file.Exists( "unitvehicles/prop_vehicle_jeep/units", "DATA" ) then
 		file.CreateDir( "unitvehicles/prop_vehicle_jeep/units" )
 		print("Created a Default Vehicle Base data file for the Unit Vehicles!")
+	end
+
+	if not file.Exists( "unitvehicles/lvs/units", "DATA" ) then
+		file.CreateDir( "unitvehicles/lvs/units" )
+		print("Created a LVS data file for the Unit Vehicles!")
 	end
 
 end
@@ -104,100 +270,12 @@ if CLIENT then
 		OK:Dock(BOTTOM)
 		
 		function OK:DoClick()
-			
-			local Name = UnitNameEntry:GetValue()
+			net.Start("UVUnitManagerSaveUnit")
+			net.WriteString(UnitNameEntry:GetValue())
+			net.SendToServer()
 
-			if Name ~= "" then
-				local charArray = string.Explode( "", string.Trim( Name ) )
-				for k, v in pairs(charArray) do
-					if v == string.char( 32 ) then
-						charArray[k] = string.char( 95 )
-					end
-				end
-
-				Name = table.concat( charArray )
-
-				if UVTOOLMemory.VehicleBase == "gmod_sent_vehicle_fphysics_base" then
-					local DataString = ""
-					
-					for k,v in pairs(UVTOOLMemory) do
-						if k == "SubMaterials" then
-							local mats = ""
-							local first = true
-							for k, v in pairs( v ) do
-								if first then
-									first = false
-									mats = mats..v
-								else
-									mats = mats..","..v
-								end
-							end
-							DataString = DataString..k.."="..mats.."#"
-						else
-							DataString = DataString..k.."="..tostring( v ).."#"
-						end
-					end
-					
-					local words = string.Explode( "", DataString )
-					local shit = {}
-					
-					for k, v in pairs( words ) do
-						shit[k] =  string.char( string.byte( v ) + 20 )
-					end
-					
-					file.Write("unitvehicles/simfphys/units/"..Name..".txt", string.Implode("",shit) )
-				elseif UVTOOLMemory.VehicleBase == "base_glide_car" or UVTOOLMemory.VehicleBase == "base_glide_motorcycle" then
-					local jsondata = util.TableToJSON(UVTOOLMemory)
-					file.Write("unitvehicles/glide/units/"..Name..".json", jsondata )
-				elseif UVTOOLMemory.VehicleBase == "prop_vehicle_jeep" then
-					local DataString = ""
-					
-					for k,v in pairs(UVTOOLMemory) do
-						if k == "SubMaterials" then
-							local mats = ""
-							local first = true
-							for k, v in pairs( v ) do
-								if first then
-									first = false
-									mats = mats..v
-								else
-									mats = mats..","..v
-								end
-							end
-							DataString = DataString..k.."="..mats.."#"
-						else
-							DataString = DataString..k.."="..tostring( v ).."#"
-						end
-					end
-					
-					local words = string.Explode( "", DataString )
-					local shit = {}
-					
-					for k, v in pairs( words ) do
-						shit[k] =  string.char( string.byte( v ) + 20 )
-					end
-					
-					file.Write("unitvehicles/prop_vehicle_jeep/units/"..Name..".txt", string.Implode("",shit) )
-				elseif UVTOOLMemory.VehicleBase == "LVS" then
-					local jsondata = util.TableToJSON(UVTOOLMemory)
-					file.Write("unitvehicles/lvs/units/"..Name..".json", jsondata )
-				end
-
-				if IsValid(UVUnitManagerTool.ScrollPanel) and UVUnitManagerTool.RefreshList then
-					UVUnitManagerTool.RefreshList()
-				end
-				UnitAdjust:Close()
-				
-				local file_ext = (((UVTOOLMemory.VehicleBase == 'base_glide_car' or UVTOOLMemory.VehicleBase == "base_glide_motorcycle" or UVTOOLMemory.VehicleBase == "LVS") and "json") or "txt")
-				
-				notification.AddLegacy( string.format( lang("uv.tool.saved"), Name ), NOTIFY_UNDO, 5 )
-				surface.PlaySound( "buttons/button15.wav" )
-				
-			else
-				UnitNameEntry:SetPlaceholderText( "#uv.tool.fillme" )
-				surface.PlaySound( "buttons/button10.wav" )
-			end
-			
+			UnitAdjust:Close()
+			surface.PlaySound("buttons/button15.wav")
 		end
 	end)
 	
@@ -236,7 +314,8 @@ if CLIENT then
 					
 					SetClipboardText(selecteditem)
 					
-					local DataString = file.Read( "unitvehicles/simfphys/units/"..selecteditem, "DATA" )
+					local DataString = UV_LoadFile( "simfphys>>units", selecteditem ) --file.Read( "unitvehicles/simfphys/units/"..selecteditem, "DATA" )
+
 					
 					local words = string.Explode( "", DataString )
 					local shit = {}
@@ -314,7 +393,7 @@ if CLIENT then
 					
 					SetClipboardText(selecteditem)
 					
-					local JSONData = file.Read( "unitvehicles/glide/units/"..selecteditem, "DATA" )
+					local JSONData = UV_LoadFile( "glide>>units", selecteditem ) --file.Read( "unitvehicles/glide/units/"..selecteditem, "DATA" )
 					if not JSONData then return end
 					
 					UVTOOLMemory = util.JSONToTable(JSONData, true)
@@ -365,7 +444,7 @@ if CLIENT then
 					
 					SetClipboardText(selecteditem)
 					
-					local JSONData = file.Read( "unitvehicles/lvs/units/"..selecteditem, "DATA" )
+					local JSONData = UV_LoadFile( "lvs>>units", selecteditem ) --file.Read( "unitvehicles/lvs/units/"..selecteditem, "DATA" )
 					if not JSONData then return end
 					
 					UVTOOLMemory = util.JSONToTable(JSONData, true)
@@ -416,7 +495,7 @@ if CLIENT then
 					
 					SetClipboardText(selecteditem)
 					
-					local DataString = file.Read( "unitvehicles/prop_vehicle_jeep/units/"..selecteditem, "DATA" )
+					local DataString = UV_LoadFile( "prop_vehicle_jeep>>units", selecteditem ) --file.Read( "unitvehicles/prop_vehicle_jeep/units/"..selecteditem, "DATA" )
 					
 					local words = string.Explode( "", DataString )
 					local shit = {}
@@ -525,16 +604,11 @@ if CLIENT then
 	function TOOL.BuildCPanel(CPanel)
 		local lang = language.GetPhrase
 
-		if not file.Exists( "unitvehicles/lvs", "DATA" ) then
-			file.CreateDir( "unitvehicles/lvs/units" )
-			print("Created a LVS data file for the Unit Vehicles!")
-		end
-
 		local vehicleBases = {
-			{ id = 1, name = "HL2",      path = "unitvehicles/prop_vehicle_jeep/units/", type = "txt"  },
-			{ id = 2, name = "Simfphys", path = "unitvehicles/simfphys/units/",           type = "txt"  },
-			{ id = 3, name = "Glide",    path = "unitvehicles/glide/units/",               type = "json" },
-			{ id = 4, name = "LVS",      path = "unitvehicles/lvs/units/",               type = "json" },
+			{ id = 1, name = "HL2",      path = "prop_vehicle_jeep>>units", type = "txt"  },
+			{ id = 2, name = "Simfphys", path = "simfphys>>units",           type = "txt"  },
+			{ id = 3, name = "Glide",    path = "glide>>units",               type = "json" },
+			{ id = 4, name = "LVS",      path = "lvs>>units",               type = "json" },
 		}
 
 		local activeFilterBaseId = 0
@@ -639,7 +713,7 @@ if CLIENT then
 			local entries = {}
 
 			for _, base in ipairs(vehicleBases) do
-				local files = file.Find(base.path .. "*." .. base.type, "DATA") or {}
+				local files = UV_GetFiles(base.path) or {}
 				for _, filename in ipairs(files) do
 					entries[#entries + 1] = {
 						filename = filename,
@@ -720,42 +794,9 @@ if CLIENT then
 				btn.DoClick = function()
 					selecteditem = entry.filename
 					SetClipboardText(selecteditem)
-
-					if entry.base.type == "json" then
-						UVTOOLMemory = util.JSONToTable(
-							file.Read(entry.base.path .. selecteditem, "DATA"), true
-						)
-					else
-						local DataString = file.Read(entry.base.path .. selecteditem, "DATA")
-						local words, decoded = string.Explode("", DataString), {}
-
-						for k, v in pairs(words) do
-							decoded[k] = string.char(string.byte(v) - 20)
-						end
-
-						local Data = string.Explode("#", string.Implode("", decoded))
-						table.Empty(UVTOOLMemory)
-
-						for _, v in pairs(Data) do
-							local Var = string.Explode("=", v)
-							local name, variable = Var[1], Var[2]
-
-							if name and variable then
-								if name == "SubMaterials" then
-									UVTOOLMemory[name] = {}
-									local submats = string.Explode(",", variable)
-									for i = 0, table.Count(submats) - 1 do
-										UVTOOLMemory[name][i] = submats[i + 1]
-									end
-								else
-									UVTOOLMemory[name] = variable
-								end
-							end
-						end
-					end
-
 					net.Start("UVUnitManagerGetUnitInfo")
-					net.WriteTable(UVTOOLMemory)
+					net.WriteString(selecteditem)
+					net.WriteUInt(entry.baseId, 3)
 					net.SendToServer()
 				end
 			end
@@ -766,6 +807,15 @@ if CLIENT then
 				UVUnitManagerTool.RefreshList()
 			end
 		end)
+
+		hook.Add( "UVContentEvent", "UVUnitManagerTool_OnContentUpdate", function( operation, path, fileName )
+			for _, base in ipairs(vehicleBases) do
+				if base.path == path then
+					UVUnitManagerTool.RefreshList()
+					break
+				end
+			end
+		end )
 
 		local RefreshBtn = vgui.Create("DButton")
 		RefreshBtn:SetText("#refresh")
@@ -784,20 +834,25 @@ if CLIENT then
 
 			for _, base in ipairs(vehicleBases) do
 				if activeFilterBaseId == 0 or base.id == activeFilterBaseId then
-					if file.Exists(base.path .. selecteditem, "DATA") then
-						file.Delete(base.path .. selecteditem)
-						notification.AddLegacy(
-							string.format(language.GetPhrase("uv.tool.deleted"), selecteditem),
-							NOTIFY_UNDO, 5
-						)
-						surface.PlaySound("buttons/button15.wav")
-						break
+					if UV_GetFile(base.path, selecteditem) then
+						net.Start("UVUnitManagerDeleteFile")
+						net.WriteString(base.path)
+						net.WriteString(selecteditem)
+						net.SendToServer()
 					end
+					-- if UV_GetFile(base.path, selecteditem) then
+					-- 	UV_RemoveFile(base.path, selecteditem)
+					--	notification.AddLegacy(
+					-- 		string.format(language.GetPhrase("uv.tool.deleted"), selecteditem),
+					-- 		NOTIFY_UNDO, 5
+					-- 	)
+					-- 	surface.PlaySound("buttons/button15.wav")
+					-- 	break
+					-- end
 				end
 			end
 
 			selecteditem = nil
-			UVUnitManagerTool.RefreshList()
 		end
 		CPanel:AddItem(DeleteBtn)
 

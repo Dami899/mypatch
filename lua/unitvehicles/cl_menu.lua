@@ -1070,121 +1070,45 @@ local function extractFullRaceName( headerSplit )
 	return raceName
 end
 
-local function ParseRaceFile(path)
-	local content = file.Read(path, "DATA")
-	if not content then return nil end
-
-	local lines = string.Split(content, "\n")
-	local header = lines[1] or ""
-	local params = string.Split(header, " ")
-	local raceName = extractFullRaceName( params ) or "Unknown"
-	local author = header:match("'(.-)'") or "Unknown"
-
-	local checkpoints = {}
-	local idList = {}
-	local spawns = {}
-
-	for _, line in ipairs(lines) do
-		if string.match(line, "^%d+%s") then
-			local t = string.Explode(" ", line)
-			local id = tonumber(t[1])
-			if id and #t >= 8 then
-				if not checkpoints[id] then
-					checkpoints[id] = {}
-					table.insert(idList, id)
-				end
-				table.insert(checkpoints[id], {
-					start = Vector(tonumber(t[2]), tonumber(t[3]), tonumber(t[4])),
-					endp  = Vector(tonumber(t[5]), tonumber(t[6]), tonumber(t[7])),
-				})
-			end
-		elseif string.match(line, "^spawn") then
-			local t = string.Explode(" ", line)
-			if #t >= 6 then
-				table.insert(spawns, Vector(tonumber(t[2]), tonumber(t[3]), tonumber(t[4])))
-			end
-		end
-	end
-
-	table.SortByMember(idList, nil, true)
-	table.sort(idList, function(a,b) return a < b end)
-
-	return {
-		filename = string.GetFileFromFilename(path),
-		name = raceName:Replace("_", " "),
-		author = author,
-		checkpoints = checkpoints,
-		idList = idList,
-		spawns = spawns,
-	}
-end
+local LOCALIZATION_MAP = {
+	author = "uv.rm.author",
+	checkpoints = "uv.rm.checkpoints",
+	spawns = "uv.rm.startslots",
+	props = "uv.rm.props",
+	nodes = "uv.rm.nodes",
+}
 
 -- Race Manager, Track Select
 UVMenu.RaceManagerTrackSelect = function()
-	local files = file.Find("unitvehicles/races/" .. game.GetMap() .. "/*.txt", "DATA")
+	local files = UVRaceList
 	local raceEntries = {}
 
-	for _, fname in ipairs(files) do
-		local pathBase = "unitvehicles/races/" .. game.GetMap() .. "/"
-		local rec = ParseRaceFile(pathBase .. fname)
+	for _, race in ipairs( files ) do
+		local descLines = {}
+		local raceData = race.data
+		local raceFile = race.file
 
-		if rec then
-			local descLines = {
-				string.format(UVString("uv.rm.author"), rec.author),
-				string.format(UVString("uv.rm.checkpoints"), #rec.checkpoints),
-				string.format(UVString("uv.rm.startslots"), #rec.spawns)
-			}
-
-			-- Attempt to read matching JSON file
-			local jsonName = string.Replace(fname, ".txt", ".json")
-			if file.Exists(pathBase .. jsonName, "DATA") then
-				local jsonData = util.JSONToTable(file.Read(pathBase .. jsonName, "DATA") or "")
-
-				if jsonData then
-					-- Count props (duplicator saves entities inside an array-style table)
-					local propCount = 0
-
-					if jsonData.Entities and istable(jsonData.Entities) then
-						for _, ent in pairs(jsonData.Entities) do
-							if istable(ent) and ent.Class then
-								-- Optional: only count actual props
-								if string.StartWith(ent.Class, "prop_") then
-									propCount = propCount + 1
-								end
-							end
-						end
-					end
-
-					if propCount > 0 then
-						table.insert(descLines, string.format(UVString("uv.rm.hasprops"), propCount))
-					end
-
-					-- Count path nodes
-					if jsonData.Nodes and istable(jsonData.Nodes) then
-						local nodeCount = table.Count(jsonData.Nodes)
-						if nodeCount > 0 then
-							table.insert(descLines, string.format(UVString("uv.rm.hasnodes"), nodeCount))
-						end
-					end
-				end
+		for infoName, infoValue in pairs( raceData ) do
+			if type( infoValue ) ~= "number" or infoValue > 0 then
+				table.insert( descLines, string.format( UVString(LOCALIZATION_MAP[infoName]), infoValue ) )
 			end
-
-			table.insert(raceEntries, {
-				type = "button",
-				text = rec.name,
-				desc = table.concat(descLines, "\n"),
-				playsfx = "clickopen",
-				prompts = {"uv.prompt.load"},
-				func = function()
-					RunConsoleCommand("uvrace_import", rec.filename)
-					UVMenu.CloseCurrentMenu(true)
-					timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
-						UVMenu.OpenMenu(UVMenu.RaceManager)
-						UVMenu.PlaySFX("menuopen")
-					end)
-				end
-			})
 		end
+
+		table.insert(raceEntries, {
+			type = "button",
+			text = raceData.name,
+			desc = table.concat(descLines, "\n"),
+			playsfx = "clickopen",
+			prompts = {"uv.prompt.load"},
+			func = function()
+				RunConsoleCommand("uvrace_import", raceFile)
+				UVMenu.CloseCurrentMenu(true)
+				timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
+					UVMenu.OpenMenu(UVMenu.RaceManager)
+					UVMenu.PlaySFX("menuopen")
+				end)
+			end
+		})
 	end
 
 	local entriesWithBack = {}

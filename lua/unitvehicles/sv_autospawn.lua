@@ -685,9 +685,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	if vehiclebase == 4 then --LVS
 		local createdEntities = {}
 
-		local saved_vehicles = file.Find("unitvehicles/lvs/units/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "lvs>>units" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			local match
 			-- if (playercontrolled and playercontrolled.unit) then
 			-- 	match = playercontrolled.unit == v
@@ -717,7 +717,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local JSONData = file.Read( "unitvehicles/lvs/units/"..availableunit, "DATA" )
+		local JSONData = UV_LoadFile( "lvs>>units", availableunit )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 
@@ -943,9 +943,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	elseif vehiclebase == 3 then --Glide
 		local createdEntities = {}
 
-		local saved_vehicles = file.Find("unitvehicles/glide/units/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "glide>>units" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			local match
 			-- if (playercontrolled and playercontrolled.unit) then
 			-- 	match = playercontrolled.unit == v
@@ -975,7 +975,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local JSONData = file.Read( "unitvehicles/glide/units/"..availableunit, "DATA" )
+		local JSONData = UV_LoadFile( "glide>>units", availableunit )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 
@@ -1224,9 +1224,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 	elseif vehiclebase == 2 then --simfphys
 		
-		local saved_vehicles = file.Find("unitvehicles/simfphys/units/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "simfphys>>units" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			local match
 			-- if (playercontrolled and playercontrolled.unit) then
 			-- 	match = playercontrolled.unit == v
@@ -1256,7 +1256,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local DataString = file.Read( "unitvehicles/simfphys/units/"..availableunit, "DATA" )
+		local DataString = UV_LoadFile( "simfphys>>units", availableunit )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -1591,9 +1591,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		end	
 		
 	elseif vehiclebase == 1 then --Default Vehicle Base
-		local saved_vehicles = file.Find("unitvehicles/prop_vehicle_jeep/units/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "prop_vehicle_jeep>>units" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			local match
 			-- if (playercontrolled and playercontrolled.unit) then
 			-- 	match = playercontrolled.unit == v
@@ -1623,7 +1623,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local DataString = file.Read( "unitvehicles/prop_vehicle_jeep/units/"..availableunit, "DATA" )
+		local DataString = UV_LoadFile( "prop_vehicle_jeep>>units", availableunit )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -1970,9 +1970,9 @@ function UVAutoSpawnTraffic()
 	end
 	
 	if vehiclebase == 4 then --LVS
-		local saved_vehicles = file.Find("unitvehicles/lvs/traffic/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "lvs>>traffic" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
 		end
 		
@@ -1988,7 +1988,7 @@ function UVAutoSpawnTraffic()
 		
 		availabletraffic = saved_vehicles[math.random(1, #saved_vehicles)]
 		
-		local JSONData = file.Read( "unitvehicles/lvs/traffic/"..availabletraffic, "DATA" )
+		local JSONData = UV_LoadFile( "lvs>>traffic", availabletraffic )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 		
@@ -2097,9 +2097,9 @@ function UVAutoSpawnTraffic()
 			duplicator.ApplyBoneModifiers( NULL, v )
 		end
 	elseif vehiclebase == 3 then --Glide
-		local saved_vehicles = file.Find("unitvehicles/glide/traffic/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "glide>>traffic" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
 		end
 		
@@ -2115,7 +2115,7 @@ function UVAutoSpawnTraffic()
 		
 		availabletraffic = saved_vehicles[math.random(1, #saved_vehicles)]
 		
-		local JSONData = file.Read( "unitvehicles/glide/traffic/"..availabletraffic, "DATA" )
+		local JSONData = UV_LoadFile( "glide>>traffic", availabletraffic )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 		
@@ -2225,9 +2225,9 @@ function UVAutoSpawnTraffic()
 		end
 	elseif vehiclebase == 2 then --simfphys
 		
-		local saved_vehicles = file.Find("unitvehicles/simfphys/traffic/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "simfphys>>traffic" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
 		end
 		
@@ -2248,7 +2248,7 @@ function UVAutoSpawnTraffic()
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local DataString = file.Read( "unitvehicles/simfphys/traffic/"..availabletraffic, "DATA" )
+		local DataString = UV_LoadFile( "simfphys>>traffic", availabletraffic )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -2473,9 +2473,9 @@ function UVAutoSpawnTraffic()
 		table.insert(UVVehicleInitializing, Ent)
 		
 	elseif vehiclebase == 1 then --Default Vehicle Base
-		local saved_vehicles = file.Find("unitvehicles/prop_vehicle_jeep/traffic/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "prop_vehicle_jeep>>traffic" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
 		end
 		
@@ -2496,7 +2496,7 @@ function UVAutoSpawnTraffic()
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local DataString = file.Read( "unitvehicles/prop_vehicle_jeep/traffic/"..availabletraffic, "DATA" )
+		local DataString = UV_LoadFile( "prop_vehicle_jeep>>traffic", availabletraffic )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -2748,7 +2748,7 @@ function UVAutoSpawnRacer()
 	local AssignedRacersStrings = string.Explode( " ", AssignedRacers )
 	
 	if vehiclebase == 4 then --LVS
-		local saved_vehicles = file.Find("unitvehicles/lvs/racers/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "lvs>>racers" )
 
 		if saved_vehicles == nil or next(saved_vehicles) == nil then
 			if not UVNoRacerNotify then
@@ -2783,7 +2783,7 @@ function UVAutoSpawnRacer()
 			availableracer = saved_vehicles[math.random(1, #saved_vehicles)]
 		end
 		
-		local JSONData = file.Read( "unitvehicles/lvs/racers/"..availableracer, "DATA" )
+		local JSONData = UV_LoadFile( "lvs>>racers", availableracer )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 
@@ -2883,7 +2883,7 @@ function UVAutoSpawnRacer()
 			duplicator.ApplyBoneModifiers( NULL, v )
 		end
 	elseif vehiclebase == 3 then --Glide
-		local saved_vehicles = file.Find("unitvehicles/glide/racers/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "glide>>racers" )
 
 		if saved_vehicles == nil or next(saved_vehicles) == nil then
 			if not UVNoRacerNotify then
@@ -2918,7 +2918,7 @@ function UVAutoSpawnRacer()
 			availableracer = saved_vehicles[math.random(1, #saved_vehicles)]
 		end
 		
-		local JSONData = file.Read( "unitvehicles/glide/racers/"..availableracer, "DATA" )
+		local JSONData = UV_LoadFile( "glide>>racers", availableracer )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 
@@ -3020,7 +3020,7 @@ function UVAutoSpawnRacer()
 
 	elseif vehiclebase == 2 then --simfphys
 		
-		local saved_vehicles = file.Find("unitvehicles/simfphys/racers/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "simfphys>>racers" )
 		
 		if saved_vehicles == nil or next(saved_vehicles) == nil then
 			if not UVNoRacerNotify then
@@ -3055,7 +3055,7 @@ function UVAutoSpawnRacer()
 			availableracer = saved_vehicles[math.random(1, #saved_vehicles)]
 		end
 		
-		local DataString = file.Read( "unitvehicles/simfphys/racers/"..availableracer, "DATA" )
+		local DataString = UV_LoadFile( "simfphys>>racers", availableracer )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -3280,7 +3280,7 @@ function UVAutoSpawnRacer()
 		table.insert(UVVehicleInitializing, Ent)
 		
 	elseif vehiclebase == 1 then --Default Vehicle Base
-		local saved_vehicles = file.Find("unitvehicles/prop_vehicle_jeep/racers/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "prop_vehicle_jeep>>racers" )
 		
 		if saved_vehicles == nil or next(saved_vehicles) == nil then
 			if not UVNoRacerNotify then
@@ -3315,7 +3315,7 @@ function UVAutoSpawnRacer()
 			availableracer = saved_vehicles[math.random(1, #saved_vehicles)]
 		end
 		
-		local DataString = file.Read( "unitvehicles/prop_vehicle_jeep/racers/"..availableracer, "DATA" )
+		local DataString = UV_LoadFile( "prop_vehicle_jeep>>racers", availableracer )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}

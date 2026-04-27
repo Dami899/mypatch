@@ -60,6 +60,8 @@ NETWORK_STRINGS = {
 	"UVRepairShopRefresh",
 	"UVRepairShopLoad",
 	"UVRepairShopLoadAll",
+	"UVRepairShopMarkAll",
+	"UVRepairShopMarkAllResponse",
 	
 	-- Pursuit Table
 	"UVGet_PursuitTable",
@@ -171,6 +173,8 @@ NETWORK_STRINGS = {
 	"UVPursuitBreakerRefresh",
 	"UVPursuitBreakerLoad",
 	"UVPursuitBreakerLoadAll",
+	"UVPursuitBreakerMarkAll",
+	"UVPursuitBreakerMarkAllResponse",
 	
 	-- Roadblocks
 	"UVAddRoadblock",
@@ -181,6 +185,8 @@ NETWORK_STRINGS = {
 	"UVRoadblocksRefresh",
 	"UVRoadblocksLoad",
 	"UVRoadblocksLoadAll",
+	"UVRoadblocksMarkAll",
+	"UVRoadblocksMarkAllResponse",
 	
 	-- Unit Vehicle Add/Remove
 	"UVHUDAddUV",
@@ -191,15 +197,21 @@ NETWORK_STRINGS = {
 	"UVUnitManagerAdjustUnit",
 	"UVUnitManagerGetUnitInfo",
 	"UVUnitManagerGetUnitAssignment",
+	"UVUnitManagerSaveUnit",
+	"UVUnitManagerDeleteFile",
 
 	-- Traffic Manager
 	"UVTrafficManagerAdjustTraffic",
 	"UVTrafficManagerGetTrafficInfo",
+	"UVTrafficManagerSaveTraffic",
+	"UVTrafficManagerDeleteFile",
 
 	-- Racer Manager
 	"UVRacerManagerAdjustRacer",
 	"UVRacerManagerGetRacerInfo",
-	
+	"UVRacerManagerSaveRacer",
+	"UVRacerManagerDeleteFile",
+
 	-- Racers
 	"UVUpdateRacerName",
 	"UVUpdateSuspectVisibility",
@@ -248,6 +260,11 @@ NETWORK_STRINGS = {
 	"UVSpottedFreeze",
 	"UVSpottedUnfreeze",
 
+	-- Race List
+	"UVRace_RaceList_Set",
+	"UVRace_RaceList_Add",
+	"UVRace_RaceList_Remove",
+
 	-- Resetting
 	"uvresetcountdown",
 	"uvresetfailed",
@@ -272,15 +289,32 @@ NETWORK_STRINGS = {
 	"UV_RequestServerReplace",
 	"UV_ConfirmServerReplace",
 	"UV_OpenReplaceMenu",
+
+	-- Content reader
+	"UVContent_Add",
+	"UVContent_Remove",
 }
 
 for _, v in pairs( NETWORK_STRINGS ) do
 	util.AddNetworkString( v )
 end
 
-file.AsyncRead('unitvehicles/names/Names.json', 'DATA', function( _, _, status, data )
-	UVNames = util.JSONToTable(data)
-end, true)
+-- Allow content reader to load up the names first
+hook.Add( "UVContentEvent", "UV_LoadNames", function( operation, path, fileName )
+	if operation ~= "Initialize" then return end
+
+	local files = UV_GetFiles( "names>>" )
+	local names = {}
+
+	for _, file in pairs(files) do
+		local collection = util.JSONToTable( UV_LoadFile( "names>>", file ) )
+		if collection then
+			table.Add( names, collection )
+		end
+	end
+
+	UVNames = names
+end)
 
 timer.Simple(5, function()
 	if not DecentVehicleDestination then
@@ -291,44 +325,44 @@ timer.Simple(5, function()
 	end
 end)
 
---DEFAULT PRESETS
-local datafiles, datafolders = file.Find("data_static/uvdefaultdata/*", "GAME")
+-- --DEFAULT PRESETS
+-- local datafiles, datafolders = file.Find("data_static/uvdefaultdata/*", "GAME")
 
-for _, folder in ipairs(datafolders) do
-    local path = "unitvehicles/" .. folder
-    if not file.IsDir(path, "DATA") then
-        file.CreateDir(path)
-    end
+-- for _, folder in ipairs(datafolders) do
+--     local path = "unitvehicles/" .. folder
+--     if not file.IsDir(path, "DATA") then
+--         file.CreateDir(path)
+--     end
 
-    local datafiles2, datafolders2 = file.Find("data_static/uvdefaultdata/"..folder.."/*", "GAME")
-    if datafiles2 then
-        for _, filename in ipairs(datafiles2) do
-            local source = "data_static/uvdefaultdata/" .. folder .. "/" .. filename
-            local destination = "unitvehicles/" .. folder .. "/" .. filename
-            if file.Exists(source, "GAME") then
-                file.Write(destination, file.Read(source, "GAME"))
-            end
-        end
-    end
+--     local datafiles2, datafolders2 = file.Find("data_static/uvdefaultdata/"..folder.."/*", "GAME")
+--     if datafiles2 then
+--         for _, filename in ipairs(datafiles2) do
+--             local source = "data_static/uvdefaultdata/" .. folder .. "/" .. filename
+--             local destination = "unitvehicles/" .. folder .. "/" .. filename
+--             if file.Exists(source, "GAME") then
+--                 file.Write(destination, file.Read(source, "GAME"))
+--             end
+--         end
+--     end
 
-    for _, folder2 in ipairs(datafolders2) do
-        local subpath = path .. "/" .. folder2
-        if not file.IsDir(subpath, "DATA") then
-            file.CreateDir(subpath)
-        end
-        local datafiles3, datafolders3 = file.Find("data_static/uvdefaultdata/"..folder.."/"..folder2.."/*", "GAME")
-        if datafiles3 then
-            for _, filename in ipairs(datafiles3) do
-                local source = "data_static/uvdefaultdata/" .. folder .. "/" .. folder2 .. "/" .. filename
-                local destination = "unitvehicles/" .. folder .. "/" .. folder2 .. "/" .. filename
-                if file.Exists(source, "GAME") then
-                    file.Write(destination, file.Read(source, "GAME"))
-                end
-            end
-        end
-    end
+--     for _, folder2 in ipairs(datafolders2) do
+--         local subpath = path .. "/" .. folder2
+--         if not file.IsDir(subpath, "DATA") then
+--             file.CreateDir(subpath)
+--         end
+--         local datafiles3, datafolders3 = file.Find("data_static/uvdefaultdata/"..folder.."/"..folder2.."/*", "GAME")
+--         if datafiles3 then
+--             for _, filename in ipairs(datafiles3) do
+--                 local source = "data_static/uvdefaultdata/" .. folder .. "/" .. folder2 .. "/" .. filename
+--                 local destination = "unitvehicles/" .. folder .. "/" .. folder2 .. "/" .. filename
+--                 if file.Exists(source, "GAME") then
+--                     file.Write(destination, file.Read(source, "GAME"))
+--                 end
+--             end
+--         end
+--     end
 
-end
+-- end
 
 concommand.Add("uv_spawnvehicles", function(ply)
 	if ply and not ply:IsSuperAdmin() then return end

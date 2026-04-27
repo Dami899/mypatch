@@ -11,11 +11,169 @@ local conVarsDefault = TOOL:BuildConVarList()
 
 UVTrafficManagerTool = UVTrafficManagerTool or {}
 
+local vehicleBases = {
+	{ id = 1, name = "HL2",      path = "prop_vehicle_jeep>>traffic", type = "txt"  },
+	{ id = 2, name = "Simfphys", path = "simfphys>>traffic",           type = "txt"  },
+	{ id = 3, name = "Glide",    path = "glide>>traffic",               type = "json" },
+	{ id = 4, name = "LVS",      path = "lvs>>traffic",               type = "json" },
+}
+
 if SERVER then
 	
 	net.Receive("UVTrafficManagerGetTrafficInfo", function( length, ply )
-		ply.UVTrafficTOOLMemory = net.ReadTable()
+		local filename = net.ReadString()
+		local vehicleBase = net.ReadUInt(3)
+
+		local vehicleBaseData = vehicleBases[vehicleBase]
+		if not vehicleBaseData then return end
+
+		local data = UV_LoadFile(vehicleBaseData.path, filename)
+		if not data then return end
+
+		ply.UVTrafficTOOLMemory = {}
+
+		if vehicleBaseData.type == "json" then
+			ply.UVTrafficTOOLMemory = util.JSONToTable(
+				data, true
+			)
+		else
+			local DataString = data
+			local words, decoded = string.Explode("", DataString), {}
+
+			for k, v in pairs(words) do
+				decoded[k] = string.char(string.byte(v) - 20)
+			end
+
+			local Data = string.Explode("#", string.Implode("", decoded))
+			table.Empty(ply.UVTrafficTOOLMemory)
+
+			for _, v in pairs(Data) do
+				local Var = string.Explode("=", v)
+				local name, variable = Var[1], Var[2]
+
+				if name and variable then
+					if name == "SubMaterials" then
+						ply.UVTrafficTOOLMemory[name] = {}
+						local submats = string.Explode(",", variable)
+						for i = 0, table.Count(submats) - 1 do
+							ply.UVTrafficTOOLMemory[name][i] = submats[i + 1]
+						end
+					else
+						ply.UVTrafficTOOLMemory[name] = variable
+					end
+				end
+			end
+		end
+
 		ply:SelectWeapon( "gmod_tool" )
+	end)
+
+	local function SaveVehicle(ply, filename, canSaveColor)
+		if next(ply.UVTrafficTOOLMemory) == nil then return end
+		
+		local Name = filename
+		local Color = canSaveColor
+
+		if Name == "" then return end
+		
+		if Color then
+			ply.UVTrafficTOOLMemory.SaveColor = true
+		end
+		
+		local vehicleBase = ply.UVTrafficTOOLMemory.VehicleBase
+		if vehicleBase == "gmod_sent_vehicle_fphysics_base" then
+			local DataString = ""
+			
+			for k,v in pairs(ply.UVTrafficTOOLMemory) do
+				if k == "SubMaterials" then
+					local mats = ""
+					local first = true
+					for k, v in pairs( v ) do
+						if first then
+							first = false
+							mats = mats..v
+						else
+							mats = mats..","..v
+						end
+					end
+					DataString = DataString..k.."="..mats.."#"
+				else
+					DataString = DataString..k.."="..tostring( v ).."#"
+				end
+			end
+			
+			local words = string.Explode( "", DataString )
+			local shit = {}
+			
+			for k, v in pairs( words ) do
+				shit[k] =  string.char( string.byte( v ) + 20 )
+			end
+			
+			file.Write("unitvehicles/simfphys/traffic/"..Name..".txt", string.Implode("",shit) )
+			UV_AddFile( "simfphys>>traffic", Name .. ".txt", "unitvehicles/simfphys/traffic/", "DATA" )
+		elseif vehicleBase == "base_glide_car" or vehicleBase == "base_glide_motorcycle" then
+			local jsondata = util.TableToJSON(ply.UVTrafficTOOLMemory)
+			file.Write("unitvehicles/glide/traffic/"..Name..".json", jsondata )
+			UV_AddFile( "glide>>traffic", Name .. ".json", "unitvehicles/glide/traffic/", "DATA" )
+		elseif vehicleBase == "prop_vehicle_jeep" then
+			local DataString = ""
+			
+			for k,v in pairs(ply.UVTrafficTOOLMemory) do
+				if k == "SubMaterials" then
+					local mats = ""
+					local first = true
+					for k, v in pairs( v ) do
+						if first then
+							first = false
+							mats = mats..v
+						else
+							mats = mats..","..v
+						end
+					end
+					DataString = DataString..k.."="..mats.."#"
+				else
+					DataString = DataString..k.."="..tostring( v ).."#"
+				end
+			end
+			
+			local words = string.Explode( "", DataString )
+			local shit = {}
+			
+			for k, v in pairs( words ) do
+				shit[k] =  string.char( string.byte( v ) + 20 )
+			end
+			
+			file.Write("unitvehicles/prop_vehicle_jeep/traffic/"..Name..".txt", string.Implode("",shit) )
+			UV_AddFile( "prop_vehicle_jeep>>traffic", Name .. ".txt", "unitvehicles/prop_vehicle_jeep/traffic/", "DATA" )
+		elseif vehicleBase == "LVS" then
+			local jsondata = util.TableToJSON(ply.UVTrafficTOOLMemory)
+			file.Write("unitvehicles/lvs/traffic/"..Name..".json", jsondata )
+			UV_AddFile( "lvs>>traffic", Name .. ".json", "unitvehicles/lvs/traffic/", "DATA" )
+		end
+	end
+
+	net.Receive("UVTrafficManagerSaveTraffic", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+		if next(ply.UVTrafficTOOLMemory) == nil then return end
+
+		local filename = net.ReadString()
+		local canSaveColor = net.ReadBool()
+
+		SaveVehicle(ply, filename, canSaveColor)
+	end)
+
+	net.Receive("UVTrafficManagerDeleteFile", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local path = net.ReadString()
+		local fileName = net.ReadString()
+
+		local file = UV_GetFile(path, fileName)
+		if not file then return end
+
+		if not UV_IsWorkshop( path, fileName ) then
+			UV_RemoveFile( path, fileName )
+		end
 	end)
 
 	local function ClearTraffic( ply, cmd, args )
@@ -107,108 +265,18 @@ if CLIENT then
 		OK:Dock(BOTTOM)
 		
 		function OK:DoClick()
-			
-			local Name = TrafficNameEntry:GetValue()
-			local Color = SaveColour:GetChecked() == true or nil
+			net.Start("UVTrafficManagerSaveTraffic")
+			net.WriteString(TrafficNameEntry:GetValue())
+			net.WriteBool(SaveColour:GetChecked())
+			net.SendToServer()
 
-			if Color then
-				UVTrafficTOOLMemory.SaveColor = true
-			end
-			
-			if Name ~= "" then
-				if UVTrafficTOOLMemory.VehicleBase == "gmod_sent_vehicle_fphysics_base" then
-					local DataString = ""
-					
-					for k,v in pairs(UVTrafficTOOLMemory) do
-						if k == "SubMaterials" then
-							local mats = ""
-							local first = true
-							for k, v in pairs( v ) do
-								if first then
-									first = false
-									mats = mats..v
-								else
-									mats = mats..","..v
-								end
-							end
-							DataString = DataString..k.."="..mats.."#"
-						else
-							DataString = DataString..k.."="..tostring( v ).."#"
-						end
-					end
-					
-					local words = string.Explode( "", DataString )
-					local shit = {}
-					
-					for k, v in pairs( words ) do
-						shit[k] =  string.char( string.byte( v ) + 20 )
-					end
-					
-					file.Write("unitvehicles/simfphys/traffic/"..Name..".txt", string.Implode("",shit) )
-				elseif UVTrafficTOOLMemory.VehicleBase == "base_glide_car" or UVTrafficTOOLMemory.VehicleBase == "base_glide_motorcycle" then
-					local jsondata = util.TableToJSON(UVTrafficTOOLMemory)
-					file.Write("unitvehicles/glide/traffic/"..Name..".json", jsondata )
-				elseif UVTrafficTOOLMemory.VehicleBase == "prop_vehicle_jeep" then
-					local DataString = ""
-					
-					for k,v in pairs(UVTrafficTOOLMemory) do
-						if k == "SubMaterials" then
-							local mats = ""
-							local first = true
-							for k, v in pairs( v ) do
-								if first then
-									first = false
-									mats = mats..v
-								else
-									mats = mats..","..v
-								end
-							end
-							DataString = DataString..k.."="..mats.."#"
-						else
-							DataString = DataString..k.."="..tostring( v ).."#"
-						end
-					end
-					
-					local words = string.Explode( "", DataString )
-					local shit = {}
-					
-					for k, v in pairs( words ) do
-						shit[k] =  string.char( string.byte( v ) + 20 )
-					end
-					
-					file.Write("unitvehicles/prop_vehicle_jeep/traffic/"..Name..".txt", string.Implode("",shit) )
-				elseif UVTrafficTOOLMemory.VehicleBase == "LVS" then
-					local jsondata = util.TableToJSON(UVTrafficTOOLMemory)
-					file.Write("unitvehicles/lvs/traffic/"..Name..".json", jsondata )
-				end
-
-				if IsValid(UVTrafficManagerTool.ScrollPanel) and UVTrafficManagerTool.RefreshList then
-					UVTrafficManagerTool.RefreshList()
-				end
-				TrafficAdjust:Close()
-				
-				notification.AddLegacy( string.format( lang("uv.tool.saved"), Name ), NOTIFY_UNDO, 5 )
-				
-				surface.PlaySound( "buttons/button15.wav" )
-				
-			else
-				TrafficNameEntry:SetPlaceholderText( "#uv.tool.fillme" )
-				surface.PlaySound( "buttons/button10.wav" )
-			end
-			
+			TrafficAdjust:Close()
+			surface.PlaySound("buttons/button15.wav")
 		end
 	end)
 
 	function TOOL.BuildCPanel(CPanel)
 		local lang = language.GetPhrase
-
-		-- Unified Traffic Base UI
-		local vehicleBases = {
-			{ id = 1, name = "HL2", path = "unitvehicles/prop_vehicle_jeep/traffic/", type = "txt"  },
-			{ id = 2, name = "Simfphys", path = "unitvehicles/simfphys/traffic/", type = "txt"  },
-			{ id = 3, name = "Glide", path = "unitvehicles/glide/traffic/", type = "json" },
-			{ id = 4, name = "LVS", path = "unitvehicles/lvs/traffic/", type = "json" }
-		}
 
 		local activeFilterBaseId = 0
 		local selecteditem = nil
@@ -312,7 +380,7 @@ if CLIENT then
 			local entries = {}
 
 			for _, base in ipairs(vehicleBases) do
-				local files = file.Find(base.path .. "*." .. base.type, "DATA") or {}
+				local files = UV_GetFiles(base.path) or {}
 				for _, filename in ipairs(files) do
 					entries[#entries + 1] = {
 						filename = filename,
@@ -394,30 +462,9 @@ if CLIENT then
 				btn.DoClick = function()
 					selecteditem = entry.filename
 					SetClipboardText(selecteditem)
-
-					if entry.base.type == "json" then
-						UVTrafficTOOLMemory = util.JSONToTable(
-							file.Read(entry.base.path .. selecteditem, "DATA"), true
-						)
-					else
-						local DataString = file.Read(entry.base.path .. selecteditem, "DATA")
-						local decoded = {}
-
-						for k, v in ipairs(string.Explode("", DataString)) do
-							decoded[k] = string.char(string.byte(v) - 20)
-						end
-
-						table.Empty(UVTrafficTOOLMemory)
-						for _, v in ipairs(string.Explode("#", table.concat(decoded))) do
-							local name, variable = unpack(string.Explode("=", v))
-							if name and variable then
-								UVTrafficTOOLMemory[name] = variable
-							end
-						end
-					end
-
 					net.Start("UVTrafficManagerGetTrafficInfo")
-					net.WriteTable(UVTrafficTOOLMemory)
+					net.WriteString(selecteditem)
+					net.WriteUInt(entry.baseId, 3)
 					net.SendToServer()
 				end
 			end
@@ -428,6 +475,15 @@ if CLIENT then
 				UVTrafficManagerTool.RefreshList()
 			end
 		end)
+
+		hook.Add( "UVContentEvent", "UVTrafficManagerTool_OnContentUpdate", function( operation, path, fileName )
+			for _, base in ipairs(vehicleBases) do
+				if base.path == path then
+					UVTrafficManagerTool.RefreshList()
+					break
+				end
+			end
+		end )
 
 		local RefreshBtn = vgui.Create("DButton")
 		RefreshBtn:SetText("#refresh")
@@ -446,20 +502,25 @@ if CLIENT then
 
 			for _, base in ipairs(vehicleBases) do
 				if activeFilterBaseId == 0 or base.id == activeFilterBaseId then
-					if file.Exists(base.path .. selecteditem, "DATA") then
-						file.Delete(base.path .. selecteditem)
-						notification.AddLegacy(
-							string.format(language.GetPhrase("uv.tool.deleted"), selecteditem),
-							NOTIFY_UNDO, 5
-						)
-						surface.PlaySound("buttons/button15.wav")
-						break
+					if UV_GetFile(base.path, selecteditem) then
+						net.Start("UVTrafficManagerDeleteFile")
+						net.WriteString(base.path)
+						net.WriteString(selecteditem)
+						net.SendToServer()
 					end
+					-- if UV_GetFile(base.path, selecteditem) then
+					-- 	UV_RemoveFile(base.path, selecteditem)
+					-- 	notification.AddLegacy(
+					-- 		string.format(language.GetPhrase("uv.tool.deleted"), selecteditem),
+					-- 		NOTIFY_UNDO, 5
+					-- 	)
+					-- 	surface.PlaySound("buttons/button15.wav")
+					-- 	break
+					-- end
 				end
 			end
 
 			selecteditem = nil
-			UVTrafficManagerTool.RefreshList()
 		end
 		CPanel:AddItem(DeleteBtn)
 

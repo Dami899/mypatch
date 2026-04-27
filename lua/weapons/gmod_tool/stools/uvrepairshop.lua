@@ -15,6 +15,46 @@ if SERVER then
 		ply:SelectWeapon( "gmod_tool" )
 	end)
 
+	net.Receive("UVRepairShopMarkAll", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local savedRepairShops = UV_GetFiles( "repairshops>>"..game.GetMap() )
+		local rss = {}
+
+		for k,v in pairs(savedRepairShops) do
+			local json = UV_LoadFile( "repairshops>>"..game.GetMap(), v )
+			local rsdata = util.JSONToTable(json, true)
+
+			if rsdata then
+				table.insert( rss, {
+					name = v,
+					location = rsdata.Location or rsdata.Maxs,
+				} )
+			end
+		end
+
+		local compressedRss = util.Compress( util.TableToJSON(rss) )
+
+		net.Start("UVRepairShopMarkAllResponse")
+		net.WriteUInt( #compressedRss, 16 )
+		net.WriteData( compressedRss, #compressedRss )
+		net.Send(ply)
+	end)
+
+	net.Receive("UVRepairShopDeleteFile", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local path = net.ReadString()
+		local fileName = net.ReadString()
+
+		local file = UV_GetFile(path, fileName)
+		if not file then return end
+
+		if not UV_IsWorkshop( path, fileName ) then
+			UV_RemoveFile( path, fileName )
+		end
+	end)
+
 	net.Receive("UVRepairShopCreate", function( length, ply )
 		if next(ply.UVRSTOOLMemory) == nil then return end
 
@@ -22,6 +62,8 @@ if SERVER then
 
 		local jsondata = util.TableToJSON(ply.UVRSTOOLMemory)
 		file.Write("unitvehicles/repairshops/"..game.GetMap().."/"..name..".json", jsondata)
+		UV_AddFile( "repairshops>>"..game.GetMap(), name .. ".json", "unitvehicles/repairshops/"..game.GetMap().."/", "DATA" )
+
 		PrintMessage( HUD_PRINTTALK, "Repair Shop "..name.." has been created for "..game.GetMap().."!" )
 		net.Start("UVRepairShopRefresh")
 		net.Send(ply)
@@ -35,7 +77,7 @@ if SERVER then
 	
 	net.Receive("UVRepairShopLoadAll", function( length, ply )
 		--Load ALL Repair Shops
-		local repairshops = file.Find( "unitvehicles/repairshops/"..game.GetMap().."/*.json", "DATA" )
+		local repairshops = UV_GetFiles( "repairshops>>"..game.GetMap() )
 		for k,v in pairs(repairshops) do
 			UVLoadRepairShop(v)
 		end
@@ -56,6 +98,13 @@ if CLIENT then
 	
 	net.Receive("UVRepairShopRetrieve", function( length )
 		UVRSTOOLMemory = net.ReadTable()
+	end)
+
+	net.Receive("UVRepairShopMarkAllResponse", function( length )
+		local bytes = net.ReadUInt( 16 )
+		local data = net.ReadData( bytes )
+		local rss = util.JSONToTable( util.Decompress( data ) )
+		UVMarkAllLocationsRS(rss)
 	end)
 
 	net.Receive("UVRepairShopAdjust", function()
@@ -94,8 +143,6 @@ if CLIENT then
 				net.WriteString(Name)
 				net.SendToServer() --Create Repair Shop
 				
-				UVRepairShopScrollPanel:Clear() 
-				if RefreshRepairShopList then RefreshRepairShopList() end
 				RepairShopAdjust:Close()
 				surface.PlaySound( "buttons/button15.wav" )
 
@@ -142,7 +189,7 @@ if CLIENT then
 			UVRepairShopScrollPanel:Clear()
 			selecteditem = nil
 
-			local files = file.Find("unitvehicles/repairshops/"..game.GetMap().."/*.json", "DATA")
+			local files = UV_GetFiles( "repairshops>>"..game.GetMap() )
 
 			if #files == 0 then
 				local empty = vgui.Create("DLabel", UVRepairShopScrollPanel)
@@ -200,12 +247,19 @@ if CLIENT then
 		end
 
 		timer.Simple(0, RefreshRepairShopList)
+
+		hook.Add( "UVContentEvent", "UVRepairShopTool_OnContentUpdate", function( operation, path, fileName )
+			if path == "repairshops>>"..game.GetMap() then
+				RefreshRepairShopList()
+			end
+		end )
 		
 		local MarkAll = vgui.Create( "DButton", CPanel )
 		MarkAll:SetText( "#tool.uvrepairshop.markall" )
 		MarkAll:SetSize( 280, 20 )
 		MarkAll.DoClick = function( self )
-			UVMarkAllLocationsRS()
+			net.Start("UVRepairShopMarkAll")
+			net.SendToServer()
 			notification.AddLegacy( "#tool.uvrepairshop.markedall", NOTIFY_UNDO, 10 )
 			surface.PlaySound( "buttons/button15.wav" )
 		end
@@ -227,13 +281,14 @@ if CLIENT then
 		Delete.DoClick = function( self )
 			
 			if isstring(selecteditem) then
-				file.Delete( "unitvehicles/repairshops/"..game.GetMap().."/"..selecteditem )
+				net.Start("UVRepairShopDeleteFile")
+				net.WriteString("repairshops>>"..game.GetMap())
+				net.WriteString(selecteditem)
+				net.SendToServer()
 				notification.AddLegacy( string.format( language.GetPhrase("uv.tool.deleted"), selecteditem ), NOTIFY_UNDO, 5 )
 				surface.PlaySound( "buttons/button15.wav" )
 
-				UVRepairShopScrollPanel:Clear()
 				selecteditem = nil
-				RefreshRepairShopList()
 			end
 		end
 		CPanel:AddItem(Delete)

@@ -314,41 +314,41 @@ if CLIENT then
 		chat.AddText( Color( 0, 150, 0 ), "Your preset has been exported!\nDestination: data/unitvehicles/preset_export/uvpursuittech/" .. name .. ".json" )
 	end
 
-	if not file.IsDir( 'data/unitvehicles/preset_import', 'GAME' ) then
-		file.CreateDir( 'unitvehicles/preset_import' )
-	end
+	-- if not file.IsDir( 'data/unitvehicles/preset_import', 'GAME' ) then
+	-- 	file.CreateDir( 'unitvehicles/preset_import' )
+	-- end
 
-	if not file.IsDir( 'data/unitvehicles/preset_import/uvpursuittech', 'GAME' ) then
-		file.CreateDir( 'unitvehicles/preset_import/uvpursuittech' )
-	end
+	-- if not file.IsDir( 'data/unitvehicles/preset_import/uvpursuittech', 'GAME' ) then
+	-- 	file.CreateDir( 'unitvehicles/preset_import/uvpursuittech' )
+	-- end
 
-	timer.Simple(0, function()
-		local importFiles, _ = file.Find( 'data/unitvehicles/preset_import/uvpursuittech/*', 'GAME' )
+	-- timer.Simple(0, function()
+	-- 	local importFiles, _ = file.Find( 'data/unitvehicles/preset_import/uvpursuittech/*', 'GAME' )
 		
-		for _, impFile in pairs( importFiles ) do
-			local success = ProtectedCall(function()
-				local data = util.JSONToTable( file.Read( 'data/unitvehicles/preset_import/uvpursuittech/' .. impFile, 'GAME' ) )
+	-- 	for _, impFile in pairs( importFiles ) do
+	-- 		local success = ProtectedCall(function()
+	-- 			local data = util.JSONToTable( file.Read( 'data/unitvehicles/preset_import/uvpursuittech/' .. impFile, 'GAME' ) )
 				
-				if type(data) == 'table' and (data.Name and data.Data) then
-					presets.Add( 
-						'pursuittech', 
-						data.Name, 
-						data.Data 
-					)
-				else
-					error('Malformed JSON data!')
-				end
+	-- 			if type(data) == 'table' and (data.Name and data.Data) then
+	-- 				presets.Add( 
+	-- 					'pursuittech', 
+	-- 					data.Name, 
+	-- 					data.Data 
+	-- 				)
+	-- 			else
+	-- 				error('Malformed JSON data!')
+	-- 			end
 
-				file.Delete( 'unitvehicles/preset_import/uvpursuittech/' .. impFile, 'DATA' )
-			end)
+	-- 			file.Delete( 'unitvehicles/preset_import/uvpursuittech/' .. impFile, 'DATA' )
+	-- 		end)
 
-			if success then
-				MsgC( Color(0, 255, 0), "[Unit Vehicles (uvpursuittech)]: Added \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
-			else
-				MsgC( Color(255, 0, 0), "[Unit Vehicles (uvpursuittech)]: Failed to add \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
-			end
-		end
-	end)
+	-- 		if success then
+	-- 			MsgC( Color(0, 255, 0), "[Unit Vehicles (uvpursuittech)]: Added \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
+	-- 		else
+	-- 			MsgC( Color(255, 0, 0), "[Unit Vehicles (uvpursuittech)]: Failed to add \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
+	-- 		end
+	-- 	end
+	-- end)
 
 	TOOL.Information = {
 		{ name = "info" },

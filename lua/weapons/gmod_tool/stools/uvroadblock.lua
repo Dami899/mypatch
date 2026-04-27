@@ -27,6 +27,46 @@ if SERVER then
 		ply:SelectWeapon( "gmod_tool" )
 	end)
 
+	net.Receive("UVRoadblocksDeleteFile", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local path = net.ReadString()
+		local fileName = net.ReadString()
+
+		local file = UV_GetFile(path, fileName)
+		if not file then return end
+
+		if not UV_IsWorkshop( path, fileName ) then
+			UV_RemoveFile( path, fileName )
+		end
+	end)
+
+	net.Receive("UVRoadblocksMarkAll", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local savedRoadblocks = UV_GetFiles( "roadblocks>>"..game.GetMap() )
+		local rbs = {}
+
+		for k,v in pairs(savedRoadblocks) do
+			local json = UV_LoadFile( "roadblocks>>"..game.GetMap(), v )
+			local rbdata = util.JSONToTable(json, true)
+
+			if rbdata then
+				table.insert( rbs, {
+					name = v,
+					location = rbdata.Location or rbdata.Maxs,
+				} )
+			end
+		end
+
+		local compressedRbs = util.Compress( util.TableToJSON(rbs) )
+
+		net.Start("UVRoadblocksMarkAllResponse")
+		net.WriteUInt( #compressedRbs, 16 )
+		net.WriteData( compressedRbs, #compressedRbs )
+		net.Send(ply)
+	end)
+
 	net.Receive("UVRoadblocksCreate", function( length, ply )
 		if next(ply.UVRBTOOLMemory) == nil then return end
 
@@ -45,6 +85,8 @@ if SERVER then
 
 		local jsondata = util.TableToJSON(ply.UVRBTOOLMemory)
 		file.Write("unitvehicles/roadblocks/"..game.GetMap().."/"..name..".json", jsondata)
+		UV_AddFile( "roadblocks>>"..game.GetMap(), name .. ".json", "unitvehicles/roadblocks/"..game.GetMap().."/", "DATA" )
+
 		PrintMessage( HUD_PRINTTALK, "Roadblock "..name.." has been created for "..game.GetMap().."!" )
 		net.Start("UVRoadblocksRefresh")
 		net.Send(ply)
@@ -59,7 +101,7 @@ if SERVER then
 	end)
 
 	net.Receive("UVRoadblocksLoadAll", function( length, ply )
-		local saved_roadblocks = file.Find("unitvehicles/roadblocks/"..game.GetMap().."/*.json", "DATA")
+		local saved_roadblocks = UV_GetFiles( "roadblocks>>"..game.GetMap() )
 		for k,v in pairs(saved_roadblocks) do
 			UVSpawnRoadblock(v, true)
 		end
@@ -88,6 +130,13 @@ if CLIENT then
 	
 	net.Receive("UVRoadblocksRetrieve", function( length )
 		UVRBTOOLMemory = net.ReadTable()
+	end)
+
+	net.Receive("UVRoadblocksMarkAllResponse", function( length )
+		local bytes = net.ReadUInt( 16 )
+		local data = net.ReadData( bytes )
+		local rbs = util.JSONToTable( util.Decompress( data ) )
+		UVMarkAllLocations(rbs)
 	end)
 
 	net.Receive("UVRoadblocksAdjust", function()
@@ -251,7 +300,7 @@ if CLIENT then
 			UVRoadblocksScrollPanel:Clear()
 			selecteditem = nil
 
-			local files = file.Find("unitvehicles/roadblocks/"..game.GetMap().."/*.json", "DATA")
+			local files = UV_GetFiles( "roadblocks>>"..game.GetMap() )
 
 			if #files == 0 then
 				local empty = vgui.Create("DLabel", UVRoadblocksScrollPanel)
@@ -319,12 +368,19 @@ if CLIENT then
 		end
 
 		timer.Simple(0, RefreshRoadblockList)
+
+		hook.Add( "UVContentEvent", "UVRoadblocksTool_OnContentUpdate", function( operation, path, fileName )
+			if path == "roadblocks>>"..game.GetMap() then
+				RefreshRoadblockList()
+			end
+		end )
 		
 		local MarkAll = vgui.Create( "DButton", CPanel )
 		MarkAll:SetText( "#tool.uvroadblock.markall" )
 		MarkAll:SetSize( 280, 20 )
 		MarkAll.DoClick = function( self )
-			UVMarkAllLocations()
+			net.Start("UVRoadblocksMarkAll")
+			net.SendToServer()
 			notification.AddLegacy( "#tool.uvroadblock.markedall", NOTIFY_UNDO, 10 )
 			surface.PlaySound( "buttons/button15.wav" )
 		end
@@ -363,14 +419,15 @@ if CLIENT then
 		Delete.DoClick = function( self )
 			
 			if isstring(selecteditem) then
-				file.Delete( "unitvehicles/roadblocks/"..game.GetMap().."/"..selecteditem )
+				net.Start("UVRoadblocksDeleteFile")
+				net.WriteString("roadblocks>>"..game.GetMap())
+				net.WriteString(selecteditem)
+				net.SendToServer()
 				notification.AddLegacy( string.format( language.GetPhrase("uv.tool.deleted"), selecteditem ), NOTIFY_UNDO, 5 )
 				surface.PlaySound( "buttons/button15.wav" )
 			end
 			
-			UVRoadblocksScrollPanel:Clear()
 			selecteditem = nil
-			RefreshRoadblockList()
 		end
 		CPanel:AddItem(Delete)
 

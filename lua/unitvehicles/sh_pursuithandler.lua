@@ -2932,7 +2932,7 @@ if SERVER then
 	-- end)
 
 	gameevent.Listen( "player_activate" )
-	hook.Add( "player_activate", "player_activate_example", function( data ) 
+	hook.Add( "player_activate", "UV_PlayerDataReplicator", function( data ) 
 		local id = data.userid				-- Same as Player:UserID() for the speaker
 		local ply = Player(id)
 
@@ -3003,7 +3003,7 @@ if SERVER then
 					convar:SetString(value)
 
 					if ReplicatedVars[key] then
-						for _, v in pairs( ents.FindByClass("player") ) do
+						for _, v in ipairs( ents.FindByClass("player") ) do
 							if not v:IsListenServerHost() then
 								net.Start( "UVGetSettings_Local" )
 								net.WriteString(key)
@@ -4753,7 +4753,7 @@ else -- CLIENT Settings | HUD/Options
 
 	end)
 
-	function UVMarkAllLocationsPB()
+	function UVMarkAllLocationsPB(pbs)
 		if not UVHUDMarkedPursuitBreakers then
 			UVHUDMarkedPursuitBreakers = {}
 		else
@@ -4762,20 +4762,10 @@ else -- CLIENT Settings | HUD/Options
 			end
 		end
 
-		local saved_pbs = file.Find("unitvehicles/pursuitbreakers/"..game.GetMap().."/*.json", "DATA")
-		for k,jsonfile in pairs(saved_pbs) do
-			local JSONData = file.Read( "unitvehicles/pursuitbreakers/"..game.GetMap().."/"..jsonfile, "DATA" )
-			if not JSONData then return end
-
-			local rbdata = util.JSONToTable(JSONData, true) --Load PB
-
-			local name = jsonfile
-			local location = rbdata.Location or rbdata.Maxs
-			if not location then return end
-
+		for k,pb in pairs(pbs) do
 			local tabletoinsert = {}
-			tabletoinsert.location = location
-			tabletoinsert.name = name
+			tabletoinsert.location = pb.location
+			tabletoinsert.name = pb.name
 
 			table.insert(UVHUDMarkedPursuitBreakers, tabletoinsert)
 
@@ -4787,7 +4777,7 @@ else -- CLIENT Settings | HUD/Options
 		end
 	end
 
-	function UVMarkAllLocationsRS()
+	function UVMarkAllLocationsRS(rss)
 		if not UVHUDMarkedRepairShops then
 			UVHUDMarkedRepairShops = {}
 		else
@@ -4796,20 +4786,10 @@ else -- CLIENT Settings | HUD/Options
 			end
 		end
 
-		local saved_rss = file.Find("unitvehicles/pursuitbreakers/"..game.GetMap().."/*.json", "DATA")
-		for k,jsonfile in pairs(saved_rss) do
-			local JSONData = file.Read( "unitvehicles/pursuitbreakers/"..game.GetMap().."/"..jsonfile, "DATA" )
-			if not JSONData then return end
-
-			local rbdata = util.JSONToTable(JSONData, true) --Load RS
-
-			local name = jsonfile
-			local location = rbdata.Location or rbdata.Maxs
-			if not location then return end
-
+		for k,rs in pairs(rss) do
 			local tabletoinsert = {}
-			tabletoinsert.location = location
-			tabletoinsert.name = name
+			tabletoinsert.location = rs.location
+			tabletoinsert.name = rs.name
 
 			table.insert(UVHUDMarkedRepairShops, tabletoinsert)
 
@@ -4821,7 +4801,7 @@ else -- CLIENT Settings | HUD/Options
 		end
 	end
 
-	function UVMarkAllLocations()
+	function UVMarkAllLocations(rbs)
 		if not UVHUDRoadblocks then
 			UVHUDRoadblocks = {}
 		else
@@ -4830,20 +4810,10 @@ else -- CLIENT Settings | HUD/Options
 			end
 		end
 
-		local saved_roadblocks = file.Find("unitvehicles/roadblocks/"..game.GetMap().."/*.json", "DATA")
-		for k,jsonfile in pairs(saved_roadblocks) do
-			local JSONData = file.Read( "unitvehicles/roadblocks/"..game.GetMap().."/"..jsonfile, "DATA" )
-			if not JSONData then return end
-
-			local rbdata = util.JSONToTable(JSONData, true) --Load Roadblock
-
-			local name = jsonfile
-			local location = rbdata.Location or rbdata.Maxs
-			if not location then return end
-
+		for k,rb in pairs(rbs) do
 			local tabletoinsert = {}
-			tabletoinsert.location = location
-			tabletoinsert.name = name
+			tabletoinsert.location = rb.location
+			tabletoinsert.name = rb.name
 
 			table.insert(UVHUDRoadblocks, tabletoinsert)
 

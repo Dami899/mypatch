@@ -16,6 +16,46 @@ if SERVER then
 		ply:SelectWeapon( "gmod_tool" )
 	end)
 
+	net.Receive("UVPursuitBreakerDeleteFile", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local path = net.ReadString()
+		local fileName = net.ReadString()
+
+		local file = UV_GetFile(path, fileName)
+		if not file then return end
+
+		if not UV_IsWorkshop( path, fileName ) then
+			UV_RemoveFile( path, fileName )
+		end
+	end)
+
+	net.Receive("UVPursuitBreakerMarkAll", function( length, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local savedPursuitBreakers = UV_GetFiles( "pursuitbreakers>>"..game.GetMap() )
+		local pbs = {}
+
+		for k,v in pairs(savedPursuitBreakers) do
+			local json = UV_LoadFile( "pursuitbreakers>>"..game.GetMap(), v )
+			local pbdata = util.JSONToTable(json, true)
+	
+			if pbdata then
+				table.insert( pbs, {
+					name = v,
+					location = pbdata.Location or pbdata.Maxs,
+				} )
+			end
+		end
+
+		local compressedPbs = util.Compress( util.TableToJSON(pbs) )
+
+		net.Start("UVPursuitBreakerMarkAllResponse")
+		net.WriteUInt( #compressedPbs, 16 )
+		net.WriteData( compressedPbs, #compressedPbs )
+		net.Send(ply)
+	end)
+
 	net.Receive("UVPursuitBreakerCreate", function( length, ply )
 		if next(ply.UVPBTOOLMemory) == nil then return end
 
@@ -31,6 +71,7 @@ if SERVER then
 
 		local jsondata = util.TableToJSON(ply.UVPBTOOLMemory)
 		file.Write("unitvehicles/pursuitbreakers/"..game.GetMap().."/"..name..".json", jsondata)
+		UV_AddFile( "pursuitbreakers>>"..game.GetMap(), name .. ".json", "unitvehicles/pursuitbreakers/"..game.GetMap().."/", "DATA" )
 		PrintMessage( HUD_PRINTTALK, "Pursuit Breaker "..name.." has been created for "..game.GetMap().."!" )
 		net.Start("UVPursuitBreakerRefresh")
 		net.Send(ply)
@@ -46,7 +87,7 @@ if SERVER then
 	
 	net.Receive("UVPursuitBreakerLoadAll", function( length, ply )
 		--Load ALL Pursuit Breakers
-		local pursuitbreakers = file.Find( "unitvehicles/pursuitbreakers/"..game.GetMap().."/*.json", "DATA" )
+		local pursuitbreakers = UV_GetFiles( "pursuitbreakers>>"..game.GetMap() )
 		for k,v in pairs(pursuitbreakers) do
 			UVSpawnPursuitBreaker(v)
 		end
@@ -72,6 +113,13 @@ if CLIENT then
 	
 	net.Receive("UVPursuitBreakerRetrieve", function( length )
 		UVPBTOOLMemory = net.ReadTable()
+	end)
+
+	net.Receive("UVPursuitBreakerMarkAllResponse", function( length )
+		local bytes = net.ReadUInt( 16 )
+		local data = net.ReadData( bytes )
+		local pbs = util.JSONToTable( util.Decompress( data ) )
+		UVMarkAllLocationsPB(pbs)
 	end)
 
 	net.Receive("UVPursuitBreakerAdjust", function()
@@ -176,7 +224,7 @@ if CLIENT then
 			UVPursuitBreakerScrollPanel:Clear()
 			selecteditem = nil
 
-			local files = file.Find("unitvehicles/pursuitbreakers/"..game.GetMap().."/*.json", "DATA")
+			local files = UV_GetFiles( "pursuitbreakers>>"..game.GetMap() )
 
 			if #files == 0 then
 				local empty = vgui.Create("DLabel", UVPursuitBreakerScrollPanel)
@@ -234,12 +282,19 @@ if CLIENT then
 		end
 
 		timer.Simple(0, RefreshPursuitBreakerList)
+
+		hook.Add( "UVContentEvent", "UVPursuitBreakerTool_OnContentUpdate", function( operation, path, fileName )
+			if path == "pursuitbreakers>>"..game.GetMap() then
+				RefreshPursuitBreakerList()
+			end
+		end )
 		
 		local MarkAll = vgui.Create( "DButton", CPanel )
 		MarkAll:SetText( "#tool.uvpursuitbreaker.markall" )
 		MarkAll:SetSize( 280, 20 )
 		MarkAll.DoClick = function( self )
-			UVMarkAllLocationsPB()
+			net.Start("UVPursuitBreakerMarkAll")
+			net.SendToServer()
 			notification.AddLegacy( "#tool.uvpursuitbreaker.markedall", NOTIFY_UNDO, 10 )
 			surface.PlaySound( "buttons/button15.wav" )
 		end
@@ -277,13 +332,14 @@ if CLIENT then
 		Delete.DoClick = function( self )
 			
 			if isstring(selecteditem) then
-				file.Delete( "unitvehicles/pursuitbreakers/"..game.GetMap().."/"..selecteditem )
+				net.Start("UVPursuitBreakerDeleteFile")
+				net.WriteString("pursuitbreakers>>"..game.GetMap())
+				net.WriteString(selecteditem)
+				net.SendToServer()
 				notification.AddLegacy( string.format( language.GetPhrase("uv.tool.deleted"), selecteditem ), NOTIFY_UNDO, 5 )
 				surface.PlaySound( "buttons/button15.wav" )
-
-				UVPursuitBreakerScrollPanel:Clear()
+				
 				selecteditem = nil
-				RefreshPursuitBreakerList()
 			end
 		end
 		CPanel:AddItem(Delete)

@@ -345,12 +345,10 @@ if SERVER then
         PRELOADED_PURSUITBREAKERS = {}
 
         local mapName = game.GetMap()
-        local pursuitBreakers = file.Find( "unitvehicles/pursuitBreakers/"..mapName.."/*.json", "DATA" )
-        if not pursuitBreakers then return end
-        if next(pursuitBreakers) == nil then return end
+        local pursuitBreakers = UV_GetFiles( "pursuitbreakers>>"..mapName )
 
-        for id, jsonfile in ipairs(pursuitBreakers) do
-            local JSONData = file.Read( "unitvehicles/pursuitBreakers/"..mapName.."/"..jsonfile, "DATA" )
+        for id, jsonfile in pairs(pursuitBreakers) do
+            local JSONData = UV_LoadFile( "pursuitbreakers>>"..mapName, jsonfile )
             local pbdata = util.JSONToTable( JSONData or "" , true)
             if pbdata then pbdata.jsonfile = jsonfile pbdata.id = id table.insert( PRELOADED_PURSUITBREAKERS, pbdata ) print("Preloaded pursuit breaker: "..jsonfile) end
         end
