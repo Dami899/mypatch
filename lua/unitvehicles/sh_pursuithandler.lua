@@ -1578,7 +1578,7 @@ if SERVER then
 
 		file.Write( 'unitvehicles/preset_import/' .. type .. '/' .. string.lower( name ) .. '.json', util.TableToJSON( jsonArray ) )
 		UV_AddFile( 'preset_import>>' .. type, string.lower( name ) .. '.json', 'unitvehicles/preset_import/' .. type .. '/', 'DATA' )
-		
+
 		return jsonArray
 	end
 
@@ -3616,7 +3616,7 @@ else -- CLIENT Settings | HUD/Options
 
 		for name, data in pairs(oldPresets) do
 			if not shownWarn then
-				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!")
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear! (this still keeps the legacy presets available, once we make sure this new system works we can start disposing them after new system import)")
 				shownWarn = true
 			end
 
@@ -3636,7 +3636,7 @@ else -- CLIENT Settings | HUD/Options
 
 		for name, data in pairs(oldPresets) do
 			if not shownWarn then
-				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!")
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear! (this still keeps the legacy presets available, once we make sure this new system works we can start disposing them after new system import)")
 				shownWarn = true
 			end
 
