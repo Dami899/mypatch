@@ -1021,7 +1021,8 @@ HEAT_DEFAULTS = {
 }
 
 local PRESET_MAP = {
-	['uvunitmanager'] = {}
+	['uvunitmanager'] = {},
+	['uvpursuittech'] = {}
 }
 
 local PRESET_START_CONVARS = {
@@ -1513,13 +1514,48 @@ if SERVER then
 		net.WriteString(data.Name or fileName)
 		net.Broadcast()
 	end
+	
+	function UV_RemovePreset( type, fileName, deleteFile )
+		if UVPresets[type] then UVPresets[type][fileName] = nil end
+		if deleteFile then
+			local isWorkshop = UV_IsWorkshop( "preset_import>>" .. type, fileName )
+			
+			-- The reason I check for X == false is because UV_IsWorkshop returns nil if the file is not found
+			if isWorkshop == false then
+				UV_RemoveFile( "preset_import>>" .. type, fileName )
+			end
+		end
+
+		net.Start("UVPresets_Remove")
+		net.WriteString(type)
+		net.WriteString(fileName)
+		net.Broadcast()
+	end
+
+	function UV_LoadPreset( type, fileName )
+		local data = util.JSONToTable( UV_LoadFile( "preset_import>>" .. type, fileName ) )
+		if not data then return end
+
+		if type == "uvunitmanager" then
+			UVUnitLoadPreset( data.Data )
+			return
+		end
+
+		for convarName, convarValue in pairs( PRESET_MAP[type] ) do
+			local convar = GetConVar( convarName )
+
+			if convar then
+				convar:SetString( data.Data[convarName] or convarValue )
+			end
+		end
+	end
 
 	function UV_SavePreset( type, name, data )
 		if not data then
 			data = {}
 
 			for key, _ in pairs( PRESET_MAP[type] ) do
-				local newKey = 'unitvehicle_unit_' .. key
+				local newKey = type == "uvunitmanager" and 'unitvehicle_unit_' .. key or key
 				local convar = GetConVar(newKey)
 				if convar then
 					data[newKey] = convar:GetString()
@@ -1541,15 +1577,9 @@ if SERVER then
 		end
 
 		file.Write( 'unitvehicles/preset_import/' .. type .. '/' .. string.lower( name ) .. '.json', util.TableToJSON( jsonArray ) )
-	end
-	
-	function UV_RemovePreset( type, fileName )
-		if UVPresets[type] then UVPresets[type][fileName] = nil end
-
-		net.Start("UVPresets_Remove")
-		net.WriteString(type)
-		net.WriteString(fileName)
-		net.Broadcast()
+		UV_AddFile( 'preset_import>>' .. type, string.lower( name ) .. '.json', 'unitvehicles/preset_import/' .. type .. '/', 'DATA' )
+		
+		return jsonArray
 	end
 
 	function UV_SendPresets( ply )
@@ -1596,6 +1626,11 @@ if SERVER then
 		end
 	end
 
+	function UV_DefinePresetTemplate( type, template )
+		if not PRESET_TYPES[type] then return end
+		PRESET_MAP[type] = template
+	end
+
 	hook.Add( "UVContentEvent", "UV_PopulatePresets", function( operation, path, fileName )
 		if operation ~= "Initialize" then return end
 
@@ -1603,19 +1638,23 @@ if SERVER then
 		hook.Remove( "UVContentEvent", "UV_PopulatePresets" )
 	end )
 
-	net.Receive("UVUnitPresets_Load", function()
-		local filename = net.ReadString()
-		local data = util.JSONToTable( UV_LoadFile( "preset_import>>uvunitmanager", filename ) )
-		if not data then return end
+	net.Receive("UVPresets_Load", function( len, ply )
+		if ply and not ply:IsSuperAdmin() then return end
 
-		UVUnitLoadPreset( data.Data )
+		local type = net.ReadString()
+		local filename = net.ReadString()
+
+		UV_LoadPreset( type, filename )
 	end)
 
-	net.Receive("UVPresets_Save", function()
+	net.Receive("UVPresets_Save", function( len, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
 		local type = net.ReadString()
 		local name = net.ReadString()
 
-		UV_SavePreset(type, name)
+		local data = UV_SavePreset(type, name)
+		UV_AddPreset(type, string.lower(name) .. '.json', data)
 	end)
 
 	local function _setConVar( cvar, value )
@@ -3577,7 +3616,7 @@ else -- CLIENT Settings | HUD/Options
 
 		for name, data in pairs(oldPresets) do
 			if not shownWarn then
-				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Unit Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!")
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!")
 				shownWarn = true
 			end
 
@@ -3591,6 +3630,26 @@ else -- CLIENT Settings | HUD/Options
 			end
 
 			file.Write( 'unitvehicles/preset_import/uvunitmanager/' .. string.lower( name ) .. '.json', util.TableToJSON( presetData ) )
+		end
+
+		oldPresets = presets.GetTable("pursuittech")
+
+		for name, data in pairs(oldPresets) do
+			if not shownWarn then
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!")
+				shownWarn = true
+			end
+
+			local presetData = {
+				Name = name,
+				Data = data
+			}
+
+			if not file.IsDir( 'unitvehicles/preset_import/uvpursuittech', 'DATA' ) then
+				file.CreateDir( 'unitvehicles/preset_import/uvpursuittech' )
+			end
+
+			file.Write( 'unitvehicles/preset_import/uvpursuittech/' .. string.lower( name ) .. '.json', util.TableToJSON( presetData ) )
 		end
 	end)
 
@@ -3923,6 +3982,8 @@ else -- CLIENT Settings | HUD/Options
 		if UVPresets[type] then
 			UVPresets[type][fileName] = nil
 		end
+
+		hook.Run('UVPresetsEvent', 'Remove', type, fileName)
 	end)
 
 	net.Receive('UVPresets_Add', function()
@@ -3932,6 +3993,8 @@ else -- CLIENT Settings | HUD/Options
 
 		if not UVPresets[type] then UVPresets[type] = {} end
 		UVPresets[type][fileName] = name
+
+		hook.Run('UVPresetsEvent', 'Add', type, fileName, name)
 	end)
 
 	net.Receive('UVPresets_Set', function()
@@ -3946,6 +4009,8 @@ else -- CLIENT Settings | HUD/Options
 		else
 			UVPresets[type] = setTable
 		end
+
+		hook.Run('UVPresetsEvent', 'Set', type, setTable)
 	end)
 
 	unitvehicles = true

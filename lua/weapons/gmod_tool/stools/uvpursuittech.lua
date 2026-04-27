@@ -243,6 +243,28 @@ end
 local conVarsDefault = TOOL:BuildConVarList()
 local conVarList = table.GetKeys(conVarsDefault)
 
+local RESTRICTED_CONVARS = {
+    'uvpursuittech_racer_slot1',
+    'uvpursuittech_racer_slot2',
+    'uvpursuittech_unit_slot1',
+    'uvpursuittech_unit_slot2'
+}
+
+local presetMap = {}
+
+for _, convar in pairs( conVarList ) do
+    local cv = GetConVar(convar)
+    if cv then
+        presetMap[convar] = cv:GetDefault()
+    end
+end
+
+if SERVER then
+    UV_DefinePresetTemplate('uvpursuittech', presetMap)
+    local data = UV_SavePreset('uvpursuittech', 'Default', presetMap)
+    UV_AddPreset('uvpursuittech', 'default.json', data)
+end
+
 -- ===================== Helpers ===============================
 local function SanitizeForConvar(s)
     if not s then return "" end
@@ -302,16 +324,16 @@ if CLIENT then
 			end
 		end
 
-		if not file.IsDir( 'unitvehicles/preset_export', 'DATA' ) then
-			file.CreateDir( 'unitvehicles/preset_export' )
+		if not file.IsDir( 'unitvehicles/preset_import', 'DATA' ) then
+			file.CreateDir( 'unitvehicles/preset_import' )
 		end
 
-		if not file.IsDir( 'unitvehicles/preset_export/uvpursuittech', 'DATA' ) then
-			file.CreateDir( 'unitvehicles/preset_export/uvpursuittech' )
+		if not file.IsDir( 'unitvehicles/preset_import/uvpursuittech', 'DATA' ) then
+			file.CreateDir( 'unitvehicles/preset_import/uvpursuittech' )
 		end
 
-		file.Write( 'unitvehicles/preset_export/uvpursuittech/' .. name .. '.json', util.TableToJSON( jsonArray ) )
-		chat.AddText( Color( 0, 150, 0 ), "Your preset has been exported!\nDestination: data/unitvehicles/preset_export/uvpursuittech/" .. name .. ".json" )
+		file.Write( 'unitvehicles/preset_import/uvpursuittech/' .. name .. '.json', util.TableToJSON( jsonArray ) )
+		chat.AddText( Color( 0, 150, 0 ), "Your preset has been exported!\nDestination: data/unitvehicles/preset_import/uvpursuittech/" .. name .. ".json" )
 	end
 
 	-- if not file.IsDir( 'data/unitvehicles/preset_import', 'GAME' ) then
@@ -504,21 +526,62 @@ if CLIENT then
 		CPanel:AddControl("Label",{Text="#tool.uvpursuittech.settings.desc"})
 
 		-- ===== Preset =====
-		CPanel:AddControl("ComboBox", {
-			MenuButton = 1,
-			Folder = "pursuittech",
-			Options = { ["#preset.default"] = conVarsDefault },
-			CVars = table.GetKeys(conVarsDefault)
-		})
+		-- CPanel:AddControl("ComboBox", {
+		-- 	MenuButton = 1,
+		-- 	Folder = "pursuittech",
+		-- 	Options = { ["#preset.default"] = conVarsDefault },
+		-- 	CVars = table.GetKeys(conVarsDefault)
+		-- })
+
+        local presetPicker = vgui.Create("DComboBox")
+        presetPicker:SetText("Select a preset to load")
+        presetPicker:SetTextColor(Color(0,0,0))
+        --presetPicker:AddChoice("default", "default")
+
+        local function fetchPresets()
+            presetPicker:Clear()
+
+            local presets = UVPresets["uvpursuittech"]
+
+            for file, name in pairs( presets ) do
+                presetPicker:AddChoice(name, file)
+            end
+        end
+
+        function presetPicker:OnSelect( index, value, data )
+            net.Start("UVPresets_Load")
+            net.WriteString("uvpursuittech")
+            net.WriteString(data)
+            net.SendToServer()
+        end
+
+        fetchPresets()
+        hook.Add("UVPresetsEvent", "UVPursuitTech_FetchPresets", function(event, type, data)
+            if type ~= "uvpursuittech" then return end
+            if event == "Add" or event == "Remove" or event == "Set" then
+                fetchPresets()
+            end
+        end)
+
+        CPanel:AddItem(presetPicker)
 
 		CPanel:AddControl("Label",{Text=" "})
 
         local exportsettings = vgui.Create("DButton")
-		exportsettings:SetText("Export Settings")
+		exportsettings:SetText("Save Settings as Preset")
 		exportsettings.DoClick = function()
+            if not LocalPlayer():IsSuperAdmin() then
+                notification.AddLegacy("#tool.uvpursuitbreaker.needsuperadmin", NOTIFY_ERROR, 5)
+                surface.PlaySound("buttons/button10.wav")
+                return
+            end
+
 			Derma_StringRequest("#tool.uvracemanager.export", "What should the preset be named?", cpID, function(txt)
 				chat.AddText("Exporting preset...")
-				Export( txt )
+				net.Start("UVPresets_Save")
+				net.WriteString("uvpursuittech")
+				net.WriteString(txt)
+				net.SendToServer()
 			end, nil, "#addons.confirm", "#addons.cancel")
 		end
 		CPanel:AddItem(exportsettings)
@@ -558,22 +621,38 @@ if CLIENT then
 			local y = 0
 			local function AddSlider(param, dat, isUnit)
 				local cvKey = "uvpursuittech_" .. info.shortname.."_"..param .. (isUnit and "_unit" or "")
-				if not ConVarExists(cvKey) then
-					CreateClientConVar(cvKey, tostring(dat.default), true, false)
-				end
+				-- if not ConVarExists(cvKey) then
+				-- 	CreateClientConVar(cvKey, tostring(dat.default), true, false)
+				-- end
 				local slider = vgui.Create("DNumSlider", paramsPanel)
 				slider:SetPos(4, y)
 				slider:SetSize(paramsPanel:GetWide() - 8, 30)
 				slider:SetMin(dat.min)
 				slider:SetMax(dat.max)
 				slider:SetDecimals(dat.decimals)
-				slider:SetConVar(cvKey)
+				--slider:SetConVar(cvKey)
 				local cv = GetConVar(cvKey)
 				slider:SetValue(cv and cv:GetFloat() or dat.default)
 				slider:SetText("#uv.ptech." .. param)
 				slider:SetToolTip("#uv.ptech." .. param .. ".desc")
 				slider:SetFGColor(Color(0,0,0))
 				y = y + 34
+
+                local lastValue = slider:GetValue()
+
+                function slider:Think()
+                    if not self:IsEditing() and lastValue ~= self:GetValue() then
+                        lastValue = self:GetValue()
+                        net.Start("UVUpdateSettings")
+                        net.WriteTable({ [cvKey] = lastValue })
+                        net.SendToServer()
+                    end
+                end
+
+                function slider:OnValueChanged( val )
+                    print(self:IsEditing(), val)
+                end
+
 				table.insert(sliders, slider)
 			end
 
@@ -628,46 +707,46 @@ if CLIENT then
 		end
 
 		-- ===== Apply Settings button =====
-		local applysettings = vgui.Create("DButton")
-		applysettings:SetText("#spawnmenu.savechanges")
-		applysettings.DoClick = function()
-			if not LocalPlayer():IsSuperAdmin() then
-				notification.AddLegacy("#tool.uvpursuitbreaker.needsuperadmin", NOTIFY_ERROR, 5)
-				surface.PlaySound("buttons/button10.wav")
-				return
-			end
+		-- local applysettings = vgui.Create("DButton")
+		-- applysettings:SetText("#spawnmenu.savechanges")
+		-- applysettings.DoClick = function()
+		-- 	if not LocalPlayer():IsSuperAdmin() then
+		-- 		notification.AddLegacy("#tool.uvpursuitbreaker.needsuperadmin", NOTIFY_ERROR, 5)
+		-- 		surface.PlaySound("buttons/button10.wav")
+		-- 		return
+		-- 	end
 
-			local convar_table = {}
-			for displayName, info in pairs(PursuitTechDefs) do
-				for param, dat in pairs(info.convars) do
-					local racerKey = "uvpursuittech_" .. info.shortname .. "_" .. param
-					if not ConVarExists(racerKey) then
-						CreateClientConVar(racerKey, tostring(dat.default), true, false)
-					end
-					if info.racer then
-						convar_table[racerKey] = GetConVar(racerKey):GetFloat()
-					end
+		-- 	local convar_table = {}
+		-- 	for displayName, info in pairs(PursuitTechDefs) do
+		-- 		for param, dat in pairs(info.convars) do
+		-- 			local racerKey = "uvpursuittech_" .. info.shortname .. "_" .. param
+		-- 			if not ConVarExists(racerKey) then
+		-- 				CreateClientConVar(racerKey, tostring(dat.default), true, false)
+		-- 			end
+		-- 			if info.racer then
+		-- 				convar_table[racerKey] = GetConVar(racerKey):GetFloat()
+		-- 			end
 
-					if info.unit and not dat.nounit then
-						local unitKey = racerKey .. "_unit"
-						if not ConVarExists(unitKey) then
-							CreateClientConVar(unitKey, tostring(dat.default), true, false)
-						end
-						convar_table[unitKey] = GetConVar(unitKey):GetFloat()
-					end
-				end
-			end
+		-- 			if info.unit and not dat.nounit then
+		-- 				local unitKey = racerKey .. "_unit"
+		-- 				if not ConVarExists(unitKey) then
+		-- 					CreateClientConVar(unitKey, tostring(dat.default), true, false)
+		-- 				end
+		-- 				convar_table[unitKey] = GetConVar(unitKey):GetFloat()
+		-- 			end
+		-- 		end
+		-- 	end
 
-			RefreshSlots()
+		-- 	RefreshSlots()
 
-			net.Start("UVUpdateSettings")
-			net.WriteTable(convar_table)
-			net.SendToServer()
-			notification.AddLegacy("#uv.tool.applied", NOTIFY_UNDO,5)
-			surface.PlaySound("buttons/button15.wav")
-			-- Msg("#uv.tool.applied")
-		end
-		CPanel:AddItem(applysettings)
+		-- 	net.Start("UVUpdateSettings")
+		-- 	net.WriteTable(convar_table)
+		-- 	net.SendToServer()
+		-- 	notification.AddLegacy("#uv.tool.applied", NOTIFY_UNDO,5)
+		-- 	surface.PlaySound("buttons/button15.wav")
+		-- 	-- Msg("#uv.tool.applied")
+		-- end
+		-- CPanel:AddItem(applysettings)
 	end
 end -- CLIENT
 

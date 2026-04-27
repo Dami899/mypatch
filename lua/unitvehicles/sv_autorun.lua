@@ -297,11 +297,9 @@ NETWORK_STRINGS = {
 	-- Presets
 	"UVPresets_Add",
 	"UVPresets_Remove",
-	"UVPresets_Save",
 	"UVPresets_Set",
-
-	-- Unit Preset Load
-	"UVUnitPresets_Load",
+	"UVPresets_Save",
+	"UVPresets_Load",
 }
 
 for _, v in pairs( NETWORK_STRINGS ) do
