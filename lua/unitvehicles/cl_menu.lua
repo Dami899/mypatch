@@ -1471,7 +1471,7 @@ UVMenu.HeatManager = function()
     -- Uncomment once it works
     table.insert(tabs, {
         TabName = "uv.hm.presets",
-        { type = "presets", preset = "units" },
+        { type = "presets", preset = "uvunitmanager" },
     })
 
     -- General settings tab
@@ -1638,7 +1638,7 @@ UVMenu.FirstTimeSetupPreset = function()
 			{ TabName = "uv.ft.preset.title", Icon = "unitvehicles/icons/milestone_911.png", ShowIcon = true,
 				{ type = "infosimple", text = "uv.ft.preset.desc" },
 				{ type = "info", text = "uv.ft.preset.desc2" },
-				{ type = "presets", preset = "units", importonly = true, func = function(self2, name, preset)
+				{ type = "presets", preset = "uvunitmanager", importonly = true, func = function(self2, name, preset)
 					UVUnitManagerLoadPresetV2(name, preset)
 					UVMenu.PlaySFX("confirm")
 					UVMenu.CloseCurrentMenu(true)

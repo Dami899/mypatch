@@ -293,6 +293,14 @@ NETWORK_STRINGS = {
 	-- Content reader
 	"UVContent_Add",
 	"UVContent_Remove",
+
+	-- Presets
+	"UVPresets_Add",
+	"UVPresets_Remove",
+	"UVPresets_Set",
+
+	-- Unit Preset Load
+	"UVUnitPresets_Load",
 }
 
 for _, v in pairs( NETWORK_STRINGS ) do
@@ -314,6 +322,7 @@ hook.Add( "UVContentEvent", "UV_LoadNames", function( operation, path, fileName 
 	end
 
 	UVNames = names
+	hook.Remove( "UVContentEvent", "UV_LoadNames" )
 end)
 
 timer.Simple(5, function()

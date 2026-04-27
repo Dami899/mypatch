@@ -2862,7 +2862,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		local presetName = ""
 		local textbox = nil
 
-		local presetArray = presets.GetTable(st.preset)
+		local presetArray = UVPresets[st.preset]
 
 		local function addButton(name)
 			local preset = presetArray[name]
@@ -2891,11 +2891,11 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 				)
 				draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
 				if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
-				DrawWrappedText(self, name, w * 0.95, w*0.5, nil, true)
+				DrawWrappedText(self, preset, w * 0.95, w*0.5, nil, true)
 			end
 
 			btn.DoClick = function(self)
-				if st.preset == 'units' then
+				if st.preset == 'uvunitmanager' then
 					if st.importonly and st.func then st.func(self, name, preset) return end
 					UVMenu.CloseCurrentMenu(true)
 					UVMenu.PlaySFX("clickopen")
@@ -2910,10 +2910,13 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 							UnfocusClose = false,
 							Tabs = {
 								{ TabName = "uv.hm.presets.warning", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true, 
-									{ type = "infosimple", text = string.format( UVString("uv.hm.presets.confirm"), name ) },
+									{ type = "infosimple", text = string.format( UVString("uv.hm.presets.confirm"), preset ) },
 									{ type = "button", text = "openurl.yes", prompts = {"uv.prompt.confirm"}, func = 
 									function(self2)
-										UVUnitManagerLoadPresetV2(name, preset)
+										net.Start("UVUnitPresets_Load")
+										net.WriteString(name)
+										net.SendToServer()
+										--UVUnitManagerLoadPresetV2(name, preset)
 										UVMenu.PlaySFX("clickopen")
 										UVMenu.CloseCurrentMenu(true)
 										timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
@@ -3094,7 +3097,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			saveBtn.DoClick = function(self)
 				presetName = textbox:GetValue()
 				
-				if st.preset == 'units' then
+				if st.preset == 'uvunitmanager' then
 					local data = {}
 
 					for key, value in pairs(UVUnitsConVars) do

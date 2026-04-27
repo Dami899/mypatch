@@ -333,6 +333,7 @@ hook.Add( "player_activate", "UV_PlayerContentReplicator", function( data )
     end
 
     UV_SendRaceList( ply )
+    UV_SendPresets( ply )
 end )
 
 -- hook.Add( "PlayerInitialSpawn", "UV/Load", function( ply )
