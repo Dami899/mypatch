@@ -260,10 +260,10 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(13, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(14, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(15, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(16, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial(13)
+        self:SetSubMaterial(14)
+        self:SetSubMaterial(15)
+        self:SetSubMaterial(16)
         self:SetBodygroup( 1, 0 )
 
         self.frontdamaged = 0
@@ -310,7 +310,7 @@ if SERVER then
 
         local speed = velocityChange:Length()
 
-        if speed < 600 then return end --Minimum speed to trigger, you can adjust the speed here
+        if speed < 500 then return end --Minimum speed to trigger, you can adjust the speed here
 
         local hitpos = data.HitPos
         local forward = self:GetForward()
@@ -336,9 +336,6 @@ if SERVER then
             elseif self.frontdamaged < 2 then
                 self:SetSubMaterial(16, "models/unitvehiclescars/shared/windowdamage")
                 self.frontdamaged = 2
-            elseif self.frontdamaged < 3 then
-                self:SetSubMaterial(16, "models/unitvehiclescars/shared/windowdamage1")
-                self.frontdamaged = 3
             end
         end
 
@@ -350,14 +347,14 @@ if SERVER then
         end
 
         if lefthit then --LEFT
-            if speed < 600 and self.leftdamaged < 1 then
+            if self.leftdamaged < 1 then
                 self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage")
                 self.leftdamaged = 1
             end
         end
 
         if righthit then --RIGHT
-            if speed < 600 and self.rightdamaged < 1 then
+            if self.rightdamaged < 1 then
                 self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage")
                 self.rightdamaged = 1
             end

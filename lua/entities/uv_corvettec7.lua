@@ -353,10 +353,10 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(2, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(3, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(4, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(17, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial(2)
+        self:SetSubMaterial(3)
+        self:SetSubMaterial(4)
+        self:SetSubMaterial(17)
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
@@ -493,7 +493,7 @@ if SERVER then
         end
 
         if lefthit then --LEFT
-            if speed < 600 and self.leftdamaged < 1 then
+            if self.leftdamaged < 1 then
                 self:SetBodygroup( 4, 1 )
                 self:SetSubMaterial(3, "models/unitvehiclescars/shared/windowdamage")
                 self.leftdamaged = 1
@@ -512,7 +512,7 @@ if SERVER then
         end
 
         if righthit then --RIGHT
-            if speed < 600 and self.rightdamaged < 1 then
+            if self.rightdamaged < 1 then
                 self:SetBodygroup( 5, 1 )
                 self:SetSubMaterial(4, "models/unitvehiclescars/shared/windowdamage")
                 self.rightdamaged = 1

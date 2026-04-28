@@ -310,13 +310,13 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(7, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(8, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(9, "models/unitvehiclescars/shared/defroster")
-        self:SetSubMaterial(18, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(19, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(20, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(21, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial(7)
+        self:SetSubMaterial(8)
+        self:SetSubMaterial(9)
+        self:SetSubMaterial(18)
+        self:SetSubMaterial(19)
+        self:SetSubMaterial(20)
+        self:SetSubMaterial(21)
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
@@ -423,6 +423,9 @@ if SERVER then
                     self:DetachGibs(gibmodels)
                 end)
                 self.frontdamaged = 3
+            elseif self.frontdamaged < 4 then
+                self:SetSubMaterial(7, "models/unitvehiclescars/shared/windowdamage1")
+                self.frontdamaged = 4
             end
         end
 
@@ -476,7 +479,7 @@ if SERVER then
         end
 
         if lefthit then --LEFT
-            if speed < 500 and self.leftdamaged < 1 then
+            if self.leftdamaged < 1 then
                 self:SetBodygroup( 6, 1 )
                 self:SetBodygroup( 8, 1 )
                 self:SetBodygroup( 10, 0 )
@@ -505,7 +508,7 @@ if SERVER then
         end
 
         if righthit then --RIGHT
-            if speed < 500 and self.rightdamaged < 1 then
+            if self.rightdamaged < 1 then
                 self:SetBodygroup( 7, 1 )
                 self:SetBodygroup( 9, 1 )
                 self:SetBodygroup( 11, 0 )

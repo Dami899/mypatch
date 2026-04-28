@@ -380,6 +380,9 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups
+        self:SetSubMaterial(8)
+        self:SetSubMaterial(9)
+        self:SetSubMaterial(18)
         self:SetBodygroup( 0, 0 )
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
@@ -425,18 +428,18 @@ if SERVER then
         self.leftdamaged = self.leftdamaged or 0
         self.rightdamaged = self.rightdamaged or 0
 
-        local enginehealth = self:GetEngineHealth()
-
-        if enginehealth < .5 then --BASE
-            self:SetBodygroup( 0, 1 )
-        end
-
         if fronthit then --FRONT
             if speed < 3000 and self.frontdamaged < 1 then
                 self:SetBodygroup( 1, 1 )
                 self:SetBodygroup( 2, 1 )
                 self.frontdamaged = 1
-            end
+            elseif self.frontdamaged < 2 then
+                self:SetSubMaterial(9, "models/unitvehiclescars/shared/windowdamage")
+                self.frontdamaged = 2
+            elseif self.frontdamaged < 3 then
+                self:SetSubMaterial(9, "models/unitvehiclescars/shared/windowdamage1")
+                self.frontdamaged = 3
+			end
         end
 
         if rearhit then --REAR
@@ -444,22 +447,44 @@ if SERVER then
                 self:SetBodygroup( 5, 1 )
                 self:SetBodygroup( 6, 1 )
                 self.reardamaged = 1
+            elseif self.reardamaged < 2 then
+                self:SetSubMaterial(18, "models/unitvehiclescars/shared/windowdamage")
+                self.reardamaged = 2
+            elseif self.reardamaged < 3 then
+                self:SetSubMaterial(18, "models/unitvehiclescars/shared/windowdamage1")
+                self.reardamaged = 3
 			end
         end
 
         if lefthit then --LEFT
-            if speed < 600 and self.leftdamaged < 1 then
+            if self.leftdamaged < 1 then
+                self:SetBodygroup( 0, 1 )
                 self:SetBodygroup( 3, 1 )
                 self:SetBodygroup( 7, 1 )
+                self:SetSubMaterial(8, "models/unitvehiclescars/shared/windowdamage")
                 self.leftdamaged = 1
+            elseif self.leftdamaged < 2 then
+                self:SetBodygroup( 0, 1 )
+                self:SetBodygroup( 3, 1 )
+                self:SetBodygroup( 7, 1 )
+                self:SetSubMaterial(8, "models/unitvehiclescars/shared/windowdamage1")
+                self.leftdamaged = 2
 			end
         end
 
         if righthit then --RIGHT
-            if speed < 600 and self.rightdamaged < 1 then
+            if self.rightdamaged < 1 then
+                self:SetBodygroup( 0, 1 )
                 self:SetBodygroup( 4, 1 )
                 self:SetBodygroup( 7, 1 )
+                self:SetSubMaterial(8, "models/unitvehiclescars/shared/windowdamage")
                 self.rightdamaged = 1
+            elseif self.rightdamaged < 2 then
+                self:SetBodygroup( 0, 1 )
+                self:SetBodygroup( 4, 1 )
+                self:SetBodygroup( 7, 1 )
+                self:SetSubMaterial(8, "models/unitvehiclescars/shared/windowdamage1")
+                self.rightdamaged = 2
             end
         end
     end
