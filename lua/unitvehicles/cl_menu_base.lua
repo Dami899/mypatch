@@ -2945,8 +2945,8 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			end
 
 			btn.DoRightClick = function(self)
-				textbox:SetValue(name)
-				presetName = name
+				textbox:SetValue(preset)
+				presetName = preset
 			end
 					
 			btn.OnCursorEntered = function() 
@@ -3110,12 +3110,20 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 					-- end
 
 					if string.Trim(presetName) ~= "" then
+						-- local presetFile
+
+						-- for file, name in pairs(presetArray) do
+						-- 	if name == presetName then
+						-- 		presetFile = file
+						-- 		break
+						-- 	end
+						-- end
+
 						net.Start("UVPresets_Save")
 						net.WriteString('uvunitmanager')
 						net.WriteString(presetName)
 						net.SendToServer()
 						--presets.Add(st.preset, presetName, data)
-						presetArray[presetName] = data
 						refreshButtons()
 						notification.AddLegacy(string.format(UVString("uv.tool.saved"), presetName), NOTIFY_UNDO, 5)
 					else
@@ -3171,11 +3179,27 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 			deleteBtn.DoClick = function(self)
 				if string.Trim(presetName) ~= "" then
-					if presets.Exists(st.preset, presetName) then 
-						presets.Remove(st.preset, presetName)
-						presetArray[presetName] = nil
-						notification.AddLegacy(string.format(UVString("uv.tool.deleted"), presetName), NOTIFY_UNDO, 5)
-					end			
+					local presetFile
+
+					for file, name in pairs(presetArray) do
+						if name == presetName then
+							presetFile = file
+							break
+						end
+					end
+					
+					net.Start("UVPresets_Remove")
+					net.WriteString('uvunitmanager')
+					net.WriteString(presetFile)
+					net.SendToServer()
+
+					presetArray[presetFile] = nil
+					notification.AddLegacy(string.format(UVString("uv.tool.deleted"), presetName), NOTIFY_UNDO, 5)
+					-- if presets.Exists(st.preset, presetName) then 
+					-- 	presets.Remove(st.preset, presetName)
+					-- 	presetArray[presetName] = nil
+					-- 	notification.AddLegacy(string.format(UVString("uv.tool.deleted"), presetName), NOTIFY_UNDO, 5)
+					-- end			
 				end
 			end
 

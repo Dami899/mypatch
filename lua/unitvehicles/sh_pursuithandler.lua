@@ -1638,6 +1638,15 @@ if SERVER then
 		hook.Remove( "UVContentEvent", "UV_PopulatePresets" )
 	end )
 
+	net.Receive("UVPresets_Remove", function( len, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local type = net.ReadString()
+		local fileName = net.ReadString()
+
+		UV_RemovePreset( type, fileName, true )
+	end)
+
 	net.Receive("UVPresets_Load", function( len, ply )
 		if ply and not ply:IsSuperAdmin() then return end
 
