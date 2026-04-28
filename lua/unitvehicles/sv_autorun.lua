@@ -123,11 +123,7 @@ NETWORK_STRINGS = {
 	-- Wanted Vehicles
 	"UV_AddWantedVehicle",
 	"UV_RemoveWantedVehicle",
-	
-	-- Cop Mode
-	"UVHUDCopMode",
-	"UVHUDStopCopMode",
-	
+		
 	-- Cop Mode Busting
 	"UVHUDCopModeBusting",
 	"UVHUDStopCopModeBusting",
@@ -318,7 +314,7 @@ hook.Add( "UVContentEvent", "UV_LoadNames", function( operation, path, fileName 
 
 	for _, file in pairs(files) do
 		local collection = util.JSONToTable( UV_LoadFile( "names>>", file ) )
-		
+
 		if collection then
 			if collection.Racers then
 				table.Add( names.Racers, collection.Racers )

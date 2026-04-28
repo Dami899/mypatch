@@ -1821,8 +1821,6 @@ if SERVER then
 		UVLoadedRoadblocks = {}
 		UVLoadedRoadblocksLoc = {}
 		UVWreckedVehicles = {}
-		net.Start( "UVHUDStopCopMode" )
-		net.Broadcast()
 	end)
 
 	--[[
@@ -2656,8 +2654,6 @@ if SERVER then
 								table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
 								hook.Remove( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex())
 								UVDeactivateESF(car)
-								net.Start( "UVHUDStopCopMode" )
-								net.Send(driver)
 							end
 						end)
 						hook.Add("PostPlayerDeath", "UVPlayerKilled", function(driver)
@@ -2665,8 +2661,6 @@ if SERVER then
 								table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
 								hook.Remove( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex())
 								UVDeactivateESF(car)
-								net.Start( "UVHUDStopCopMode" )
-								net.Send(driver)
 							end
 						end)
 						hook.Add( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex(), function(car, gib) 
@@ -2674,16 +2668,12 @@ if SERVER then
 								table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
 								hook.Remove( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex())
 								UVDeactivateESF(car)
-								net.Start( "UVHUDStopCopMode" )
-								net.Send(driver)
 							end
 							if (not car.UnitVehicle) or car.wrecked then return end
 							if car.UnitVehicle:IsPlayer() then
 								UVPlayerWreck(car)
 							end
 						end)
-						net.Start( "UVHUDCopMode" )
-						net.Send(driver)
 					end
 				end
 
@@ -4227,14 +4217,6 @@ else -- CLIENT Settings | HUD/Options
 		end
 	end)
 
-	net.Receive("UVHUDCopMode", function()
-		UVHUDCopMode = true
-	end)
-
-	net.Receive("UVHUDStopCopMode", function()
-		UVHUDCopMode = nil
-	end)
-
 	net.Receive("UVHUDCopModeBusting", function()
 		local enemy = net.ReadEntity()
 		enemy.beingbusted = true
@@ -4496,6 +4478,8 @@ else -- CLIENT Settings | HUD/Options
 		local _activeScope = IsValid(_scopeVeh) and UVGetScope(_scopeVeh) or nil
 
 		IsPursuitActive = UV_GetInPursuitCount() > 0
+
+		UVHUDCopMode = table.HasValue( UnitTable, UVGetVehicle( LocalPlayer() ) )
 
 		if UVHUDCopMode and not _activeScope then
 			local domScope = UV_GetDominantScope()
@@ -5424,6 +5408,8 @@ else -- CLIENT Settings | HUD/Options
 			end)
 			return
 		end
+
+		UVSoundEscaped(UVHeatLevel)
 		hook.Run( 'UIEventHook', 'pursuit', 'onCopEscapedDebrief', debrieftable )
 	end)
 
