@@ -419,6 +419,15 @@ if SERVER then
         self.leftdamaged = self.leftdamaged or 0
         self.rightdamaged = self.rightdamaged or 0
 
+        local enginehealth = self:GetEngineHealth()
+
+        if enginehealth < .5 then --BASE
+            self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage")
+            if enginehealth < .25 then
+                self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage1")
+            end
+        end
+
         --Tip: You can adjust the speed to make the damage more or less sensitive
         --If you wanna add more damage levels, just add more elseif statements
 
@@ -482,12 +491,10 @@ if SERVER then
             if self.leftdamaged < 1 then
                 self:SetBodygroup( 3, 1 )
                 self:SetBodygroup( 4, 1 )
-                self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage")
                 self.leftdamaged = 1
             elseif self.leftdamaged < 2 then
                 self:SetBodygroup( 3, 1 )
                 self:SetBodygroup( 4, 1 )
-                self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage1")
                 self.leftdamaged = 2
             end
         end
@@ -496,12 +503,10 @@ if SERVER then
             if self.rightdamaged < 1 then
                 self:SetBodygroup( 5, 1 )
                 self:SetBodygroup( 6, 1 )
-                self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage")
                 self.rightdamaged = 1
             elseif self.rightdamaged < 2 then
                 self:SetBodygroup( 5, 1 )
                 self:SetBodygroup( 6, 1 )
-                self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage1")
                 self.rightdamaged = 2
             end
         end
