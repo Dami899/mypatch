@@ -306,14 +306,14 @@ end
 hook.Add( "UVContentEvent", "UV_LoadNames", function( operation, path, fileName )
 	if operation ~= "Initialize" then return end
 
-	local files = UV_GetFiles( "names>>" )
+	local files = UV_GetFiles( "names" )
 	local names = {
 		Racers = {},
 		Units = {},
 	}
 
 	for _, file in pairs(files) do
-		local collection = util.JSONToTable( UV_LoadFile( "names>>", file ) )
+		local collection = util.JSONToTable( UV_LoadFile( "names", file ) )
 
 		if collection then
 			if collection.Racers then
