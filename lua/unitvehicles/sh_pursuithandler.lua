@@ -3607,7 +3607,7 @@ else -- CLIENT Settings | HUD/Options
 	end
 
 	-- Exporting presets from presets lib into preset_import (new system)
-	timer.Simple(0, function()
+	timer.Simple(5, function()
 		if not LocalPlayer():IsListenServerHost() then return end
 
 		local oldPresets = presets.GetTable("units")
@@ -3615,9 +3615,20 @@ else -- CLIENT Settings | HUD/Options
 
 		for name, data in pairs(oldPresets) do
 			if not shownWarn then
-				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear! (this still keeps the legacy presets available, once we make sure this new system works we can start disposing them after new system import)")
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!\nPresets that share the same name as presets from currently mounted UV addons have been ignored.")
 				shownWarn = true
 			end
+
+			local found
+
+			for _, presetName in pairs( UVPresets.uvunitmanager ) do
+				if name == presetName then
+					found = true
+					break
+				end
+			end
+
+			if found then continue end
 
 			local presetData = {
 				Name = name,
@@ -3635,9 +3646,20 @@ else -- CLIENT Settings | HUD/Options
 
 		for name, data in pairs(oldPresets) do
 			if not shownWarn then
-				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear! (this still keeps the legacy presets available, once we make sure this new system works we can start disposing them after new system import)")
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!\nPresets share the same name as presets from currently mounted UV addons have been ignored.")
 				shownWarn = true
 			end
+
+			local found
+
+			for _, presetName in pairs( UVPresets.uvpursuittech ) do
+				if name == presetName then
+					found = true
+					break
+				end
+			end
+
+			if found then continue end
 
 			local presetData = {
 				Name = name,
