@@ -4492,6 +4492,12 @@ else -- CLIENT Settings | HUD/Options
 				end
 			end
 		else
+			if UVLastHeatChange == -math.huge then
+				UVResetRandomHeatTrack()
+			end
+
+			UVLastHeatChange = UVLastHeatChange + RealFrameTime()
+
 			UVHeatPlayTransition = false
 			UVHeatPlayIntro = true
 		end
