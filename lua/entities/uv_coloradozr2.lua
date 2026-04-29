@@ -151,11 +151,9 @@ if CLIENT then
     local Lights = {
         ['Off'] = {
             [1] = "",
-            [23] = lightsPath .. "blackscreen",
         },
         ['On'] = {
             [1] = "",
-            [23] = "",
         },
         ['Brake'] = {
             [1] = lightsPath .. "brakelightlit",
