@@ -278,6 +278,24 @@ function UV_AddFile( path, fileName, directory, searchType )
         --print("Adding file to client", path, fileName, directory, searchType)
     end
 
+    -- We don't want to network the file if it's already in the stack (since we only send list of files to clients)
+    -- We also don't need to change the stack if the file in stack has equal priority (DATA > GAME)
+    local shouldNetwork = true
+
+    for i, v in ipairs( stack ) do
+        if v.file == fileName then
+            if v.searchType == 'DATA' or ( v.searchType == 'GAME' and searchType == 'GAME' ) then
+                hook.Run( "UVContentEvent", "Refresh", path, fileName )
+                return
+            elseif searchType == 'DATA' then
+                table.remove( stack, i )
+                shouldNetwork = false
+            end
+
+            break
+        end
+    end
+
     table.insert( stack, {
         file = fileName,
         path = directory and directory .. fileName or fileName,
@@ -286,7 +304,7 @@ function UV_AddFile( path, fileName, directory, searchType )
 
     hook.Run( "UVContentEvent", "Add", path, fileName )
 
-    if SERVER and REPLICATED_FILES[path] then
+    if SERVER and REPLICATED_FILES[path] and shouldNetwork then
         network_AddContent( {
             [1] = path,
             [2] = { fileName } 

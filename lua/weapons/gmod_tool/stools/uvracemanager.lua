@@ -500,13 +500,17 @@ if SERVER then
 
 		file.CreateDir("unitvehicles/races/" .. game.GetMap())
 		file.Write(filename, str)
+		UV_AddFile( "races>>" .. game.GetMap(), name .. ".txt", "unitvehicles/races/" .. game.GetMap() .. "/", "DATA" )
 
 		--if args[2] then --Save props option
 		local jsonfilename = "unitvehicles/races/" .. game.GetMap() .. "/" .. name .. ".json"
 		local jsonstr = UVSaveRace( args[2] == "true", args[3] == "true" )
 
 		file.Write(jsonfilename, jsonstr)
+		UV_AddFile( "races>>" .. game.GetMap(), name .. ".json", "unitvehicles/races/" .. game.GetMap() .. "/", "DATA" )
 		--end
+
+		-- UV_AddRace is not necessary because we have a hook that will add the race to the list when the file is added
 		
 		ImportExportText(name, true, ply)
 	end

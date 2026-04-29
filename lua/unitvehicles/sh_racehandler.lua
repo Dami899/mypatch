@@ -262,8 +262,12 @@ if SERVER then
 
 	hook.Add( "UVContentEvent", "UVRaceHandler_OnContentUpdate", function( operation, path, fileName )
 		if operation ~= "Initialize" and path ~= 'races>>' .. game.GetMap() then return end
+
+		-- JSON files are not races, they are race "extra" data
+		-- Main race files are the TXT files
+		if operation ~= "Initialize" and string.EndsWith( fileName, ".json" ) then return end
 		
-		if operation == "Add" then
+		if operation == "Add" or operation == "Refresh" then
 			UV_AddRace( fileName )
 		elseif operation == "Remove" then
 			UV_RemoveRace( fileName )
@@ -415,6 +419,7 @@ if SERVER then
 		local races = UV_GetFiles( 'races>>' .. game.GetMap() )
 
 		for _, race in ipairs(races) do
+			if string.EndsWith( race, ".json" ) then continue end
 			local raceData = ParseRaceFile( 'races>>' .. game.GetMap(), race )
 
 			table.insert( UVRaceList, {
@@ -2676,6 +2681,14 @@ else -- CLIENT stuff
 		local compressedList = net.ReadData( msgSize )
 
 		local list = util.JSONToTable( util.Decompress( compressedList ) )
+
+		for i, v in ipairs( UVRaceList ) do
+			if v.file == list.file then
+				UVRaceList[i] = list
+				return
+			end
+		end
+
 		table.insert( UVRaceList, list )
 	end )
 
