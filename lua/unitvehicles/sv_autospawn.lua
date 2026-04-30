@@ -457,8 +457,8 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	end
 
 	if waypointLookup then
-		enemywaypoint = dvd.GetNearestWaypoint(enemylocation)
-		enemywaypointgroup = enemywaypoint["Group"]
+		local enemywaypoint = dvd.GetNearestWaypoint(enemylocation)
+		local enemywaypointgroup = enemywaypoint["Group"]
 
 		local waypointtable = {}
 		local prioritywaypointtable = {}
@@ -1864,8 +1864,7 @@ function UVAutoSpawnTraffic()
 	end
 
 	if waypointLookup then
-		enemywaypoint = dvd.GetNearestWaypoint(enemylocation)
-		enemywaypointgroup = enemywaypoint["Group"]
+		local enemywaypointgroup = 0
 
 		local waypointtable = {}
 		local prioritywaypointtable = {}
