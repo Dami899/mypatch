@@ -26,9 +26,9 @@ if SERVER then
 	local DetectionRange = GetConVar("unitvehicle_detectionrange")
 	local CanWreck = GetConVar("unitvehicle_canwreck")
 	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn")
+	local TrafficStreaming = GetConVar("unitvehicle_trafficstreaming") 
 	local SpeedLimit = GetConVar("unitvehicle_speedlimit")
 	local DVWaypointsPriority = GetConVar("unitvehicle_dvwaypointspriority")
-	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn") 
 	
 	function ENT:OnRemove()
 		--By undoing, driving, diving in water, or getting stuck, and the vehicle is remaining.
@@ -677,6 +677,28 @@ if SERVER then
 			self:Wreck()
 		end
 
+		if TrafficStreaming:GetBool() then
+			local suspects = UVPotentialSuspects
+			if next(UVPotentialSuspects) ~= nil then
+				local closestsuspect
+				local closestdistancetosuspect
+				local closestscope
+				local r = math.huge
+				local closestdistancetosuspect, closestsuspect = r^2
+				local unitpos = self.v:WorldSpaceCenter()
+				for i, w in pairs(suspects) do
+					local distance = unitpos:DistToSqr(w:WorldSpaceCenter())
+					if distance < closestdistancetosuspect then
+						closestdistancetosuspect, closestsuspect = distance, w
+						closestscope = scope
+					end
+				end
+				if closestdistancetosuspect > 100000000 and self.uvmarkedfordeletion then
+					SafeRemoveEntity(self)
+				end
+			end
+		end
+
 		-- if not IsValid(self.v) or --The tied vehicle goes NULL.
 		-- not self.v:IsVehicle() or --Somehow it become non-vehicle entity.
 		-- IsValid(self.v:GetDriver()) then --It has an driver.
@@ -915,11 +937,20 @@ if SERVER then
 			self.v:UVVehicleInitialize()
 		end
 
-		if not self.uvscripted then
+		local deletiontime = 1
+
+		if self.uvscripted then
+			timer.Simple(deletiontime, function()
+				if IsValid(self) then
+					self.uvmarkedfordeletion = true
+				end
+			end)
+		else
 			local e = EffectData()
 			e:SetEntity(self.v)
 			util.Effect("propspawn", e) --Perform a spawn effect.
 		end
+
 		if not UVTargeting then self.v:EmitSound( "vo/npc/male01/hi02.wav" ) end
 		self.mass = math.Round(self.v:GetPhysicsObject():GetMass())
 

@@ -1367,6 +1367,7 @@ RepairRange = CreateConVar("unitvehicle_repairrange", 100, {FCVAR_ARCHIVE, FCVAR
 RacerPursuitTech = CreateConVar("unitvehicle_racerpursuittech", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racers will spawn with pursuit tech (spike strips, ESF, etc.).")
 RacerFriendlyFire = CreateConVar("unitvehicle_racerfriendlyfire", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racers will be able to attack eachother with Pursuit Tech.")
 OptimizeRespawn = CreateConVar("unitvehicle_optimizerespawn", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units will be teleported ahead of the suspect instead of despawning (does not work with simfphys).")
+TrafficStreaming = CreateConVar("unitvehicle_trafficstreaming", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Traffic and patrolling Units will despawn when they are too far away from the player, thus allowing new ones to spawn.")
 SpottedFreezeCam = CreateConVar("unitvehicle_spottedfreezecam", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, the game will freeze and the camera will point to the closest Unit when starting a pursuit (single-player only).")
 RandomPlayerUnits = CreateConVar("unitvehicle_randomplayerunits", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, player-controlled Units will be chosen randomly from the available units.")
 TractionControl = CreateConVar("unitvehicle_tractioncontrol", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units and Racer Vehicles will apply reduced throttle when wheel spinning.")
@@ -2795,7 +2796,7 @@ if SERVER then
 				-- If the traffic stop timeout is reached, 
 				-- we end the traffic stop and mark the vehicle as pursuable.
 				if v.TrafficStopTimeout <= 0 then
-					if v.TargetingUnit and v.TargetingUnit.UnitVehicle:IsNPC() then
+					if v.TargetingUnit and v.TargetingUnit.UnitVehicle and v.TargetingUnit.UnitVehicle:IsNPC() then
 						UVChatterPursuitStartRanAway( v.TargetingUnit.UnitVehicle, v )
 					end
 					UVEndTrafficStop(v)
@@ -3621,6 +3622,8 @@ else -- CLIENT Settings | HUD/Options
 
 			local found
 
+			if not UVPresets.uvunitmanager then break end
+			
 			for _, presetName in pairs( UVPresets.uvunitmanager ) do
 				if name == presetName then
 					found = true
@@ -3651,6 +3654,8 @@ else -- CLIENT Settings | HUD/Options
 			end
 
 			local found
+
+			if not UVPresets.uvpursuittech then break end
 
 			for _, presetName in pairs( UVPresets.uvpursuittech ) do
 				if name == presetName then

@@ -415,8 +415,8 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	local suspect
 	local suspectvelocity = Vector(0,0,0)
 	-- local suspect = ply
-	-- if next(UVWantedTableVehicle) ~= nil then
-	-- 	local suspects = UVWantedTableVehicle
+	-- if next(UVPotentialSuspects) ~= nil then
+	-- 	local suspects = UVPotentialSuspects
 	-- 	local random_entry = math.random(#suspects)	
 	-- 	suspect = UVGetRaceLeader() or suspects[random_entry]
 	-- 	enemylocation = (suspect:GetPos()+ (vector_up * 50))
@@ -441,8 +441,8 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 
 	local waypointLookup = true
 
-	if next(UVWantedTableVehicle) ~= nil then
-		local suspects = UVWantedTableVehicle
+	if next(UVPotentialSuspects) ~= nil then
+		local suspects = UVPotentialSuspects
 		local random_entry = math.random(#suspects)
 		suspect = UVGetRaceLeader() or suspects[random_entry]
 		
@@ -541,7 +541,6 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		heli:SetAngles(Angle(0, math.random(-180, 180), 0))
 		heli:Spawn()
 		heli:Activate()
-		heli:SetTarget(suspect)
 		return
 	end
 	
@@ -1831,7 +1830,7 @@ function UVAutoSpawnTraffic()
 	local enemylocation
 	local suspect
 	local suspectvelocity = Vector(0,0,0)
-			
+
 	if next(dvd.Waypoints) == nil then
 		if not UVNoDVWaypointsNotify then
 			net.Start("UV_OpenDVWarning")
@@ -1839,40 +1838,98 @@ function UVAutoSpawnTraffic()
 		end
 		return
 	end
-
 	UVNoDVWaypointsNotify = nil
-	
-	if next(UVWantedTableVehicle) ~= nil then
-		local suspects = UVWantedTableVehicle
+
+	if next(dvd.Waypoints) == nil then
+		net.Start("UV_OpenDVWarning")
+		net.Broadcast() -- or target a specific player
+		return
+	end
+
+	local waypointLookup = true
+
+	if next(UVPotentialSuspects) ~= nil then
+		local suspects = UVPotentialSuspects
 		local random_entry = math.random(#suspects)
-		suspect = suspects[random_entry]
+		suspect = UVGetRaceLeader() or suspects[random_entry]
 		
 		enemylocation = (suspect:GetPos() + Vector(0, 0, 50))
 		suspectvelocity = suspect:GetVelocity()
 	elseif not playercontrolled then
-		enemylocation = dvd.Waypoints[math.random(#dvd.Waypoints)]["Target"] + Vector(0, 0, 50)
+		waypointLookup = false
+		uvspawnpointwaypoint = dvd.Waypoints[math.random(#dvd.Waypoints)]
+		uvspawnpoint = uvspawnpointwaypoint["Target"]
 	else
 		enemylocation = ply:GetPos() + Vector(0, 0, 50)
 	end
+
+	if waypointLookup then
+		enemywaypoint = dvd.GetNearestWaypoint(enemylocation)
+		enemywaypointgroup = enemywaypoint["Group"]
+
+		local waypointtable = {}
+		local prioritywaypointtable = {}
+		local prioritywaypointtable2 = {}
+		local prioritywaypointtable3 = {}
 	
-	local enemywaypoint = dvd.GetNearestWaypoint(enemylocation)
-	local waypointtable = {}
-	for k, v in ipairs(dvd.Waypoints) do
-		local Waypoint = v["Target"]
-		local distance = enemylocation - Waypoint
-		local vect = distance:GetNormalized()
-		local evectdot = vect:Dot(suspectvelocity)
-		if distance:LengthSqr() > 25000000 and v["Group"] == 0 then
-			table.insert(waypointtable, v)
+		local candidates = {}
+		
+		for k, v in ipairs( dvd.Waypoints ) do
+			local Waypoint = v.Target
+			local delta = enemylocation - Waypoint
+			local distSq = delta:LengthSqr()
+			if distSq <= POLICE_SPAWN_DIST_FAR_SQ or distSq >= POLICE_SPAWN_DIST_MAX_SQ then
+				continue
+			end
+			
+			if v.Group ~= enemywaypointgroup then
+				table.insert( waypointtable, v )
+				continue
+			end
+			
+			local vect = delta:GetNormalized()
+			local evectdot = vect:Dot( suspectvelocity )
+			
+			if evectdot < 0 then
+				table.insert( candidates, { wp = v, distSq = distSq, score = -evectdot * distSq } )
+			else
+				table.insert( candidates, { wp = v, distSq = distSq, score = distSq } )
+			end
 		end
-	end
 	
-	if next(waypointtable) ~= nil then
-		uvspawnpointwaypoint = waypointtable[math.random(#waypointtable)]
-		uvspawnpoint = uvspawnpointwaypoint["Target"]
-	else
-		uvspawnpointwaypoint = dvd.Waypoints[math.random(#dvd.Waypoints)]
-		uvspawnpoint = uvspawnpointwaypoint["Target"]
+		table.sort( candidates, function(a, b) return a.score < b.score end )
+		
+		for i = 1, math.min( #candidates, POLICE_SPAWN_MAX_CANDIDATES ) do
+			local v = candidates[i].wp
+			local Waypoint = v.Target
+			if UVStraightToWaypoint( enemylocation, Waypoint ) then
+				local delta = enemylocation - Waypoint
+				local vect = delta:GetNormalized()
+				local evectdot = vect:Dot( suspectvelocity )
+				
+				if evectdot < 0 then
+					table.insert( prioritywaypointtable, v )
+				else
+					table.insert( prioritywaypointtable2, v )
+				end
+			else
+				table.insert( prioritywaypointtable3, v )
+			end
+		end
+	
+		if next(prioritywaypointtable) ~= nil then
+			uvspawnpointwaypoint = prioritywaypointtable[math.random(#prioritywaypointtable)]
+			uvspawnpoint = uvspawnpointwaypoint["Target"]
+		elseif next(prioritywaypointtable3) ~= nil then
+			uvspawnpointwaypoint = prioritywaypointtable3[math.random(#prioritywaypointtable3)]
+			uvspawnpoint = uvspawnpointwaypoint["Target"]
+		elseif next(waypointtable) ~= nil then
+			uvspawnpointwaypoint = waypointtable[math.random(#waypointtable)]
+			uvspawnpoint = uvspawnpointwaypoint["Target"]
+		else
+			uvspawnpointwaypoint = dvd.Waypoints[math.random(#dvd.Waypoints)]
+			uvspawnpoint = uvspawnpointwaypoint["Target"]
+		end	
 	end
 
 	local neighbor = dvd.Waypoints[uvspawnpointwaypoint.Neighbors[math.random(#uvspawnpointwaypoint.Neighbors)]]
@@ -1883,13 +1940,6 @@ function UVAutoSpawnTraffic()
 		uvspawnpointangles = GetConVar("unitvehicle_traffic_assigntraffic"):GetBool() and neighbordistance:Angle() or neighbordistance:Angle()+Angle(0,180,0)
 	else
 		uvspawnpointangles = Angle(0,math.random(0,360),0)
-	end
-	
-	if posspecified then
-		uvspawnpoint = posspecified
-	end
-	if angles then
-		uvspawnpointangles = angles
 	end
 	
 	local vehiclebase = UVTVehicleBase:GetInt()
@@ -2616,10 +2666,10 @@ function UVAutoSpawnRacer()
 
 	UVNoDVWaypointsNotify = nil
 	
-	if next(UVWantedTableVehicle) ~= nil then
-		local suspects = UVWantedTableVehicle
+	if next(UVPotentialSuspects) ~= nil then
+		local suspects = UVPotentialSuspects
 		local random_entry = math.random(#suspects)
-		suspect = suspects[random_entry]
+		suspect = UVGetRaceLeader() or suspects[random_entry]
 		
 		enemylocation = (suspect:GetPos() + Vector(0, 0, 50))
 		suspectvelocity = suspect:GetVelocity()

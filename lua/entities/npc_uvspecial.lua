@@ -35,6 +35,7 @@ if SERVER then
 	local PursuitTech = GetConVar("unitvehicle_unit_pursuittech")
 	local DVWaypointsPriority = GetConVar("unitvehicle_dvwaypointspriority")
 	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn")
+	local TrafficStreaming = GetConVar("unitvehicle_trafficstreaming") 
 	local Catchup = GetConVar("unitvehicle_unitcatchup")
 	local DVNavigationOptimized = GetConVar("unitvehicle_dvnavioptimized")
 
@@ -1256,7 +1257,7 @@ if SERVER then
 					UVChatterFoundMultipleEnemies(self) 
 				end
 			end
-			if UVTargeting and closestdistancetosuspect > 100000000 and 
+			if closestdistancetosuspect > 100000000 and 
 			not (eScope and eScope.EnemyBusted) and not (eScope and eScope.EnemyEscaped) and self.uvmarkedfordeletion then
 				if self.v.disengaging or not OptimizeRespawn:GetBool() or (UVGlobalPursuit.ResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
 					SafeRemoveEntity(self)
@@ -1265,6 +1266,26 @@ if SERVER then
 				end
 				if Chatter:GetBool() and not (eScope and eScope.EnemyEscaping) and not self.invincible and not (eScope and eScope.EnemyBusted) then
 					UVChatterLeftPursuit(self) 
+				end
+			end
+		elseif TrafficStreaming:GetBool() then
+			local suspects = UVPotentialSuspects
+			if next(UVPotentialSuspects) ~= nil then
+				local closestsuspect
+				local closestdistancetosuspect
+				local closestscope
+				local r = math.huge
+				local closestdistancetosuspect, closestsuspect = r^2
+				local unitpos = self.v:WorldSpaceCenter()
+				for i, w in pairs(suspects) do
+					local distance = unitpos:DistToSqr(w:WorldSpaceCenter())
+					if distance < closestdistancetosuspect then
+						closestdistancetosuspect, closestsuspect = distance, w
+						closestscope = scope
+					end
+				end
+				if closestdistancetosuspect > 100000000 and self.uvmarkedfordeletion then
+					SafeRemoveEntity(self)
 				end
 			end
 		end
@@ -2514,6 +2535,7 @@ if SERVER then
 		
 		local deletiontime = self.v.roadblocking and 10 or 1
 		local roadblockingtime = math.random(20,60)
+
 		if self.uvscripted then
 			timer.Simple(deletiontime, function()
 				if IsValid(self) then
@@ -2525,8 +2547,11 @@ if SERVER then
 					self.v.roadblocking = nil
 				end
 			end)
+		else
+			local e = EffectData()
+			e:SetEntity(self.v)
+			util.Effect("propspawn", e) --Perform a spawn effect.
 		end
-		
 		
 		if self.v.rhino then
 			self.callsign = "uv.unit.rhino"
@@ -2544,11 +2569,6 @@ if SERVER then
 			self.voice = ya[math.random(1, #ya)]
 		end
 		
-		if not self.uvscripted then
-			local e = EffectData()
-			e:SetEntity(self.v)
-			util.Effect("propspawn", e) --Perform a spawn effect.
-		end
 		if not UVTargeting then self.v:EmitSound( "plats/tram_hit1.wav" ) end
 		self.mass = math.Round(self.v:GetPhysicsObject():GetMass())
 		if Chatter:GetBool() and not UVTargeting then
