@@ -936,11 +936,9 @@ if SERVER then
 		-- Damage check
 		if UVCheckIfWrecked(vehicle) and not vehicle.hasreset then
 			UVRaceRemoveParticipant( vehicle, 'Disqualified' )
-			timer.Simple(60, function()
-				if IsValid(vehicle) then
-					vehicle:Remove()
-				end
-			end)
+			
+			UVWreckVehicle(vehicle)
+
 			return
 		end
 	end

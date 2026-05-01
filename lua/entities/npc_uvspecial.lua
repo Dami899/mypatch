@@ -134,10 +134,7 @@ if SERVER then
 			local e = EffectData()
 			e:SetEntity(self.v)
 			util.Effect("entity_remove", e) --Perform an effect.
-			net.Start("UVHUDRemoveUV")
-			net.WriteInt(self.v:EntIndex(), 32)
-			net.WriteInt(self.v:GetCreationID(), 32)
-			net.Broadcast()
+			
 			if (self.uvscripted and not self.wrecked) then
 				SafeRemoveEntity(self.v)
 			end
@@ -235,19 +232,11 @@ if SERVER then
 	end
 	
 	function ENT:Wreck()
-		if IsValid(self.v) and not self.v.wrecked then
+		if IsValid(self.v) and not self.wrecked then
 			self.wrecked = true
-			self.v.wrecked = true
-			local despawntime = 60
 			if not UVTargeting and IsValid(self.e) and #UVWantedTableVehicle > 0 then
 				UVTargeting = true
 			end
-			table.insert(UVWreckedVehicles, self.v)
-			self.v:CallOnRemove("UVWreckedVehicleRemoved", function()
-				if table.HasValue(UVWreckedVehicles, self.v) then
-					table.RemoveByValue(UVWreckedVehicles, self.v)
-				end
-			end)
 			UVDeactivateESF(self.v)
 			UVDeactivateKillSwitch(self.v)
 			UVDeactivateGrappler(self.v)
@@ -289,82 +278,9 @@ if SERVER then
 				scope.Wrecks = scope.Wrecks + 1
 				scope.Bounty = scope.Bounty + bountyplus
 			end
-			if self.v.IsGlideVehicle then
-				local wreck = self.v
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-				wreck:SetEngineHealth(0)
-				wreck:UpdateHealthOutputs()
-				wreck.UnflipForce = 0
-				wreck.AngularDrag = vector_origin
-				if wreck.CanSwitchHeadlights then
-					wreck:SetHeadlightState(0)
-				end
-				if wreck:GetVelocity():LengthSqr() > 250000 then
-					UVGlideDetachWheels(wreck)
-				end
-			elseif self.v.LVS then
-				local wreck = self.v
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-				if wreck:GetVelocity():LengthSqr() > 250000 and WheelsDetaching:GetBool() then
-					for _, v in pairs(wreck:GetWheels()) do
-						if math.random(1,2) == 1 then
-							constraint.RemoveAll(v)
-						end
-					end
-				end
-				wreck:SetHP(0)
-				wreck:StopEngine()
-			elseif self.v.IsSimfphyscar then
-				local wreck = self.v
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-				if wreck:GetVelocity():LengthSqr() > 250000 and WheelsDetaching:GetBool() then
-					for i = 1, #wreck.Wheels do
-						local wheelmathchance = math.random(1,2)
-						local Wheel = wreck.Wheels[math.random(1, #wreck.Wheels)]
-						if wheelmathchance == 1 then
-							constraint.RemoveAll(Wheel)
-						end
-					end
-				end
-				wreck:SetCurHealth(0)
-				wreck:SetLightsEnabled(false)
-			elseif self.v:GetClass() == "prop_vehicle_jeep" then
-				local wreck = self.v
-				wreck:EmitSound( "vehicles/v8/vehicle_rollover"..math.random(1,2)..".wav" )
-				wreck:AddCallback("PhysicsCollide", function(ent, coldata)
-					local ouroldvel = coldata.OurOldVelocity:Length()
-					local dot = coldata.OurOldVelocity:GetNormalized():Dot(coldata.HitNormal)
-					dot = math.abs(dot) / 2
-					local dmg = ouroldvel * dot
-					if dmg < 10 then return end
-					local e = EffectData()
-					e:SetOrigin(coldata.HitPos)
-					util.Effect("cball_explode", e)
-				end)
-				if wreck:LookupAttachment("vehicle_engine") > 0 then
-					ParticleEffectAttach("smoke_burning_engine_01", PATTACH_POINT_FOLLOW, wreck, wreck:LookupAttachment("vehicle_engine"))
-				end
-				local e = EffectData()
-				e:SetEntity(wreck)
-				util.Effect("entity_remove", e)
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						wreck:Remove()
-					end
-				end)
-			end
+			
+			UVWreckVehicle(self.v)
+
 			if self.v:IsVehicle() then
 				UVBounty = (UVBounty+bountyplus)
 			end
