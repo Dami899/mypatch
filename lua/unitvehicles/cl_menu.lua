@@ -1054,8 +1054,8 @@ local LOCALIZATION_MAP = {
 	author = "uv.rm.author",
 	checkpoints = "uv.rm.checkpoints",
 	spawns = "uv.rm.startslots",
-	props = "uv.rm.props",
-	nodes = "uv.rm.nodes",
+	props = "uv.rm.hasprops",
+	nodes = "uv.rm.hasnodes",
 }
 
 -- Race Manager, Track Select
