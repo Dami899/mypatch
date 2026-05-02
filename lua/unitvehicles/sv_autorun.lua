@@ -1608,6 +1608,8 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			UVRamVehicle(car)
 		end
 
+		local object = coldata.HitEntity
+
 		if object.PursuitBreakerActive then
 			local driver = car.UnitVehicle or car.TrafficVehicle
 				
