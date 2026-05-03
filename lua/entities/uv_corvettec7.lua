@@ -109,8 +109,8 @@ if CLIENT then
 	-- RED
 
         { offset = Vector(98.32,-13.73,12.45), ifBodygroupId = 1, ifSubModelId = 0, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(103.56,-12.08,10.69), ifBodygroupId = 1, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(105.82,-11.03,8.95), ifBodygroupId = 1, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(102.98,-11.58,10.64), ifBodygroupId = 1, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(107.44,-9.03,8.79), ifBodygroupId = 1, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
     
         { offset = Vector(-98.38,10.61,20.18), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
         { offset = Vector(-22.01,19.92,53.04), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
@@ -129,8 +129,8 @@ if CLIENT then
 	-- BLUE
 
         { offset = Vector(98.32,13.73,12.45), ifBodygroupId = 1, ifSubModelId = 0, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(101.03,14.71,11.56), ifBodygroupId = 1, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(101.98,15.64,11.02), ifBodygroupId = 1, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(100.74,15.69,11.61), ifBodygroupId = 1, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(102.57,17.71,10.78), ifBodygroupId = 1, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
 
         { offset = Vector(-98.38,-10.61,20.18), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
         { offset = Vector(-22.01,8.6,53.04), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
