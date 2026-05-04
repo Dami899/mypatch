@@ -3,6 +3,11 @@ VertexLitGeneric
 	$basetexture			"models\unitvehiclescars\uv_corvettec7\skin_0.vtf"
 
 	$nocull 1
+	
+	$detail "models\unitvehiclescars\shared\car_scratch"
+    	//$detailscale 1
+   	$detailblendfactor 0.8
+    	$detailblendmode 2
 
 	$bumpmap			"models\unitvehiclescars\shared\damage_n.vtf"
 	"$phong" "1"

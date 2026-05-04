@@ -1,10 +1,10 @@
 VertexLitGeneric
 {
-	$basetexture			"models\nfsuc\shared\skin_0.vtf"
+	$basetexture			"models\unitvehiclescars\shared\skin_0.vtf"
 
 	$nocull 1
 
-	$bumpmap			"models\nfsuc\shared\damage_n.vtf"
+	$bumpmap			"models\unitvehiclescars\shared\damage_n.vtf"
 	"$nodecal" "1"
 	"$phong" 1
 	"$phongexponent" 8

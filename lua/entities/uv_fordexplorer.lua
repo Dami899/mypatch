@@ -346,7 +346,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(12)
+        self:SetSubMaterial()
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
@@ -423,13 +423,11 @@ if SERVER then
 
         if enginehealth < .5 then --BASE
             self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage")
+            self:SetSubMaterial(8, "models/unitvehiclescars/uv_fordexplorer/skin_0dam")
             if enginehealth < .25 then
                 self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage1")
             end
         end
-
-        --Tip: You can adjust the speed to make the damage more or less sensitive
-        --If you wanna add more damage levels, just add more elseif statements
 
         if fronthit then --FRONT
             if speed < 3000 and self.frontdamaged < 1 then
