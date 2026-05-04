@@ -380,9 +380,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups
-        self:SetSubMaterial(8)
-        self:SetSubMaterial(9)
-        self:SetSubMaterial(18)
+        self:SetSubMaterial()
         self:SetBodygroup( 0, 0 )
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
@@ -432,8 +430,13 @@ if SERVER then
 
         if enginehealth < .5 then --BASE
             self:SetSubMaterial(8, "models/unitvehiclescars/shared/windowdamage")
+            self:SetSubMaterial(9, "models/unitvehiclescars/shared/windowdamage")
+            self:SetSubMaterial(18, "models/unitvehiclescars/shared/windowdamage")
+            self:SetSubMaterial(3, "models/unitvehiclescars/uv_viperelite/carskin_skin1_dmg")
             if enginehealth < .25 then
                 self:SetSubMaterial(8, "models/unitvehiclescars/shared/windowdamage1")
+                self:SetSubMaterial(9, "models/unitvehiclescars/shared/windowdamage1")
+                self:SetSubMaterial(18, "models/unitvehiclescars/shared/windowdamage1")
             end
         end
 

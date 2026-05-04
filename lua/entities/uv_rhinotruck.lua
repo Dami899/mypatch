@@ -260,10 +260,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(13)
-        self:SetSubMaterial(14)
-        self:SetSubMaterial(15)
-        self:SetSubMaterial(16)
+        self:SetSubMaterial()
         self:SetBodygroup( 1, 0 )
 
         self.frontdamaged = 0

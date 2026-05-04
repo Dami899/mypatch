@@ -353,10 +353,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(2)
-        self:SetSubMaterial(3)
-        self:SetSubMaterial(4)
-        self:SetSubMaterial(17)
+        self:SetSubMaterial()
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
@@ -433,8 +430,11 @@ if SERVER then
         self.leftdamaged = self.leftdamaged or 0
         self.rightdamaged = self.rightdamaged or 0
 
-        --Tip: You can adjust the speed to make the damage more or less sensitive
-        --If you wanna add more damage levels, just add more elseif statements
+        local enginehealth = self:GetEngineHealth()
+
+        if enginehealth < .5 then --BASE
+            self:SetSubMaterial(5, "models/unitvehiclescars/uv_corvettec7/skin_0dam")
+        end
 
         if fronthit then --FRONT
             if speed < 3000 and self.frontdamaged < 1 then
