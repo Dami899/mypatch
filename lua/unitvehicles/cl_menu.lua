@@ -768,6 +768,9 @@ UVMenu.Settings = function()
 				},
 				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_racercatchup", showprefix = true, sv = true },
 				
+				{ type = "bool", text = "uv.aidifficulty.racer.cautious", desc = "uv.aidifficulty.racer.cautious.desc", convar = "unitvehicle_racercautious", showprefix = true, sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.cautiousrandomness", desc = "uv.aidifficulty.racer.cautiousrandomness.desc", convar = "unitvehicle_racercautiousrandomness", requireparentconvar = "unitvehicle_racercautious", showprefix = true, sv = true },
+				
 				{ type = "combo", text = "uv.aidifficulty.unit", desc = "uv.aidifficulty.unit.desc", convar = "unitvehicle_unitdifficulty", sv = true, content = {
 						{ "uv.difficulty.1", 0 } ,
 						{ "uv.difficulty.2", 0.5 } ,
@@ -1019,6 +1022,9 @@ UVMenu.RaceManagerSettings = function()
 				{ type = "slider", text = "uv.aidifficulty.racer.rubberband.gap", desc = "uv.aidifficulty.racer.rubberband.gap.desc", convar = "unitvehicle_racercatchup_gap", requireparentconvar = "unitvehicle_racercatchup", min = 0.1, max = 10, decimals = 1, sv = true },
 				{ type = "bool", text = "uv.aidifficulty.racer.rubberbandrev", desc = "uv.aidifficulty.racer.rubberbandrev.desc", convar = "unitvehicle_racercatchup_rev", sv = true },
 				{ type = "slider", text = "uv.aidifficulty.racer.rubberband.gap", desc = "uv.aidifficulty.racer.rubberbandrev.gap.desc", convar = "unitvehicle_racercatchup_rev_gap", requireparentconvar = "unitvehicle_racercatchup_rev", min = 0.1, max = 10, decimals = 1, sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.cautious", desc = "uv.aidifficulty.racer.cautious.desc", convar = "unitvehicle_racercautious", sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.cautiousrandomness", desc = "uv.aidifficulty.racer.cautiousrandomness.desc", convar = "unitvehicle_racercautiousrandomness", requireparentconvar = "unitvehicle_racercautious", showprefix = true, sv = true },
+
 				
 				{ type = "label", text = "uv.settings.general" },
 				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },

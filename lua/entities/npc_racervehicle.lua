@@ -562,6 +562,12 @@ if SERVER then
 	local DEBUG_AVOIDANCE = false
 	
 	function ENT:ComputeAvoidance()
+		if not UVRaceCautious:GetBool() then return 0, nil end
+		if UVRaceCautiousRandom:GetBool() then
+			if self.__cautiousOverride == nil then self.__cautiousOverride = math.random( 0, 1 ) == 1 end
+			if not self.__cautiousOverride then return 0, nil end
+		end
+
 		local nearby = self:GetNearbyRacers()
 		if not nearby or #nearby == 0 then return 0, nil end
 
