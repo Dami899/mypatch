@@ -27,6 +27,8 @@ UVRaceCatchup = CreateConVar( "unitvehicle_racercatchup", 0, {FCVAR_ARCHIVE, FCV
 UVRaceCatchupGap = CreateConVar( "unitvehicle_racercatchup_gap", 2, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "How far behind AI racers need to be to activate it." )
 UVRaceReverseCatchup = CreateConVar( "unitvehicle_racercatchup_rev", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enables catch-up mode for AI racers." )
 UVRaceReverseCatchupGap = CreateConVar( "unitvehicle_racercatchup_rev_gap", 2, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "How far behind AI racers need to be to activate it." )
+UVRaceCautious = CreateConVar( "unitvehicle_racercautious", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enables cautious mode for AI racers, making them more aware of other racers and less aggressive." )
+UVRaceCautiousRandom = CreateConVar( "unitvehicle_racercautiousrandomness", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Whether to randomize the cautious mode for AI racers, unitvehicle_racercautious must be ENABLED." )
 
 UVMenuFirstCreate = CreateConVar( "unitvehicle_uvmenu_firstsetup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, whenever you open the UV Menu via the Context Menu, you'll be prompted to go through the first-time setup." )
 

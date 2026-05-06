@@ -1,5 +1,3 @@
-print("Import disabled")
-
 UVContent = {}
 
 local WS_CONTENT_ROOT = "data_static/uv_import/"
@@ -96,45 +94,7 @@ if SERVER then
         hook.Run( "UVContentEvent", "Initialize" )
     end )
     
-    -- for _, folder in ipairs( localContentFolders ) do
-    --     scanFolder( LOCAL_CONTENT_ROOT .. folder .. "/", UVContent, "DATA" )
-        --MsgC(Color(0,255,0), "\tMounted local content: " .. folder .. "\n")
-    --end
-    -- hook.Add("Think", "UV_ContentReplication", function()
-    --     local task = next( ReplicationQueue )
-    --     if not task then return end
-
-    --     if task.operation == 1 then
-            
-    --     end
-    -- end)
-    -- timer.Simple( 2, function() 
-    --     for _, ply in player.Iterator() do
-    --         UV_SendContent( ply, 'glide>>units' )
-    --         UV_SendContent( ply, 'glide>>traffic' )
-    --         UV_SendContent( ply, 'glide>>racers' )
-    
-    --         UV_SendContent( ply, 'lvs>>units' )
-    --         UV_SendContent( ply, 'lvs>>traffic' )
-    --         UV_SendContent( ply, 'lvs>>racers' )
-    
-    --         UV_SendContent( ply, 'prop_vehicle_jeep>>units' )
-    --         UV_SendContent( ply, 'prop_vehicle_jeep>>traffic' )
-    --         UV_SendContent( ply, 'prop_vehicle_jeep>>racers' )
-    
-    --         UV_SendContent( ply, 'simfphys>>units' )
-    --         UV_SendContent( ply, 'simfphys>>traffic' )
-    --         UV_SendContent( ply, 'simfphys>>racers' )
-    
-    --         --UV_SendContent( ply, 'races>>' .. game.GetMap() )
-    --     end
-    
-    -- end )
-    -- PrintTable(table.GetKeys(UVContent))
 elseif CLIENT then
-    -- timer.Simple( 5, function()
-    --     PrintTable(UVContent)
-    -- end )
     net.Receive( "UVContent_Add", function( len, ply )
         local bytes = net.ReadUInt( 16 )
         local data = net.ReadData( bytes )
