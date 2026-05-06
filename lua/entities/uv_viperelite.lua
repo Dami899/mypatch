@@ -259,9 +259,9 @@ if CLIENT then
 	end
 
 	ENT.LightSubMaterials = {
-		Headlights = {16},
-		Rearlights = {12},
-		Brakelights = {12}
+		Headlights = {15},
+		Rearlights = {11},
+		Brakelights = {11}
 	}
 	
 	ENT.LightMaterials = {
