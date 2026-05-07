@@ -331,10 +331,10 @@ end)
 
 timer.Simple(5, function()
 	if not DecentVehicleDestination then
-		PrintMessage( HUD_PRINTTALK, UVString("uv.system.dvnotinstalled"))
+		PrintMessage( HUD_PRINTTALK, "/// Unit Vehicles requires Decent Vehicles to be installed! /// https://steamcommunity.com/sharedfiles/filedetails/?id=1587455087")
 	end
 	if not Glide then
-		PrintMessage( HUD_PRINTTALK, UVString("uv.system.glidenotinstalled"))
+		PrintMessage( HUD_PRINTTALK, "/// Unit Vehicles recommends Glide! Attempting to spawn default vehicles from the Unit Manager may cause errors! /// https://steamcommunity.com/sharedfiles/filedetails/?id=3389728250")
 	end
 end)
 

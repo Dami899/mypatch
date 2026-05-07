@@ -2060,7 +2060,7 @@ UV_UI.speedometer.nightrunners.states = {
     lastGearSwitch = 0,
     elements = {},
     lastGearIcon = nil,
-    lastVehicle = Glide.currentVehicle,
+    lastVehicle = Glide and Glide.currentVehicle or nil,
     lastColor = Color(38, 225, 0),
     rpm_lerp = 0,
 }
