@@ -4043,6 +4043,8 @@ function UVWreckVehicle(vehicle)
 		end
 	end)
 
+	UVDeactivateGrappler(vehicle)
+
 	net.Start("UVHUDRemoveUV")
 	net.WriteInt(vehicle:EntIndex(), 32)
 	net.WriteInt(vehicle:GetCreationID(), 32)
