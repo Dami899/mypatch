@@ -316,7 +316,7 @@ function UV_InitiatePursuit( target )
 	scope.Losing = 0
 	scope.PursuitStart = CurTime()
 
-	hook.Run('PursuitEventHook', 'onSuspectSpotted', target)
+	hook.Run('UV_Event', 'onSuspectSpotted', target)
 end
 
 --Sound spam check--
@@ -1749,6 +1749,7 @@ if SERVER then
 
 	-- Last replicated scope fields per key; UVScopeThink diffs against this (see UVReplicate*).
 	local UV_SCOPE_LAST_REPLICATED = {}
+	local UV_SCOPE_LAST_VALUES = {}
 
 	UVHUDPursuit = nil
 	UVHUDBusting = nil
@@ -1862,6 +1863,7 @@ if SERVER then
 		-- scope.CooldownProgressTimeout = CurTime()
 
 		UVPursuitScopes[key] = scope
+		UV_SCOPE_LAST_VALUES[key] = table.Copy(scope)
 
 		UVReplicateFullScope(key, scope)
 
@@ -1873,6 +1875,7 @@ if SERVER then
 		if not key then return end
 
 		UV_SCOPE_LAST_REPLICATED[key] = nil
+		UV_SCOPE_LAST_VALUES[key] = nil
 		UVPursuitScopes[key] = nil
 
 		net.Start( "UV_RemoveScope" )
@@ -2025,6 +2028,8 @@ if SERVER then
 		-- InPursuit is set manually by unit spotting (visibility) or uv_startpursuit only
 
 		-- Per-scope tick (we sync changes based on the UV_SCOPE_LAST_REPLICATED diffs)
+		local lastValues = UV_SCOPE_LAST_VALUES[key] or {}
+
 		for key, scope in pairs( UVPursuitScopes ) do
 			local veh = Entity( scope.EntIndex )
 			if not IsValid( veh ) then continue end
@@ -2055,7 +2060,7 @@ if SERVER then
 			if scope.InPursuit and not scope.EnemyEscaped then
 				if scope.Losing >= 5 then
 					if not scope.EnemyEscaping then
-						hook.Run('PursuitEventHook', 'onSuspectEscaping', veh)
+						hook.Run('UV_Event', 'onSuspectEscaping', veh)
 						scope.EnemyEscaping = true
 						scope.InCooldown = true
 						scope.IsEvading = true
@@ -2076,7 +2081,7 @@ if SERVER then
 					end
 				else
 					if scope.EnemyEscaping and not scope.EnemyEscaped and not scope.EnemyBusted then
-						hook.Run('PursuitEventHook', 'onSuspectEscapingEnd', veh)
+						hook.Run('UV_Event', 'onSuspectEscapingEnd', veh)
 						scope.EnemyEscaping = false
 						scope.InCooldown = false
 						scope.IsEvading = false
@@ -2086,7 +2091,7 @@ if SERVER then
 
 				-- call off pursuit for scope if escaped
 				if scope.CooldownTimerProgress >= 1 then
-					hook.Run('PursuitEventHook', 'onSuspectEscaped', veh)
+					hook.Run('UV_Event', 'onSuspectEscaped', veh)
 					scope.CooldownTimerProgress = 0
 					scope.InPursuit = false
 					scope.EnemyEscaped = true
@@ -2114,7 +2119,7 @@ if SERVER then
 						local nextHeat = scope.Heat + 1
 						if nextHeat <= MaxHeatLevel:GetInt() then
 							scope.Heat = nextHeat
-							hook.Run( 'PursuitEventHook', 'onHeatLevelIncrease', veh, nextHeat )
+							hook.Run( 'UV_Event', 'onHeatLevelIncrease', veh, nextHeat )
 							TriggerHeatLevelEffects( nextHeat, veh )
 							local timeTillNextHeatConVar = GetConVar( 'unitvehicle_unit_timetillnextheat' .. nextHeat )
 							local nextInterval = timeTillNextHeatConVar and timeTillNextHeatConVar:GetInt() or 120
@@ -2131,7 +2136,7 @@ if SERVER then
 					local newHeatLevel = CalculateHeatLevel( scope.Bounty, scope.Heat )
 					if newHeatLevel ~= scope.Heat then
 						scope.Heat = newHeatLevel
-						hook.Run( 'PursuitEventHook', 'onHeatLevelIncrease', veh, newHeatLevel )
+						hook.Run( 'UV_Event', 'onHeatLevelIncrease', veh, newHeatLevel )
 						TriggerHeatLevelEffects( newHeatLevel, veh )
 					end
 				end
@@ -2208,6 +2213,18 @@ if SERVER then
 			if hasChanges then
 				UVReplicateScopeDelta( key, delta )
 			end
+
+			local lastValues = UV_SCOPE_LAST_VALUES[key] or {}
+			local deltaValues = {}
+
+			for k, v in pairs( scope ) do
+				if lastValues[k] ~= v then
+					deltaValues[k] = v
+					lastValues[k] = v
+				end
+			end
+
+			if next(deltaValues) then hook.Run( 'UV_Event', 'onScopeChanged', veh, deltaValues ) end
 		end
 
 		-- if now > _scopeSyncThrottle then
@@ -2263,9 +2280,9 @@ if SERVER then
 				end	
 			end)
 			if anyBusted then
-				hook.Run( 'PursuitEventHook', 'onPursuitEnd', 'Busted' )
+				hook.Run( 'UV_Event', 'onPursuitEnd', 'Busted' )
 			elseif anyEscaped then
-				hook.Run( 'PursuitEventHook', 'onPursuitEnd', 'Escaped' )
+				hook.Run( 'UV_Event', 'onPursuitEnd', 'Escaped' )
 			end
 		end
 
@@ -2375,7 +2392,7 @@ if SERVER then
 	UVWreckedVehicles = {}
 	UVUnitVehicles = {}
 
-	hook.Add('PursuitEventHook', 'onPursuitEvent', function( type, result )
+	hook.Add('UV_Event', 'onPursuitEvent', function( type, result )
 		if type == 'onPursuitEnd' then
 			if result == 'Busted' then
 				
@@ -2844,7 +2861,7 @@ if SERVER then
 					UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
 				end
 				UV_InitiatePursuit(v)
-				hook.Run('PursuitEventHook', 'onSuspectSpotted', v)
+				hook.Run('UV_Event', 'onSuspectSpotted', v)
 			end
 			
 			if not v.UVBustingProgress then

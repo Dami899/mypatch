@@ -782,41 +782,41 @@ function TOOL:LeftClick(trace)
 
 		-- Skip if blank or invalid
 		if ptselected == "" or not PursuitTechDefs[ptselected] then
-			car.PursuitTech[slot] = nil
-			UVReplicatePT(car, slot)
+			UVRemovePursuitTech( car, slot )
 		else
 			-- Skip second slot if same as first
 			if slot == 2 and ptselected == ptSlot1 then
-				car.PursuitTech[slot] = nil
-				UVReplicatePT(car, slot)
+				UVRemovePursuitTech( car, slot )
 				continue  -- skip the rest of the loop for slot 2
 			end
 
 			-- Apply PT normally
-			local info = PursuitTechDefs[ptselected]
-			local short = (info and info.shortname) or string.lower(ptselected:gsub(" ", ""))
+			-- local info = PursuitTechDefs[ptselected]
+			-- local short = (info and info.shortname) or string.lower(ptselected:gsub(" ", ""))
 
-			local ammo_cv = (car.UnitVehicle and "uvpursuittech_"..short.."_maxammo_unit" or "uvpursuittech_"..short.."_maxammo")
-			local cooldown_cv = (car.UnitVehicle and "uvpursuittech_"..short.."_cooldown_unit" or "uvpursuittech_"..short.."_cooldown")
+			-- local ammo_cv = (car.UnitVehicle and "uvpursuittech_"..short.."_maxammo_unit" or "uvpursuittech_"..short.."_maxammo")
+			-- local cooldown_cv = (car.UnitVehicle and "uvpursuittech_"..short.."_cooldown_unit" or "uvpursuittech_"..short.."_cooldown")
 
-			local ammo_val, cd_val = math.huge, 30
-			if ConVarExists(ammo_cv) then
-				local cv = GetConVar(ammo_cv)
-				if cv then ammo_val = cv:GetInt() end
-			end
-			if ConVarExists(cooldown_cv) then
-				local cv2 = GetConVar(cooldown_cv)
-				if cv2 then cd_val = cv2:GetInt() end
-			end
+			-- local ammo_val, cd_val = math.huge, 30
+			-- if ConVarExists(ammo_cv) then
+			-- 	local cv = GetConVar(ammo_cv)
+			-- 	if cv then ammo_val = cv:GetInt() end
+			-- end
+			-- if ConVarExists(cooldown_cv) then
+			-- 	local cv2 = GetConVar(cooldown_cv)
+			-- 	if cv2 then cd_val = cv2:GetInt() end
+			-- end
 
-			car.PursuitTech[slot] = {
-				Tech     = ptselected,
-				Ammo     = ammo_val,
-				Cooldown = cd_val,
-				LastUsed = -math.huge,
-			}
+			-- car.PursuitTech[slot] = {
+			-- 	Tech     = ptselected,
+			-- 	Ammo     = ammo_val,
+			-- 	Cooldown = cd_val,
+			-- 	LastUsed = -math.huge,
+			-- }
 
-			UVReplicatePT(car, slot)
+			-- UVReplicatePT(car, slot)
+
+            UVAddPursuitTech( car, ptselected, slot, nil, nil )
 		end
 	end
 
@@ -832,9 +832,9 @@ function TOOL:LeftClick(trace)
         end)
     end
 
-    -- replicate both slots
-    UVReplicatePT(car, 1)
-    UVReplicatePT(car, 2)
+    -- -- replicate both slots
+    -- UVReplicatePT(car, 1)
+    -- UVReplicatePT(car, 2)
 
     return true
 end
@@ -848,9 +848,11 @@ function TOOL:RightClick(trace)
 	if not PlayerCanModifyPT(self:GetOwner(), car) then return false end
 
     -- Completely remove Pursuit Tech from this vehicle
-    if car.PursuitTech then
-        car.PursuitTech = nil
-    end
+    -- if car.PursuitTech then
+    --     car.PursuitTech = nil
+    -- end
+    UVRemovePursuitTech( car, 1 )
+    UVRemovePursuitTech( car, 2 )
 
     -- Remove from active PursuitTech tracking list
     if table.HasValue(UVRVWithPursuitTech, car) then
@@ -858,8 +860,8 @@ function TOOL:RightClick(trace)
     end
 
     -- Replicate cleared state to all clients
-    UVReplicatePT(car, 1)
-    UVReplicatePT(car, 2)
+    -- UVReplicatePT(car, 1)
+    -- UVReplicatePT(car, 2)
 
     -- Optional: visual feedback
     local eff = EffectData()

@@ -2331,27 +2331,29 @@ function UVGiveRacerPursuitTech(vehicle)
 		for i=1, 2, 1 do
 			local selected_pt = pttable[math.random(#pttable)]
 			table.remove(pttable, table.KeyFromValue(pttable, selected_pt))
+
+			UVAddPursuitTech( vehicle, selected_pt, i, nil, nil )
 			
-			local sanitized_pt = string.lower(string.gsub(selected_pt, " ", ""))
-			local sel_k, sel_v
+			-- local sanitized_pt = string.lower(string.gsub(selected_pt, " ", ""))
+			-- local sel_k, sel_v
 			
-			for k,v in pairs(vehicle.PursuitTech) do
-				if v.Tech == selected_pt then
-					sel_k, sel_v = k, v
-					vehicle.PursuitTech[k] = nil
-					break
-				end
-			end
+			-- for k,v in pairs(vehicle.PursuitTech) do
+			-- 	if v.Tech == selected_pt then
+			-- 		sel_k, sel_v = k, v
+			-- 		vehicle.PursuitTech[k] = nil
+			-- 		break
+			-- 	end
+			-- end
 			
-			local ammo_count = GetConVar("uvpursuittech_" .. sanitized_pt .. "_maxammo"):GetInt()
-			ammo_count = ammo_count > 0 and ammo_count or math.huge
+			-- local ammo_count = GetConVar("uvpursuittech_" .. sanitized_pt .. "_maxammo"):GetInt()
+			-- ammo_count = ammo_count > 0 and ammo_count or math.huge
 			
-			vehicle.PursuitTech[i] = {
-				Tech = selected_pt,
-				Ammo = ammo_count,
-				Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown"):GetInt(),
-				LastUsed = -math.huge,
-			}
+			-- vehicle.PursuitTech[i] = {
+			-- 	Tech = selected_pt,
+			-- 	Ammo = ammo_count,
+			-- 	Cooldown = GetConVar("uvpursuittech_" .. sanitized_pt .. "_cooldown"):GetInt(),
+			-- 	LastUsed = -math.huge,
+			-- }
 		end
 		
 		table.insert(UVRVWithPursuitTech, vehicle)
@@ -2362,11 +2364,11 @@ function UVGiveRacerPursuitTech(vehicle)
 			end
 		end)
 
-		timer.Simple(1, function()
-			for i=1,2 do
-				UVReplicatePT( vehicle, i )
-			end
-		end)
+		-- timer.Simple(1, function()
+		-- 	for i=1,2 do
+		-- 		UVReplicatePT( vehicle, i )
+		-- 	end
+		-- end)
 	end
 end
 
