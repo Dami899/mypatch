@@ -1093,8 +1093,8 @@ if SERVER then
 
         local techSmallName = PURSUIT_TECH_TABLE[tech]
 
-        local maxAmmo = ammo or GetConVar(car.UnitVehicle and "uvpursuittech_"..short.."_maxammo_unit" or "uvpursuittech_"..short.."_maxammo"):GetInt()
-        local cooldown = cooldown or GetConVar(car.UnitVehicle and "uvpursuittech_"..short.."_cooldown_unit" or "uvpursuittech_"..short.."_cooldown"):GetInt()
+        local maxAmmo = ammo or GetConVar(car.UnitVehicle and "uvpursuittech_"..techSmallName.."_maxammo_unit" or "uvpursuittech_"..techSmallName.."_maxammo"):GetInt()
+        local cooldown = cooldown or GetConVar(car.UnitVehicle and "uvpursuittech_"..techSmallName.."_cooldown_unit" or "uvpursuittech_"..techSmallName.."_cooldown"):GetInt()
 
         car.PursuitTech[slot].Tech = tech
         car.PursuitTech[slot].Ammo = maxAmmo
