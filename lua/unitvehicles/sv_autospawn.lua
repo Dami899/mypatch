@@ -4109,6 +4109,8 @@ function UVMoveToGridSlot( vehicle, aienabled )
 	local pos = spawn:GetPos()
 	local ang = spawn:GetAngles()
 	
+	local scope = UVGetScope( vehicle ) or {}
+	
 	local Ent
 	
 	if Memory.VehicleBase == "gmod_sent_vehicle_fphysics_base" then
@@ -4683,6 +4685,8 @@ function UVMoveToGridSlot( vehicle, aienabled )
 	
 	spawn.claimed = true
 
+	hook.Run( 'UV_Event', 'onVehicleReplaced', Ent, entrantvehicle )
+
 	local constrainedEnts = constraint.GetAllConstrainedEntities(entrantvehicle)
 	if constrainedEnts then
 		for ent, _ in pairs(constrainedEnts) do
@@ -4692,6 +4696,9 @@ function UVMoveToGridSlot( vehicle, aienabled )
 		end
 	end
 	entrantvehicle:Remove()
+
+	-- Re-create the scope from the first vehicle
+	UVCreateScope( Ent, scope )
 	
 	Ent.racer = racer_name
 	

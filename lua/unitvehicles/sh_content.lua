@@ -1,4 +1,5 @@
 UVContent = {}
+UVContentReady = false
 
 local WS_CONTENT_ROOT = "data_static/uv_import/"
 local LOCAL_CONTENT_ROOT = "unitvehicles/"
@@ -88,6 +89,8 @@ if SERVER then
     MsgC(Color(0,255,0), "\n[Unit Vehicles] Mounting local content...\n")
 
     scanFolder( LOCAL_CONTENT_ROOT, UVContent, "DATA" )
+
+    UVContentReady = true
 
     -- We must let hook listeners register first
     timer.Simple( 0, function()
