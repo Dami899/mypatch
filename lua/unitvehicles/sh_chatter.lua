@@ -122,7 +122,15 @@ Wrecker: Tow truck
 
 ]]
 
-local 
+local UNIT_TYPES_ARRAY = {
+	['air'] = 'uvair',
+	['patrol'] = 'npc_uvpatrol',
+	['support'] = 'npc_uvsupport',
+	['pursuit'] = 'npc_uvpursuit',
+	['interceptor'] = 'npc_uvinterceptor',
+	['special'] = 'npc_uvspecial',
+	['commander'] = 'npc_uvcommander',
+}
 
 if SERVER then
 	UVClassName = {"POLICE"}
