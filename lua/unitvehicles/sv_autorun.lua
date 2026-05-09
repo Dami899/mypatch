@@ -3295,6 +3295,9 @@ function UVBustEnemy(self, enemy, finearrest)
 				table.RemoveByValue(UVWantedTableDriver, enemyDriver)
 			end
 		end
+
+		hook.Run( 'UV_Event', 'onSuspectBusted', enemy )
+
 		self.chasing = nil
 		UVEnemyBusted = true
 		if not enemyDriver then
@@ -3376,6 +3379,8 @@ function UVBustEnemy(self, enemy, finearrest)
 			end
 			enemy.uvbusted = nil
 		end)
+
+		hook.Run( 'UV_Event', 'onSuspectFined', enemy, enemyScope.FinesDue )
 	end
 
 	if #UVWantedTableVehicle == 0 and next(UVPlayerUnitTableVehicle) ~= nil then
