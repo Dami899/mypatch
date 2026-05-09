@@ -122,6 +122,8 @@ Wrecker: Tow truck
 
 ]]
 
+local 
+
 if SERVER then
 	UVClassName = {"POLICE"}
 	
