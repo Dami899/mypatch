@@ -122,16 +122,6 @@ Wrecker: Tow truck
 
 ]]
 
-local UNIT_TYPES_ARRAY = {
-	['air'] = 'uvair',
-	['patrol'] = 'npc_uvpatrol',
-	['support'] = 'npc_uvsupport',
-	['pursuit'] = 'npc_uvpursuit',
-	['interceptor'] = 'npc_uvinterceptor',
-	['special'] = 'npc_uvspecial',
-	['commander'] = 'npc_uvcommander',
-}
-
 if SERVER then
 	UVClassName = {"POLICE"}
 	
@@ -555,10 +545,28 @@ if SERVER then
 
 			ChatterLastPlay = initTime
 			
-			local identifyFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/"..voice.."/identify/*", "GAME")
-			if next(identifyFiles) == nil then return 5 end
-			table.Shuffle(identifyFiles)
-			local identifyFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/identify/"..identifyFiles[1]
+			local identifyFile = nil
+			local identifyFiles, identifyDirs = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/"..voice.."/identify/*", "GAME")
+			if next(identifyDirs) ~= nil then
+				for _, dir in pairs( identifyDirs ) do
+					if self.type == dir then
+						local files = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/"..voice.."/identify/"..dir.."/*", "GAME")
+						if next(files) ~= nil then
+							table.Shuffle(files)
+							identifyFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/identify/"..dir.."/"..files[1]
+							break
+						end	
+					end
+				end
+			end
+			if not identifyFile then
+				if next(identifyFiles) ~= nil then
+					table.Shuffle(identifyFiles)
+					identifyFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/identify/"..identifyFiles[1]
+				end
+			end
+
+			if not identifyFile then return 5 end
 			
 			local radioOnFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/radioon/*", "GAME")
 			table.Shuffle(radioOnFiles)
