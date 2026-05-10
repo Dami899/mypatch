@@ -8,13 +8,48 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
-["1.6.1"] = {
-      Date = { year = 2026, month = 4, day = 24 },
-      Text = [[
-      **Fixes**
-      - Fixed improper bit count when sending the Fined event, resulting in the paid fine having an incorrect value.
-      ]],
+["1.7.0"] = {
+Date = { year = 2026, month = 5, day = 15 },
+Type = "Minor",
+Text = [[
+**New Features**
+- Added a new *Cautious Mode* and *Cautious Mode Randomness* variables for AI Racers
+      |-- Makes AI Racers more cautious when racing
+      |-- Slows down when approaching other racers, and turns away when side-by-side
+      |-- *Randomness* can apply a modifier to some racers and not others
+
+- Added a new *Traffic Streaming* variable
+      |-- Spawns traffic and units closer to players
+      |-- Despawns them when they are too far away from players
+
+**Changes**
+- The UVPD fleet have received a full appearance rework
+
+- Improved the Data Importer
+      |-- Now loads data directly from Workshop addons instead of copying them
+      |-- Removed the "Import Data" prompts all together
+
+- Improved the appearance of Name Tags during pursuits
+      |-- The tags will be compact when far away
+      |-- Units: Tags of suspects will grow and display more information when you get closer
+
+- Removed the "Evade with Active Commander" variable due to being redundant
+
+**Fixes**
+- Fixed that the "Busting" prompt on Name Tags would always appear if the Busting Timer was set to 0.
+- Fixed that the *Grappler* Pursuit Tech did not detach when the suspect was wrecked or busted.
+- Fixed that Roadblock Units were recycling when *Optimize Respawn* was enabled.
+]],
 },
+
+["1.6.1"] = {
+Date = { year = 2026, month = 4, day = 24 },
+Text = [[
+**Fixes**
+- Fixed improper bit count when sending the Fined event, resulting in the paid fine having an incorrect value.
+]],
+},
+
 ["1.6.0"] = {
 Date = { year = 2026, month = 4, day = 24 },
 Type = "Minor",
