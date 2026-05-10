@@ -601,7 +601,9 @@ if SERVER then
 			end
 			timer.Simple(radioOnFile and SoundDuration(radioOnFile) or (chirpGenericFile and 0.1 or 0), function()
 				if ChatterLastPlay ~= initTime then return 5 end
-				UVRelayToClients(initTime, identifyFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
+				if identifyFile then
+					UVRelayToClients(initTime, identifyFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
+				end
 				timer.Simple(SoundDuration(identifyFile or ""), function()
 					if ChatterLastPlay ~= initTime then return 5 end
 					UVRelayToClients(initTime, soundFile, parameters, true, nil, (voice == "dispatch" and "uv.unit.dispatch") or (self and self.callsign))
