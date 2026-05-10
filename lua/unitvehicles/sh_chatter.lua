@@ -544,12 +544,14 @@ if SERVER then
 			if not soundFile then return 5 end
 
 			ChatterLastPlay = initTime
+
+			local comparedType = select( 2, ... ) or self.type
 			
 			local identifyFile = nil
 			local identifyFiles, identifyDirs = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/"..voice.."/identify/*", "GAME")
 			if next(identifyDirs) ~= nil then
 				for _, dir in pairs( identifyDirs ) do
-					if self.type == dir then
+					if comparedType == dir then
 						local files = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/"..voice.."/identify/"..dir.."/*", "GAME")
 						if next(files) ~= nil then
 							table.Shuffle(files)
