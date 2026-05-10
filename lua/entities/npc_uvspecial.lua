@@ -1175,9 +1175,9 @@ if SERVER then
 			end
 			if closestdistancetosuspect > 100000000 and 
 			not (eScope and eScope.EnemyBusted) and not (eScope and eScope.EnemyEscaped) and self.uvmarkedfordeletion then
-				if self.v.disengaging or not OptimizeRespawn:GetBool() or (UVGlobalPursuit.ResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
+				if ( self.v.disengaging or self.v.roadblockingmissed ) or not OptimizeRespawn:GetBool() or (UVGlobalPursuit.ResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
 					SafeRemoveEntity(self)
-				else
+				elseif not self.v.roadblocking then
 					UVOptimizeRespawn(self.v)
 				end
 				if Chatter:GetBool() and not (eScope and eScope.EnemyEscaping) and not self.invincible and not (eScope and eScope.EnemyBusted) then
@@ -1214,9 +1214,9 @@ if SERVER then
 				self:Stop()
 			else --Patrol
 				self:Patrol()
-				if self.v.roadblocking and not self.spawned then
-					self.v.roadblocking = nil
-				end
+				-- if self.v.roadblocking and not self.spawned then
+				-- 	self.v.roadblocking = nil
+				-- end
 			end
 			
 			if UVTargeting then 

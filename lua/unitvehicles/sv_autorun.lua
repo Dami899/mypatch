@@ -3295,6 +3295,9 @@ function UVBustEnemy(self, enemy, finearrest)
 				table.RemoveByValue(UVWantedTableDriver, enemyDriver)
 			end
 		end
+
+		hook.Run( 'UV_Event', 'onSuspectBusted', enemy, finearrest )
+
 		self.chasing = nil
 		UVEnemyBusted = true
 		if not enemyDriver then
@@ -3318,21 +3321,26 @@ function UVBustEnemy(self, enemy, finearrest)
 		enemy.UVHUDBustingDelayed = nil
 		UVEndTrafficStop( enemy )
 		local occupants = UVGetVehicleOccupants( enemy )
-		if enemy:IsVehicle() then
-			local e = UVGetVehicleMakeAndModel(enemy)
-			if not enemy.UVFinedCount then
-				enemy.UVFinedCount = 0
-			end
-			enemy.UVFinedCount = enemy.UVFinedCount + 1
-			if enemy.UVFinedCount >= 3 then
-				net.Start( "UVHUDStopBusting" )
-				net.Send(occupants)
-				UVBustEnemy(self, enemy, true)
-				return
-			end
-			if Chatter:GetBool() and IsValid(self.v) then
-				UVChatterFinePaid(self)
-			end
+		local e = UVGetVehicleMakeAndModel(enemy)
+		if not enemy.UVFinedCount then
+			enemy.UVFinedCount = 0
+		end
+		enemy.UVFinedCount = enemy.UVFinedCount + 1
+		if enemy.UVFinedCount >= 3 then
+			net.Start( "UVHUDStopBusting" )
+			net.Send(occupants)
+			UVBustEnemy(self, enemy, true)
+			return
+		end
+		local busted = hook.Run( 'UV_Event', 'onSuspectFined', enemy, enemyScope.FinesDue )
+		if busted then
+			net.Start( "UVHUDStopBusting" )
+			net.Send(occupants)
+			UVBustEnemy(self, enemy, true)
+			return
+		end
+		if Chatter:GetBool() and IsValid(self.v) then
+			UVChatterFinePaid(self)
 		end
 		timer.Simple(0.01, function()
 			--UVTargeting = nil

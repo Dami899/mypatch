@@ -545,10 +545,28 @@ if SERVER then
 
 			ChatterLastPlay = initTime
 			
-			local identifyFiles = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/"..voice.."/identify/*", "GAME")
-			if next(identifyFiles) == nil then return 5 end
-			table.Shuffle(identifyFiles)
-			local identifyFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/identify/"..identifyFiles[1]
+			local identifyFile = nil
+			local identifyFiles, identifyDirs = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/"..voice.."/identify/*", "GAME")
+			if next(identifyDirs) ~= nil then
+				for _, dir in pairs( identifyDirs ) do
+					if self.type == dir then
+						local files = CachedFileFind("sound/chatter2/"..unitVoiceProfile.."/"..voice.."/identify/"..dir.."/*", "GAME")
+						if next(files) ~= nil then
+							table.Shuffle(files)
+							identifyFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/identify/"..dir.."/"..files[1]
+							break
+						end	
+					end
+				end
+			end
+			if not identifyFile then
+				if next(identifyFiles) ~= nil then
+					table.Shuffle(identifyFiles)
+					identifyFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/identify/"..identifyFiles[1]
+				end
+			end
+
+			if not identifyFile then return 5 end
 			
 			local radioOnFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/radioon/*", "GAME")
 			table.Shuffle(radioOnFiles)
