@@ -567,8 +567,6 @@ if SERVER then
 					identifyFile = "chatter2/"..unitVoiceProfile..'/'..voice.."/identify/"..identifyFiles[1]
 				end
 			end
-
-			if not identifyFile then return 5 end
 			
 			local radioOnFiles = CachedFileFind("sound/chatter2/"..miscVoiceProfile.."/misc/radioon/*", "GAME")
 			table.Shuffle(radioOnFiles)
@@ -1074,7 +1072,7 @@ if SERVER then
 	
 	function UVChatterWreck(self)
 		if (self:GetClass() ~= "uvair" and UVChatterDelayed) or not UVTargeting then return end --Air Unit gets priority
-		if self:GetClass() == "uvair" then UVResetChatterQueue() end
+		if self:GetClass() == "uvair" or self:GetClass() == "npc_uvcommander" then UVResetChatterQueue() end
 		return UVSoundChatter(self, self.voice, "wreck", 3)
 	end
 	
@@ -1126,6 +1124,12 @@ if SERVER then
 	end
 	
 	function UVChatterReportHeat(self, heat)
+		local mathrandomno = math.random(1,2)
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit = UVCommanders[random_entry]
+			self = unit
+		end
 		local timeCheck = 5
 		local randomChance = math.random(1,3)
 		
@@ -1345,6 +1349,12 @@ if SERVER then
 	function UVChatterAggressive(self)
 		if UVChatterDelayed then return end
 		local timecheck = 5
+		local mathrandomno = math.random(1,2)
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit = UVCommanders[random_entry]
+			self = unit
+		end
 		timecheck = UVSoundChatter(self, self.voice, "aggressive")
 		timer.Simple(timecheck, function()
 			if next(ents.FindByClass("npc_uv*")) ~= nil and not UVEnemyBusted then
@@ -1360,6 +1370,12 @@ if SERVER then
 	
 	function UVChatterPassive(self)
 		if UVChatterDelayed then return end
+		local mathrandomno = math.random(1,2)
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit = UVCommanders[random_entry]
+			self = unit
+		end
 		local timecheck = 5
 		timecheck = UVSoundChatter(self, self.voice, "passive")
 		timer.Simple(timecheck, function()
@@ -1376,6 +1392,12 @@ if SERVER then
 	
 	function UVChatterCloseToEnemy(self, target)
 		if UVChatterDelayed then return end
+		local mathrandomno = math.random(1,2)
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit = UVCommanders[random_entry]
+			self = unit
+		end
 		local randomno = math.random(1,3)
 		if randomno == 1 then
 			return UVSoundChatter(self, self.voice, "closetoenemy")
@@ -1529,6 +1551,12 @@ if SERVER then
 	
 	function UVChatterEnemyCrashed(unit)
 		if UVChatterDelayed then return end
+		local mathrandomno = math.random(1,2)
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit2 = UVCommanders[random_entry]
+			unit = unit2
+		end
 		local airrandomno = math.random(1, 2)
 		local airUnits = ents.FindByClass("uvair")
 		if next(airUnits) ~= nil then
@@ -1659,6 +1687,12 @@ if SERVER then
 		local decisionrandomno = math.random(1,2)
 		local airUnits = ents.FindByClass("uvair")
 		local reportingUnit = nil
+		local mathrandomno = math.random(1,2)
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit = UVCommanders[random_entry]
+			self = unit
+		end
 		if next(airUnits) ~= nil then
 			local random_entry = math.random(#airUnits)	
 			local unit = airUnits[random_entry]
@@ -1690,6 +1724,12 @@ if SERVER then
 	end
 
 	function UVChatterDenyBackupAcknowledge(self)
+		local mathrandomno = math.random(1,2)
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit = UVCommanders[random_entry]
+			self = unit
+		end
 		return UVSoundChatter(self, self.voice, "denybackupacknowledge", 1)
 	end
 	
@@ -1793,6 +1833,12 @@ if SERVER then
 	function UVChatterRequestSitrep(self)
 		if UVChatterDelayed then return end
 		local MathAsk = math.random(1,2)
+		local mathrandomno = math.random(1,2)
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit = UVCommanders[random_entry]
+			self = unit
+		end
 		if MathAsk == 2 then
 			if UVEnemyEscaping then --During cooldown
 				UVChatterLosingUpdate(self)
@@ -1925,6 +1971,12 @@ if SERVER then
 	end
 	
 	function UVChatterDoNotDisengage(self, unit)
+		local mathrandomno = math.random(1,2)
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit = UVCommanders[random_entry]
+			self = unit
+		end
 		return UVSoundChatter(self, self.voice, "donotdisengage")
 	end
 	
