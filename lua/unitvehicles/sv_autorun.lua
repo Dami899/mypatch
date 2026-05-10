@@ -3296,7 +3296,7 @@ function UVBustEnemy(self, enemy, finearrest)
 			end
 		end
 
-		hook.Run( 'UV_Event', 'onSuspectBusted', enemy, finearrest )
+		hook.Run( 'UV_Event', 'onSuspectBusted', enemy, self, finearrest )
 
 		self.chasing = nil
 		UVEnemyBusted = true
@@ -3332,7 +3332,7 @@ function UVBustEnemy(self, enemy, finearrest)
 			UVBustEnemy(self, enemy, true)
 			return
 		end
-		local busted = hook.Run( 'UV_Event', 'onSuspectFined', enemy, enemyScope.FinesDue )
+		local busted = hook.Run( 'UV_Event', 'onSuspectFined', enemy, self, enemyScope.FinesDue )
 		if busted then
 			net.Start( "UVHUDStopBusting" )
 			net.Send(occupants)
