@@ -15,6 +15,8 @@ addressgroup > dispatchcalldamagetoproperty/dispatchcallhitandrun/dispatchcallsp
 dispbreakaway > d_location > quadrant
 
 addressgroup = "Attention all Units ..."
+addressgroup_map
+    - *name of the map* = "Attention all Units in *name of the map* ..."
 airinitalize = "Air Unit has been deployed"
 arrestacknowledge = "Copy that, suspect is in custody"
 backuponscene = "Backup is on scene"
@@ -176,7 +178,8 @@ heat9 = "Condition 9"
 heat10 = "CONDITION 10"
 hittraffic = "Suspect has hit traffic"
 hittrafficsemi = "Suspect has hit a semi truck"
-identify = "Unit 1, X-Ray 2, Yankee 5 (you can come up with your own "identification" callsigns)"
+identify = "Unit 1, X-Ray 2, Yankee 5 (generic, you can come up with your own "identification" callsigns)"
+    - *name of Unit class* = "*name of Unit class* (ex. This is Interceptor Unit)"
 inperson
     - finearrest = "YOU ARE UNDER ARREST!"
     - finearrest = "DRIVE CAREFULLY!"
