@@ -1187,9 +1187,7 @@ function TOOL:LeftClick( trace )
 			end
 		end
 		
-		Ent.UnitVehicle = ply
-		Ent.callsign = ply:Nick()
-		UVAddToPlayerUnitListVehicle(Ent)
+		UVAddUnit(Ent, ply)
 		
 		return true
 	
@@ -1264,9 +1262,7 @@ function TOOL:LeftClick( trace )
 		
 		undo.Finish( "Undo (" .. tostring( table.Count( Ents ) ) ..  ")" )
 		
-		Ent.UnitVehicle = ply
-		Ent.callsign = ply:Nick()
-		UVAddToPlayerUnitListVehicle(Ent)
+		UVAddUnit(Ent, ply)
 
 		return true
 	elseif ply.UVTOOLMemory.VehicleBase == "prop_vehicle_jeep" then
@@ -1334,9 +1330,7 @@ function TOOL:LeftClick( trace )
 		undo.SetCustomUndoText( "Undone " .. class )
 		undo.Finish( "Vehicle (" .. tostring( class ) .. ")" )
 		
-		Ent.UnitVehicle = ply
-		Ent.callsign = ply:Nick()
-		UVAddToPlayerUnitListVehicle(Ent)
+		UVAddUnit(Ent, ply)
 		
 		return true
 		
@@ -1605,9 +1599,7 @@ function TOOL:LeftClick( trace )
 			end
 		end
 		
-		Ent.UnitVehicle = ply
-		Ent.callsign = ply:Nick()
-		UVAddToPlayerUnitListVehicle(Ent)
+		UVAddUnit(Ent, ply)
 		
 	end)
 	

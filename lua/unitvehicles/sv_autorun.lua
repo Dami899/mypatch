@@ -2984,12 +2984,17 @@ function UVGetIfSomeoneDriving()
 	return false
 end
 
-function UVAddToPlayerUnitListVehicle(vehicle, ply)
+function UVAddUnit(vehicle, ply)
 	net.Start("UVHUDAddUV")
 	net.WriteInt(vehicle:EntIndex(), 32)
 	net.WriteInt(vehicle:GetCreationID(), 32)
 	net.WriteString("unit")
 	net.Broadcast()
+
+	if ply then
+		vehicle.UnitVehicle = ply
+		vehicle.callsign = ply:Nick()
+	end
 
 	UVUnitVehicles[vehicle] = vehicle
 	

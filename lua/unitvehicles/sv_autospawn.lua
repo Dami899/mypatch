@@ -921,9 +921,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if playercontrolled then
 			timer.Simple(0.5, function()
-				Ent.UnitVehicle = ply
-				Ent.callsign = ply:GetName()
-				UVAddToPlayerUnitListVehicle(Ent)
+				UVAddUnit(Ent, ply)
 				table.insert(UVVehicleInitializing, Ent)
 				Ent:StartEngine()
 			end)
@@ -1204,9 +1202,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if playercontrolled then
 			timer.Simple(0.5, function()
-				Ent.UnitVehicle = ply
-				Ent.callsign = ply:GetName()
-				UVAddToPlayerUnitListVehicle(Ent)
+				UVAddUnit(Ent, ply)
 				table.insert(UVVehicleInitializing, Ent)
 			end)
 		else
@@ -1550,9 +1546,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if playercontrolled then
 			timer.Simple(0.5, function()
-				Ent.UnitVehicle = ply
-				Ent.callsign = ply:GetName()
-				UVAddToPlayerUnitListVehicle(Ent)
+				UVAddUnit(Ent, ply)
 				table.insert(UVVehicleInitializing, Ent)
 			end)
 		else
@@ -1798,9 +1792,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if playercontrolled then
 			timer.Simple(0.5, function()
-				Ent.UnitVehicle = ply
-				Ent.callsign = ply:GetName()
-				UVAddToPlayerUnitListVehicle(Ent)
+				UVAddUnit(Ent, ply)
 				table.insert(UVVehicleInitializing, Ent)
 			end)
 		else
