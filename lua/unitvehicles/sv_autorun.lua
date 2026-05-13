@@ -4059,6 +4059,8 @@ function UVWreckVehicle(vehicle)
 	net.WriteInt(vehicle:EntIndex(), 32)
 	net.WriteInt(vehicle:GetCreationID(), 32)
 	net.Broadcast()
+
+	hook.Run( 'UV_Event', 'onWreck', vehicle )
 end
 
 function UVPlayerIsWrecked(vehicle)
@@ -4136,8 +4138,12 @@ function UVPlayerWreck(vehicle)
 	local driver = UVGetDriver(vehicle)
 	if driver and driver:IsPlayer() then
 		local bustedtable = {}
-		net.Start( "UVHUDWreckedDebrief" )
-		net.Send(driver)
+		-- If UVGame is defined, it means we are playing the gamemode.
+		-- We want to disallow this as the gamemode handles spawning on it's own.
+		if not UVGame then
+			net.Start( "UVHUDWreckedDebrief" )
+			net.Send(driver)
+		end
 		driver:KillSilent()
 		driver:SetNoDraw(true)
 		driver:Spectate(OBS_MODE_DEATHCAM)

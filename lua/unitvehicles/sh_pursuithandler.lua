@@ -3186,6 +3186,8 @@ if SERVER then
 	end)
 	
 	net.Receive("UVCancelUnitRespawn", function(len, ply)
+		if UVGame then return end
+
 		if ply.uvspawningunit then
 			timer.Remove(ply.uvspawningunit.timer)
 			ply.uvspawningunit = nil
@@ -3325,6 +3327,8 @@ if SERVER then
 	end
 
 	net.Receive("UVHUDRespawnInUV", function( length, ply )
+		if UVGame then return end
+
 		local unit = net.ReadString()
 		local unitnpc = net.ReadString()
 		local isrhino = net.ReadBool()
@@ -3334,6 +3338,8 @@ if SERVER then
 	end)
 	
 	net.Receive("UVHUDRespawnInUVGetInfo", function( length, ply )
+		if UVGame then return end
+
 		if RandomPlayerUnits:GetBool() then
 			UVHUDRespawn(ply, "", "", false, "Random")
 			return
