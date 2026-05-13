@@ -1841,6 +1841,8 @@ if SERVER then
 	]]--
 
 	function UVCreateScope( veh, scopeData )
+		if veh.UnitVehicle then return end
+
 		local key = isstring(veh) and veh or UVScopeKey(veh)
 		if not key then return nil end
 		if UVPursuitScopes[key] then return UVPursuitScopes[key] end
