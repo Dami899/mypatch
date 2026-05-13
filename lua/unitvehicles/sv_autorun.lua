@@ -2985,11 +2985,15 @@ function UVGetIfSomeoneDriving()
 end
 
 function UVAddUnit(vehicle, ply)
-	net.Start("UVHUDAddUV")
-	net.WriteInt(vehicle:EntIndex(), 32)
-	net.WriteInt(vehicle:GetCreationID(), 32)
-	net.WriteString("unit")
-	net.Broadcast()
+	timer.Simple( 0.1, function()
+		if not vehicle then return end
+		
+		net.Start("UVHUDAddUV")
+		net.WriteInt(vehicle:EntIndex(), 32)
+		net.WriteInt(vehicle:GetCreationID(), 32)
+		net.WriteString("unit")
+		net.Broadcast()
+	end)
 
 	if ply then
 		vehicle.UnitVehicle = ply
