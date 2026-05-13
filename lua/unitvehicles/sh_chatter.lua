@@ -1045,6 +1045,11 @@ if SERVER then
 		local randomno = math.random(1,2)
 		if randomno == 1 then
 			UVChatterQueue = {}
+			if next(UVCommanders) ~= nil and mathrandomno == 1 then
+				local random_entry = math.random(#UVCommanders)
+				local unit = UVCommanders[random_entry]
+				self = unit
+			end
 			local time = UVSoundChatter(self, self.voice, "arrest", nil)
 			return time == 0 and 5 or time
 		else
@@ -1340,6 +1345,11 @@ if SERVER then
 	
 	function UVChatterBustEvaded(self)
 		if UVChatterDelayed or not IsValid(self.v) then return end
+		if next(UVCommanders) ~= nil and mathrandomno == 1 then
+			local random_entry = math.random(#UVCommanders)
+			local unit = UVCommanders[random_entry]
+			self = unit
+		end
 		return UVSoundChatter(self, self.voice, "bustevaded")
 	end
 	

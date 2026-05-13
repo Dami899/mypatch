@@ -1850,7 +1850,7 @@ if SERVER then
 							end
 						end
 					elseif MathAggressive == 2 then
-						if Chatter:GetBool() and HeatLevels:GetBool() and IsValid(self.v) and not UVCalm and #UVUnitsChasing == 1 then
+						if Chatter:GetBool() and IsValid(self.v) and not UVCalm then
 							UVChatterRequestBackup(self)
 						end
 					elseif MathAggressive == 3 then
