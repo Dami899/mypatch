@@ -1274,6 +1274,7 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 						if scope then
 							scope.Tags = scope.Tags + 1
 						end
+						hook.Run( "UV_Event", "onUnitTagged", object, car )
 						if car.rhino and not car.rhinohit then
 							car.rhinohit = true
 							if Chatter:GetBool() and UVTargeting and not NPC:IsPlayer() and not car.roadblocking and not car.disperse then
@@ -1523,6 +1524,7 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 				if scope then
 					scope.Tags = scope.Tags + 1
 				end
+				hook.Run( "UV_Event", "onUnitTagged", object, car )
 				if car.rhino and not car.rhinohit then
 					car.rhinohit = true
 					if Chatter:GetBool() and UVTargeting and not NPC:IsPlayer() and not car.roadblocking and not car.disperse then
@@ -1797,6 +1799,7 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 					if scope then
 						scope.Tags = scope.Tags + 1
 					end
+					hook.Run( "UV_Event", "onUnitTagged", object, car )
 					if car.rhino and not car.rhinohit then
 						car.rhinohit = true
 						if Chatter:GetBool() and UVTargeting and not car.roadblocking and not car.disperse then
@@ -2074,6 +2077,7 @@ hook.Add("OnEntityCreated", "UVCollisionLVS", function(lvsvehicle)
 						if scope then
 							scope.Tags = scope.Tags + 1
 						end
+						hook.Run( "UV_Event", "onUnitTagged", object, car )
 						if car.rhino and not car.rhinohit then
 							car.rhinohit = true
 							if Chatter:GetBool() and UVTargeting and not NPC:IsPlayer() and not car.roadblocking and not car.disperse then
@@ -4136,6 +4140,8 @@ function UVPlayerWreck(vehicle)
 		scope.Bounty = scope.Bounty + bountyplus
 	end
 	UVWrecks = UVWrecks + 1
+	
+	hook.Run( "UV_Event", "onUnitWrecked", vehicle.e, vehicle )
 	
 	if not UVResourcePointsRefreshing and UVGlobalPursuit.ResourcePoints > 1 and not UVOneCommanderActive then
 		UVUpdateGlobalPursuit('ResourcePoints', UVGlobalPursuit.ResourcePoints - 1)

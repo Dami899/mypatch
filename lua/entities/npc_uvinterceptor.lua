@@ -274,6 +274,7 @@ if SERVER then
 				scope.Bounty = scope.Bounty + bountyplus
 			end
 
+			hook.Run( "UV_Event", "onUnitWrecked", self.e, self.v )
 			UVWreckVehicle(self.v)
 
 			if self.v:IsVehicle() then

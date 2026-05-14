@@ -864,6 +864,7 @@ function ENT:StartCrush()
 			scope.Wrecks = scope.Wrecks + 1
 			scope.Bounty = scope.Bounty + bountyplus
 		end
+		hook.Run( "UV_Event", "onUnitWrecked", self:GetTarget(), self )
 		self.crashing = true
 		self:EmitSound( "npc/attack_helicopter/aheli_damaged_alarm1.wav" )
 		self:EmitSound( "npc/combine_gunship/gunship_crashing1.wav" )
@@ -953,6 +954,7 @@ function ENT:Explode()
 
 			UVAddInfraction( self:GetTarget(), 'homicide' )
 		end
+		hook.Run( "UV_Event", "onUnitWrecked", self:GetTarget(), self )
 		self.crashing = true
 		UVBounty = (UVBounty+bountyplus)
 		UVComboBounty = UVComboBounty + 1
