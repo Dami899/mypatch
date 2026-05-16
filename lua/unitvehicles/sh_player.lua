@@ -2271,11 +2271,7 @@ if SERVER then
 
             if IsValid(closest_unit) then
                 if closest_unit.UnitVehicle then
-                    if closest_unit.UnitVehicle:IsNPC() then
-                        closest_unit.UnitVehicle:Wreck()
-                    else
-                        UVPlayerWreck(closest_unit)
-                    end
+                    UVPlayerWreck(closest_unit)
                     return closest_unit
                 end
             else
@@ -2599,9 +2595,8 @@ if SERVER then
         local strength = UVUnitPTGrapplerStrength:GetInt()
         local disableduration = UVUnitPTGrapplerDisableDuration:GetInt()
 
-        if UVIsPTUpgraded(car) then --stronger, lasting
+        if UVIsPTUpgraded(car) then
 			strength = strength * 2
-			disableduration = disableduration * 2
 		end
 
         local cons, rope

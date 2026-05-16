@@ -231,68 +231,6 @@ if SERVER then
 		end
 	end
 	
-	function ENT:Wreck()
-		if IsValid(self.v) and not self.wrecked then
-			self.wrecked = true
-			if not UVTargeting and IsValid(self.e) and #UVWantedTableVehicle > 0 then
-				UVTargeting = true
-			end
-			UVDeactivateESF(self.v)
-			UVDeactivateKillSwitch(self.v)
-			UVDeactivateGrappler(self.v)
-			if not timer.Exists("uvcombotime") then
-				timer.Create("uvcombotime", 5, 1, function() 
-					UVComboBounty = 1 
-					timer.Remove("uvcombotime")
-				end)
-			else --Multiple units down
-				timer.Remove("uvcombotime")
-				timer.Create("uvcombotime", 5, 1, function() 
-					if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVComboBounty >= 3 then
-						local units = ents.FindByClass("npc_uv*")
-						local random_entry = math.random(#units)	
-						local unit = units[random_entry]
-						UVChatterMultipleUnitsDown(unit)
-					end
-					UVComboBounty = 1
-					timer.Remove("uvcombotime")
-				end)
-			end
-			local v = UVGetVehicleMakeAndModel(self.v)
-			local bountyplus
-			if self.v.rhino then
-				bountyplus = (UVUBountyRhino:GetInt())*(UVComboBounty)
-			else
-				bountyplus = (UVUBountySpecial:GetInt())*(UVComboBounty)
-			end
-			local bounty = string.Comma(bountyplus)
-			if IsValid(self.e) and isfunction(self.e.GetDriver) then
-				local driver = UVGetDriver(self.e)
-				if IsValid(driver) then
-					UVNotifyCenter({driver}, "uv.hud.combo", "UNITS_DISABLED", self.v.rhino and "uv.unit.rhino" or "uv.unit.special", v, bountyplus, UVComboBounty, driver:IsPlayer())
-				end
-			end
-			UVWrecks = UVWrecks + 1
-			local scope = UVGetScope(self.e)
-			if scope then
-				scope.Wrecks = scope.Wrecks + 1
-				scope.Bounty = scope.Bounty + bountyplus
-			end
-			
-			hook.Run( "UV_Event", "onUnitWrecked", self.e, self.v )
-			UVWreckVehicle(self.v)
-
-			if self.v:IsVehicle() then
-				UVBounty = (UVBounty+bountyplus)
-			end
-			if Chatter:GetBool() and IsValid(self.v) then
-				UVChatterWreck(self) 
-			end
-			SafeRemoveEntity(self)
-			UVComboBounty = UVComboBounty + 1
-		end
-	end
-	
 	function ENT:Stop()
 		self.moving = CurTime()
 		self.tableroutetoenemy = {}
@@ -1124,15 +1062,8 @@ if SERVER then
 		
 		--Flipping/crash
 		if UVUnitIsWrecked(self.v) then
-			self:Wreck()
+			UVPlayerWreck(self.v)
 		end
-		
-		-- if not IsValid(self.v) or --The tied vehicle goes NULL.
-		-- not self.v:IsVehicle() or --Somehow it become non-vehicle entity.
-		-- IsValid(self.v:GetDriver()) then --It has an driver.
-		-- 	self:Wreck()
-		-- 	return
-		-- end
 		
 		local eScope = IsValid(self.e) and UVGetScope(self.e) or nil
 

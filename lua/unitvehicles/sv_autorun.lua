@@ -1106,11 +1106,7 @@ hook.Add("OnEntityCreated", "UVCollisionGlide", function(glidevehicle) --Overrid
 				local driver = car.UnitVehicle or car.TrafficVehicle
                     
 				if driver then
-					if driver:IsNPC() then
-						driver:Wreck()
-					else
-						UVPlayerWreck(car)
-					end
+					UVPlayerWreck(car)
 					return
 				end	
 			end
@@ -1365,11 +1361,7 @@ hook.Add("simfphysPhysicsCollide", "UVCollisionSimfphys", function(car, coldata,
 		local driver = car.UnitVehicle or car.TrafficVehicle
 			
 		if driver then
-			if driver:IsNPC() then
-				driver:Wreck()
-			else
-				UVPlayerWreck(car)
-			end
+			UVPlayerWreck(car)
 			return
 		end	
 	end
@@ -1616,11 +1608,7 @@ hook.Add("OnEntityCreated", "UVCollisionJeep", function(vehicle)
 			local driver = car.UnitVehicle or car.TrafficVehicle
 				
 			if driver then
-				if driver:IsNPC() then
-					driver:Wreck()
-				else
-					UVPlayerWreck(car)
-				end
+				UVPlayerWreck(car)
 				return
 			end	
 		end
@@ -1909,11 +1897,7 @@ hook.Add("OnEntityCreated", "UVCollisionLVS", function(lvsvehicle)
 				local driver = car.UnitVehicle or car.TrafficVehicle
                     
 				if driver then
-					if driver:IsNPC() then
-						driver:Wreck()
-					else
-						UVPlayerWreck(car)
-					end
+					UVPlayerWreck(car)
 					return
 				end	
 			end
@@ -2143,11 +2127,7 @@ hook.Add( "EntityRemoved", "UVExplosionGlide", function( vehicle, fullUpdate )
 
 	if vehicle.IsGlideVehicle and vehicle:GetChassisHealth() < 1 then
 		if vehicle.UnitVehicle and not vehicle.wrecked then
-			if vehicle.UnitVehicle:IsNPC() then
-				vehicle.UnitVehicle:Wreck()
-			else
-				UVPlayerWreck(vehicle)
-			end
+			UVPlayerWreck(vehicle)
 		end
 
 		local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
@@ -2163,11 +2143,7 @@ end )
 
 hook.Add( "simfphysOnDestroyed", "UVExplosionSimfphys", function(vehicle, gib) 
 	if vehicle.UnitVehicle and not vehicle.wrecked then
-		if vehicle.UnitVehicle:IsNPC() then
-			vehicle.UnitVehicle:Wreck()
-		else
-			UVPlayerWreck(vehicle)
-		end
+		UVPlayerWreck(vehicle)
 	end
 
 	local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
@@ -2182,11 +2158,7 @@ end)
 
 hook.Add("VC_engineExploded", "UVExplosionVCMod", function(vehicle, silent)
 	if vehicle.UnitVehicle and not vehicle.wrecked then
-		if vehicle.UnitVehicle:IsNPC() then
-			vehicle.UnitVehicle:Wreck()
-		else
-			UVPlayerWreck(vehicle)
-		end
+		UVPlayerWreck(vehicle)
 	end
 
 	local occupied = IsValid(vehicle.DecentVehicle) or IsValid(vehicle.TrafficVehicle) or IsValid(vehicle.UnitVehicle) or vehicle.UVWanted or vehicle.wrecked
@@ -3244,7 +3216,7 @@ function UVBustEnemy(self, enemy, finearrest)
 		v:SetEntity(enemy)
 		util.Effect("phys_freeze", v)
 
-		UVWreckVehicle(enemy)
+		UVPlayerWreck(enemy)
 
 		timer.Simple(timeacknowledge, function()
 			if Chatter:GetBool() and IsValid(self) then
@@ -4009,7 +3981,7 @@ function UVDeployRoadblock(self)
 	return deployed
 end
 
-function UVWreckVehicle(vehicle)
+local function WreckVehicle(vehicle)
 	if not IsValid(vehicle) or vehicle.wrecked then return end
 
 	vehicle.wrecked = true
@@ -4075,7 +4047,7 @@ function UVUnitShouldBeWrecked(vehicle)
 		return vehicle:GetCurHealth() <= 0 or vehicle:OnFire() or vehicle.destroyed
 	elseif vehicle.IsGlideVehicle then
 		return vehicle:GetEngineHealth() <= 0 or vehicle:GetIsEngineOnFire()
-	elseif self.v.LVS then
+	elseif vehicle.LVS then
 		local vehEngine = vehicle:GetEngine()
 		return (vehicle:GetHP() <= 0 or vehicle.ExplodedAlready) or (vehEngine and (vehEngine:GetHP() <= 0 or vehEngine:GetDestroyed()))
 	elseif isfunction(vehicle.VC_GetHealth) then
@@ -4113,80 +4085,125 @@ function UVUnitIsWrecked(vehicle)
 	return wrecked
 end
 
+local function BountyValue(car)
+	local class = car.uvclasstospawnon
+
+	if class == "npc_uvpatrol" then
+		return UVUBountyPatrol:GetInt()
+	elseif class == "npc_uvsupport" then
+		return UVUBountySupport:GetInt()
+	elseif class == "npc_uvpursuit" then
+		return UVUBountyPursuit:GetInt()
+	elseif class == "npc_uvinterceptor" then
+		return UVUBountyInterceptor:GetInt()
+	elseif class == "npc_uvspecial" then
+		if car.rhino then
+			return UVUBountyRhino:GetInt()
+		else
+			return UVUBountySpecial:GetInt()
+		end
+	elseif class == "npc_uvcommander" then
+		return UVUBountyCommander:GetInt()
+	end
+
+	return 0
+end
+
 function UVPlayerWreck(vehicle)
 	if IsValid(vehicle) and vehicle.wrecked then return end
-	if table.HasValue(UVCommanders, vehicle) then
-		UVCommanders = {}
-	end
-	if table.HasValue(UVUnitsChasing, vehicle) then
-		table.RemoveByValue(UVUnitsChasing, vehicle)
-	end
-	vehicle.mass = math.Round(vehicle:GetPhysicsObject():GetMass())
-	if not vehicle.playerbounty then
-		vehicle.playerbounty = 500
-	end
-	if not timer.Exists("uvcombotime") then
-		timer.Create("uvcombotime", 5, 1, function() 
-			UVComboBounty = 1 
-			timer.Remove("uvcombotime")
-		end)
-	else
-		timer.Remove("uvcombotime")
-		timer.Create("uvcombotime", 5, 1, function() 
-			if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVComboBounty >= 3 then
-				local units = ents.FindByClass("npc_uv*")
-				local random_entry = math.random(#units)	
-				local unit = units[random_entry]
-				UVChatterMultipleUnitsDown(unit)
-			end
-			UVComboBounty = 1
-			timer.Remove("uvcombotime")
-		end)
-	end
 
-	local name = vehicle.callsign or UVGetDriver(vehicle):GetName() or "Player"
-	local bountyplus = (vehicle.playerbounty)*(UVComboBounty)
-	local bounty = string.Comma(bountyplus)
-	if IsValid(vehicle.e) and isfunction(vehicle.e.GetDriver) and IsValid(UVGetDriver(vehicle.e)) and UVGetDriver(vehicle.e):IsPlayer() then 
-		--UVGetDriver(vehicle.e):PrintMessage( HUD_PRINTCENTER, name.." ☠ Combo Bounty x"..UVComboBounty..": "..bounty)
-		UVNotifyCenter({UVGetDriver(vehicle.e)}, "uv.hud.combo", "UNITS_DISABLED", '', name, bountyplus, UVComboBounty)
+	WreckVehicle(vehicle)
+
+	local DriverEntity = vehicle.UnitVehicle or vehicle.RacerVehicle or vehicle.TrafficVehicle
+
+	if vehicle.UnitVehicle then
+		local enemy = vehicle.e or (DriverEntity:IsNPC() and DriverEntity.e)
 		
-	end
-
-	local scope = UVGetScope(vehicle.e)
-	if scope then
-		scope.Wrecks = scope.Wrecks + 1
-		scope.Bounty = scope.Bounty + bountyplus
-	end
-	UVWrecks = UVWrecks + 1
-	
-	hook.Run( "UV_Event", "onUnitWrecked", vehicle.e, vehicle )
-	
-	if not UVResourcePointsRefreshing and UVGlobalPursuit.ResourcePoints > 1 and not UVOneCommanderActive then
-		UVUpdateGlobalPursuit('ResourcePoints', UVGlobalPursuit.ResourcePoints - 1)
-	end
-
-	UVSetELS(false, vehicle)
-	UVSetELSSound(false, vehicle)
-	
-	local driver = UVGetDriver(vehicle)
-	if driver and driver:IsPlayer() then
-		local bustedtable = {}
-		-- If UVGame is defined, it means we are playing the gamemode.
-		-- We want to disallow this as the gamemode handles spawning on it's own.
-		if not UVGame then
-			net.Start( "UVHUDWreckedDebrief" )
-			net.Send(driver)
+		--Unit functions below
+		if table.HasValue(UVCommanders, vehicle) then
+			UVCommanders = {}
 		end
-		driver:KillSilent()
-		driver:SetNoDraw(true)
-		driver:Spectate(OBS_MODE_DEATHCAM)
-		driver:SpectateEntity(driver)
+
+		if table.HasValue(UVUnitsChasing, vehicle) then
+			table.RemoveByValue(UVUnitsChasing, vehicle)
+		end
+
+		local bounty = BountyValue(vehicle)
+
+		if not timer.Exists("uvcombotime") then
+			timer.Create("uvcombotime", 5, 1, function() 
+				UVComboBounty = 1 
+				timer.Remove("uvcombotime")
+			end)
+		else
+			timer.Remove("uvcombotime")
+			timer.Create("uvcombotime", 5, 1, function() 
+				if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVComboBounty >= 3 then
+					local units = ents.FindByClass("npc_uv*")
+					local random_entry = math.random(#units)	
+					local unit = units[random_entry]
+					UVChatterMultipleUnitsDown(unit)
+				end
+				UVComboBounty = 1
+				timer.Remove("uvcombotime")
+			end)
+		end
+
+		local v = UVGetVehicleMakeAndModel(vehicle)
+		local name = vehicle.callsign or (UVGetDriver(vehicle) and UVGetDriver(vehicle):GetName()) or "Unit"
+		local bountyplus = (bounty)*(UVComboBounty)
+
+		local enemydriver = UVGetDriver(enemy)
+
+		if IsValid(enemydriver) then 
+			UVNotifyCenter({enemydriver}, "uv.hud.combo", "UNITS_DISABLED", name, v, bountyplus, UVComboBounty, enemydriver:IsPlayer())
+		end
+
+		local scope = UVGetScope(enemy)
+
+		if scope then
+			scope.Wrecks = scope.Wrecks + 1
+			scope.Bounty = scope.Bounty + bountyplus
+		end
+
+		UVWrecks = UVWrecks + 1
+
+		hook.Run( "UV_Event", "onUnitWrecked", enemy, vehicle )
+
+		if not UVResourcePointsRefreshing and UVGlobalPursuit.ResourcePoints > 1 and not UVOneCommanderActive then
+			UVUpdateGlobalPursuit('ResourcePoints', UVGlobalPursuit.ResourcePoints - 1)
+		end
+
+		UVSetELS(false, vehicle)
+		UVSetELSSound(false, vehicle)
+
+		local driver = UVGetDriver(vehicle)
+		if driver and driver:IsPlayer() then
+			local bustedtable = {}
+			-- If UVGame is defined, it means we are playing the gamemode.
+			-- We want to disallow this as the gamemode handles spawning on it's own.
+			if not UVGame then
+				net.Start( "UVHUDWreckedDebrief" )
+				net.Send(driver)
+			end
+			driver:KillSilent()
+			driver:SetNoDraw(true)
+			driver:Spectate(OBS_MODE_DEATHCAM)
+			driver:SpectateEntity(driver)
+		end
+
+		UVComboBounty = UVComboBounty + 1
 	end
 
-	UVWreckVehicle(vehicle)
+	if DriverEntity and DriverEntity:IsNPC() then
+		DriverEntity.wrecked = true
 
-	UVComboBounty = UVComboBounty + 1
+		if Chatter:GetBool() and vehicle.UnitVehicle then
+			UVChatterWreck(DriverEntity)
+		end
+
+		SafeRemoveEntity(DriverEntity)
+	end
 end
 
 function UVNavigateDVWaypointOptimized( self, vectors )
