@@ -2826,8 +2826,12 @@ if SERVER then
 			end
 			
 			if v.inunitview and not vScope.InPursuit and isPursuable then
-				if v.closestunit and v.closestunit.UnitVehicle:IsNPC() then
-					UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
+				if v.closestunit then
+					if v.closestunit.UnitVehicle:IsNPC() then
+						UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
+					else
+						UVChatterPursuitStartAcknowledge(v.closestunit.UnitVehicle)
+					end
 				end
 				UV_InitiatePursuit(v)
 				hook.Run('UV_Event', 'onSuspectSpotted', v)
