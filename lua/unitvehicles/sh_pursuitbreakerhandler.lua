@@ -49,9 +49,6 @@ if SERVER then
                 return
             end
         end
-
-        UVLoadedPursuitBreakers[id] = true
-        UVLoadedPursuitBreakersLoc[id] = location
         
         net.Start("UVAddPursuitBreaker")
         net.WriteInt(id, 32)
@@ -63,6 +60,9 @@ if SERVER then
         --local entities, constraints = duplicator.Paste( Entity(1), pbdata.Entities, pbdata.Constraints )
 
         local entities, constraints = {}, {}
+
+        UVLoadedPursuitBreakers[id] = { entities = entities, constraints = constraints }
+        UVLoadedPursuitBreakersLoc[id] = location
 
         for k, ent in pairs( pbdata.Entities ) do
             local entClass = ent.Class
@@ -224,13 +224,13 @@ if SERVER then
     function UVTriggerPursuitBreaker(hitent, object, objectvelocity)
         if hitent.PursuitBreakerActive or not hitent.PursuitBreaker then return end
         
-        local entities = {}
-        local constraints = {}
         local id = hitent.PursuitBreakerID
         local pbdata = hitent.PursuitBreakerData
         local location = hitent.PursuitBreakerLoc
         local activeduration = hitent.ActiveDuration or 10
         local dontunweldprops = hitent.DontUnweldProps or nil
+        local entities = UVLoadedPursuitBreakers[id].entities
+        local constraints = UVLoadedPursuitBreakers[id].constraints
         
         hitent.PursuitBreaker = nil
         
@@ -245,8 +245,6 @@ if SERVER then
         net.WriteInt(location.y, 32)
         net.WriteInt(location.z, 32)
         net.Broadcast()
-        
-        duplicator.GetAllConstrainedEntitiesAndConstraints(hitent, entities, constraints)
         
         local r = math.huge
         local closestdistance, closestbreakableent = r^2
