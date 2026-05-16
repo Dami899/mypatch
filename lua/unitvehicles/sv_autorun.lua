@@ -3234,9 +3234,8 @@ function UVBustEnemy(self, enemy, finearrest)
 				timeacknowledge = UVChatterArrest(self) or 5
 			end
 		end
-		if next(UVPlayerUnitTablePlayers) ~= nil then
-			UVRelaySoundToClients("ui/pursuit/busted.wav", false)
-		end
+
+		UVRelaySoundToClients("ui/pursuit/busted.wav", false)
 		if IsValid(enemyDriver) and enemyDriver:IsPlayer() then
 			net.Start('UVBusted')
 			net.WriteTable({
@@ -4067,6 +4066,8 @@ function UVWreckVehicle(vehicle)
 	end)
 
 	UVDeactivateGrappler(vehicle)
+	UVDeactivateKillSwitch(vehicle)
+	UVDeactivateESF(vehicle)
 
 	net.Start("UVHUDRemoveUV")
 	net.WriteInt(vehicle:EntIndex(), 32)
@@ -4076,7 +4077,7 @@ function UVWreckVehicle(vehicle)
 	hook.Run( 'UV_Event', 'onWreck', vehicle )
 end
 
-function UVPlayerIsWrecked(vehicle)
+function UVUnitShouldBeWrecked(vehicle)
 	if not vehicle then return end
 	if vehicle:IsFlagSet(FL_DISSOLVING) then return true end
 	if vehicle.IsScar then
@@ -4085,19 +4086,48 @@ function UVPlayerIsWrecked(vehicle)
 		return vehicle:GetCurHealth() <= 0 or vehicle:OnFire() or vehicle.destroyed
 	elseif vehicle.IsGlideVehicle then
 		return vehicle:GetEngineHealth() <= 0 or vehicle:GetIsEngineOnFire()
+	elseif self.v.LVS then
+		local vehEngine = vehicle:GetEngine()
+		return (vehicle:GetHP() <= 0 or vehicle.ExplodedAlready) or (vehEngine and (vehEngine:GetHP() <= 0 or vehEngine:GetDestroyed()))
 	elseif isfunction(vehicle.VC_GetHealth) then
 		local health = vehicle:VC_GetHealth(false)
 		return isnumber(health) and health <= 0
 	end
 end
 
+function UVUnitIsWrecked(vehicle)
+	if UVUnitShouldBeWrecked(vehicle) then
+		return true
+	end
+
+	local vehiclePhys = vehicle:GetPhysicsObject()
+	local vehicleAngles = vehiclePhys:GetAngles()
+	local vehicleVelSqr = vehicle:GetVelocity():LengthSqr()
+
+	local isNPC = vehicle.UnitVehicle and vehicle.UnitVehicle:IsNPC()
+	local isJeepNoHealth = vehicle:Health() <= 0 and vehicle:GetClass() == "prop_vehicle_jeep"
+	local isCommander = vehicle.uvclasstospawnon == "npc_uvcommander"
+	local isFlipped = vehiclePhys:IsValid() and vehicleAngles.z > 90 and vehicleAngles.z < 270
+	local isFlipCrashAllowed = not isCommander and CanWreck:GetBool()
+	local isFlipCrash = isFlipCrashAllowed and isFlipped and (( vehicle.rammed ) or ( vehicleVelSqr < 10000 and vehicle.UnitVehicle.stuck ))
+
+	local isUnderwater = vehicle:WaterLevel() > 2
+	local isOnFire = vehicle:IsOnFire()
+	local isOtherPlayerWrecked = UVUnitShouldBeWrecked(vehicle)
+
+	local wrecked = isJeepNoHealth
+		or isFlipCrash
+		or isUnderwater
+		or isOnFire
+		or isOtherPlayerWrecked
+
+	return wrecked
+end
+
 function UVPlayerWreck(vehicle)
 	if IsValid(vehicle) and vehicle.wrecked then return end
 	if table.HasValue(UVCommanders, vehicle) then
 		UVCommanders = {}
-	end
-	if table.HasValue(UVPlayerUnitTableVehicle, vehicle) then
-		table.RemoveByValue(UVPlayerUnitTableVehicle, vehicle)
 	end
 	if table.HasValue(UVUnitsChasing, vehicle) then
 		table.RemoveByValue(UVUnitsChasing, vehicle)

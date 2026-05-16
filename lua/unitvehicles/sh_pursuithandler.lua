@@ -2350,6 +2350,18 @@ if SERVER then
 		_SkipHeatLevelReporting = false
 	end
 
+	function UVGetPlayerCops()
+		local cops = {}
+		
+		for unit, _ in pairs( UVUnitVehicles ) do
+			if unit.UnitVehicle:IsPlayer() then
+				table.insert(cops, unit.UnitVehicle)
+			end
+		end
+
+		return cops
+	end
+
 	UVHeliCooldown = -math.huge
 	UVBustSpeed = 10
 	UVCooldownTimer = 20
@@ -2656,69 +2668,24 @@ if SERVER then
 			end
 		end
 
-		local playerUnitActive = false
-
-		--Player-controlled Unit Vehicles
-		if next(UVPlayerUnitTableVehicle) ~= nil then
-			for k, car in pairs(UVPlayerUnitTableVehicle) do				
-				if IsValid(car) and not car.wrecked and
-					(car:Health() <= 0 and car:GetClass() == "prop_vehicle_jeep" or --No health 
-						car.uvclasstospawnon ~= "npc_uvcommander" and CanWreck:GetBool() and car:GetPhysicsObject():GetAngles().z > 90 and car:GetPhysicsObject():GetAngles().z < 270 and car.rammed --[[or car:GetVelocity():LengthSqr() < 10000)]] or --Flipped
-						car:WaterLevel() > 2 or --Underwater
-						car:IsOnFire() or --On fire
-						UVPlayerIsWrecked(car)) then --Other parameters
-					UVPlayerWreck(car)
-				end
-
-				if UVGetDriver(car) and UVGetDriver(car):IsPlayer() then
-					local driver = UVGetDriver(car)
-					playerUnitActive = true
-
-					if not table.HasValue(UVPlayerUnitTablePlayers, driver) then
-						table.insert(UVPlayerUnitTablePlayers, driver)
-						driver.uvplayerlastvehicle = car
-						hook.Add("CanExitVehicle", "UVPlayerExitUnitVehicle", function(vehicle, driver)
-							if UVTargeting then return end
-							if table.HasValue(UVPlayerUnitTablePlayers, driver) then
-								table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
-								hook.Remove( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex())
-								UVDeactivateESF(car)
-							end
-						end)
-						hook.Add("PostPlayerDeath", "UVPlayerKilled", function(driver)
-							if table.HasValue(UVPlayerUnitTablePlayers, driver) then
-								table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
-								hook.Remove( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex())
-								UVDeactivateESF(car)
-							end
-						end)
-						hook.Add( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex(), function(car, gib) 
-							if table.HasValue(UVPlayerUnitTablePlayers, driver) then
-								table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
-								hook.Remove( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex())
-								UVDeactivateESF(car)
-							end
-							if (not car.UnitVehicle) or car.wrecked then return end
-							if car.UnitVehicle:IsPlayer() then
-								UVPlayerWreck(car)
-							end
-						end)
-					end
-				end
-
-				if car.uvkillswitching then
-					UVKillSwitchCheck(car)
-				end
-			end
-		end
-
-		UVUnitsHavePlayers = playerUnitActive
+		UVUnitsHavePlayers = next(UVGetPlayerCops()) ~= nil
 
 		local visible_suspects = {}
 		
 		for unit, _ in pairs(UVUnitVehicles) do
 			if not IsValid(unit) or not unit.UnitVehicle or unit.wrecked then
 				UVUnitVehicles[unit] = nil
+				continue
+			end
+
+			if unit.uvkillswitching then
+				UVKillSwitchCheck(unit)
+			end
+
+			if unit.UnitVehicle:IsPlayer() then
+				if UVUnitIsWrecked(unit) then
+					UVPlayerWreck(unit)
+				end
 			end
 		end
 		

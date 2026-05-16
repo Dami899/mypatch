@@ -1119,12 +1119,7 @@ if SERVER then
 		end
 		
 		--Flipping/crash
-		if self.v and not self.wrecked and not self.spawned and
-		(self.v:Health() < 0 and self.v:GetClass() == "prop_vehicle_jeep" or --No health 
-		vehicleAnglesZ > 90 and vehicleAnglesZ < 270 and (self.v.rammed or vehicleVelSqr < 10000 and self.stuck) and CanWreck:GetBool() or --Flipped
-		self.v:WaterLevel() > 2 or --Underwater
-		self:IsOnFire()) or --On fire
-		self:IsWrecked() then --Other parameters
+		if UVUnitIsWrecked(self.v) then
 			self:Wreck()
 		end
 		
@@ -1818,9 +1813,6 @@ if SERVER then
 						if self.ks ~= CurTime() and pttimeout > 0 and PursuitTech:GetBool() and not self.v.roadblocking then
 							UVDeployWeapon(self.v, i)
 							self.ks = CurTime()
-						end
-						if self.v.uvkillswitching then
-							UVKillSwitchCheck(self.v)
 						end
 					elseif v.Tech == 'Repair Kit' then
 						if self.v.IsGlideVehicle then
