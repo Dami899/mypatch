@@ -4070,7 +4070,7 @@ function UVUnitIsWrecked(vehicle)
 	local isCommander = vehicle.uvclasstospawnon == "npc_uvcommander"
 	local isFlipped = vehiclePhys:IsValid() and vehicleAngles.z > 90 and vehicleAngles.z < 270
 	local isFlipCrashAllowed = not isCommander and CanWreck:GetBool()
-	local isFlipCrash = isFlipCrashAllowed and isFlipped and (( vehicle.rammed ) or ( vehicleVelSqr < 10000 and vehicle.UnitVehicle.stuck ))
+	local isFlipCrash = isFlipCrashAllowed and isFlipped and (( vehicle.rammed ) or ( vehicleVelSqr < 10000 and ( vehicle.UnitVehicle and vehicle.UnitVehicle.stuck )))
 
 	local isUnderwater = vehicle:WaterLevel() > 2
 	local isOnFire = vehicle:IsOnFire()
