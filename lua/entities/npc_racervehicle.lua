@@ -418,16 +418,6 @@ if SERVER then
 			return isnumber(health) and health <= 0
 		end
 	end
-
-	function ENT:Wreck()
-		if IsValid(self.v) and not self.wrecked then
-			self.wrecked = true
-
-			UVWreckVehicle(self.v)
-
-			SafeRemoveEntity(self)
-		end
-	end
 	
 	function ENT:Stop()
 		if self.v.IsScar then
@@ -1624,12 +1614,8 @@ if SERVER then
 		self:SetAngles(self.v:GetPhysicsObject():GetAngles()+Angle(0,180,0))
 
 		--Flipping/crash
-		if self.v and not self.wrecked and not self.spawned and
-		(self.v:Health() < 0 and self.v:GetClass() == "prop_vehicle_jeep" or --No health 
-		self.v:WaterLevel() > 2 or --Underwater
-		self:IsOnFire()) or --On fire
-		self:IsWrecked() then --Other parameters
-			self:Wreck()
+		if UVUnitIsWrecked(self.v) then
+			UVPlayerWreck(self.v)
 		end
 		
 		if self.v then

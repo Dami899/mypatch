@@ -135,20 +135,6 @@ if SERVER then
 		end
 	end
 
-	function ENT:Wreck()
-		if IsValid(self.v) and not self.wrecked then
-			self.wrecked = true
-
-			for _, v in pairs(constraint.GetAllConstrainedEntities(self.v)) do
-				UVWreckVehicle(v)
-			end
-
-			UVWreckVehicle(self.v)
-
-			SafeRemoveEntity(self)
-		end
-	end
-
 	function ENT:Stop()
 		self.moving = CurTime()
 		self.PatrolWaypoint = nil
@@ -571,13 +557,8 @@ if SERVER then
 		self:SetAngles(self.v:GetPhysicsObject():GetAngles()+Angle(0,180,0))
 
 		--Flipping/crash
-		if self.v and not self.wrecked and not self.spawned and
-		(self.v:Health() < 0 and self.v:GetClass() == "prop_vehicle_jeep" or --No health 
-		self.v:GetPhysicsObject():GetAngles().z > 90 and self.v:GetPhysicsObject():GetAngles().z < 270 and (self.v.rammed or self.v:GetVelocity():LengthSqr() < 10000 and self.stuck) and CanWreck:GetBool() or --Flipped
-		self.v:WaterLevel() > 2 or --Underwater
-		self:IsOnFire()) or --On fire
-		self:IsWrecked() then --Other parameters
-			self:Wreck()
+		if UVUnitIsWrecked(self.v) then
+			UVPlayerWreck(self.v)
 		end
 
 		if TrafficStreaming:GetBool() then
@@ -601,13 +582,6 @@ if SERVER then
 				end
 			end
 		end
-
-		-- if not IsValid(self.v) or --The tied vehicle goes NULL.
-		-- not self.v:IsVehicle() or --Somehow it become non-vehicle entity.
-		-- IsValid(self.v:GetDriver()) then --It has an driver.
-		-- 	self:Wreck()
-		-- 	return
-		-- end
 		
 		self:Patrol()
 	end
@@ -698,13 +672,10 @@ if SERVER then
 
 					v.OnSocketDisconnect = function( car, socket )
 						for _, entity in pairs(v.UVConstrainedEntities) do
-							UVWreckVehicle(entity)
+							UVPlayerWreck(entity)
 						end
 
-						if IsValid(car.TrafficVehicle) then
-							car.wrecked = nil
-							car.TrafficVehicle:Wreck()
-						end
+						UVPlayerWreck(car)
 					end
 				end
 			elseif v.LVS then
@@ -786,13 +757,10 @@ if SERVER then
 						
 							v.OnSocketDisconnect = function( car, socket )
 								for _, entity in pairs(v.UVConstrainedEntities) do
-									UVWreckVehicle(entity)
+									UVPlayerWreck(entity)
 								end
 							
-								if IsValid(car.TrafficVehicle) then
-									car.wrecked = nil
-									car.TrafficVehicle:Wreck()
-								end
+								UVPlayerWreck(car)
 							end
 						end
 					end

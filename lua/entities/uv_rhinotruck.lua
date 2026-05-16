@@ -59,11 +59,11 @@ if CLIENT then
 
     ENT.LightSprites = {
 
-        { type = "headlight", offset = Vector(106.5,35.38,37.53), size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ), },
-        { type = "headlight", offset = Vector(106.5,-35.38,37.53), size = 50, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
+        { type = "headlight", offset = Vector(106.5,35.38,37.53), size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
+        { type = "headlight", offset = Vector(106.5,-35.38,37.53), size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
 
-        { type = "headlight", offset = Vector(102.48,44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ), },
-        { type = "headlight", offset = Vector(102.48,-44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
+        { type = "headlight", offset = Vector(102.48,44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
+        { type = "headlight", offset = Vector(102.48,-44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
 
         { type = "taillight", offset = Vector(-125.27,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
         { type = "taillight", offset = Vector(-125.27,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
@@ -89,11 +89,11 @@ if CLIENT then
         { bodygroup = 3, time = 0, duration = 0.5 },
 
         -- WIG-WAG
-        { offset = Vector(106.5,35.38,37.53), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ), },
-        { offset = Vector(106.5,-35.38,37.53), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
+        { offset = Vector(106.5,35.38,37.53), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(106.5,-35.38,37.53), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
 
-        { offset = Vector(102.48,44.13,38.4), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ),},
-        { offset = Vector(102.48,-44.13,38.4), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
+        { offset = Vector(102.48,44.13,38.4), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ),},
+        { offset = Vector(102.48,-44.13,38.4), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
 
         -- RED
 

@@ -165,11 +165,7 @@ if SERVER then
                     local driver = car.UnitVehicle or car.TrafficVehicle
                 
                     if driver then
-                        if driver:IsNPC() then
-                            driver:Wreck()
-                        else
-                            UVPlayerWreck(car)
-                        end
+                        UVPlayerWreck(car)
                     end
                     
                 end

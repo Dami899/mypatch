@@ -939,7 +939,7 @@ if SERVER then
 		if UVCheckIfWrecked(vehicle) and not vehicle.hasreset then
 			UVRaceRemoveParticipant( vehicle, 'Disqualified' )
 			
-			UVWreckVehicle(vehicle)
+			UVPlayerWreck(vehicle)
 
 			return
 		end

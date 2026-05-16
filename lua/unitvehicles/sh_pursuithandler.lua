@@ -2354,7 +2354,7 @@ if SERVER then
 		local cops = {}
 		
 		for unit, _ in pairs( UVUnitVehicles ) do
-			if unit.UnitVehicle:IsPlayer() then
+			if unit.UnitVehicle and unit.UnitVehicle:IsPlayer() then
 				table.insert(cops, unit.UnitVehicle)
 			end
 		end
@@ -2593,22 +2593,7 @@ if SERVER then
 		if next(UVVehicleInitializing) ~= nil then
 			for k, car in pairs(UVVehicleInitializing) do
 				if IsValid(car) and ((isfunction(car.IsInitialized) and car:IsInitialized()) or car.IsGlideVehicle or (car.LVS and car:IsInitialized()) or car:GetClass() == "prop_vehicle_jeep") then
-					if car.uvclasstospawnon == "npc_uvpatrol" then
-						car.playerbounty = UVUBountyPatrol:GetInt()
-					elseif car.uvclasstospawnon == "npc_uvsupport" then
-						car.playerbounty = UVUBountySupport:GetInt()
-					elseif car.uvclasstospawnon == "npc_uvpursuit" then
-						car.playerbounty = UVUBountyPursuit:GetInt()
-					elseif car.uvclasstospawnon == "npc_uvinterceptor" then
-						car.playerbounty = UVUBountyInterceptor:GetInt()
-					elseif car.uvclasstospawnon == "npc_uvspecial" then
-						if car.rhino then
-							car.playerbounty = UVUBountyRhino:GetInt()
-						else
-							car.playerbounty = UVUBountySpecial:GetInt()
-						end
-					elseif car.uvclasstospawnon == "npc_uvcommander" then
-						car.playerbounty = UVUBountyCommander:GetInt()
+					if car.uvclasstospawnon == "npc_uvcommander" then
 						local health = car.uvlasthealth or UVUOneCommanderHealth:GetInt()
 						local enginehealth = car.uvlastenginehealth or 1.0
 						if car.IsSimfphyscar then
@@ -2630,6 +2615,7 @@ if SERVER then
 						table.insert(UVCommanders, car)
 						UVCommanderRespawning = nil
 					end
+
 					if not car.UnitVehicle then 
 						local uv = ents.Create(car.uvclasstospawnon) 
 						uv:SetPos(car:GetPos())
