@@ -4570,6 +4570,8 @@ else -- CLIENT Settings | HUD/Options
 				UVHUDDisplayNotification = nil
 				UVHUDDisplayHidingPrompt = nil
 			end
+		else
+			UVHUDDisplayPursuit = nil
 		end
 
 		if IsUVFrozen then
