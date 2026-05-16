@@ -2350,12 +2350,16 @@ if SERVER then
 		_SkipHeatLevelReporting = false
 	end
 
-	function UVGetPlayerCops()
+	function UVGetPlayerCops( onlyVehicles )
 		local cops = {}
 		
 		for unit, _ in pairs( UVUnitVehicles ) do
 			if unit.UnitVehicle and unit.UnitVehicle:IsPlayer() then
-				table.insert(cops, unit.UnitVehicle)
+				if onlyVehicles then
+					table.insert( cops, unit )
+				else
+					table.insert( cops, unit.UnitVehicle )
+				end
 			end
 		end
 
@@ -2393,7 +2397,6 @@ if SERVER then
 	UVMaxUnits = 3
 	UVTacticFormationNo = 1
 	UVVehicleInitializing = {}
-	UVPlayerUnitTableVehicle = {}
 	UVPlayerUnitTablePlayers = {}
 	UVCommanders = {}
 	UVRVWithPursuitTech = {}
@@ -2654,8 +2657,6 @@ if SERVER then
 			end
 		end
 
-		UVUnitsHavePlayers = next(UVGetPlayerCops()) ~= nil
-
 		local visible_suspects = {}
 		
 		for unit, _ in pairs(UVUnitVehicles) do
@@ -2674,6 +2675,8 @@ if SERVER then
 				end
 			end
 		end
+
+		UVUnitsHavePlayers = next(UVGetPlayerCops()) ~= nil
 		
 		for _, v in pairs(UVWantedTableVehicle) do
 			local last_visible_value = v.inunitview
@@ -2812,8 +2815,12 @@ if SERVER then
 			end
 			
 			if v.inunitview and not vScope.InPursuit and isPursuable then
-				if v.closestunit and v.closestunit.UnitVehicle:IsNPC() then
-					UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
+				if v.closestunit then
+					if v.closestunit.UnitVehicle:IsNPC() then
+						UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
+					else
+						UVChatterPursuitStartAcknowledge(v.closestunit.UnitVehicle)
+					end
 				end
 				UV_InitiatePursuit(v)
 				hook.Run('UV_Event', 'onSuspectSpotted', v)
@@ -3027,7 +3034,7 @@ if SERVER then
 	
 						local units = ents.FindByClass("npc_uv*")
 						local airUnits = ents.FindByClass("uvair")
-						local playerUnits = UVPlayerUnitTableVehicle
+						local playerUnits = UVGetPlayerCops(true)
 	
 						table.Add( units, airUnits )
 						table.Add( units, playerUnits )
@@ -3070,11 +3077,9 @@ if SERVER then
 					end
 				end
 
-				if next(UVPlayerUnitTableVehicle) ~= nil then
-					for k, car in pairs(UVPlayerUnitTableVehicle) do
-						UVSetELS(true, car)
-						UVSetELSSound(true, car)
-					end
+				for k, v in pairs(UVGetPlayerCops(true)) do
+					UVSetELS(true, v)
+					UVSetELSSound(true, v)
 				end
 			end
 
@@ -3108,11 +3113,11 @@ if SERVER then
 				if not UVEnemyEscaped then
 					net.Start( "UVHUDCopModeBustedDebrief" )
 					net.WriteTable(debrieftable)
-					net.Send(UVPlayerUnitTablePlayers)
+					net.Send(UVGetPlayerCops())
 				else
 					net.Start( "UVHUDCopModeEscapedDebrief" )
 					net.WriteTable(debrieftable)
-					net.Send(UVPlayerUnitTablePlayers)
+					net.Send(UVGetPlayerCops())
 				end
 
 				UVUpdateGlobalPursuit('PursuitStart', 0)
@@ -4551,6 +4556,16 @@ else -- CLIENT Settings | HUD/Options
 				UVHUDDisplayNotification = nil
 				UVHUDDisplayHidingPrompt = nil
 			end
+		end
+
+		if IsUVFrozen then
+			UVStopSound()
+			if UVSoundLoop then
+				UVSoundLoop:Stop()
+				UVSoundLoop = nil
+			end
+
+			return
 		end
 
 		if not UVBustedState then
