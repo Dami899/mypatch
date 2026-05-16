@@ -2350,12 +2350,16 @@ if SERVER then
 		_SkipHeatLevelReporting = false
 	end
 
-	function UVGetPlayerCops()
+	function UVGetPlayerCops( onlyVehicles )
 		local cops = {}
 		
 		for unit, _ in pairs( UVUnitVehicles ) do
 			if unit.UnitVehicle:IsPlayer() then
-				table.insert(cops, unit.UnitVehicle)
+				if onlyVehicles then
+					table.insert( cops, unit )
+				else
+					table.insert( cops, unit.UnitVehicle )
+				end
 			end
 		end
 
@@ -3044,7 +3048,7 @@ if SERVER then
 	
 						local units = ents.FindByClass("npc_uv*")
 						local airUnits = ents.FindByClass("uvair")
-						local playerUnits = UVGetPlayerCops()
+						local playerUnits = UVGetPlayerCops(true)
 	
 						table.Add( units, airUnits )
 						table.Add( units, playerUnits )
@@ -3087,7 +3091,7 @@ if SERVER then
 					end
 				end
 
-				for k, v in pairs(UVGetPlayerCops()) do
+				for k, v in pairs(UVGetPlayerCops(true)) do
 					UVSetELS(true, v)
 					UVSetELSSound(true, v)
 				end
