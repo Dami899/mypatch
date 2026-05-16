@@ -2393,7 +2393,6 @@ if SERVER then
 	UVMaxUnits = 3
 	UVTacticFormationNo = 1
 	UVVehicleInitializing = {}
-	UVPlayerUnitTableVehicle = {}
 	UVPlayerUnitTablePlayers = {}
 	UVCommanders = {}
 	UVRVWithPursuitTech = {}
@@ -3045,7 +3044,7 @@ if SERVER then
 	
 						local units = ents.FindByClass("npc_uv*")
 						local airUnits = ents.FindByClass("uvair")
-						local playerUnits = UVPlayerUnitTableVehicle
+						local playerUnits = UVGetPlayerCops()
 	
 						table.Add( units, airUnits )
 						table.Add( units, playerUnits )
@@ -3088,11 +3087,9 @@ if SERVER then
 					end
 				end
 
-				if next(UVPlayerUnitTableVehicle) ~= nil then
-					for k, car in pairs(UVPlayerUnitTableVehicle) do
-						UVSetELS(true, car)
-						UVSetELSSound(true, car)
-					end
+				for k, v in pairs(UVGetPlayerCops()) do
+					UVSetELS(true, v)
+					UVSetELSSound(true, v)
 				end
 			end
 
