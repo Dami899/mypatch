@@ -3126,11 +3126,11 @@ if SERVER then
 				if not UVEnemyEscaped then
 					net.Start( "UVHUDCopModeBustedDebrief" )
 					net.WriteTable(debrieftable)
-					net.Send(UVPlayerUnitTablePlayers)
+					net.Send(UVGetPlayerCops())
 				else
 					net.Start( "UVHUDCopModeEscapedDebrief" )
 					net.WriteTable(debrieftable)
-					net.Send(UVPlayerUnitTablePlayers)
+					net.Send(UVGetPlayerCops())
 				end
 
 				UVUpdateGlobalPursuit('PursuitStart', 0)
@@ -4569,6 +4569,16 @@ else -- CLIENT Settings | HUD/Options
 				UVHUDDisplayNotification = nil
 				UVHUDDisplayHidingPrompt = nil
 			end
+		end
+
+		if IsUVFrozen then
+			UVStopSound()
+			if UVSoundLoop then
+				UVSoundLoop:Stop()
+				UVSoundLoop = nil
+			end
+
+			return
 		end
 
 		if not UVBustedState then

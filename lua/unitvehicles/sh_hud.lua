@@ -566,7 +566,7 @@ if CLIENT then
 		end
 	end )
 
-    local isUVFrozen = false
+    IsUVFrozen = false
     local effectDuration = 0
     local UVFreezeTime = 0
 
@@ -580,7 +580,7 @@ if CLIENT then
         effectDuration = net.ReadFloat()
         copEnt = net.ReadEntity()
 
-        isUVFrozen = true
+        IsUVFrozen = true
         UVFreezeTime = RealTime() + effectDuration
         transitionStart = RealTime()
 
@@ -602,7 +602,7 @@ if CLIENT then
     end)
 
     net.Receive("UVSpottedUnfreeze", function()
-        isUVFrozen = false
+        IsUVFrozen = false
 
         -- LocalPlayer():SetNoDraw(false)
         -- local hands = LocalPlayer():GetHands()
@@ -634,7 +634,7 @@ if CLIENT then
         local isVehicleValid = IsValid(UVLastVehicleDriven)
 
         --Spotted (SINGLEPLAYER)
-        if isUVFrozen and IsValid(copEnt) then
+        if IsUVFrozen and IsValid(copEnt) then
 
             local t = math.Clamp((RealTime() - transitionStart) / cameraTransitionTime, 0, 1)
 
