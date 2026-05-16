@@ -2668,8 +2668,6 @@ if SERVER then
 			end
 		end
 
-		UVUnitsHavePlayers = next(UVGetPlayerCops()) ~= nil
-
 		local visible_suspects = {}
 		
 		for unit, _ in pairs(UVUnitVehicles) do
@@ -2688,6 +2686,8 @@ if SERVER then
 				end
 			end
 		end
+
+		UVUnitsHavePlayers = next(UVGetPlayerCops()) ~= nil
 		
 		for _, v in pairs(UVWantedTableVehicle) do
 			local last_visible_value = v.inunitview

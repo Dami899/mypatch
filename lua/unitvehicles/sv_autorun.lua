@@ -3006,31 +3006,20 @@ function UVAddUnit(vehicle, ply)
 
 	UVUnitVehicles[vehicle] = vehicle
 	
-	if not table.HasValue(UVPlayerUnitTableVehicle, vehicle) then
-		if vehicle.IsSimfphyscar then
-			vehicle:SetBulletProofTires(true)
-		end
-		if vehicle:GetClass() == "prop_vehicle_jeep" then
-			local mass = vehicle:GetPhysicsObject():GetMass()
-			vehicle:SetMaxHealth(mass)
-			vehicle:SetHealth(mass)
-		end
-		if vehicle.IsGlideVehicle then
-			for k, v in pairs(vehicle.wheels) do
-				if v.params then
-					v.params.isBulletProof = true
-				end
+	if vehicle.IsSimfphyscar then
+		vehicle:SetBulletProofTires(true)
+	end
+	if vehicle:GetClass() == "prop_vehicle_jeep" then
+		local mass = vehicle:GetPhysicsObject():GetMass()
+		vehicle:SetMaxHealth(mass)
+		vehicle:SetHealth(mass)
+	end
+	if vehicle.IsGlideVehicle then
+		for k, v in pairs(vehicle.wheels) do
+			if v.params then
+				v.params.isBulletProof = true
 			end
 		end
-		table.insert(UVPlayerUnitTableVehicle, vehicle)
-		vehicle:CallOnRemove( "UVPlayerUnitVehicleRemoved", function(ent)
-			if table.HasValue(UVPlayerUnitTableVehicle, ent) then
-				table.RemoveByValue(UVPlayerUnitTableVehicle, ent)
-			end
-			-- if table.HasValue(UVUnitsChasing, ent) then
-			-- 	table.RemoveByValue(UVUnitsChasing, ent)
-			-- end
-		end)
 	end
 end
 
