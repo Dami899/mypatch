@@ -290,31 +290,31 @@ if SERVER then
 		self:SetFastTransmission( false ) 
 
 
-        self:CreateWheel( Vector(72.5,36.7,14.6), {
+        self:CreateWheel( Vector(72.5,36.7,13), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
             modelAngle = Angle( 0.000000, 90.000000, 0.000000 ),
             steerMultiplier = 1,
             modelScale = Vector( 1, 1, 1 ),
-            radius = 15
+            radius = 16
         } )
-        self:CreateWheel( Vector(72.5,-36.7,14.6), {
+        self:CreateWheel( Vector(72.5,-36.7,13), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
             modelAngle = Angle( 0.000000, -90.000000, 0.000000 ),
             steerMultiplier = 1,
             modelScale = Vector( 1, 1, 1 ),
-            radius = 15
+            radius = 16
         } )
-        self:CreateWheel( Vector(-59.75,38,14.6), {
+        self:CreateWheel( Vector(-59.75,38,13), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
             modelAngle = Angle( 0.000000, 90.000000, 0.000000 ),
             modelScale = Vector( 1, 1, 1 ),
-            radius = 15
+            radius = 16
         } )
-        self:CreateWheel( Vector(-59.75,-38,14.6), {
+        self:CreateWheel( Vector(-59.75,-38,13), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
             modelAngle = Angle( 0.000000, -90.000000, 0.000000 ),
             modelScale = Vector( 1, 1, 1 ),
-            radius = 15
+            radius = 16
         } )
 
         self:ChangeWheelRadius( 15 )
