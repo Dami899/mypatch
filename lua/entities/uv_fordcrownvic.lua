@@ -317,7 +317,6 @@ if SERVER then
             radius = 16
         } )
 
-        self:ChangeWheelRadius( 15 )
     end
 
     function ENT:OnPostThink( dt, selfTbl ) --Changing submaterials/bodygroups for the entire vehicle

@@ -3011,10 +3011,6 @@ function UVChangeTactics(tactic)
 	
 	if tactic == 0 then --No formation
 		return
-	elseif #UVUnitsChasing == 1 then --One unit remaining
-		FormationPoints = {
-			Vector(0,-300,0), --Rear
-		}
 	elseif tactic == 1 then --Box formation
 		FormationPoints = {
 			Vector(0,300,0), --Front
@@ -3095,11 +3091,22 @@ function UVChangeTactics(tactic)
 		}
 	end
 
+	local oneunit = #UVUnitsChasing == 1
+	local shouldstaybehind = {
+		npc_uvpatrol = true,
+		npc_uvsupport = true,
+	}
+
 	if FormationPoints and istable(FormationPoints) then
 		for i = 1, #UVUnitsChasing do
 			if next(FormationPoints) == nil or next(AvailableUnits) == nil then break end
 			local unit = AvailableUnits[1]
 			local point = FormationPoints[1]
+
+			if oneunit and shouldstaybehind[unit:GetClass()] then
+				point = Vector(0,-300,0)
+			end
+
 			if unit.e then
 				if unit.e.IsSimfphyscar then
 					point:Rotate(Angle(0, (unit.e.VehicleData.LocalAngForward.y-90), 0))
