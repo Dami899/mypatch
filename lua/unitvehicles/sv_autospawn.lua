@@ -4099,6 +4099,12 @@ function UVMoveToGridSlot( vehicle, aienabled )
 	ang.yaw = ang.yaw + 180
 
 	UVSetVehiclePos( vehicle, pos, ang )
+	UVSetVehicleActive( vehicle, false )
+
+	timer.Simple( 1, function()
+		--UVSetVehicleActive( vehicle, true )
+		vehicle:GetPhysicsObject():EnableMotion( false )
+	end )
 
 	spawn.claimed = true
 	return vehicle

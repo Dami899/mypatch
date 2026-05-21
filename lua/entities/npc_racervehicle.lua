@@ -432,9 +432,14 @@ if SERVER then
 			self.v.PressedKeys["D"] = false
 			self.v.PressedKeys["Shift"] = false
 			self.v.PressedKeys["Space"] = true
-		elseif isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and isfunction(self.v.SetHandbrake) and not self.v.IsGlideVehicle then
+		elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
 			self.v:SetThrottle(0)
-			self.v:SetSteering(0, 0)
+			if self.v.LVS then
+				self.v:SetReverse(false)
+				self.v:SetSteer(0, self.v:GetMaxSteerAngle())
+			else
+				self.v:SetSteering(0, 0)
+			end
 			if self.v:GetVelocity():LengthSqr() < 10000 then 
 				self.v:SetHandbrake(true)
 			else 
@@ -1629,7 +1634,7 @@ if SERVER then
 			end
 		end
 		
-		if not GetConVar("ai_ignoreplayers"):GetBool() then
+		if not GetConVar("ai_ignoreplayers"):GetBool() and not self.v.uvenginedisabled then
 			self:Race()
 		else
 			self:Stop()

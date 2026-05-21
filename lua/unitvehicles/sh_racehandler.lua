@@ -736,6 +736,8 @@ if SERVER then
 				net.WriteInt( starttimer, 11 )
 				net.Send( driver )
 			end
+
+			UVSetVehicleActive( vehicle, true )
 		end
 
 		net.Start( "uvrace_info" )

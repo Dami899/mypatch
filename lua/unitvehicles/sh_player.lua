@@ -286,6 +286,28 @@ if SERVER then
         end
     end
 
+    function UVSetVehicleActive( vehicle, active )
+        vehicle.uvenginedisabled = not active
+
+        if vehicle.LVS then
+            if active then
+                vehicle:StartEngine()
+            else
+                vehicle:StopEngine()
+            end
+        elseif vehicle.IsSimfphyscar then
+            vehicle:SetActive( active )
+            if active then
+                vehicle:StartEngine()
+            else
+                vehicle:StopEngine()
+            end
+        else
+            vehicle:EnableEngine( active )
+            vehicle:StartEngine( active )
+        end
+    end
+
     function UVDamage(vehicle, damage) --damage in fraction of max health (0.1 = 10% of max health)
         if not IsValid(vehicle) then return end
         if vehicle.UVWanted and GetConVar("unitvehicle_autohealth"):GetBool() then return end
@@ -878,6 +900,8 @@ if SERVER then
     end
 
     function UVSetVehiclePos( vehicle, pos, ang )
+        local physObj = vehicle:GetPhysicsObject()
+
         if vehicle:GetClass() == "gmod_sent_vehicle_fphysics_base" then
             UVSetVehiclePerformanceMultiplier(vehicle, 1)
             UVSimfphysTeleportAssembly( vehicle, pos, ang )
@@ -885,6 +909,8 @@ if SERVER then
         elseif vehicle.IsGlideVehicle then
             vehicle:SetPos( ( pos + ( vehicle:OBBMaxs() / 2 ) ) )
             vehicle:SetAngles( ang )
+
+            physObj:SetAngleVelocity( vector_origin )
             vehicle:SetVelocity( vector_origin )
 
             for _, wheel in ipairs( vehicle.wheels ) do
@@ -894,14 +920,15 @@ if SERVER then
             vehicle:PhysWake()
 
         else
-            local physObj = vehicle:GetPhysicsObject()
             physObj:EnableMotion(false)
             
             ang.yaw = ang.yaw - (vehicle.LVS and 0 or 90)
             
             vehicle:SetPos( pos + vector_up )
             vehicle:SetAngles( ang )
-            vehicle:SetVelocity(Vector(0,0,0))
+
+            physObj:SetAngleVelocity( vector_origin )
+            physObj:SetVelocity( vector_origin )
 
             if vehicle.LVS then
                 for _, wheel in ipairs(vehicle:GetWheels()) do
@@ -923,7 +950,7 @@ if SERVER then
         
         -- local entry = UVRaceTable.Participants [vehicle]
         -- if not entry then return end
-        
+        if vehicle.uvenginedisabled then return end
         if vehicle.hasreset then return end
         
         local vehicle_class = vehicle:GetClass()

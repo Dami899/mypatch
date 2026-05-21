@@ -1767,7 +1767,7 @@ if SERVER then
 
 	--LVS: Disable vehicle engine
 	hook.Add( "LVS.IsEngineStartAllowed", "UVLVSIsEngineStartAllowed", function( v )
-		if v.uvbusted or v.uvenginedisabledbyuv then return false end
+		if v.uvbusted or v.uvenginedisabled then return false end
 	end)
 
 	--Non-collision damage to prop_vehicle_jeep UVs
@@ -2617,6 +2617,12 @@ if SERVER then
 						end
 						table.insert(UVCommanders, car)
 						UVCommanderRespawning = nil
+					else
+						if car:GetClass() == "prop_vehicle_jeep" and not vcmod_main then
+							local mass = car:GetPhysicsObject():GetMass()
+							car:SetMaxHealth(mass)
+							car:SetHealth(mass)
+						end
 					end
 
 					if not car.UnitVehicle then 
@@ -2644,11 +2650,13 @@ if SERVER then
 						elseif car.LVS then
 							car.UnitVehicle:EnterVehicle(car:GetDriverSeat())
 						end
+
 						net.Start("UVHUDAddUV")
 						net.WriteInt(car:EntIndex(), 32)
 						net.WriteInt(car:GetCreationID(), 32)
 						net.WriteString("unit")
 						net.Broadcast()
+
 						UVUnitVehicles[car] = car
 					end
 					
