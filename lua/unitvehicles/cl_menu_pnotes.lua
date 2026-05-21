@@ -36,9 +36,15 @@ Text = [[
 - Removed the "Evade with Active Commander" variable due to being redundant
 
 **Fixes**
+- Optimized the spawning process for AI Racers
+      |-- Racers are now teleported instead of re-spawned on grid slots, resulting in way faster loading times.
+      |-- If you prefer the legacy spawning method, you can toggle it in the <color=255,255,100>Race Manager / Race Options</color> tab
+
 - Fixed that the "Busting" prompt on Name Tags would always appear if the Busting Timer was set to 0.
 - Fixed that the *Grappler* Pursuit Tech did not detach when the suspect was wrecked or busted.
 - Fixed that Roadblock Units were recycling when *Optimize Respawn* was enabled.
+- Unit AI tweaks
+- Many other smaller undocumented fixes!
 ]],
 },
 
