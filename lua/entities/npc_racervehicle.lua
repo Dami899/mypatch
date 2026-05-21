@@ -1729,6 +1729,7 @@ if SERVER then
 					v.RacerVehicle = self
 					v:EnableEngine(true)
 					v:StartEngine(true)
+					UVApplyVehiclePrerequisites(v)
 					if GetConVar("unitvehicle_autohealth"):GetBool() or AutoHealthRacer:GetBool() then
 						if vcmod_main and v:GetClass() == "prop_vehicle_jeep" then
 							v:VC_repairFull_Admin()
@@ -1814,6 +1815,7 @@ if SERVER then
 							v.RacerVehicle = self
 							v:EnableEngine(true)
 							v:StartEngine(true)
+							UVApplyVehiclePrerequisites(v)
 							if GetConVar("unitvehicle_autohealth"):GetBool() or AutoHealthRacer:GetBool() then
 								if vcmod_main and v:GetClass() == "prop_vehicle_jeep" then
 									v:VC_repairFull_Admin()

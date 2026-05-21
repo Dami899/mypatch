@@ -2251,10 +2251,15 @@ function UVApplyAutoHealth(vehicle)
 		vehicle:GetEngine():SetHP(math.huge)
 		return
 	end
-	if vcmod_main and vehicle:GetClass() == "prop_vehicle_jeep" then
-		vehicle:VC_repairFull_Admin()
-		if not vehicle:VC_hasGodMode() then
-			vehicle:VC_setGodMode(true)
+	if vehicle:GetClass() == "prop_vehicle_jeep" then
+		if vcmod_main then
+			vehicle:VC_repairFull_Admin()
+			if not vehicle:VC_hasGodMode() then
+				vehicle:VC_setGodMode(true)
+			end
+		else
+			vehicle:SetMaxHealth(math.huge)
+			vehicle:SetHealth(math.huge)
 		end
 	end
 	if vehicle.IsSimfphyscar then

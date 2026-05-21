@@ -2250,6 +2250,7 @@ if SERVER then
 					v.UnitVehicle = self
 					v:EnableEngine(true)
 					v:StartEngine(true)
+					UVApplyVehiclePrerequisites(v)
 				end
 			elseif v.IsGlideVehicle then --Glide
 				local driver = v:GetDriver()
@@ -2331,6 +2332,7 @@ if SERVER then
 							v.UnitVehicle = self
 							v:EnableEngine(true)
 							v:StartEngine(true)
+							UVApplyVehiclePrerequisites(v)
 						end
 					elseif v.IsGlideVehicle then --Glide
 						local driver = v:GetDriver()

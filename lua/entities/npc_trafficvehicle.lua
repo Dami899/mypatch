@@ -645,6 +645,7 @@ if SERVER then
 					v.TrafficVehicle = self
 					v:EnableEngine(true)
 					v:StartEngine(true)
+					UVApplyVehiclePrerequisites(v)
 				end
 			elseif v.IsGlideVehicle and v.GetIsHonking then --Glide ( current way of checking if it is a valid vehicle is to check for ishonking netvar :^) )
 				if not IsValid(v:GetDriver()) then
@@ -730,6 +731,7 @@ if SERVER then
 							v.TrafficVehicle = self
 							v:EnableEngine(true)
 							v:StartEngine(true)
+							UVApplyVehiclePrerequisites(v)
 						end
 					elseif v.IsGlideVehicle then --Glide
 						if not IsValid(v:GetDriver()) then

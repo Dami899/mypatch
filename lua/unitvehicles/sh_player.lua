@@ -308,6 +308,14 @@ if SERVER then
         end
     end
 
+    function UVApplyVehiclePrerequisites( vehicle )
+        if vehicle:GetClass() == "prop_vehicle_jeep" and not vcmod_main then
+            local mass = vehicle:GetPhysicsObject():GetMass()
+            vehicle:SetMaxHealth(mass)
+            vehicle:SetHealth(mass)
+        end
+    end
+
     function UVDamage(vehicle, damage) --damage in fraction of max health (0.1 = 10% of max health)
         if not IsValid(vehicle) then return end
         if vehicle.UVWanted and GetConVar("unitvehicle_autohealth"):GetBool() then return end
@@ -509,10 +517,6 @@ if SERVER then
 	
 		if UVGetDriver(vehicle) then
 			if UVGetDriver(vehicle):IsPlayer() then
-				if UVGetDriver(vehicle):GetMaxHealth() == 100 then
-					UVGetDriver(vehicle):SetHealth(vehicle:GetPhysicsObject():GetMass())
-					UVGetDriver(vehicle):SetMaxHealth(vehicle:GetPhysicsObject():GetMass())
-				end
 				net.Start(repairnet)
 				net.Send(UVGetDriver(vehicle))
 				if ptrefilled then
@@ -924,8 +928,15 @@ if SERVER then
             
             ang.yaw = ang.yaw - (vehicle.LVS and 0 or 90)
             
-            vehicle:SetPos( pos + vector_up )
             vehicle:SetAngles( ang )
+            vehicle:SetPos( pos )
+
+            local wmin = select( 1, vehicle:WorldSpaceAABB() )
+            local pad = math.max( vehicle:BoundingRadius() * 0.08, 2 )
+
+            local deltaZ = math.max( pos.z + pad - wmin.z, pad )
+
+            vehicle:SetPos( pos + vector_up * deltaZ )
 
             physObj:SetAngleVelocity( vector_origin )
             physObj:SetVelocity( vector_origin )
@@ -1912,17 +1923,6 @@ if SERVER then
             end
 
             is_repaired = true
-        end
-        
-        local driver = UVGetDriver(car)
-        
-        if driver then
-            if driver:IsPlayer() then
-                if driver:GetMaxHealth() == 100 then
-                    driver:SetHealth(car:GetPhysicsObject():GetMass())
-                    driver:SetMaxHealth(car:GetPhysicsObject():GetMass())
-                end
-            end
         end
         
         return is_repaired

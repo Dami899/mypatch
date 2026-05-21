@@ -12,6 +12,7 @@ if SERVER then
                 table.insert(UVPotentialSuspects, ent)
                 UVApplyAutoHealth(ent)
                 UVGiveRacerPursuitTech(ent)
+                UVApplyVehiclePrerequisites(ent)
                 UVCreateScope(ent)
                 ent:CallOnRemove( "UVWantedPotentialSuspectRemoved", function(vehicle)
                     if table.HasValue(UVPotentialSuspects, vehicle) then
