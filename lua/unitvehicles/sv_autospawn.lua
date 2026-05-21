@@ -3768,13 +3768,17 @@ function UVTeleportSimfphysVehicle( vehicle, pos, ang )
 	
 	if not IsValid( Ent ) then return end
 	
-	undo.Create( "Vehicle" )
-	undo.SetPlayer( ply )
-	undo.AddEntity( Ent )
-	undo.SetCustomUndoText( "Undone " .. vehicle.Name )
-	undo.Finish( "Vehicle (" .. tostring( vehicle.Name ) .. ")" )
+	if not UVGame then
+		undo.Create( "Vehicle" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( Ent )
+		undo.SetCustomUndoText( "Undone " .. vehicle.Name )
+		undo.Finish( "Vehicle (" .. tostring( vehicle.Name ) .. ")" )
+	end
 	
-	ply:AddCleanup( "vehicles", Ent )
+	if not UVGame then
+		ply:AddCleanup( "vehicles", Ent )
+	end
 	
 	timer.Simple( 0.5, function()
 		if not IsValid(Ent) then return end
@@ -4171,13 +4175,17 @@ function UVMoveToGridSlotLegacy( vehicle, aienabled )
 		
 		if not IsValid( Ent ) then return end
 		
-		undo.Create( "Vehicle" )
-		undo.SetPlayer( ply )
-		undo.AddEntity( Ent )
-		undo.SetCustomUndoText( "Undone " .. vehicle.Name )
-		undo.Finish( "Vehicle (" .. tostring( vehicle.Name ) .. ")" )
+		if not UVGame then
+			undo.Create( "Vehicle" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( Ent )
+			undo.SetCustomUndoText( "Undone " .. vehicle.Name )
+			undo.Finish( "Vehicle (" .. tostring( vehicle.Name ) .. ")" )
+		end
 		
-		ply:AddCleanup( "vehicles", Ent )
+		if not UVGame then
+			ply:AddCleanup( "vehicles", Ent )
+		end
 		
 		timer.Simple( 0.5, function()
 			if not IsValid(Ent) then return end
@@ -4714,11 +4722,13 @@ function UVMoveToGridSlotLegacy( vehicle, aienabled )
 		}
 		duplicator.StoreEntityModifier( Ent, "colour", data )
 		
-		undo.Create( "Vehicle" )
-		undo.SetPlayer( ply )
-		undo.AddEntity( Ent )
-		undo.SetCustomUndoText( "Undone " .. class )
-		undo.Finish( "Vehicle (" .. tostring( class ) .. ")" )
+		if not UVGame then
+			undo.Create( "Vehicle" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( Ent )
+			undo.SetCustomUndoText( "Undone " .. class )
+			undo.Finish( "Vehicle (" .. tostring( class ) .. ")" )
+		end
 		
 	end
 	

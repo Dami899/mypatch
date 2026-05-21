@@ -21,8 +21,6 @@ local pos1, selectedCP
 local secondClick = false
 
 if SERVER then
-	UVRace_Nodes = UVRace_Nodes or {}
-	UVRace_CompiledPaths = UVRace_CompiledPaths or {}
 	UVRace_NextNodeID = UVRace_NextNodeID or 0
 	TOOL.LastPlacedNode = nil
 	local tool = TOOL
@@ -86,49 +84,6 @@ if SERVER then
 		end
 
 		return points
-	end
-
-	function UVRace_BuildCompiledPaths(step)
-		local compiled = {}
-
-		for fromID, node in pairs(UVRace_Nodes) do
-			for toID in pairs(node.Links) do
-				local other = UVRace_Nodes[toID]
-				if other then
-					compiled[#compiled + 1] = {
-						From = fromID,
-						To = toID,
-						Points = UVRace_GenerateInternalPath(node, other, step),
-						StartSpeed = node.SpeedLimit or 0,
-						EndSpeed = other.SpeedLimit or 0
-					}
-				end
-			end
-		end
-
-		return compiled
-	end
-
-	function UVRace_RebuildCompiledPaths()
-		UVRace_CompiledPaths = {}
-
-		for fromID, node in pairs(UVRace_Nodes) do
-			for toID in pairs(node.Links) do
-				local other = UVRace_Nodes[toID]
-				if not other then continue end
-
-				local points = UVRace_GenerateInternalPath(node, other, 200)
-				if not points or #points < 2 then continue end
-
-				UVRace_CompiledPaths[#UVRace_CompiledPaths + 1] = {
-					From = fromID,
-					To = toID,
-					Points = points,
-					StartSpeed = node.SpeedLimit or 0,
-					EndSpeed = other.SpeedLimit or 0
-				}
-			end
-		end
 	end
 
 	function TOOL:GetNearestNode(pos, radius)
@@ -239,23 +194,6 @@ if SERVER then
 			net.WriteTable(A.Links)
 		net.Broadcast()
 	end
-
-	function UVRaceClearNodes()
-		for id, _ in pairs(UVRace_Nodes) do
-			-- Inform clients to remove the node
-			net.Start("UVRace_NodeRemove")
-				net.WriteUInt(id, 16)
-			net.Broadcast()
-		end
-
-		UVRace_Nodes = {}
-		UVRace_NextNodeID = 0
-
-		net.Start("UVRace_ClearAllNodes")
-		net.Broadcast()
-		
-		UVRace_RebuildCompiledPaths()
-	end
 	
 	function TOOL:ClearNodes()
 		UVRaceClearNodes()
@@ -304,9 +242,6 @@ if SERVER then
 			ply:ChatPrint(str)
 		end
 	end
-
-	UVRace_LoadedEntities = {}
-	UVRace_LoadedConstraints = {}
 
 	function UVLoadRace(jsonString)
 		if type(jsonString) ~= "string" then return end
@@ -1250,14 +1185,4 @@ function TOOL:DrawToolScreen(w, h)
 
 	draw.SimpleText( UVString("tool.uvracemanager.name"), "UVFont5Shadow", w * 0.5, h * 0.1, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
 	draw.SimpleText( modetext, "UVFont5UI", w * 0.5, h * 0.45, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
-end
-
-if CLIENT then
-	concommand.Add("uvrace_queryimport", function()
-		UVMenu.OpenMenu(UVMenu.RaceManagerTrackSelect, true)
-	end)
-	
-	concommand.Add("uvrace_racemenu", function()
-		UVMenu.OpenMenu(UVMenu.RaceManagerStartRace, true)
-	end)
 end

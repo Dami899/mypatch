@@ -257,6 +257,11 @@ if SERVER then
 	UVRaceCurrentParticipants = {}
 	UVRaceStartTime = CurTime()
 	
+	UVRace_LoadedEntities = {}
+	UVRace_LoadedConstraints = {}
+	UVRace_Nodes = UVRace_Nodes or {}
+	UVRace_CompiledPaths = UVRace_CompiledPaths or {}
+	
 	UVRaceInvites = UVRaceInvites or {}
 	UVRaceFirstSplitTriggered = UVRaceFirstSplitTriggered or false
 
@@ -438,6 +443,66 @@ if SERVER then
 		net.WriteUInt( msgSize, 16 )
 		net.WriteData( compressedList, msgSize )
 		net.Broadcast()
+	end
+
+	function UVRace_BuildCompiledPaths(step)
+		local compiled = {}
+
+		for fromID, node in pairs(UVRace_Nodes) do
+			for toID in pairs(node.Links) do
+				local other = UVRace_Nodes[toID]
+				if other then
+					compiled[#compiled + 1] = {
+						From = fromID,
+						To = toID,
+						Points = UVRace_GenerateInternalPath(node, other, step),
+						StartSpeed = node.SpeedLimit or 0,
+						EndSpeed = other.SpeedLimit or 0
+					}
+				end
+			end
+		end
+
+		return compiled
+	end
+
+	function UVRace_RebuildCompiledPaths()
+		UVRace_CompiledPaths = {}
+
+		for fromID, node in pairs(UVRace_Nodes) do
+			for toID in pairs(node.Links) do
+				local other = UVRace_Nodes[toID]
+				if not other then continue end
+
+				local points = UVRace_GenerateInternalPath(node, other, 200)
+				if not points or #points < 2 then continue end
+
+				UVRace_CompiledPaths[#UVRace_CompiledPaths + 1] = {
+					From = fromID,
+					To = toID,
+					Points = points,
+					StartSpeed = node.SpeedLimit or 0,
+					EndSpeed = other.SpeedLimit or 0
+				}
+			end
+		end
+	end
+
+	function UVRaceClearNodes()
+		for id, _ in pairs(UVRace_Nodes) do
+			-- Inform clients to remove the node
+			net.Start("UVRace_NodeRemove")
+				net.WriteUInt(id, 16)
+			net.Broadcast()
+		end
+
+		UVRace_Nodes = {}
+		UVRace_NextNodeID = 0
+
+		net.Start("UVRace_ClearAllNodes")
+		net.Broadcast()
+		
+		UVRace_RebuildCompiledPaths()
 	end
 
 	function UVRaceCheckFinishLine()
@@ -1503,8 +1568,10 @@ if SERVER then
 				ent:Remove()
 			end
 
-			undo.Create("UVRaceEnt")
-			undo.SetPlayer(ply)
+			if not UVGame then
+				undo.Create("UVRaceEnt")
+				undo.SetPlayer(ply)
+			end
 
 			for _, data in ipairs(entList) do
 				local params = data:Split(" ")
@@ -1537,8 +1604,10 @@ if SERVER then
 					end
 					check:Spawn()
 
-					undo.AddEntity(check)
-					ply:AddCleanup("uvrace_ents", check)
+					if not UVGame then
+						undo.AddEntity(check)
+						ply:AddCleanup("uvrace_ents", check)
+					end
 				elseif params[1] == "spawn" then
 					local spawn = ents.Create("uvrace_spawn")
 
@@ -1552,27 +1621,30 @@ if SERVER then
 
 					spawn:Spawn()
 
-					undo.AddEntity(spawn)
-					ply:AddCleanup("uvrace_ents", spawn)
+					if not UVGame then
+						undo.AddEntity(spawn)
+						ply:AddCleanup("uvrace_ents", spawn)
+					end
 				end
 			end
 
-			undo.AddFunction(function(undoTable, ent)
-				if UVRace_LoadedWaypoints then
-					--concommand.Run()
-					dvd.LoadWaypoints( 'decentvehicle/' .. game.GetMap() )
-					UVRace_LoadedWaypoints = false
-				end
+			if not UVGame then
+				undo.AddFunction(function(undoTable, ent)
+					if UVRace_LoadedWaypoints then
+						--concommand.Run()
+						dvd.LoadWaypoints( 'decentvehicle/' .. game.GetMap() )
+						UVRace_LoadedWaypoints = false
+					end
 
-				UVRaceEnd()
-				UVCounterActive = false
-				UVRaceCurrentHost = nil
-		
-				net.Start( "uvrace_end" )
-				net.Broadcast()
-			end)
-
-			undo.Finish()
+					UVRaceEnd()
+					UVCounterActive = false
+					UVRaceCurrentHost = nil
+				
+					net.Start( "uvrace_end" )
+					net.Broadcast()
+				end)
+				undo.Finish()
+			end
 
 			local tname = args[1]:Split(".")[2]
 
@@ -2196,6 +2268,14 @@ else -- CLIENT stuff
 
 		if not UVPlayingRace then return end
 		UVTraxPlayNextTrack( "race", -1 )
+	end)
+	
+	concommand.Add("uvrace_queryimport", function()
+		UVMenu.OpenMenu(UVMenu.RaceManagerTrackSelect, true)
+	end)
+	
+	concommand.Add("uvrace_racemenu", function()
+		UVMenu.OpenMenu(UVMenu.RaceManagerStartRace, true)
 	end)
 
 	net.Receive( "uvrace_notification", function()
