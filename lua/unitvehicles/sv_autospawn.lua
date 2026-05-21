@@ -4064,6 +4064,47 @@ function UVTeleportSimfphysVehicle( vehicle, pos, ang )
 end
 
 function UVMoveToGridSlot( vehicle, aienabled )
+	local vehicle_class = vehicle:GetClass()
+	
+	local checkpoint = nil
+	local next_checkpoint = nil
+	local pos = nil
+	local dir = nil
+	local ang = angle_zero
+	
+	local spawns = ents.FindByClass("uvrace_spawn")
+	local spawn
+
+	if next(spawns) == nil then
+		PrintMessage( HUD_PRINTTALK, "No race spawn points found!")
+		return nil
+	else
+		--Look for a spawn point that has the lowest GridSlot value and claim it
+		local lowestGridSlot = math.huge
+		for k, v in pairs(spawns) do
+			if v:GetGridSlot() < lowestGridSlot and not v.claimed then
+				lowestGridSlot = v:GetGridSlot()
+				spawn = v
+			end
+		end
+	end
+	
+	if not spawn then
+		PrintMessage( HUD_PRINTTALK, "No positions left for "..racer_name)
+		return nil
+	end
+
+	local pos = spawn:GetPos()
+	local ang = spawn:GetAngles()
+	ang.yaw = ang.yaw + 180
+
+	UVSetVehiclePos( vehicle, pos, ang )
+
+	spawn.claimed = true
+	return vehicle
+end
+
+function UVMoveToGridSlotLegacy( vehicle, aienabled )
 	local entrantvehicle = vehicle
 	local PT = (vehicle.PursuitTech and table.Copy(vehicle.PursuitTech))
 	

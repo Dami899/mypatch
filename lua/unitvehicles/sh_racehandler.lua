@@ -1294,6 +1294,8 @@ if SERVER then
 		if not ply:IsSuperAdmin() then return end
 		if UVRaceInEffect then return end
 
+		UVRaceInEffect = true
+
 		if UVCounterActive then
 			net.Start("uvrace_decline")
 			net.WriteString("uv.race.start.error.startingpursuit")

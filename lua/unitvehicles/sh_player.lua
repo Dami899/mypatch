@@ -876,6 +876,45 @@ if SERVER then
 
         return true
     end
+
+    function UVSetVehiclePos( vehicle, pos, ang )
+        if vehicle:GetClass() == "gmod_sent_vehicle_fphysics_base" then
+            UVSetVehiclePerformanceMultiplier(vehicle, 1)
+            UVSimfphysTeleportAssembly( vehicle, pos, ang )
+
+        elseif vehicle.IsGlideVehicle then
+            vehicle:SetPos( ( pos + ( vehicle:OBBMaxs() / 2 ) ) )
+            vehicle:SetAngles( ang )
+            vehicle:SetVelocity( vector_origin )
+
+            for _, wheel in ipairs( vehicle.wheels ) do
+                wheel.state.angularVelocity = 0
+            end
+
+            vehicle:PhysWake()
+
+        else
+            local physObj = vehicle:GetPhysicsObject()
+            physObj:EnableMotion(false)
+            
+            ang.yaw = ang.yaw - (vehicle.LVS and 0 or 90)
+            
+            vehicle:SetPos( pos + vector_up )
+            vehicle:SetAngles( ang )
+            vehicle:SetVelocity(Vector(0,0,0))
+
+            if vehicle.LVS then
+                for _, wheel in ipairs(vehicle:GetWheels()) do
+                    wheel:SetPos(vehicle:GetPos())
+                end
+            end
+
+            timer.Simple(.5, function()
+                physObj:EnableMotion(true)
+                physObj:Wake()
+            end)
+        end
+    end
     
     function UVResetPosition( vehicle )
         -- Check if vehicle is a race participant
@@ -900,7 +939,7 @@ if SERVER then
             if not dvd then return end
             local waypoint = dvd.GetNearestWaypoint( vehicle:GetPos() )
 
-            pos = waypoint.Target + ( vector_up * 20 )
+            pos = waypoint.Target --+ ( vehicle:BoundingRadius() * vector_up )
             ang = waypoint.Neighbors[1] and ( dvd.Waypoints[waypoint.Neighbors[1]].Target - waypoint.Target ):GetNormalized():Angle() or Angle(0)
         else
             local entry = UVRaceTable.Participants [vehicle]
@@ -929,39 +968,17 @@ if SERVER then
         end
                 
         -- Teleport to the checkpoint
-        local ground_trace = util.TraceLine({start = pos, endpos = pos +- ((checkpoint and checkpoint:GetUp() or vector_origin) * 1000), mask = MASK_NPCWORLDSTATIC, filter = {checkpoint}})
+        if checkpoint then
+            local ground_trace = util.TraceLine({start = pos, endpos = pos +- ((checkpoint and checkpoint:GetUp() or vector_origin) * 1000), mask = MASK_NPCWORLDSTATIC, filter = {checkpoint}})
+            pos = ( ground_trace.Hit and ( ground_trace.HitPos + ( Vector(0,0,1) * 25 ) ) ) or pos
+        end
         
         local next_pos = nil
         local next_dir = nil
-        local delay = 0.1
-                
-        if vehicle_class == "gmod_sent_vehicle_fphysics_base" then
-            UVSetVehiclePerformanceMultiplier(vehicle, 1)
-            local tpos = (ground_trace.Hit and ground_trace.HitPos) or pos
-            if not UVSimfphysTeleportAssembly( vehicle, tpos, ang ) then
-                vehicle = UVTeleportSimfphysVehicle( vehicle, tpos, ang ) or vehicle
-                delay = 0.9
-            end
-        elseif vehicle.IsGlideVehicle then
-            vehicle:SetPos( (ground_trace.Hit and (ground_trace.HitPos + (Vector(0,0,1) * 25))) or pos )
-            vehicle:SetAngles( ang )
-            vehicle:PhysWake()
-        else
-            local physObj = vehicle:GetPhysicsObject()
-            physObj:EnableMotion(false)
-            
-            ang.yaw = ang.yaw - 90
-            
-            vehicle:SetPos( (ground_trace.Hit and (ground_trace.HitPos + (Vector(0,0,1) * 50))) or pos )
-            vehicle:SetAngles( ang )
-            vehicle:SetVelocity(Vector(0,0,0))
 
-            if vehicle.LVS then
-                for _, wheel in ipairs(vehicle:GetWheels()) do
-                    wheel:SetPos(vehicle:GetPos())
-                end
-            end
+        UVSetVehiclePos( vehicle, pos, ang )
 
+        if not vehicle.IsGlideVehicle and not vehicle.IsSimfphyscar then
             vehicle:SetCollisionGroup(20)
 
             vehicle.__ogrendermode = vehicle:GetRenderMode()
@@ -970,13 +987,9 @@ if SERVER then
             local c = vehicle:GetColor()
             vehicle:SetColor(Color(c.r, c.g, c.b, 100))
 
-            timer.Simple(.5, function()
-                physObj:EnableMotion(true)
-                physObj:Wake()
-            end)
-
             timer.Simple(5, function()
                 if not IsValid(vehicle) then return end
+
                 vehicle:SetRenderMode(vehicle.__ogrendermode)
                 vehicle:SetColor(Color(c.r, c.g, c.b, 255))
                 vehicle:SetCollisionGroup(0)
