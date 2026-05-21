@@ -907,7 +907,7 @@ if SERVER then
         local physObj = vehicle:GetPhysicsObject()
 
         if vehicle:GetClass() == "gmod_sent_vehicle_fphysics_base" then
-            UVSetVehiclePerformanceMultiplier(vehicle, 1)
+            -- UVSetVehiclePerformanceMultiplier(vehicle, 1)
             UVSimfphysTeleportAssembly( vehicle, pos, ang )
 
         elseif vehicle.IsGlideVehicle then
@@ -927,7 +927,7 @@ if SERVER then
             physObj:EnableMotion(false)
             
             ang.yaw = ang.yaw - (vehicle.LVS and 0 or 90)
-            
+
             vehicle:SetAngles( ang )
             vehicle:SetPos( pos )
 

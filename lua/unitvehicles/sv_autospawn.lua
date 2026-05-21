@@ -4063,7 +4063,7 @@ function UVTeleportSimfphysVehicle( vehicle, pos, ang )
 	return Ent
 end
 
-function UVMoveToGridSlot( vehicle, aienabled )
+function UVMoveToGridSlot( vehicle )
 	local vehicle_class = vehicle:GetClass()
 	
 	local checkpoint = nil
