@@ -4570,6 +4570,15 @@ else -- CLIENT Settings | HUD/Options
 		end
 
 		if IsUVFrozen then
+			local isInRaceMusic = (not RacingMusicPriority:GetBool()) and RacingMusic:GetBool() and UVHUDDisplayRacing
+			local isOutsideRaceMusic = RacingThemeOutsideRace:GetBool() and RacingMusic:GetBool()
+			
+			if UVPlayingRace then
+				if isInRaceMusic or isOutsideRaceMusic then
+					return
+				end
+			end
+
 			UVStopSound()
 			if UVSoundLoop then
 				UVSoundLoop:Stop()
