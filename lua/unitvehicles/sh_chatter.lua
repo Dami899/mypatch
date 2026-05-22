@@ -1838,7 +1838,6 @@ if SERVER then
 	end
 	
 	function UVChatterAirDown(self)
-		if UVChatterDelayed then return end
 		return UVSoundChatter(self, self.voice, "airdown", 4)
 	end
 	
