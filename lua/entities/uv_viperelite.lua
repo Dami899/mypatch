@@ -361,7 +361,7 @@ if SERVER then
         self:SetSideTractionMultiplier( 77 )
         self:SetSideTractionMaxAng( 67 )
         self:SetSideTractionMax( 5000 ) 
-        self:SetSideTractionMin( 1200 )
+        self:SetSideTractionMin( 1500 )
 
 		self:SetTurboCharged( false )
 		self:SetFastTransmission( true ) 
