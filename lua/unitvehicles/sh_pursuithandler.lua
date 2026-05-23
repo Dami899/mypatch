@@ -2707,7 +2707,7 @@ if SERVER then
 					if isInRange and ( v.inunitview or UVVisualOnTarget( j, v ) ) then
 						v.inunitview = true
 						vScope.UnitsChasing = vScope.UnitsChasing + 1
-						--check = true						
+						--check = true
 						local closestunit = v.closestunit
 						local closestdistancetounit = v.closestdistancetounit
 						

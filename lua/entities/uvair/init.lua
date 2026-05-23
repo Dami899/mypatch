@@ -523,7 +523,8 @@ function ENT:PhysicsUpdate()
 				self:SetTarget(nil) -- Forget busted suspect
 			end
 		end
-		
+
+		local eScope = UVGetScope(target)
 		if isValidTarget and not (eScope and eScope.EnemyEscaping) and not UVJammerDeployed then
 			if self:GetVelocity():LengthSqr() <= (self:DistIgnoreZ((targetpos+target:GetVelocity()))^2) and not (self:DistIgnoreZ(targetpos) <= 500 and self:IsSeeTarget()) then
 				self:FlyTo(targetpos)
