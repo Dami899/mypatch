@@ -10,7 +10,7 @@ ENT.Base = "base_entity"
 ENT.Type = "ai"
 
 ENT.PrintName = "UVSupport"
-ENT.Author = "Cross"
+ENT.Author = "UVPD Vehicular Autonomous Navigation and General Unit Automated Research Division"
 ENT.Contact = "Sierra"
 ENT.Purpose = "To be called out if Patrol units hit trouble. You are that trouble."
 ENT.Instruction = "Spawn on/under the vehicle until it shows a spawn effect."

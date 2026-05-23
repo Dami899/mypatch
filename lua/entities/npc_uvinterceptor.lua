@@ -10,7 +10,7 @@ ENT.Base = "base_entity"
 ENT.Type = "ai"
 
 ENT.PrintName = "UVInterceptor"
-ENT.Author = "Cross"
+ENT.Author = "UVPD Vehicular Autonomous Navigation and General Unit Automated Research Division"
 ENT.Contact = "India"
 ENT.Purpose = "To intercept high-speed vehicles and wipe them off the face of the earth. That is if they can keep up."
 ENT.Instruction = "Spawn on/under the vehicle until it shows a spawn effect."

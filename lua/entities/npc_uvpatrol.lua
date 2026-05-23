@@ -10,9 +10,9 @@ ENT.Base = "base_entity"
 ENT.Type = "ai"
 
 ENT.PrintName = "UVPatrol"
-ENT.Author = "Cross"
+ENT.Author = "UVPD Vehicular Autonomous Navigation and General Unit Automated Research Division"
 ENT.Contact = "Papa"
-ENT.Purpose = "To pull over drivers and probably write them a ticket for ... I don't know, serious stuff?"
+ENT.Purpose = "To Protect and to Serve."
 ENT.Instruction = "Spawn on/under the vehicle until it shows a spawn effect."
 ENT.Spawnable = false
 ENT.Modelname = "models/props_lab/huladoll.mdl"
