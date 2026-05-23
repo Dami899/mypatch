@@ -298,7 +298,7 @@ if SERVER then
         self:SetSideTractionMin( 1300 )
         
         self:SetTurboCharged( false )
-        self:SetFastTransmission( false ) 
+        self:SetFastTransmission( true ) 
         
         self:CreateWheel( self.WheelPos[1], {
             model = WheelToUse,

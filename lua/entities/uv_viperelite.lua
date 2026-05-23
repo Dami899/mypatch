@@ -64,8 +64,8 @@ if CLIENT then
 			r = Vector( 1.74, -0.74, 0.507 ) * 45.1,
 		},
 		rear = {
-			l = Vector( -2.046, 0.7, 0.655 ) * 45.1,
-			r = Vector( -2.046, -0.7, 0.655 ) * 45.1,
+			l = Vector( -92.92, 30.63, 30.59 ),
+			r = Vector( -92.92, -30.63, 30.59 ),
 		},
 	}
 
@@ -294,11 +294,11 @@ if SERVER then
             [-1] = 4,
             [0] = 0,
             [1] = 3,
-            [2] = 1.85,
-            [3] = 1.3,
-            [4] = 1,
-            [5] = 0.8,
-            [6] = 0.65,
+            [2] = 2.20,
+            [3] = 1.60,
+            [4] = 1.30,
+            [5] = 1.05,
+            [6] = 0.88,
         }
     end
 		
@@ -340,30 +340,31 @@ if SERVER then
         self:SetSpringStrength( 55 * 10 )
         self:SetSpringDamper( 55 * 20 )
 
-        self:SetDifferentialRatio( 4.08 / 6 * (0.45 * 1.4) )
+        self:SetDifferentialRatio( 1 )
         self:SetTransmissionEfficiency( 1 )
-        self:SetPowerDistribution( -0.9 )
-        self:SetBrakePower( 1100 * 2 )
+        self:SetPowerDistribution( -0.22 )
+        self:SetBrakePower( 4800 )
 
-        self:SetMinRPM( 800 )
-        self:SetMaxRPM( 7250 )
-        self:SetMinRPMTorque( 7250 * (0.829 * 1.9) )
-        self:SetMaxRPMTorque( 7250 * (0.829 * 1.9) )
+        self:SetMinRPM( 2000 ) 
+        self:SetMaxRPM( 25000 ) 
+        self:SetMinRPMTorque( 10800 )
+        self:SetMaxRPMTorque( 9300 )
+
         self:SetMaxSteerAngle( 40 )
         self:SetSteerConeChangeRate( 7 )
         self:SetSteerConeMaxSpeed( 1600 )
         self:SetSteerConeMaxAngle( 0.3 )
 		self:SetCounterSteer ( 0.8 )
 
-        self:SetForwardTractionMax( 887 * 7.45 )
-        self:SetForwardTractionBias( 0 )
-        self:SetSideTractionMultiplier( 35 )
-        self:SetSideTractionMaxAng( 20 )
-        self:SetSideTractionMax( 887 * 6 )
-        self:SetSideTractionMin( 887 * 4 )
+        self:SetForwardTractionMax( 10000 )
+        self:SetForwardTractionBias( 0.45 )
+        self:SetSideTractionMultiplier( 77 )
+        self:SetSideTractionMaxAng( 67 )
+        self:SetSideTractionMax( 5000 ) 
+        self:SetSideTractionMin( 1200 )
 
 		self:SetTurboCharged( false )
-		self:SetFastTransmission( false )
+		self:SetFastTransmission( true ) 
 
         self:CreateWheel( self.WheelPos[1], { model = modelpath .. "wheelfr.mdl", modelAngle = Angle( 0, 90, 0 ), modelScale = Vector( 0.4, 1, 1 ), radius = 15, steerMultiplier = 1 } )
         self:CreateWheel( self.WheelPos[2], { model = modelpath .. "wheelfr.mdl", modelAngle = Angle( 0, -90, 0 ), modelScale = Vector( 0.4, 1, 1 ), radius = 15, steerMultiplier = 1 } )

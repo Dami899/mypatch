@@ -291,7 +291,7 @@ if SERVER then
         self:SetSideTractionMin( 1200 )
 
 		self:SetTurboCharged( false )
-		self:SetFastTransmission( false ) 
+		self:SetFastTransmission( true ) 
 
         self:CreateWheel( Vector( 69.0, 37.0, 11.5 ), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
