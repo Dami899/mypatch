@@ -280,9 +280,8 @@ if SERVER then
         self:SetSideTractionMax( 4500 ) 
         self:SetSideTractionMin( 1500 )
 
-		self:SetTurboCharged( false )
-		self:SetFastTransmission( false ) 
-
+		self:SetTurboCharged( true )
+		self:SetFastTransmission( true ) 
 
         self:CreateWheel( Vector(74,38,7.85), {
             model = "models/unitvehiclescars/uv_coloradozr2/uv_coloradozr2_wheel.mdl",

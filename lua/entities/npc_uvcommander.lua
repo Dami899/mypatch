@@ -10,7 +10,7 @@ ENT.Base = "base_entity"
 ENT.Type = "ai"
 
 ENT.PrintName = "UVCommander"
-ENT.Author = "Cross"
+ENT.Author = "UVPD Vehicular Autonomous Navigation and General Unit Automated Research Division"
 ENT.Contact = "Charlie"
 ENT.Purpose = "Standing here, I realize, you are just like me, trying to make history."
 ENT.Instruction = "Spawn on/under the vehicle until it shows a spawn effect."

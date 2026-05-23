@@ -255,7 +255,7 @@ if SERVER then
         self:SetSideTractionMin( 1250 )
 
 		self:SetTurboCharged( false )
-		self:SetFastTransmission( false ) 
+		self:SetFastTransmission( true ) 
 
         self:CreateWheel( Vector(72.5,34.8,13.3), {
             model = "models/unitvehiclescars/uv_chargerbee/uv_chargerbee_wheel.mdl",

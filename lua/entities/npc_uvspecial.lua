@@ -10,7 +10,7 @@ ENT.Base = "base_entity"
 ENT.Type = "ai"
 
 ENT.PrintName = "UVSpecial"
-ENT.Author = "Cross"
+ENT.Author = "UVPD Vehicular Autonomous Navigation and General Unit Automated Research Division"
 ENT.Contact = "Echo"
 ENT.Purpose = "To commit vehicular manslaughter."
 ENT.Instruction = "Spawn on/under the vehicle until it shows a spawn effect."

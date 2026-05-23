@@ -220,7 +220,7 @@ if SERVER then
         self:SetSideTractionMin( 2000 )
 
 		self:SetTurboCharged( false )
-		self:SetFastTransmission( false ) 
+		self:SetFastTransmission( true ) 
 
         self:CreateWheel( Vector( 73.0, 49.0, 15.0  ), {
             model = "models/unitvehiclescars/uv_rhinotruck/uv_rhinotruck_wheel.mdl",

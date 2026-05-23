@@ -23,7 +23,7 @@ Text = [[
       |-- Despawns them when they are too far away from players
 
 **Changes**
-- The UVPD fleet have received a full appearance rework
+- The UVPD fleet have received a full appearance rework, with fixed UV layouts
 
 - Improved the Data Importer
       |-- Now loads data directly from Workshop addons instead of copying them
@@ -34,6 +34,8 @@ Text = [[
       |-- Units: Tags of suspects will grow and display more information when you get closer
 
 - Removed the "Evade with Active Commander" variable due to being redundant
+
+- Nerfed upgraded Grappler Pursuit Tech
 
 **Fixes**
 - Optimized the spawning process for AI Racers

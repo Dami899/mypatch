@@ -10,9 +10,9 @@ ENT.Base = "base_entity"
 ENT.Type = "ai"
 
 ENT.PrintName = "UVPursuit"
-ENT.Author = "Cross"
+ENT.Author = "UVPD Vehicular Autonomous Navigation and General Unit Automated Research Division"
 ENT.Contact = "Uniform"
-ENT.Purpose = "To use proper pursuit tactics against drivers. Yeah, 'proper pursuit tactics'."
+ENT.Purpose = "To use proper pursuit tactics against drivers."
 ENT.Instruction = "Spawn on/under the vehicle until it shows a spawn effect."
 ENT.Spawnable = false
 ENT.Modelname = "models/props_lab/huladoll.mdl"
