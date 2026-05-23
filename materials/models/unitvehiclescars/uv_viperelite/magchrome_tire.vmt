@@ -1,6 +1,6 @@
 VertexLitGeneric
 {
-	"$basetexture"	"models\unitvehiclescars\uv_viperelite\VIPERELITE_tire"
+	"$basetexture"	"models\unitvehiclescars\uv_viperelite\Textures\VIPERELITE_tire"
     "$envmap" "env_cubemap"
     "$envmaptint" "[1 1 1]"
     "$phong" "1"

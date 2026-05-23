@@ -1,0 +1,15 @@
+VertexLitGeneric
+{
+	"$basetexture"	"models\unitvehiclescars\shared\tire"
+	"$bumpmap"	"models\unitvehiclescars\shared\tire_n"
+	"$color2"	"[1 1 1]"
+
+	Proxies
+	{
+		Equals
+		{
+			srcVar1				$color2
+			resultVar			$color
+		}
+	}
+}

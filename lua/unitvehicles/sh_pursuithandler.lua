@@ -2702,16 +2702,20 @@ if SERVER then
 			-- Visibility check for helicopter, should they have busting enabled.
 			for _, j in pairs(ents.FindByClass("uvair")) do
 				if (not (j.Downed and j.disengaging and j.crashing)) and j:GetTarget() == v then
-					v.inunitview = true
-					vScope.UnitsChasing = vScope.UnitsChasing + 1
-					--check = true						
-					local closestunit = v.closestunit
-					local closestdistancetounit = v.closestdistancetounit
+					local isInRange = j:DistIgnoreZ( v:GetPos() ) <= ( vScope.Hiding and 2000 or 10000 )
 					
-					local dist = j:GetPos():DistToSqr(v:GetPos())
-					if UVUHelicopterBusting:GetBool() and ( not closestunit or dist < closestdistancetounit ) then
-						v.closestunit = j
-						v.closestdistancetounit = dist
+					if isInRange and ( v.inunitview or UVVisualOnTarget( j, v ) ) then
+						v.inunitview = true
+						vScope.UnitsChasing = vScope.UnitsChasing + 1
+						--check = true						
+						local closestunit = v.closestunit
+						local closestdistancetounit = v.closestdistancetounit
+						
+						local dist = j:GetPos():DistToSqr(v:GetPos())
+						if UVUHelicopterBusting:GetBool() and ( not closestunit or dist < closestdistancetounit ) then
+							v.closestunit = j
+							v.closestdistancetounit = dist
+						end
 					end
 				end
 			end
