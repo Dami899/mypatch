@@ -360,8 +360,8 @@ if SERVER then
         self:SetForwardTractionBias( 0.45 )
         self:SetSideTractionMultiplier( 77 )
         self:SetSideTractionMaxAng( 67 )
-        self:SetSideTractionMax( 5000 ) 
-        self:SetSideTractionMin( 1500 )
+        self:SetSideTractionMax( 6000 ) 
+        self:SetSideTractionMin( 3250 )
 
 		self:SetTurboCharged( false )
 		self:SetFastTransmission( true ) 

@@ -244,12 +244,12 @@ if SERVER then
 		
             [-1] = 3,
             [0] = 0,
-            [1] = 3.2,
-            [2] = 1.9,
-            [3] = 1.4,
-            [4] = 1.0,
-            [5] = 0.85,
-            [6] = 0.75,
+            [1] = 6.9,
+            [2] = 4.8,
+            [3] = 3.6,
+            [4] = 2.8,
+            [5] = 2,
+            [6] = 1.4,
 			
         }
 		
@@ -269,11 +269,11 @@ if SERVER then
 
         self:SetDifferentialRatio( 1.00 )
         self:SetTransmissionEfficiency( 0.80 )
-        self:SetPowerDistribution( -0.25 )
+        self:SetPowerDistribution( 0 )
         self:SetBrakePower( 4000 )
 
         self:SetMinRPM( 700 ) 
-        self:SetMaxRPM( 18000 ) 
+        self:SetMaxRPM( 22000 ) 
         self:SetMinRPMTorque( 5200 )
         self:SetMaxRPMTorque( 4800 )
 
@@ -283,14 +283,14 @@ if SERVER then
         self:SetSteerConeMaxAngle( 0.20 )
 		self:SetCounterSteer ( 0.8 )
 
-        self:SetForwardTractionMax( 5500 )
+        self:SetForwardTractionMax( 6000 )
         self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 20 )
         self:SetSideTractionMaxAng( 25 )
         self:SetSideTractionMax( 4000 ) 
-        self:SetSideTractionMin( 1200 )
+        self:SetSideTractionMin( 1500 )
 
-		self:SetTurboCharged( false )
+		self:SetTurboCharged( true )
 		self:SetFastTransmission( true ) 
 
         self:CreateWheel( Vector( 69.0, 37.0, 11.5 ), {

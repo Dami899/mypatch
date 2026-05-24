@@ -76,6 +76,8 @@ if CLIENT then
 
         { type = "reverse", offset = Vector(-120.49,35.11,34.48), dir = Vector( -1, 0, 0 ),size = 30 },
         { type = "reverse", offset = Vector(-120.49,-35.11,34.48), dir = Vector( -1, 0, 0 ),size = 30 },
+        { type = "reverse", offset = Vector(-29.76,4.91,63.51), dir = Vector( -1, 0, 0 ),size = 30 },
+        { type = "reverse", offset = Vector(-29.76,-4.91,63.51), dir = Vector( -1, 0, 0 ),size = 30 },
 
         { type = "signal_left", offset = Vector(-118.22,34.98,29.74),color = Color(255,0,0),dir = Vector( -1, 0, 0 ),size = 30, },
         { type = "signal_right", offset = Vector(-118.22,-34.98,29.74),color = Color(255,0,0),dir = Vector( -1, 0, 0 ),size = 30, },
@@ -234,13 +236,11 @@ if SERVER then
             [-1] = 3.5,
             [0] = 0,
             [1] = 3.6,
-            [2] = 2.2,
-            [3] = 1.7,
-            [4] = 1.5,
-            [5] = 1.3,
+            [2] = 3.0,
+            [3] = 2.5,
+            [4] = 2.0,
+            [5] = 1.5,
             [6] = 1.1,
-            [7] = 0.9,
-            [8] = 0.8,
 
 			
         }
@@ -263,7 +263,7 @@ if SERVER then
         self:SetBrakePower( 5000 )
 
         self:SetMinRPM( 800 ) 
-        self:SetMaxRPM( 18000 ) 
+        self:SetMaxRPM( 22500 ) 
         self:SetMinRPMTorque( 7200 )
         self:SetMaxRPMTorque( 7600 )
 
@@ -277,8 +277,8 @@ if SERVER then
         self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 40 )
         self:SetSideTractionMaxAng( 30 )
-        self:SetSideTractionMax( 4500 ) 
-        self:SetSideTractionMin( 1500 )
+        self:SetSideTractionMax( 7000 ) 
+        self:SetSideTractionMin( 3500 )
 
 		self:SetTurboCharged( true )
 		self:SetFastTransmission( true ) 

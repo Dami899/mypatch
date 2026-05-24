@@ -169,14 +169,14 @@ if SERVER then
         return {
 		
 		
-            [-1] = 3.5,
+            [-1] = 4,
             [0] = 0,
-            [1] = 3.4,
-            [2] = 1.9,
-            [3] = 1.5,
-            [4] = 1.2,
-            [5] = 1.0,
-            [6] = 0.8,
+            [1] = 4.4,
+            [2] = 2.9,
+            [3] = 2.5,
+            [4] = 2.2,
+            [5] = 2.0,
+            [6] = 1.8,
 
 			
         }
@@ -202,8 +202,8 @@ if SERVER then
         self:SetBrakePower( 5000 )
 
         self:SetMinRPM( 700 ) 
-        self:SetMaxRPM( 18000 ) 
-        self:SetMinRPMTorque( 5200 )
+        self:SetMaxRPM( 24100 ) 
+        self:SetMinRPMTorque( 6000 )
         self:SetMaxRPMTorque( 5500 )
 
         self:SetMaxSteerAngle( 50 )
@@ -212,12 +212,12 @@ if SERVER then
         self:SetSteerConeMaxAngle( 0.20 )
 		self:SetCounterSteer ( 0.8 )
 
-        self:SetForwardTractionMax( 6000 )
+        self:SetForwardTractionMax( 10000 )
         self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 40 )
         self:SetSideTractionMaxAng( 30 )
-        self:SetSideTractionMax( 5000 ) 
-        self:SetSideTractionMin( 2000 )
+        self:SetSideTractionMax( 8000 ) 
+        self:SetSideTractionMin( 3750 )
 
 		self:SetTurboCharged( false )
 		self:SetFastTransmission( true ) 
