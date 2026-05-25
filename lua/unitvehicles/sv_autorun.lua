@@ -4163,7 +4163,7 @@ function UVPlayerWreck(vehicle)
 		end
 
 		local v = UVGetVehicleMakeAndModel(vehicle)
-		local name = vehicle.callsign or (UVGetDriver(vehicle) and UVGetDriver(vehicle):GetName()) or "Unit"
+		local name = ( vehicle.UnitVehicle and vehicle.UnitVehicle.callsign ) or (UVGetDriver(vehicle) and UVGetDriver(vehicle):GetName()) or "Unit"
 		local bountyplus = (bounty)*(UVComboBounty)
 
 		local enemydriver = UVGetDriver(enemy)
