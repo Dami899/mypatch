@@ -1118,7 +1118,7 @@ if SERVER then
 			if closestdistancetosuspect > 100000000 and 
 			not (eScope and eScope.EnemyBusted) and not (eScope and eScope.EnemyEscaped) and self.uvmarkedfordeletion then
 				if ( self.v.disengaging or self.v.roadblockingmissed ) or not OptimizeRespawn:GetBool() or (UVGlobalPursuit.ResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
-					SafeRemoveEntity(self)
+					UVOptimizeRespawn(self.v)
 				elseif not self.v.roadblocking then
 					UVOptimizeRespawn(self.v)
 				end
@@ -1143,7 +1143,7 @@ if SERVER then
 					end
 				end
 				if closestdistancetosuspect > 100000000 and self.uvmarkedfordeletion then
-					SafeRemoveEntity(self)
+					UVOptimizeRespawn(self.v)
 				end
 			end
 		end
