@@ -1729,12 +1729,6 @@ if SERVER then
 			local numberIterator = 0
 
 			if LEGACY_CONVARS[_incomingCV] then
-				if not warned then
-					warned = true
-					local warning = string.format( UVString "tool.uvunitmanager.presets.legacy.warning", name )
-					notification.AddLegacy( warning, NOTIFY_UNDO, 5 )
-				end
-
 				if LEGACY_CONVARS[_incomingCV].HasNumber then
 					_setConVar( LEGACY_CONVARS[_incomingCV].Replacement .. number, incomingValue  )
 				else
@@ -2615,7 +2609,6 @@ if SERVER then
 								car:SetHealth(health)
 							end
 						end
-						table.insert(UVCommanders, car)
 						UVCommanderRespawning = nil
 					else
 						if car:GetClass() == "prop_vehicle_jeep" and not vcmod_main then

@@ -598,18 +598,18 @@ if SERVER then
 
         local vehicle_class = vehicle:GetClass()
         
-        if vehicle_class == "gmod_sent_vehicle_fphysics_base" then
-            SafeRemoveEntity(NPC) --yeahhh
-            return
-        end
+        -- if vehicle_class == "gmod_sent_vehicle_fphysics_base" then
+        --     SafeRemoveEntity(NPC) --yeahhh
+        --     return
+        -- end
 
         NPC.uvmarkedfordeletion = nil
         timer.Simple(1, function()
             NPC.uvmarkedfordeletion = true
         end)
         
-        local phys = vehicle:GetPhysicsObject()
-        phys:SetVelocity(vector_origin)
+        -- local phys = vehicle:GetPhysicsObject()
+        -- phys:SetVelocity(vector_origin)
         
         local uvnextclasstospawn
 	    local enemylocation
@@ -703,47 +703,53 @@ if SERVER then
 	    	end
 	    end
 
-        if vehicle.IsGlideVehicle then
-            local pos = uvspawnpoint+(vector_up * 50)
-		    local ang = uvspawnpointangles
-
-            if not commander then
-                UVRepair(vehicle, true)
-            end
-
-            vehicle:SetPos( pos )
-            vehicle:SetAngles( ang )
-            vehicle:PhysWake()
-        else
-            local physObj = vehicle:GetPhysicsObject()
-            physObj:EnableMotion(false)
-
-            local pos = uvspawnpoint+(vector_up * 50)
-		    local ang = uvspawnpointangles
-            
-            ang.yaw = ang.yaw - 90
-            
-            vehicle:SetPos( pos )
-            vehicle:SetAngles( ang )
-            vehicle:SetVelocity(Vector(0,0,0))
-
-            if vehicle.LVS then
-                for _, wheel in ipairs(vehicle:GetWheels()) do
-                    wheel:SetPos(vehicle:GetPos())
-                end
-            end
-
-            if not commander then
-                UVRepair(vehicle, true)
-            end
-            
-            timer.Simple(.5, function()
-                if IsValid(physObj) then
-                    physObj:EnableMotion(true)
-                    physObj:Wake()
-                end
-            end)
+        if not commander then
+            UVRepair( vehicle, true )
         end
+        
+        UVSetVehiclePos( vehicle, uvspawnpoint, uvspawnpointangles )
+
+        -- if vehicle.IsGlideVehicle then
+        --     local pos = uvspawnpoint+(vector_up * 50)
+		--     local ang = uvspawnpointangles
+
+        --     if not commander then
+        --         UVRepair(vehicle, true)
+        --     end
+
+        --     vehicle:SetPos( pos )
+        --     vehicle:SetAngles( ang )
+        --     vehicle:PhysWake()
+        -- else
+        --     local physObj = vehicle:GetPhysicsObject()
+        --     physObj:EnableMotion(false)
+
+        --     local pos = uvspawnpoint+(vector_up * 50)
+		--     local ang = uvspawnpointangles
+            
+        --     ang.yaw = ang.yaw - 90
+            
+        --     vehicle:SetPos( pos )
+        --     vehicle:SetAngles( ang )
+        --     vehicle:SetVelocity(Vector(0,0,0))
+
+        --     if vehicle.LVS then
+        --         for _, wheel in ipairs(vehicle:GetWheels()) do
+        --             wheel:SetPos(vehicle:GetPos())
+        --         end
+        --     end
+
+        --     if not commander then
+        --         UVRepair(vehicle, true)
+        --     end
+            
+        --     timer.Simple(.5, function()
+        --         if IsValid(physObj) then
+        --             physObj:EnableMotion(true)
+        --             physObj:Wake()
+        --         end
+        --     end)
+        -- end
 
         if NPC.metwithenemy and not UVResourcePointsRefreshing and UVGlobalPursuit.ResourcePoints > 1 and not UVOneCommanderActive and not vehicle.roadblocking then
 			UVUpdateGlobalPursuit('ResourcePoints', UVGlobalPursuit.ResourcePoints - 1)
@@ -925,6 +931,8 @@ if SERVER then
 
         else
             physObj:EnableMotion(false)
+            physObj:SetAngleVelocity( vector_origin )
+            physObj:SetVelocity( vector_origin )
             
             ang.yaw = ang.yaw - (vehicle.LVS and 0 or 90)
 
@@ -937,9 +945,6 @@ if SERVER then
             local deltaZ = math.max( pos.z + pad - wmin.z, pad )
 
             vehicle:SetPos( pos + vector_up * deltaZ )
-
-            physObj:SetAngleVelocity( vector_origin )
-            physObj:SetVelocity( vector_origin )
 
             if vehicle.LVS then
                 for _, wheel in ipairs(vehicle:GetWheels()) do

@@ -343,7 +343,7 @@ if SERVER then
 		end
 		
 		local class = self.v:GetClass()
-		local pos = class == "prop_vehicle_jeep" and self.v:WorldSpaceCenter() or self.v:GetPos()
+		local pos = self.v:WorldSpaceCenter()
 		pos.z = pos.z + self.v.rideheight
 		
 		local tr = util.TraceLine({start = pos, endpos = (pos+(self.v:GetVelocity()*2)), mask = MASK_NPCWORLDSTATIC})
