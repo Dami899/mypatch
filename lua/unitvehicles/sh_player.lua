@@ -581,9 +581,9 @@ if SERVER then
         return IsValid(Leader) and Leader
     end
 
-    function UVOptimizeRespawn( vehicle )
-        if UVOptimizeRespawnDelayed then return end
-        if UVJammerDeployed then return end
+    function UVOptimizeRespawn( vehicle, player )
+        if UVOptimizeRespawnDelayed and not player then return end
+        if UVJammerDeployed and not player then return end
 
         local rhino = vehicle.rhino
         local commander = vehicle.uvclasstospawnon == "npc_uvcommander" or vehicle.UVCommander

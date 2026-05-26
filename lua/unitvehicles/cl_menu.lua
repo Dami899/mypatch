@@ -1221,7 +1221,7 @@ end
 
 ------- [ Pursuit Related ]-------
 -- Unit Select
-function UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
+function UVMenu.UnitSelect(unittable, unittablename, unittablenpc, isInUnitVehicle)
 	local menuEntries = {}
 
 	-- Back button
@@ -1234,6 +1234,37 @@ function UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
 			UVMenu.OpenMenu(UVMenu.Main)
 		end
 	})
+
+	if isInUnitVehicle then
+		table.insert(menuEntries, {
+			type = "button",
+			text = "uv.chase.select.relocate",
+			playsfx = "clickback",
+			prompts = {"uv.prompt.return"},
+			func = function()
+				net.Start("UVHUDRespawnInUV")
+				net.WriteBool(true)
+				net.SendToServer()
+
+				UVMenu.CloseCurrentMenu(true)
+			end
+		})
+	end
+
+	if RandomPlayerUnits:GetBool() then
+		table.insert(menuEntries, {
+			type = "button",
+			text = "uv.chase.select.random",
+			playsfx = "clickback",
+			prompts = {"uv.prompt.return"},
+			func = function()
+				net.Start( "UVHUDRespawnInUVGetInfo" )
+				net.SendToServer()
+
+				UVMenu.CloseCurrentMenu(true)
+			end
+		})
+	end
 
 	for classIndex, unitsString in ipairs(unittable) do
 		-- split units list
@@ -1261,6 +1292,7 @@ function UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
 						local cleanLabel = UVString(unittablename[classIndex])
 
 						net.Start("UVHUDRespawnInUV")
+						net.WriteBool(false)
 						net.WriteString(unitName)
 						net.WriteString(npcClass)
 						net.WriteBool(isRhino)

@@ -3152,8 +3152,6 @@ if SERVER then
 	end)
 	
 	net.Receive("UVCancelUnitRespawn", function(len, ply)
-		if UVGame then return end
-
 		if ply.uvspawningunit then
 			timer.Remove(ply.uvspawningunit.timer)
 			ply.uvspawningunit = nil
@@ -3170,7 +3168,7 @@ if SERVER then
 		end
 	end)
 
-	function UVHUDRespawn( ply, unit, unitnpc, isrhino, unitname )
+	function UVHUDRespawn( ply, unit, unitnpc, isrhino, unitname, relocate )
 		local timerName = "UVSpawnQueue_" .. ply:SteamID64()
 
 		if ply.uvspawningunit then
@@ -3214,12 +3212,15 @@ if SERVER then
 		local plymsg = { msg = "uv.chase.select.spawning", unit = unit, cooldown = nil }
 
 		if IsValid(ply.uvplayerlastvehicle) and ply.uvplayerlastvehicle.wrecked then
+			if relocate then return end
+
 			SpawnCooldownTable[ply] = CurTime()
 
 			ply:EmitSound("ui/redeploy/redeploy" .. math.random(1, 4) .. ".wav")
 
 			ply:ExitVehicle()
 			ply:Spawn()
+
 			UVAutoSpawn(ply, isrhino, nil, playercontrolled)
 			plymsg.msg = "uv.chase.select.spawning"
 
@@ -3239,6 +3240,7 @@ if SERVER then
 					plymsg.cooldown = cooldown
 					
 					if RandomPlayerUnits:GetBool() then plymsg.msg = "uv.chase.select.spawning.cooldown.random" end
+					if relocate then plymsg.msg = "uv.chase.select.spawning.cooldown.relocate" end
 					
 					net.Start("UVSpawnQueueUpdate")
 					net.WriteString(unitname)      -- vehicle/unit name
@@ -3255,17 +3257,27 @@ if SERVER then
 				cooldown = cooldown
 			}
 
+			local vehicle = UVGetVehicle( ply )
+			local isInUnitVehicle = IsValid( vehicle ) and vehicle.UnitVehicle == ply
+
+			if relocate and not isInUnitVehicle then return end
+
 			-- timer.Simple(cooldown, function()
 			timer.Create(timerName, cooldown, 1, function()
 				SpawnCooldownTable[ply] = CurTime()
 				ply.uvspawningunit = nil
 				net.Start( "UVHUDRespawnInUVPlyMsg" )
 				
-				if RandomPlayerUnits:GetBool() then
-					net.WriteString("uv.chase.select.spawning.random")
+				if relocate then
+					net.WriteString("uv.chase.select.spawning.relocate")
 				else
-					net.WriteString("uv.chase.select.spawning")
+					if RandomPlayerUnits:GetBool() then
+						net.WriteString("uv.chase.select.spawning.random")
+					else
+						net.WriteString("uv.chase.select.spawning")
+					end
 				end
+
 				net.WriteString(unitname)
 				net.Send(ply)
 				
@@ -3274,10 +3286,16 @@ if SERVER then
 				net.WriteInt(0, 16)
 				net.Send(ply)
 
-				ply:EmitSound("ui/redeploy/redeploy" .. math.random(1, 4) .. ".wav")
+				local newVehicle = UVGetVehicle( ply )
 
-				ply:ExitVehicle()
-				ply:Spawn()
+				if relocate then
+					if not IsValid(newVehicle) or newVehicle ~= vehicle then return end
+
+					ply:EmitSound("ui/redeploy/redeploy" .. math.random(1, 4) .. ".wav")
+
+					UVOptimizeRespawn( vehicle, ply )
+					return 
+				end
 
 				if IsValid(ply.uvplayerlastvehicle) and not ply.uvplayerlastvehicle.wrecked then
 					if table.HasValue(UVUnitsChasing, ply.uvplayerlastvehicle) then
@@ -3287,6 +3305,11 @@ if SERVER then
 					ply.uvplayerlastvehicle:Remove()
 				end
 
+				ply:EmitSound("ui/redeploy/redeploy" .. math.random(1, 4) .. ".wav")
+
+				ply:ExitVehicle()
+				ply:Spawn()
+
 				UVAutoSpawn(ply, isrhino, nil, playercontrolled)
 			end)
 		end
@@ -3295,16 +3318,35 @@ if SERVER then
 	net.Receive("UVHUDRespawnInUV", function( length, ply )
 		if UVGame then return end
 
+		local isInUnitVehicle = net.ReadBool()
 		local unit = net.ReadString()
 		local unitnpc = net.ReadString()
 		local isrhino = net.ReadBool()
 		local unitname = net.ReadString()
 
-		UVHUDRespawn(ply, unit, unitnpc, isrhino, unitname)
+		-- if isInUnitVehicle then
+		-- 	local vehicle = UVGetVehicle( ply )
+
+		-- 	if IsValid( vehicle ) and vehicle.UnitVehicle == ply then
+		-- 		UVOptimizeRespawn( vehicle, ply )
+		-- 	end
+
+		-- 	return 
+		-- end
+
+		UVHUDRespawn(ply, unit, unitnpc, isrhino, unitname, isInUnitVehicle)
 	end)
 	
 	net.Receive("UVHUDRespawnInUVGetInfo", function( length, ply )
-		if UVGame then return end
+		if UVGame then
+			local vehicle = UVGetVehicle( ply )
+			local isInUnitVehicle = IsValid( vehicle ) and vehicle.UnitVehicle == ply
+
+			if isInUnitVehicle then
+				UVHUDRespawn(ply, "", "", false, "Random", true)
+				return
+			end
+		end
 
 		if RandomPlayerUnits:GetBool() then
 			UVHUDRespawn(ply, "", "", false, "Random")
@@ -3333,7 +3375,11 @@ if SERVER then
 			UnitsCommander = ""
 		end
 
+		local vehicle = UVGetVehicle( ply )
+		local isInUnitVehicle = IsValid( vehicle ) and vehicle.UnitVehicle == ply
+
 		net.Start("UVHUDRespawnInUVSelect")
+		net.WriteBool(isInUnitVehicle)
 		net.WriteString(UnitsPatrol)
 		net.WriteString(UnitsSupport)
 		net.WriteString(UnitsPursuit)
@@ -4088,6 +4134,11 @@ else -- CLIENT Settings | HUD/Options
 	end)
 
 	concommand.Add("uv_spawn_as_unit", function(ply)
+		if RandomPlayerUnits:GetBool() and not UVGame then
+			UVMenu.UnitSelect( {}, {}, {}, UVHUDCopMode )
+			return
+		end
+
 		net.Start("UVHUDRespawnInUVGetInfo")
 		net.SendToServer()
 	end)
@@ -5287,7 +5338,7 @@ else -- CLIENT Settings | HUD/Options
 		local cooldown = net.ReadInt(16)
 		local msg = net.ReadString()
 
-		if vehicle == "" then
+		if vehicle == "" and msg ~= "uv.chase.select.spawning.cooldown.relocate" then
 			LocalPlayer().uvspawningunit = nil
 		else
 			LocalPlayer().uvspawningunit = {
@@ -5298,11 +5349,24 @@ else -- CLIENT Settings | HUD/Options
 			
 			local rm = "uv.chase.select.spawning.cooldown.random"
 
+			if msg == "uv.chase.select.spawning.cooldown.relocate" then
+				UVHUD_AddTimedBar(
+					"unit_spawn",
+					cooldown,
+					msg,
+					10,
+					string.format( UVString("uv.chase.select.spawning.cooldown2"), UVReplaceKeybinds( "[key:unitvehicle_keybind_resetposition]", "Big" ) ),
+					nil
+				)
+				return
+			end
+
 			UVHUD_AddTimedBar( "unit_spawn", cooldown, msg, 10, string.format( UVString("uv.chase.select.spawning.cooldown2"), UVReplaceKeybinds( "[key:unitvehicle_keybind_resetposition]", "Big" ) ), msg ~= rm and {vehicle} or nil )
 		end
 	end)
 
 	net.Receive("UVHUDRespawnInUVSelect", function()
+		local isInUnitVehicle = net.ReadBool()
 		local UnitsPatrol     = net.ReadString()
 		local UnitsSupport    = net.ReadString()
 		local UnitsPursuit    = net.ReadString()
@@ -5343,7 +5407,7 @@ else -- CLIENT Settings | HUD/Options
 
 		UVMenu.OpenMenu(function()
 			UVMenu.PlaySFX("menuopen")
-			UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
+			UVMenu.UnitSelect(unittable, unittablename, unittablenpc, isInUnitVehicle)
 		end, true)
 	end)
 
