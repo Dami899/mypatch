@@ -344,7 +344,7 @@ if SERVER then
         for id, jsonfile in pairs(pursuitBreakers) do
             local JSONData = UV_LoadFile( "pursuitbreakers>>"..mapName, jsonfile )
             local pbdata = util.JSONToTable( JSONData or "" , true)
-            if pbdata then pbdata.jsonfile = jsonfile pbdata.id = id table.insert( PRELOADED_PURSUITBREAKERS, pbdata ) print("Preloaded pursuit breaker: "..jsonfile) end
+            if pbdata then pbdata.jsonfile = jsonfile pbdata.id = id table.insert( PRELOADED_PURSUITBREAKERS, pbdata ) end
         end
     end
 

@@ -257,7 +257,7 @@ if SERVER then
 		for _, jsonfile in ipairs(roadblocks) do
 			local json  = UV_LoadFile( "roadblocks>>"..mapName, jsonfile )
 			local rbdata = util.JSONToTable( json or "", true )
-			if rbdata then table.insert( PRELOADED_ROADBLOCKS, rbdata ) print("Preloaded roadblock: "..jsonfile) end
+			if rbdata then table.insert( PRELOADED_ROADBLOCKS, rbdata ) end
 		end
 	end
 
