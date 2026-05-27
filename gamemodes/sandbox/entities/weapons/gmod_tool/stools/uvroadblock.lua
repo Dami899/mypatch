@@ -236,6 +236,7 @@ if CLIENT then
 			Button.highlight = highlight
 			Button.printname = printname
 			Button.Paint = function( self, w, h )
+				print(selecteditem)
 				
 				local c_selected = Color( 128, 185, 128, 255 )
 				local c_normal = self.highlight and Color( 108, 111, 114, 200 ) or Color( 77, 80, 82, 200 )
@@ -259,7 +260,7 @@ if CLIENT then
 					net.Start("UVRoadblocksLoad")
 					net.WriteInt(k, 32)
 					net.SendToServer()
-					notification.AddLegacy( string.format( language.GetPhrase("tool.uvroadblock.loaded"), selecteditem ), NOTIFY_UNDO, 5 )
+					notification.AddLegacy( string.format( language.GetPhrase("uv.tool.loaded"), selecteditem ), NOTIFY_UNDO, 5 )
 					surface.PlaySound( "buttons/button15.wav" )
 					
 				end
@@ -343,6 +344,10 @@ if CLIENT then
 						draw.RoundedBox(12, w * 0.0125, 0, w * 0.9875, h, hover)
 					end
 
+					if selecteditem == filename then
+						draw.RoundedBox(12, w * 0.0125, 0, w * 0.9875, h, Color(0, 138, 28))
+					end
+
 					draw.SimpleTextOutlined(filename, "UVSettingsFontSmall", w * 0.5, h * 0.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1.25, color_black)
 				end
 
@@ -361,7 +366,7 @@ if CLIENT then
 					net.Start("UVRoadblocksLoad")
 					net.WriteInt(id, 32)
 					net.SendToServer()
-					notification.AddLegacy( string.format( language.GetPhrase("tool.uvroadblock.loaded"), selecteditem ), NOTIFY_UNDO, 5 )
+					notification.AddLegacy( string.format( language.GetPhrase("uv.tool.loaded"), selecteditem ), NOTIFY_UNDO, 5 )
 					surface.PlaySound( "buttons/button15.wav" )
 				end
 			end
