@@ -1378,7 +1378,7 @@ if SERVER then
 		-- 	return
 		-- end
 
-		RunConsoleCommand("uv_despawnvehicles")
+		UV_DespawnVehicles()
 
 		
 		for v, _ in pairs( UVUnitVehicles ) do
