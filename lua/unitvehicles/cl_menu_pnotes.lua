@@ -37,7 +37,7 @@ Text = [[
       |-- This change has also reworked the way presets are loaded and saved:
             |-- Presets are now saved in & loaded from the <color=255,255,0>data/unitvehicles/preset_import</color> folder
             |-- When you load up a map for the first time after updating, the local presets you had saved will be imported into the new system, after which the old presets will be deleted
-            |-- This change also elimiated the use of the 'Export Presets' button in the UV menu, as presets are stored in the same system as the imported content
+            |-- This change also eliminated the use of the 'Export Presets' button in the UV menu, as presets are stored in the same system as the imported content
 
 - Improved the appearance of *Name Tags* during pursuits
       |-- The tags will be compact when far away
