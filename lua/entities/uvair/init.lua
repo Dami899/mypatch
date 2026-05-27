@@ -523,7 +523,8 @@ function ENT:PhysicsUpdate()
 				self:SetTarget(nil) -- Forget busted suspect
 			end
 		end
-		
+
+		local eScope = UVGetScope(target)
 		if isValidTarget and not (eScope and eScope.EnemyEscaping) and not UVJammerDeployed then
 			if self:GetVelocity():LengthSqr() <= (self:DistIgnoreZ((targetpos+target:GetVelocity()))^2) and not (self:DistIgnoreZ(targetpos) <= 500 and self:IsSeeTarget()) then
 				self:FlyTo(targetpos)
@@ -864,6 +865,7 @@ function ENT:StartCrush()
 			scope.Wrecks = scope.Wrecks + 1
 			scope.Bounty = scope.Bounty + bountyplus
 		end
+		hook.Run( "UV_Event", "onUnitWrecked", self:GetTarget(), self )
 		self.crashing = true
 		self:EmitSound( "npc/attack_helicopter/aheli_damaged_alarm1.wav" )
 		self:EmitSound( "npc/combine_gunship/gunship_crashing1.wav" )
@@ -953,6 +955,7 @@ function ENT:Explode()
 
 			UVAddInfraction( self:GetTarget(), 'homicide' )
 		end
+		hook.Run( "UV_Event", "onUnitWrecked", self:GetTarget(), self )
 		self.crashing = true
 		UVBounty = (UVBounty+bountyplus)
 		UVComboBounty = UVComboBounty + 1

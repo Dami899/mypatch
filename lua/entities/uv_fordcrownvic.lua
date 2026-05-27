@@ -121,7 +121,7 @@ if CLIENT then
         { offset = Vector(-8.53,-21.11,65.14),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0, duration = 0.5, size = 180, color = Color(255,30,0), },
         { offset = Vector(114.04,-12.54,22.64), dir = Vector( 1, 0, 0 ),ifBodygroupId = 2, ifSubModelId = 0, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
         { offset = Vector(114.04,-12.54,22.64), dir = Vector( 1, 0, 0 ),ifBodygroupId = 2, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(114.04,-12.54,22.64), dir = Vector( 1, 0, 0 ),ifBodygroupId = 2, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(114.1,-12.32,21.81), dir = Vector( 1, 0, 0 ),ifBodygroupId = 2, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
 
 	-- BLUE
 
@@ -136,8 +136,8 @@ if CLIENT then
         { offset = Vector(-8.53,0,65.14),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
         { offset = Vector(-16.19,0,65.14),spriteMaterial = Material( "models/unitvehiclescars/shared/policesprite" ), time = 0.5, duration = 0.5, size = 180, color = Color(0,115,255), },
         { offset = Vector(114.04,12.54,22.64), dir = Vector( 1, 0, 0 ),ifBodygroupId = 2, ifSubModelId = 0, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(115.72,12.79,22.1), dir = Vector( 1, 0, 0 ),ifBodygroupId = 2, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(115.72,12.79,22.1), dir = Vector( 1, 0, 0 ),ifBodygroupId = 2, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(116,12.46,22.1), dir = Vector( 1, 0, 0 ),ifBodygroupId = 2, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(115.98,12.63,21.01), dir = Vector( 1, 0, 0 ),ifBodygroupId = 2, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
 
     }
 
@@ -243,8 +243,6 @@ if SERVER then
             [2] = 2.1,
             [3] = 1.5,
             [4] = 1.2,
-            [5] = 0.95,
-            [6] = 0.8,
 
 			
         }
@@ -269,7 +267,7 @@ if SERVER then
         self:SetBrakePower( 2500 )
 
         self:SetMinRPM( 500 ) 
-        self:SetMaxRPM( 14000 ) 
+        self:SetMaxRPM( 17250 ) 
         self:SetMinRPMTorque( 2200 )
         self:SetMaxRPMTorque( 2400 )
 
@@ -279,45 +277,43 @@ if SERVER then
         self:SetSteerConeMaxAngle( 0.20 )
 		self:SetCounterSteer ( 0.8 )
 
-        self:SetForwardTractionMax( 2500 )
+        self:SetForwardTractionMax( 5000 )
         self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 20 )
         self:SetSideTractionMaxAng( 25 )
         self:SetSideTractionMax( 3000 ) 
-        self:SetSideTractionMin( 1100 )
+        self:SetSideTractionMin( 1250 )
 
 		self:SetTurboCharged( false )
-		self:SetFastTransmission( false ) 
+		self:SetFastTransmission( true ) 
 
-
-        self:CreateWheel( Vector(72.5,36.7,14.6), {
+        self:CreateWheel( Vector(72.5,36.7,13), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
             modelAngle = Angle( 0.000000, 90.000000, 0.000000 ),
             steerMultiplier = 1,
             modelScale = Vector( 1, 1, 1 ),
-            radius = 15
+            radius = 16
         } )
-        self:CreateWheel( Vector(72.5,-36.7,14.6), {
+        self:CreateWheel( Vector(72.5,-36.7,13), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
             modelAngle = Angle( 0.000000, -90.000000, 0.000000 ),
             steerMultiplier = 1,
             modelScale = Vector( 1, 1, 1 ),
-            radius = 15
+            radius = 16
         } )
-        self:CreateWheel( Vector(-59.75,38,14.6), {
+        self:CreateWheel( Vector(-59.75,38,13), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
             modelAngle = Angle( 0.000000, 90.000000, 0.000000 ),
             modelScale = Vector( 1, 1, 1 ),
-            radius = 15
+            radius = 16
         } )
-        self:CreateWheel( Vector(-59.75,-38,14.6), {
+        self:CreateWheel( Vector(-59.75,-38,13), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
             modelAngle = Angle( 0.000000, -90.000000, 0.000000 ),
             modelScale = Vector( 1, 1, 1 ),
-            radius = 15
+            radius = 16
         } )
 
-        self:ChangeWheelRadius( 15 )
     end
 
     function ENT:OnPostThink( dt, selfTbl ) --Changing submaterials/bodygroups for the entire vehicle
@@ -344,10 +340,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(12, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(11, "models/unitvehiclescars/shared/defroster")
-        self:SetSubMaterial(17, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(18, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial()
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
         self:SetBodygroup( 4, 0 )
@@ -420,8 +413,11 @@ if SERVER then
         self.leftdamaged = self.leftdamaged or 0
         self.rightdamaged = self.rightdamaged or 0
 
-        --Tip: You can adjust the speed to make the damage more or less sensitive
-        --If you wanna add more damage levels, just add more elseif statements
+        local enginehealth = self:GetEngineHealth()
+
+        if enginehealth < .5 then --BASE
+            self:SetSubMaterial(8, "models/unitvehiclescars/uv_fordcrownvic/skin_0dam")
+        end
 
         if fronthit then --FRONT
             if speed < 3000 and self.frontdamaged < 1 then
@@ -484,7 +480,7 @@ if SERVER then
         end
 
         if lefthit then --LEFT
-            if speed < 600 and self.leftdamaged < 1 then
+            if self.leftdamaged < 1 then
                 self:SetBodygroup( 4, 1 )
                 self:SetBodygroup( 6, 1 )
                 self:SetSubMaterial(17, "models/unitvehiclescars/shared/windowdamage")
@@ -498,7 +494,7 @@ if SERVER then
         end
 
         if righthit then --RIGHT
-            if speed < 600 and self.rightdamaged < 1 then
+            if self.rightdamaged < 1 then
                 self:SetBodygroup( 5, 1 )
                 self:SetBodygroup( 7, 1 )
                 self:SetSubMaterial(18, "models/unitvehiclescars/shared/windowdamage")

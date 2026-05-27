@@ -7,6 +7,23 @@ local temp_keybinds = {
     [KEY_P] = 2,
 }
 
+local PURSUIT_TECH_TABLE = {
+    ['EMP'] = 'emp',
+    ['ESF'] = 'esf',
+    ['Shockwave'] = 'shockwave',
+    ['Jammer'] = 'jammer',
+    ['Killswitch'] = 'killswitch',
+    ['Shock Ram'] = 'shockram',
+    ['Juggernaut'] = 'juggernaut',
+    ['Ghost'] = 'ghost',
+    ['Repair Kit'] = 'repairkit',
+    ['Power Play'] = 'powerplay',
+    ['Stunmine'] = 'stunmine',
+    ['Spikestrip'] = 'spikestrip',
+    ['GPS Dart'] = 'gpsdart',
+    ['Grappler'] = 'grappler',
+} 
+
 local keybind_requests = {}
 
 hook.Add( "PlayerButtonDown", "PlayerButtonDownHandler", function( ply, button )
@@ -269,6 +286,36 @@ if SERVER then
         end
     end
 
+    function UVSetVehicleActive( vehicle, active )
+        vehicle.uvenginedisabled = not active
+
+        if vehicle.LVS then
+            if active then
+                vehicle:StartEngine()
+            else
+                vehicle:StopEngine()
+            end
+        elseif vehicle.IsSimfphyscar then
+            vehicle:SetActive( active )
+            if active then
+                vehicle:StartEngine()
+            else
+                vehicle:StopEngine()
+            end
+        else
+            vehicle:EnableEngine( active )
+            vehicle:StartEngine( active )
+        end
+    end
+
+    function UVApplyVehiclePrerequisites( vehicle )
+        if vehicle:GetClass() == "prop_vehicle_jeep" and not vcmod_main then
+            local mass = vehicle:GetPhysicsObject():GetMass()
+            vehicle:SetMaxHealth(mass)
+            vehicle:SetHealth(mass)
+        end
+    end
+
     function UVDamage(vehicle, damage) --damage in fraction of max health (0.1 = 10% of max health)
         if not IsValid(vehicle) then return end
         if vehicle.UVWanted and GetConVar("unitvehicle_autohealth"):GetBool() then return end
@@ -470,10 +517,6 @@ if SERVER then
 	
 		if UVGetDriver(vehicle) then
 			if UVGetDriver(vehicle):IsPlayer() then
-				if UVGetDriver(vehicle):GetMaxHealth() == 100 then
-					UVGetDriver(vehicle):SetHealth(vehicle:GetPhysicsObject():GetMass())
-					UVGetDriver(vehicle):SetMaxHealth(vehicle:GetPhysicsObject():GetMass())
-				end
 				net.Start(repairnet)
 				net.Send(UVGetDriver(vehicle))
 				if ptrefilled then
@@ -538,9 +581,9 @@ if SERVER then
         return IsValid(Leader) and Leader
     end
 
-    function UVOptimizeRespawn( vehicle )
-        if UVOptimizeRespawnDelayed then return end
-        if UVJammerDeployed then return end
+    function UVOptimizeRespawn( vehicle, player )
+        if UVOptimizeRespawnDelayed and not player then return end
+        if UVJammerDeployed and not player then return end
 
         local rhino = vehicle.rhino
         local commander = vehicle.uvclasstospawnon == "npc_uvcommander" or vehicle.UVCommander
@@ -555,18 +598,18 @@ if SERVER then
 
         local vehicle_class = vehicle:GetClass()
         
-        if vehicle_class == "gmod_sent_vehicle_fphysics_base" then
-            SafeRemoveEntity(NPC) --yeahhh
-            return
-        end
+        -- if vehicle_class == "gmod_sent_vehicle_fphysics_base" then
+        --     SafeRemoveEntity(NPC) --yeahhh
+        --     return
+        -- end
 
         NPC.uvmarkedfordeletion = nil
         timer.Simple(1, function()
             NPC.uvmarkedfordeletion = true
         end)
         
-        local phys = vehicle:GetPhysicsObject()
-        phys:SetVelocity(vector_origin)
+        -- local phys = vehicle:GetPhysicsObject()
+        -- phys:SetVelocity(vector_origin)
         
         local uvnextclasstospawn
 	    local enemylocation
@@ -660,47 +703,53 @@ if SERVER then
 	    	end
 	    end
 
-        if vehicle.IsGlideVehicle then
-            local pos = uvspawnpoint+(vector_up * 50)
-		    local ang = uvspawnpointangles
-
-            if not commander then
-                UVRepair(vehicle, true)
-            end
-
-            vehicle:SetPos( pos )
-            vehicle:SetAngles( ang )
-            vehicle:PhysWake()
-        else
-            local physObj = vehicle:GetPhysicsObject()
-            physObj:EnableMotion(false)
-
-            local pos = uvspawnpoint+(vector_up * 50)
-		    local ang = uvspawnpointangles
-            
-            ang.yaw = ang.yaw - 90
-            
-            vehicle:SetPos( pos )
-            vehicle:SetAngles( ang )
-            vehicle:SetVelocity(Vector(0,0,0))
-
-            if vehicle.LVS then
-                for _, wheel in ipairs(vehicle:GetWheels()) do
-                    wheel:SetPos(vehicle:GetPos())
-                end
-            end
-
-            if not commander then
-                UVRepair(vehicle, true)
-            end
-            
-            timer.Simple(.5, function()
-                if IsValid(physObj) then
-                    physObj:EnableMotion(true)
-                    physObj:Wake()
-                end
-            end)
+        if not commander then
+            UVRepair( vehicle, true )
         end
+        
+        UVSetVehiclePos( vehicle, uvspawnpoint, uvspawnpointangles )
+
+        -- if vehicle.IsGlideVehicle then
+        --     local pos = uvspawnpoint+(vector_up * 50)
+		--     local ang = uvspawnpointangles
+
+        --     if not commander then
+        --         UVRepair(vehicle, true)
+        --     end
+
+        --     vehicle:SetPos( pos )
+        --     vehicle:SetAngles( ang )
+        --     vehicle:PhysWake()
+        -- else
+        --     local physObj = vehicle:GetPhysicsObject()
+        --     physObj:EnableMotion(false)
+
+        --     local pos = uvspawnpoint+(vector_up * 50)
+		--     local ang = uvspawnpointangles
+            
+        --     ang.yaw = ang.yaw - 90
+            
+        --     vehicle:SetPos( pos )
+        --     vehicle:SetAngles( ang )
+        --     vehicle:SetVelocity(Vector(0,0,0))
+
+        --     if vehicle.LVS then
+        --         for _, wheel in ipairs(vehicle:GetWheels()) do
+        --             wheel:SetPos(vehicle:GetPos())
+        --         end
+        --     end
+
+        --     if not commander then
+        --         UVRepair(vehicle, true)
+        --     end
+            
+        --     timer.Simple(.5, function()
+        --         if IsValid(physObj) then
+        --             physObj:EnableMotion(true)
+        --             physObj:Wake()
+        --         end
+        --     end)
+        -- end
 
         if NPC.metwithenemy and not UVResourcePointsRefreshing and UVGlobalPursuit.ResourcePoints > 1 and not UVOneCommanderActive and not vehicle.roadblocking then
 			UVUpdateGlobalPursuit('ResourcePoints', UVGlobalPursuit.ResourcePoints - 1)
@@ -713,6 +762,202 @@ if SERVER then
         NPC.metwithenemy = nil
         NPC.rhinohit = nil
     end
+
+    local function UVSimfphysTeleportAssembly( vehicle, targetBasePos, angHint )
+        if not IsValid( vehicle ) or vehicle:GetClass() ~= "gmod_sent_vehicle_fphysics_base" then return false end
+
+        local physObj = vehicle:GetPhysicsObject()
+        if not IsValid( physObj ) then return false end
+
+        local vname = isfunction( vehicle.GetSpawn_List ) and vehicle:GetSpawn_List()
+        if not vname or vname == "" then return false end
+
+        local VehicleList = list.Get( "simfphys_vehicles" )
+        local vehData = VehicleList and VehicleList[ vname ]
+        local spawnOffset = ( vehData and vehData.SpawnOffset ) or vector_origin
+        local spawnAngleOffset = ( vehData and vehData.SpawnAngleOffset ) or 0
+
+        local finalPos = targetBasePos + ( vector_up * 25 ) + spawnOffset
+        local finalAng = Angle( 0, angHint.yaw + 270 + spawnAngleOffset, 0 )
+
+        local function snapshotRigidEnt( ent )
+            if not IsValid( ent ) then return nil end
+            local po = ent:GetPhysicsObject()
+            return {
+                ent = ent,
+                lp = vehicle:WorldToLocal( ent:GetPos() ),
+                la = vehicle:WorldToLocalAngles( ent:GetAngles() ),
+                hadMotion = IsValid( po ) and po:IsMotionEnabled(),
+            }
+        end
+
+        local wheelLocals = {}
+        local numWheels = istable( vehicle.Wheels ) and table.Count( vehicle.Wheels ) or 0
+        for i = 1, numWheels do
+            local w = vehicle.Wheels[ i ]
+            if IsValid( w ) then
+                wheelLocals[ i ] = snapshotRigidEnt( w )
+            end
+        end
+
+        local auxSnaps = {
+            MassOffset = snapshotRigidEnt( vehicle.MassOffset ),
+            SteerMaster = snapshotRigidEnt( vehicle.SteerMaster ),
+            SteerMaster2 = snapshotRigidEnt( vehicle.SteerMaster2 ),
+        }
+
+        local function freezeSnap( snap )
+            if not snap then return end
+            local po = snap.ent:GetPhysicsObject()
+            if IsValid( po ) then
+                po:EnableMotion( false )
+                po:SetVelocity( vector_origin )
+                po:SetAngleVelocity( vector_origin )
+            end
+        end
+
+        local chassisHadMotion = physObj:IsMotionEnabled()
+        physObj:EnableMotion( false )
+        physObj:SetVelocity( vector_origin )
+        physObj:SetAngleVelocity( vector_origin )
+
+        for i = 1, numWheels do
+            freezeSnap( wheelLocals[ i ] )
+        end
+        freezeSnap( auxSnaps.MassOffset )
+        freezeSnap( auxSnaps.SteerMaster )
+        freezeSnap( auxSnaps.SteerMaster2 )
+
+        physObj:SetPos( finalPos, true )
+        physObj:SetAngles( finalAng )
+        vehicle:SetPos( finalPos )
+        vehicle:SetAngles( finalAng )
+
+        physObj:SetVelocity( vector_origin )
+        physObj:SetAngleVelocity( vector_origin )
+
+        local function applyRigidSnap( snap )
+            if not snap then return end
+            local ent = snap.ent
+            if not IsValid( ent ) then return end
+            local newPos = vehicle:LocalToWorld( snap.lp )
+            local newAng = vehicle:LocalToWorldAngles( snap.la )
+            local po = ent:GetPhysicsObject()
+            if IsValid( po ) then
+                po:SetPos( newPos, true )
+                po:SetAngles( newAng )
+                po:SetVelocity( vector_origin )
+                po:SetAngleVelocity( vector_origin )
+            end
+            ent:SetPos( newPos )
+            ent:SetAngles( newAng )
+        end
+
+        for i = 1, numWheels do
+            applyRigidSnap( wheelLocals[ i ] )
+        end
+        applyRigidSnap( auxSnaps.MassOffset )
+        applyRigidSnap( auxSnaps.SteerMaster )
+        applyRigidSnap( auxSnaps.SteerMaster2 )
+
+        physObj:SetVelocity( vector_origin )
+        physObj:SetAngleVelocity( vector_origin )
+
+        physObj:EnableMotion( chassisHadMotion )
+        for i = 1, numWheels do
+            local wl = wheelLocals[ i ]
+            if wl and IsValid( wl.ent ) then
+                local wpo = wl.ent:GetPhysicsObject()
+                if IsValid( wpo ) then
+                    wpo:EnableMotion( wl.hadMotion )
+                end
+            end
+        end
+
+        local function restoreAuxMotion( snap )
+            if not snap or not IsValid( snap.ent ) then return end
+            local po = snap.ent:GetPhysicsObject()
+            if IsValid( po ) then
+                po:EnableMotion( snap.hadMotion )
+            end
+        end
+        restoreAuxMotion( auxSnaps.MassOffset )
+        restoreAuxMotion( auxSnaps.SteerMaster )
+        restoreAuxMotion( auxSnaps.SteerMaster2 )
+
+        physObj:Wake()
+        for i = 1, numWheels do
+            local wl = wheelLocals[ i ]
+            if wl and IsValid( wl.ent ) then
+                local wpo = wl.ent:GetPhysicsObject()
+                if IsValid( wpo ) then wpo:Wake() end
+            end
+        end
+        if auxSnaps.MassOffset and IsValid( auxSnaps.MassOffset.ent ) then
+            local po = auxSnaps.MassOffset.ent:GetPhysicsObject()
+            if IsValid( po ) then po:Wake() end
+        end
+        if auxSnaps.SteerMaster and IsValid( auxSnaps.SteerMaster.ent ) then
+            local po = auxSnaps.SteerMaster.ent:GetPhysicsObject()
+            if IsValid( po ) then po:Wake() end
+        end
+        if auxSnaps.SteerMaster2 and IsValid( auxSnaps.SteerMaster2.ent ) then
+            local po = auxSnaps.SteerMaster2.ent:GetPhysicsObject()
+            if IsValid( po ) then po:Wake() end
+        end
+
+        return true
+    end
+
+    function UVSetVehiclePos( vehicle, pos, ang )
+        local physObj = vehicle:GetPhysicsObject()
+
+        if vehicle:GetClass() == "gmod_sent_vehicle_fphysics_base" then
+            -- UVSetVehiclePerformanceMultiplier(vehicle, 1)
+            UVSimfphysTeleportAssembly( vehicle, pos, ang )
+
+        elseif vehicle.IsGlideVehicle then
+            vehicle:SetPos( ( pos + ( vehicle:OBBMaxs() / 2 ) ) )
+            vehicle:SetAngles( ang )
+
+            physObj:SetAngleVelocity( vector_origin )
+            vehicle:SetVelocity( vector_origin )
+
+            for _, wheel in ipairs( vehicle.wheels ) do
+                wheel.state.angularVelocity = 0
+            end
+
+            vehicle:PhysWake()
+
+        else
+            physObj:EnableMotion(false)
+            physObj:SetAngleVelocity( vector_origin )
+            physObj:SetVelocity( vector_origin )
+            
+            ang.yaw = ang.yaw - (vehicle.LVS and 0 or 90)
+
+            vehicle:SetAngles( ang )
+            vehicle:SetPos( pos )
+
+            local wmin = select( 1, vehicle:WorldSpaceAABB() )
+            local pad = math.max( vehicle:BoundingRadius() * 0.08, 2 )
+
+            local deltaZ = math.max( pos.z + pad - wmin.z, pad )
+
+            vehicle:SetPos( pos + vector_up * deltaZ )
+
+            if vehicle.LVS then
+                for _, wheel in ipairs(vehicle:GetWheels()) do
+                    wheel:SetPos(vehicle:GetPos())
+                end
+            end
+
+            timer.Simple(.5, function()
+                physObj:EnableMotion(true)
+                physObj:Wake()
+            end)
+        end
+    end
     
     function UVResetPosition( vehicle )
         -- Check if vehicle is a race participant
@@ -721,7 +966,7 @@ if SERVER then
         
         -- local entry = UVRaceTable.Participants [vehicle]
         -- if not entry then return end
-        
+        if vehicle.uvenginedisabled then return end
         if vehicle.hasreset then return end
         
         local vehicle_class = vehicle:GetClass()
@@ -737,7 +982,7 @@ if SERVER then
             if not dvd then return end
             local waypoint = dvd.GetNearestWaypoint( vehicle:GetPos() )
 
-            pos = waypoint.Target + ( vector_up * 20 )
+            pos = waypoint.Target --+ ( vehicle:BoundingRadius() * vector_up )
             ang = waypoint.Neighbors[1] and ( dvd.Waypoints[waypoint.Neighbors[1]].Target - waypoint.Target ):GetNormalized():Angle() or Angle(0)
         else
             local entry = UVRaceTable.Participants [vehicle]
@@ -766,36 +1011,17 @@ if SERVER then
         end
                 
         -- Teleport to the checkpoint
-        local ground_trace = util.TraceLine({start = pos, endpos = pos +- ((checkpoint and checkpoint:GetUp() or vector_origin) * 1000), mask = MASK_NPCWORLDSTATIC, filter = {checkpoint}})
+        if checkpoint then
+            local ground_trace = util.TraceLine({start = pos, endpos = pos +- ((checkpoint and checkpoint:GetUp() or vector_origin) * 1000), mask = MASK_NPCWORLDSTATIC, filter = {checkpoint}})
+            pos = ( ground_trace.Hit and ( ground_trace.HitPos + ( Vector(0,0,1) * 25 ) ) ) or pos
+        end
         
         local next_pos = nil
         local next_dir = nil
-        local delay = 0.1
-                
-        if vehicle_class == "gmod_sent_vehicle_fphysics_base" then
-            UVSetVehiclePerformanceMultiplier(vehicle, 1)
-            vehicle = UVTeleportSimfphysVehicle( vehicle, (ground_trace.Hit and ground_trace.HitPos) or pos, ang )
-            delay = 0.9
-        elseif vehicle.IsGlideVehicle then
-            vehicle:SetPos( (ground_trace.Hit and (ground_trace.HitPos + (Vector(0,0,1) * 25))) or pos )
-            vehicle:SetAngles( ang )
-            vehicle:PhysWake()
-        else
-            local physObj = vehicle:GetPhysicsObject()
-            physObj:EnableMotion(false)
-            
-            ang.yaw = ang.yaw - 90
-            
-            vehicle:SetPos( (ground_trace.Hit and (ground_trace.HitPos + (Vector(0,0,1) * 50))) or pos )
-            vehicle:SetAngles( ang )
-            vehicle:SetVelocity(Vector(0,0,0))
 
-            if vehicle.LVS then
-                for _, wheel in ipairs(vehicle:GetWheels()) do
-                    wheel:SetPos(vehicle:GetPos())
-                end
-            end
+        UVSetVehiclePos( vehicle, pos, ang )
 
+        if not vehicle.IsGlideVehicle and not vehicle.IsSimfphyscar then
             vehicle:SetCollisionGroup(20)
 
             vehicle.__ogrendermode = vehicle:GetRenderMode()
@@ -804,13 +1030,9 @@ if SERVER then
             local c = vehicle:GetColor()
             vehicle:SetColor(Color(c.r, c.g, c.b, 100))
 
-            timer.Simple(.5, function()
-                physObj:EnableMotion(true)
-                physObj:Wake()
-            end)
-
             timer.Simple(5, function()
                 if not IsValid(vehicle) then return end
+
                 vehicle:SetRenderMode(vehicle.__ogrendermode)
                 vehicle:SetColor(Color(c.r, c.g, c.b, 255))
                 vehicle:SetCollisionGroup(0)
@@ -919,6 +1141,31 @@ if SERVER then
 
     function UVIsPTUpgraded(car)
         return car.uvclasstospawnon == "npc_uvspecial" or car.uvclasstospawnon == "npc_uvcommander"
+    end
+
+    function UVAddPursuitTech( car, tech, slot, ammo, cooldown )
+        if not car.PursuitTech then car.PursuitTech = {} end
+        if not car.PursuitTech[slot] then car.PursuitTech[slot] = {} end
+
+        local techSmallName = PURSUIT_TECH_TABLE[tech]
+
+        local maxAmmo = ammo or GetConVar(car.UnitVehicle and "uvpursuittech_"..techSmallName.."_maxammo_unit" or "uvpursuittech_"..techSmallName.."_maxammo"):GetInt()
+        local cooldown = cooldown or GetConVar(car.UnitVehicle and "uvpursuittech_"..techSmallName.."_cooldown_unit" or "uvpursuittech_"..techSmallName.."_cooldown"):GetInt()
+
+        car.PursuitTech[slot].Tech = tech
+        car.PursuitTech[slot].Ammo = maxAmmo
+        car.PursuitTech[slot].Cooldown = cooldown
+        car.PursuitTech[slot].LastUsed = -math.huge
+
+        UVReplicatePT(car, slot)
+    end
+
+    function UVRemovePursuitTech(car, slot)
+        if not car.PursuitTech then return end
+        if not car.PursuitTech[slot] then return end
+
+        car.PursuitTech[slot] = nil
+        UVReplicatePT(car, slot)
     end
 
 	function UVReplicatePT(car, slot)
@@ -1683,17 +1930,6 @@ if SERVER then
             is_repaired = true
         end
         
-        local driver = UVGetDriver(car)
-        
-        if driver then
-            if driver:IsPlayer() then
-                if driver:GetMaxHealth() == 100 then
-                    driver:SetHealth(car:GetPhysicsObject():GetMass())
-                    driver:SetMaxHealth(car:GetPhysicsObject():GetMass())
-                end
-            end
-        end
-        
         return is_repaired
     end
     
@@ -2080,11 +2316,7 @@ if SERVER then
 
             if IsValid(closest_unit) then
                 if closest_unit.UnitVehicle then
-                    if closest_unit.UnitVehicle:IsNPC() then
-                        closest_unit.UnitVehicle:Wreck()
-                    else
-                        UVPlayerWreck(closest_unit)
-                    end
+                    UVPlayerWreck(closest_unit)
                     return closest_unit
                 end
             else
@@ -2408,9 +2640,8 @@ if SERVER then
         local strength = UVUnitPTGrapplerStrength:GetInt()
         local disableduration = UVUnitPTGrapplerDisableDuration:GetInt()
 
-        if UVIsPTUpgraded(car) then --stronger, lasting
+        if UVIsPTUpgraded(car) then
 			strength = strength * 2
-			disableduration = disableduration * 2
 		end
 
         local cons, rope

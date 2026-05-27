@@ -76,6 +76,8 @@ if CLIENT then
 
         { type = "reverse", offset = Vector(-120.49,35.11,34.48), dir = Vector( -1, 0, 0 ),size = 30 },
         { type = "reverse", offset = Vector(-120.49,-35.11,34.48), dir = Vector( -1, 0, 0 ),size = 30 },
+        { type = "reverse", offset = Vector(-29.76,4.91,63.51), dir = Vector( -1, 0, 0 ),size = 30 },
+        { type = "reverse", offset = Vector(-29.76,-4.91,63.51), dir = Vector( -1, 0, 0 ),size = 30 },
 
         { type = "signal_left", offset = Vector(-118.22,34.98,29.74),color = Color(255,0,0),dir = Vector( -1, 0, 0 ),size = 30, },
         { type = "signal_right", offset = Vector(-118.22,-34.98,29.74),color = Color(255,0,0),dir = Vector( -1, 0, 0 ),size = 30, },
@@ -102,8 +104,8 @@ if CLIENT then
 	-- RED
 
         { offset = Vector(113.85,-14.53,27), ifBodygroupId = 1, ifSubModelId = 0, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(117.57,-13.73,23.69), ifBodygroupId = 1, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(120.86,-12.41,20.34), ifBodygroupId = 1, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(116.15,-14.46,24.89), ifBodygroupId = 1, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(118.52,-14.13,22.5), ifBodygroupId = 1, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
 
         { offset = Vector(-123.77,17.56,35.8), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
     
@@ -123,8 +125,8 @@ if CLIENT then
 	-- BLUE
 
         { offset = Vector(113.85,14.53,27), ifBodygroupId = 1, ifSubModelId = 0, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(115.96,15.25,25.38), ifBodygroupId = 1, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(117.7,16.48,23.4), ifBodygroupId = 1, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(114.88,14.82,26.23), ifBodygroupId = 1, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(116.15,14.98,25.12), ifBodygroupId = 1, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
 
         { offset = Vector(-123.77,-17.56,35.8), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
 
@@ -151,11 +153,9 @@ if CLIENT then
     local Lights = {
         ['Off'] = {
             [1] = "",
-            [23] = lightsPath .. "blackscreen",
         },
         ['On'] = {
             [1] = "",
-            [23] = "",
         },
         ['Brake'] = {
             [1] = lightsPath .. "brakelightlit",
@@ -236,13 +236,11 @@ if SERVER then
             [-1] = 3.5,
             [0] = 0,
             [1] = 3.6,
-            [2] = 2.2,
-            [3] = 1.7,
-            [4] = 1.5,
-            [5] = 1.3,
+            [2] = 3.0,
+            [3] = 2.5,
+            [4] = 2.0,
+            [5] = 1.5,
             [6] = 1.1,
-            [7] = 0.9,
-            [8] = 0.8,
 
 			
         }
@@ -265,7 +263,7 @@ if SERVER then
         self:SetBrakePower( 5000 )
 
         self:SetMinRPM( 800 ) 
-        self:SetMaxRPM( 18000 ) 
+        self:SetMaxRPM( 22500 ) 
         self:SetMinRPMTorque( 7200 )
         self:SetMaxRPMTorque( 7600 )
 
@@ -279,12 +277,11 @@ if SERVER then
         self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 40 )
         self:SetSideTractionMaxAng( 30 )
-        self:SetSideTractionMax( 4500 ) 
-        self:SetSideTractionMin( 1500 )
+        self:SetSideTractionMax( 7000 ) 
+        self:SetSideTractionMin( 3500 )
 
-		self:SetTurboCharged( false )
-		self:SetFastTransmission( false ) 
-
+		self:SetTurboCharged( true )
+		self:SetFastTransmission( true ) 
 
         self:CreateWheel( Vector(74,38,7.85), {
             model = "models/unitvehiclescars/uv_coloradozr2/uv_coloradozr2_wheel.mdl",
@@ -324,10 +321,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(14, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(15, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(21, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(22, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial()
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
@@ -400,8 +394,11 @@ if SERVER then
         self.leftdamaged = self.leftdamaged or 0
         self.rightdamaged = self.rightdamaged or 0
 
-        --Tip: You can adjust the speed to make the damage more or less sensitive
-        --If you wanna add more damage levels, just add more elseif statements
+        local enginehealth = self:GetEngineHealth()
+
+        if enginehealth < .5 then --BASE
+            self:SetSubMaterial(5, "models/unitvehiclescars/uv_coloradozr2/skin_0dam")
+        end
 
         if fronthit then --FRONT
             if speed < 3000 and self.frontdamaged < 1 then
@@ -459,7 +456,7 @@ if SERVER then
         end
 
         if lefthit then --LEFT
-            if speed < 600 and self.leftdamaged < 1 then
+            if self.leftdamaged < 1 then
                 self:SetBodygroup( 5, 1 )
                 self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage")
                 self.leftdamaged = 1
@@ -478,7 +475,7 @@ if SERVER then
         end
 
         if righthit then --RIGHT
-            if speed < 600 and self.rightdamaged < 1 then
+            if self.rightdamaged < 1 then
                 self:SetBodygroup( 6, 1 )
                 self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage")
                 self.rightdamaged = 1

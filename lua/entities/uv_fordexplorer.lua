@@ -127,12 +127,12 @@ if CLIENT then
         { offset = Vector(-8.54,-15.92,71.78), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
 
         { offset = Vector(117.61,-9.75,24.04), ifBodygroupId = 1, ifSubModelId = 0, dir = Vector( 1, 0, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(117.29,-9.74,23.99), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 1, 0, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(117.29,-9.74,23.99), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 1, 0, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(117.61,-9.75,24.04), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 1, 0, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(118.9,-8.91,24.17), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 1, 0, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
 
         { offset = Vector(115.44,-19.27,25.81), ifBodygroupId = 1, ifSubModelId = 0, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(115.87,-18.63,25.51), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
-        { offset = Vector(115.87,-18.63,25.51), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(115.44,-19.27,25.81), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
+        { offset = Vector(116.98,-18.39,26.1), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 0, -1, 0 ), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
 
         -- BLUE
 
@@ -154,12 +154,12 @@ if CLIENT then
         { offset = Vector(-8.54,-3.24,71.78), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
 
         { offset = Vector(117.61,9.75,24.04), ifBodygroupId = 1, ifSubModelId = 0, dir = Vector( 1, 0, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(117.83,9.1,24.05), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 1, 0, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(119.4,7.5,23.63), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 1, 0, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(118.96,9.06,24.02), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 1, 0, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(119.83,8.27,24.07), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 1, 0, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
 
         { offset = Vector(115.44,19.27,25.81), ifBodygroupId = 1, ifSubModelId = 0, dir = Vector( 0, 1, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(117.04,18.62,26.23), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 0, 1, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
-        { offset = Vector(120.16,16.97,25.24), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 0, 1, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(116.89,18.16,26), ifBodygroupId = 1, ifSubModelId = 1, dir = Vector( 0, 1, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
+        { offset = Vector(118.57,17.53,25.99), ifBodygroupId = 1, ifSubModelId = 2, dir = Vector( 0, 1, 0 ), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
 }
      
     function ENT:OnCreateEngineStream( stream )
@@ -244,12 +244,12 @@ if SERVER then
 		
             [-1] = 3,
             [0] = 0,
-            [1] = 3.2,
-            [2] = 1.9,
-            [3] = 1.4,
-            [4] = 1.0,
-            [5] = 0.85,
-            [6] = 0.75,
+            [1] = 6.9,
+            [2] = 4.8,
+            [3] = 3.6,
+            [4] = 2.8,
+            [5] = 2,
+            [6] = 1.4,
 			
         }
 		
@@ -269,11 +269,11 @@ if SERVER then
 
         self:SetDifferentialRatio( 1.00 )
         self:SetTransmissionEfficiency( 0.80 )
-        self:SetPowerDistribution( -0.25 )
+        self:SetPowerDistribution( 0 )
         self:SetBrakePower( 4000 )
 
         self:SetMinRPM( 700 ) 
-        self:SetMaxRPM( 18000 ) 
+        self:SetMaxRPM( 22000 ) 
         self:SetMinRPMTorque( 5200 )
         self:SetMaxRPMTorque( 4800 )
 
@@ -283,15 +283,15 @@ if SERVER then
         self:SetSteerConeMaxAngle( 0.20 )
 		self:SetCounterSteer ( 0.8 )
 
-        self:SetForwardTractionMax( 5500 )
+        self:SetForwardTractionMax( 6000 )
         self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 20 )
         self:SetSideTractionMaxAng( 25 )
         self:SetSideTractionMax( 4000 ) 
-        self:SetSideTractionMin( 1200 )
+        self:SetSideTractionMin( 1500 )
 
-		self:SetTurboCharged( false )
-		self:SetFastTransmission( false ) 
+		self:SetTurboCharged( true )
+		self:SetFastTransmission( true ) 
 
         self:CreateWheel( Vector( 69.0, 37.0, 11.5 ), {
             model = "models/unitvehiclescars/uv_fordcrownvic/uv_fordcrownvic_wheel.mdl",
@@ -346,7 +346,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(12, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial()
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
@@ -419,8 +419,15 @@ if SERVER then
         self.leftdamaged = self.leftdamaged or 0
         self.rightdamaged = self.rightdamaged or 0
 
-        --Tip: You can adjust the speed to make the damage more or less sensitive
-        --If you wanna add more damage levels, just add more elseif statements
+        local enginehealth = self:GetEngineHealth()
+
+        if enginehealth < .5 then --BASE
+            self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage")
+            self:SetSubMaterial(8, "models/unitvehiclescars/uv_fordexplorer/skin_0dam")
+            if enginehealth < .25 then
+                self:SetSubMaterial(12, "models/unitvehiclescars/shared/windowdamage1")
+            end
+        end
 
         if fronthit then --FRONT
             if speed < 3000 and self.frontdamaged < 1 then
@@ -479,7 +486,7 @@ if SERVER then
         end
 
         if lefthit then --LEFT
-            if speed < 600 and self.leftdamaged < 1 then
+            if self.leftdamaged < 1 then
                 self:SetBodygroup( 3, 1 )
                 self:SetBodygroup( 4, 1 )
                 self.leftdamaged = 1
@@ -491,7 +498,7 @@ if SERVER then
         end
 
         if righthit then --RIGHT
-            if speed < 600 and self.rightdamaged < 1 then
+            if self.rightdamaged < 1 then
                 self:SetBodygroup( 5, 1 )
                 self:SetBodygroup( 6, 1 )
                 self.rightdamaged = 1

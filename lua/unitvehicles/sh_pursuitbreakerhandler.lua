@@ -49,9 +49,6 @@ if SERVER then
                 return
             end
         end
-
-        UVLoadedPursuitBreakers[id] = true
-        UVLoadedPursuitBreakersLoc[id] = location
         
         net.Start("UVAddPursuitBreaker")
         net.WriteInt(id, 32)
@@ -63,6 +60,9 @@ if SERVER then
         --local entities, constraints = duplicator.Paste( Entity(1), pbdata.Entities, pbdata.Constraints )
 
         local entities, constraints = {}, {}
+
+        UVLoadedPursuitBreakers[id] = { entities = entities, constraints = constraints }
+        UVLoadedPursuitBreakersLoc[id] = location
 
         for k, ent in pairs( pbdata.Entities ) do
             local entClass = ent.Class
@@ -165,11 +165,7 @@ if SERVER then
                     local driver = car.UnitVehicle or car.TrafficVehicle
                 
                     if driver then
-                        if driver:IsNPC() then
-                            driver:Wreck()
-                        else
-                            UVPlayerWreck(car)
-                        end
+                        UVPlayerWreck(car)
                     end
                     
                 end
@@ -228,13 +224,13 @@ if SERVER then
     function UVTriggerPursuitBreaker(hitent, object, objectvelocity)
         if hitent.PursuitBreakerActive or not hitent.PursuitBreaker then return end
         
-        local entities = {}
-        local constraints = {}
         local id = hitent.PursuitBreakerID
         local pbdata = hitent.PursuitBreakerData
         local location = hitent.PursuitBreakerLoc
         local activeduration = hitent.ActiveDuration or 10
         local dontunweldprops = hitent.DontUnweldProps or nil
+        local entities = UVLoadedPursuitBreakers[id].entities
+        local constraints = UVLoadedPursuitBreakers[id].constraints
         
         hitent.PursuitBreaker = nil
         
@@ -249,8 +245,6 @@ if SERVER then
         net.WriteInt(location.y, 32)
         net.WriteInt(location.z, 32)
         net.Broadcast()
-        
-        duplicator.GetAllConstrainedEntitiesAndConstraints(hitent, entities, constraints)
         
         local r = math.huge
         local closestdistance, closestbreakableent = r^2
@@ -345,14 +339,12 @@ if SERVER then
         PRELOADED_PURSUITBREAKERS = {}
 
         local mapName = game.GetMap()
-        local pursuitBreakers = file.Find( "unitvehicles/pursuitBreakers/"..mapName.."/*.json", "DATA" )
-        if not pursuitBreakers then return end
-        if next(pursuitBreakers) == nil then return end
+        local pursuitBreakers = UV_GetFiles( "pursuitbreakers>>"..mapName )
 
-        for id, jsonfile in ipairs(pursuitBreakers) do
-            local JSONData = file.Read( "unitvehicles/pursuitBreakers/"..mapName.."/"..jsonfile, "DATA" )
+        for id, jsonfile in pairs(pursuitBreakers) do
+            local JSONData = UV_LoadFile( "pursuitbreakers>>"..mapName, jsonfile )
             local pbdata = util.JSONToTable( JSONData or "" , true)
-            if pbdata then pbdata.jsonfile = jsonfile pbdata.id = id table.insert( PRELOADED_PURSUITBREAKERS, pbdata ) print("Preloaded pursuit breaker: "..jsonfile) end
+            if pbdata then pbdata.jsonfile = jsonfile pbdata.id = id table.insert( PRELOADED_PURSUITBREAKERS, pbdata ) end
         end
     end
 

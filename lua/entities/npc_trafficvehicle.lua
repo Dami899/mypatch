@@ -26,9 +26,9 @@ if SERVER then
 	local DetectionRange = GetConVar("unitvehicle_detectionrange")
 	local CanWreck = GetConVar("unitvehicle_canwreck")
 	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn")
+	local TrafficStreaming = GetConVar("unitvehicle_trafficstreaming") 
 	local SpeedLimit = GetConVar("unitvehicle_speedlimit")
 	local DVWaypointsPriority = GetConVar("unitvehicle_dvwaypointspriority")
-	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn") 
 	
 	function ENT:OnRemove()
 		--By undoing, driving, diving in water, or getting stuck, and the vehicle is remaining.
@@ -135,117 +135,6 @@ if SERVER then
 		end
 	end
 
-	function ENT:Wreck()
-		if IsValid(self.v) and not self.v.wrecked then
-			self.wrecked = true
-			self.v.wrecked = true
-			local despawntime = 60
-			if #UVWantedTableVehicle > 1 then
-				despawntime = 10
-			end
-			table.insert(UVWreckedVehicles, self.v)
-			self.v:CallOnRemove("UVWreckedVehicleRemoved", function()
-				if table.HasValue(UVWreckedVehicles, self.v) then
-					table.RemoveByValue(UVWreckedVehicles, self.v)
-				end
-			end)
-
-			for _, v in pairs(constraint.GetAllConstrainedEntities(self.v)) do
-				v.wrecked = true
-				v.wrecked = true
-				table.insert(UVWreckedVehicles, v)
-				v:CallOnRemove("UVWreckedVehicleRemoved", function()
-					if table.HasValue(UVWreckedVehicles, v) then
-						table.RemoveByValue(UVWreckedVehicles, v)
-					end
-				end)
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-			end
-
-			if self.v.IsGlideVehicle then
-				local wreck = self.v
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-				wreck:SetEngineHealth(0)
-				wreck:UpdateHealthOutputs()
-				wreck.UnflipForce = 0
-				wreck.AngularDrag = vector_origin
-				if wreck.CanSwitchHeadlights then
-					wreck:SetHeadlightState(0)
-				end
-				if wreck:GetVelocity():LengthSqr() > 250000 then
-					UVGlideDetachWheels(wreck)
-				end
-			elseif self.v.LVS then
-				local wreck = self.v
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-				if wreck:GetVelocity():LengthSqr() > 250000 and WheelsDetaching:GetBool() then
-					for _, v in pairs(wreck:GetWheels()) do
-						if math.random(1,2) == 1 then
-							constraint.RemoveAll(v)
-						end
-					end
-				end
-				wreck:SetHP(0)
-				wreck:StopEngine()
-			elseif self.v.IsSimfphyscar then
-				local wreck = self.v
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-				if wreck:GetVelocity():LengthSqr() > 250000 and WheelsDetaching:GetBool() then
-					for i = 1, #wreck.Wheels do
-						local wheelmathchance = math.random(1,2)
-						local Wheel = wreck.Wheels[math.random(1, #wreck.Wheels)]
-						if wheelmathchance == 1 then
-							constraint.RemoveAll(Wheel)
-						end
-					end
-				end
-				wreck:SetCurHealth(0)
-				wreck:SetLightsEnabled(false)
-			elseif self.v:GetClass() == "prop_vehicle_jeep" then
-				local wreck = self.v
-				wreck:EmitSound( "vehicles/v8/vehicle_rollover"..math.random(1,2)..".wav" )
-				wreck:AddCallback("PhysicsCollide", function(ent, coldata)
-					local ouroldvel = coldata.OurOldVelocity:Length()
-					local dot = coldata.OurOldVelocity:GetNormalized():Dot(coldata.HitNormal)
-					dot = math.abs(dot) / 2
-					local dmg = ouroldvel * dot
-					if dmg < 10 then return end
-					local e = EffectData()
-					e:SetOrigin(coldata.HitPos)
-					util.Effect("cball_explode", e)
-				end)
-				if wreck:LookupAttachment("vehicle_engine") > 0 then
-					ParticleEffectAttach("smoke_burning_engine_01", PATTACH_POINT_FOLLOW, wreck, wreck:LookupAttachment("vehicle_engine"))
-				end
-				local e = EffectData()
-				e:SetEntity(wreck)
-				util.Effect("entity_remove", e)
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						wreck:Remove()
-					end
-				end)
-			end
-			SafeRemoveEntity(self)
-		end
-	end
-
 	function ENT:Stop()
 		self.moving = CurTime()
 		self.PatrolWaypoint = nil
@@ -293,7 +182,7 @@ if SERVER then
 		end
 
 		local class = self.v:GetClass()
-		local pos = class == "prop_vehicle_jeep" and self.v:WorldSpaceCenter() or self.v:GetPos()
+		local pos = self.v:WorldSpaceCenter()
 		pos.z = pos.z + self.v.rideheight
 
 		local tr = util.TraceLine({start = pos, endpos = (pos+(self.v:GetVelocity()*2)), mask = MASK_ALL, filter = {self, self.v, 'glide_wheel'}})
@@ -668,21 +557,31 @@ if SERVER then
 		self:SetAngles(self.v:GetPhysicsObject():GetAngles()+Angle(0,180,0))
 
 		--Flipping/crash
-		if self.v and not self.wrecked and not self.spawned and
-		(self.v:Health() < 0 and self.v:GetClass() == "prop_vehicle_jeep" or --No health 
-		self.v:GetPhysicsObject():GetAngles().z > 90 and self.v:GetPhysicsObject():GetAngles().z < 270 and (self.v.rammed or self.v:GetVelocity():LengthSqr() < 10000 and self.stuck) and CanWreck:GetBool() or --Flipped
-		self.v:WaterLevel() > 2 or --Underwater
-		self:IsOnFire()) or --On fire
-		self:IsWrecked() then --Other parameters
-			self:Wreck()
+		if UVUnitIsWrecked(self.v) then
+			UVPlayerWreck(self.v)
 		end
 
-		-- if not IsValid(self.v) or --The tied vehicle goes NULL.
-		-- not self.v:IsVehicle() or --Somehow it become non-vehicle entity.
-		-- IsValid(self.v:GetDriver()) then --It has an driver.
-		-- 	self:Wreck()
-		-- 	return
-		-- end
+		if TrafficStreaming:GetBool() then
+			local suspects = UVPotentialSuspects
+			if next(UVPotentialSuspects) ~= nil then
+				local closestsuspect
+				local closestdistancetosuspect
+				local closestscope
+				local r = math.huge
+				local closestdistancetosuspect, closestsuspect = r^2
+				local unitpos = self.v:WorldSpaceCenter()
+				for i, w in pairs(suspects) do
+					local distance = unitpos:DistToSqr(w:WorldSpaceCenter())
+					if distance < closestdistancetosuspect then
+						closestdistancetosuspect, closestsuspect = distance, w
+						closestscope = scope
+					end
+				end
+				if closestdistancetosuspect > 100000000 and self.uvmarkedfordeletion then
+					SafeRemoveEntity(self)
+				end
+			end
+		end
 		
 		self:Patrol()
 	end
@@ -746,6 +645,7 @@ if SERVER then
 					v.TrafficVehicle = self
 					v:EnableEngine(true)
 					v:StartEngine(true)
+					UVApplyVehiclePrerequisites(v)
 				end
 			elseif v.IsGlideVehicle and v.GetIsHonking then --Glide ( current way of checking if it is a valid vehicle is to check for ishonking netvar :^) )
 				if not IsValid(v:GetDriver()) then
@@ -773,30 +673,10 @@ if SERVER then
 
 					v.OnSocketDisconnect = function( car, socket )
 						for _, entity in pairs(v.UVConstrainedEntities) do
-							entity.wrecked = true
-							table.insert(UVWreckedVehicles, entity)
-							entity:CallOnRemove("UVWreckedVehicleRemoved", function()
-								if table.HasValue(UVWreckedVehicles, entity) then
-									table.RemoveByValue(UVWreckedVehicles, entity)
-								end
-							end)
-
-							local despawntime = 60
-							if #UVWantedTableVehicle > 1 then
-								despawntime = 10
-							end
-
-							timer.Simple(despawntime, function()
-								if IsValid(wreck) then
-									SafeRemoveEntity(wreck)
-								end
-							end)
+							UVPlayerWreck(entity)
 						end
 
-						if IsValid(car.TrafficVehicle) then
-							car.wrecked = nil
-							car.TrafficVehicle:Wreck()
-						end
+						UVPlayerWreck(car)
 					end
 				end
 			elseif v.LVS then
@@ -851,6 +731,7 @@ if SERVER then
 							v.TrafficVehicle = self
 							v:EnableEngine(true)
 							v:StartEngine(true)
+							UVApplyVehiclePrerequisites(v)
 						end
 					elseif v.IsGlideVehicle then --Glide
 						if not IsValid(v:GetDriver()) then
@@ -878,30 +759,10 @@ if SERVER then
 						
 							v.OnSocketDisconnect = function( car, socket )
 								for _, entity in pairs(v.UVConstrainedEntities) do
-									entity.wrecked = true
-									table.insert(UVWreckedVehicles, entity)
-									entity:CallOnRemove("UVWreckedVehicleRemoved", function()
-										if table.HasValue(UVWreckedVehicles, entity) then
-											table.RemoveByValue(UVWreckedVehicles, entity)
-										end
-									end)
-
-									local despawntime = 60
-									if #UVWantedTableVehicle > 1 then
-										despawntime = 10
-									end
-
-									timer.Simple(despawntime, function()
-										if IsValid(wreck) then
-											SafeRemoveEntity(wreck)
-										end
-									end)
+									UVPlayerWreck(entity)
 								end
 							
-								if IsValid(car.TrafficVehicle) then
-									car.wrecked = nil
-									car.TrafficVehicle:Wreck()
-								end
+								UVPlayerWreck(car)
 							end
 						end
 					end
@@ -911,15 +772,26 @@ if SERVER then
 	
 		if not IsValid(self.v) or not IsValid(self.v:GetPhysicsObject()) then SafeRemoveEntity(self) return end --When there's no vehicle, remove Traffic Vehicle.
 
+		self.v.racer = "Traffic"
+
 		if isfunction(self.v.UVVehicleInitialize) then --For vehicles that has a driver bodygroup
 			self.v:UVVehicleInitialize()
 		end
 
-		if not self.uvscripted then
+		local deletiontime = 1
+
+		if self.uvscripted then
+			timer.Simple(deletiontime, function()
+				if IsValid(self) then
+					self.uvmarkedfordeletion = true
+				end
+			end)
+		else
 			local e = EffectData()
 			e:SetEntity(self.v)
 			util.Effect("propspawn", e) --Perform a spawn effect.
 		end
+
 		if not UVTargeting then self.v:EmitSound( "vo/npc/male01/hi02.wav" ) end
 		self.mass = math.Round(self.v:GetPhysicsObject():GetMass())
 

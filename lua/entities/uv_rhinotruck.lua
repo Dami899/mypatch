@@ -59,11 +59,11 @@ if CLIENT then
 
     ENT.LightSprites = {
 
-        { type = "headlight", offset = Vector(106.5,35.38,37.53), size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ), },
-        { type = "headlight", offset = Vector(106.5,-35.38,37.53), size = 50, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
+        { type = "headlight", offset = Vector(106.5,35.38,37.53), size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
+        { type = "headlight", offset = Vector(106.5,-35.38,37.53), size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
 
-        { type = "headlight", offset = Vector(102.48,44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ), },
-        { type = "headlight", offset = Vector(102.48,-44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
+        { type = "headlight", offset = Vector(102.48,44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
+        { type = "headlight", offset = Vector(102.48,-44.13,38.4), size = 40, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
 
         { type = "taillight", offset = Vector(-125.27,41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
         { type = "taillight", offset = Vector(-125.27,-41.15,32.27), size = 40, color = Color(255,0,0,200), dir = Vector( -1, 0, 0 ), },
@@ -89,11 +89,11 @@ if CLIENT then
         { bodygroup = 3, time = 0, duration = 0.5 },
 
         -- WIG-WAG
-        { offset = Vector(106.5,35.38,37.53), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ), },
-        { offset = Vector(106.5,-35.38,37.53), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
+        { offset = Vector(106.5,35.38,37.53), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(106.5,-35.38,37.53), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
 
-        { offset = Vector(102.48,44.13,38.4), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0.5, 0 ),},
-        { offset = Vector(102.48,-44.13,38.4), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, -0.5, 0 ), },
+        { offset = Vector(102.48,44.13,38.4), time = 0, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ),},
+        { offset = Vector(102.48,-44.13,38.4), time = 0.5, duration = 0.5, size = 50, color = Color(215,240,255,255), dir = Vector( 1, 0, 0 ), },
 
         -- RED
 
@@ -169,14 +169,14 @@ if SERVER then
         return {
 		
 		
-            [-1] = 3.5,
+            [-1] = 4,
             [0] = 0,
-            [1] = 3.4,
-            [2] = 1.9,
-            [3] = 1.5,
-            [4] = 1.2,
-            [5] = 1.0,
-            [6] = 0.8,
+            [1] = 4.4,
+            [2] = 2.9,
+            [3] = 2.5,
+            [4] = 2.2,
+            [5] = 2.0,
+            [6] = 1.8,
 
 			
         }
@@ -202,8 +202,8 @@ if SERVER then
         self:SetBrakePower( 5000 )
 
         self:SetMinRPM( 700 ) 
-        self:SetMaxRPM( 18000 ) 
-        self:SetMinRPMTorque( 5200 )
+        self:SetMaxRPM( 24100 ) 
+        self:SetMinRPMTorque( 6000 )
         self:SetMaxRPMTorque( 5500 )
 
         self:SetMaxSteerAngle( 50 )
@@ -212,15 +212,15 @@ if SERVER then
         self:SetSteerConeMaxAngle( 0.20 )
 		self:SetCounterSteer ( 0.8 )
 
-        self:SetForwardTractionMax( 6000 )
+        self:SetForwardTractionMax( 10000 )
         self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 40 )
         self:SetSideTractionMaxAng( 30 )
-        self:SetSideTractionMax( 5000 ) 
-        self:SetSideTractionMin( 2000 )
+        self:SetSideTractionMax( 8000 ) 
+        self:SetSideTractionMin( 3750 )
 
 		self:SetTurboCharged( false )
-		self:SetFastTransmission( false ) 
+		self:SetFastTransmission( true ) 
 
         self:CreateWheel( Vector( 73.0, 49.0, 15.0  ), {
             model = "models/unitvehiclescars/uv_rhinotruck/uv_rhinotruck_wheel.mdl",
@@ -260,10 +260,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(13, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(14, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(15, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(16, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial()
         self:SetBodygroup( 1, 0 )
 
         self.frontdamaged = 0
@@ -310,7 +307,7 @@ if SERVER then
 
         local speed = velocityChange:Length()
 
-        if speed < 600 then return end --Minimum speed to trigger, you can adjust the speed here
+        if speed < 500 then return end --Minimum speed to trigger, you can adjust the speed here
 
         local hitpos = data.HitPos
         local forward = self:GetForward()
@@ -336,9 +333,6 @@ if SERVER then
             elseif self.frontdamaged < 2 then
                 self:SetSubMaterial(16, "models/unitvehiclescars/shared/windowdamage")
                 self.frontdamaged = 2
-            elseif self.frontdamaged < 3 then
-                self:SetSubMaterial(16, "models/unitvehiclescars/shared/windowdamage1")
-                self.frontdamaged = 3
             end
         end
 
@@ -350,14 +344,14 @@ if SERVER then
         end
 
         if lefthit then --LEFT
-            if speed < 600 and self.leftdamaged < 1 then
+            if self.leftdamaged < 1 then
                 self:SetSubMaterial(14, "models/unitvehiclescars/shared/windowdamage")
                 self.leftdamaged = 1
             end
         end
 
         if righthit then --RIGHT
-            if speed < 600 and self.rightdamaged < 1 then
+            if self.rightdamaged < 1 then
                 self:SetSubMaterial(15, "models/unitvehiclescars/shared/windowdamage")
                 self.rightdamaged = 1
             end

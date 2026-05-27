@@ -312,7 +312,7 @@ if SERVER then
 	
 	function ENT:OnRemove()
 		--By undoing, driving, diving in water, or getting stuck, and the vehicle is remaining.
-		if IsValid(self.v) and self.v:IsVehicle() then
+		if IsValid(self.v) then
 			self.v.RacerVehicle = nil
 			local steerinput = (math.random(-100, 100)) / 100
 			if self.v.IsScar then --If the vehicle is SCAR.
@@ -331,7 +331,7 @@ if SERVER then
 				end
 				self.v.PressedKeys = self.v.PressedKeys or {} --Reset key states.
 				self.v.PressedKeys["Shift"] = false
-				if self.v.uvbusted then
+				if self.v.wrecked then
 					local randomno = math.random(1, 3)
 					if randomno == 1 then
 						self.v.PressedKeys["Space"] = false
@@ -359,7 +359,7 @@ if SERVER then
 			elseif self.v.IsGlideVehicle then
 				self.v:TurnOff()
 				self.v:TriggerInput("Throttle", 0)
-				if self.v.uvbusted then
+				if self.v.wrecked then
 					local randomno = math.random(1, 4)
 					if randomno == 1 then
 						self.v:TriggerInput("Handbrake", 0)
@@ -380,6 +380,10 @@ if SERVER then
 					self.v:TriggerInput("Brake", 0)
 				end
 			end
+
+			-- if self.v.GetIsHonking then
+			self:SetHorn(false)
+			-- end
 			
 			local e = EffectData()
 			e:SetEntity(self.v)
@@ -396,6 +400,24 @@ if SERVER then
 		local tr = util.TraceLine({start = self.v:WorldSpaceCenter(), endpos = point, mask = MASK_NPCWORLDSTATIC, filter = {self, self.v, self.e}}).Fraction==1
 		return tobool(tr)
 	end
+
+	function ENT:IsWrecked()
+		if not self.v then return end
+		if self.v:IsFlagSet(FL_DISSOLVING) then return true end
+		if self.v.IsScar then
+			return self.v:IsDestroyed()
+		elseif self.v.IsSimfphyscar then
+			return self.v:GetCurHealth() <= 0 or self.v:OnFire() or self.v.destroyed
+		elseif self.v.IsGlideVehicle then
+			return self.v:GetEngineHealth() <= 0 or self.v:GetIsEngineOnFire()
+		elseif self.v.LVS then
+			local vehEngine = self.v:GetEngine()
+			return (self.v:GetHP() <= 0 or self.v.ExplodedAlready) or (vehEngine and (vehEngine:GetHP() <= 0 or vehEngine:GetDestroyed()))
+		elseif isfunction(self.v.VC_GetHealth) then
+			local health = self.v:VC_GetHealth(false)
+			return isnumber(health) and health <= 0
+		end
+	end
 	
 	function ENT:Stop()
 		if self.v.IsScar then
@@ -410,9 +432,14 @@ if SERVER then
 			self.v.PressedKeys["D"] = false
 			self.v.PressedKeys["Shift"] = false
 			self.v.PressedKeys["Space"] = true
-		elseif isfunction(self.v.SetThrottle) and isfunction(self.v.SetSteering) and isfunction(self.v.SetHandbrake) and not self.v.IsGlideVehicle then
+		elseif isfunction(self.v.SetThrottle) and not self.v.IsGlideVehicle then
 			self.v:SetThrottle(0)
-			self.v:SetSteering(0, 0)
+			if self.v.LVS then
+				self.v:SetReverse(false)
+				self.v:SetSteer(0, self.v:GetMaxSteerAngle())
+			else
+				self.v:SetSteering(0, 0)
+			end
 			if self.v:GetVelocity():LengthSqr() < 10000 then 
 				self.v:SetHandbrake(true)
 			else 
@@ -530,6 +557,12 @@ if SERVER then
 	local DEBUG_AVOIDANCE = false
 	
 	function ENT:ComputeAvoidance()
+		if not UVRaceCautious:GetBool() then return 0, nil end
+		if UVRaceCautiousRandom:GetBool() then
+			if self.__cautiousOverride == nil then self.__cautiousOverride = math.random( 0, 1 ) == 1 end
+			if not self.__cautiousOverride then return 0, nil end
+		end
+
 		local nearby = self:GetNearbyRacers()
 		if not nearby or #nearby == 0 then return 0, nil end
 
@@ -1584,6 +1617,11 @@ if SERVER then
 		--if UVTargeting then return end
 		self:SetPos(self.v:GetPos() + (vector_up * 50))
 		self:SetAngles(self.v:GetPhysicsObject():GetAngles()+Angle(0,180,0))
+
+		--Flipping/crash
+		if UVUnitIsWrecked(self.v) then
+			UVPlayerWreck(self.v)
+		end
 		
 		if self.v then
 			if self.v.raceinvited then
@@ -1596,7 +1634,7 @@ if SERVER then
 			end
 		end
 		
-		if not GetConVar("ai_ignoreplayers"):GetBool() then
+		if not GetConVar("ai_ignoreplayers"):GetBool() and not self.v.uvenginedisabled then
 			self:Race()
 		else
 			self:Stop()
@@ -1691,6 +1729,7 @@ if SERVER then
 					v.RacerVehicle = self
 					v:EnableEngine(true)
 					v:StartEngine(true)
+					UVApplyVehiclePrerequisites(v)
 					if GetConVar("unitvehicle_autohealth"):GetBool() or AutoHealthRacer:GetBool() then
 						if vcmod_main and v:GetClass() == "prop_vehicle_jeep" then
 							v:VC_repairFull_Admin()
@@ -1776,6 +1815,7 @@ if SERVER then
 							v.RacerVehicle = self
 							v:EnableEngine(true)
 							v:StartEngine(true)
+							UVApplyVehiclePrerequisites(v)
 							if GetConVar("unitvehicle_autohealth"):GetBool() or AutoHealthRacer:GetBool() then
 								if vcmod_main and v:GetClass() == "prop_vehicle_jeep" then
 									v:VC_repairFull_Admin()
@@ -1816,14 +1856,14 @@ if SERVER then
 		util.Effect("propspawn", e) --Perform a spawn effect.
 		self.v:EmitSound( "beams/beamstart5.wav" )
 		
-		if not UVNames then
-			file.AsyncRead('unitvehicles/names/Names.json', 'DATA', function( _, _, status, data )
-				UVNames = util.JSONToTable(data)
-			end, true)
-		end
+		-- if not UVNames then
+		-- 	file.AsyncRead('unitvehicles/names/Names.json', 'DATA', function( _, _, status, data )
+		-- 		UVNames = util.JSONToTable(data)
+		-- 	end, true)
+		-- end
 		
 		if not self.v.racer and UVNames then
-			self.v.racer = UVNames.Racers[math.random(1, #UVNames.Racers)]
+			self.v.racer = UVNames.Racers[math.random(1, #UVNames.Racers)] or "Racer " .. self:EntIndex()
 			local joinmessage = "Racer AI (" .. self.v.racer .. ") has joined the game"
 			
 			net.Start( "UVRacerJoin" )

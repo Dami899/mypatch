@@ -2862,7 +2862,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		local presetName = ""
 		local textbox = nil
 
-		local presetArray = presets.GetTable(st.preset)
+		local presetArray = UVPresets[st.preset]
 
 		local function addButton(name)
 			local preset = presetArray[name]
@@ -2891,11 +2891,11 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 				)
 				draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
 				if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
-				DrawWrappedText(self, name, w * 0.95, w*0.5, nil, true)
+				DrawWrappedText(self, preset, w * 0.95, w*0.5, nil, true)
 			end
 
 			btn.DoClick = function(self)
-				if st.preset == 'units' then
+				if st.preset == 'uvunitmanager' then
 					if st.importonly and st.func then st.func(self, name, preset) return end
 					UVMenu.CloseCurrentMenu(true)
 					UVMenu.PlaySFX("clickopen")
@@ -2910,10 +2910,14 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 							UnfocusClose = false,
 							Tabs = {
 								{ TabName = "uv.hm.presets.warning", Icon = "unitvehicles/icons/generic_alert.png", ShowIcon = true, 
-									{ type = "infosimple", text = string.format( UVString("uv.hm.presets.confirm"), name ) },
+									{ type = "infosimple", text = string.format( UVString("uv.hm.presets.confirm"), preset ) },
 									{ type = "button", text = "openurl.yes", prompts = {"uv.prompt.confirm"}, func = 
 									function(self2)
-										UVUnitManagerLoadPresetV2(name, preset)
+										net.Start("UVPresets_Load")
+										net.WriteString('uvunitmanager')
+										net.WriteString(name)
+										net.SendToServer()
+										--UVUnitManagerLoadPresetV2(name, preset)
 										UVMenu.PlaySFX("clickopen")
 										UVMenu.CloseCurrentMenu(true)
 										timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
@@ -2941,8 +2945,8 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			end
 
 			btn.DoRightClick = function(self)
-				textbox:SetValue(name)
-				presetName = name
+				textbox:SetValue(preset)
+				presetName = preset
 			end
 					
 			btn.OnCursorEntered = function() 
@@ -2975,58 +2979,58 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 		refreshButtons()
 
-		local exportPanel
-		if not st.importonly then
-			exportPanel = vgui.Create("DButton", panel)
-			exportPanel:Dock(BOTTOM)
-			exportPanel:DockMargin(6, 6, 6, 6)
-			exportPanel:SetWide(UV.ScaleW(450))
-			exportPanel:SetText(" ")
-			function exportPanel:PerformLayout()
-				local text = UVString("uv.hm.presets.export")
-				local w = self:GetWide()
-				if w <= 0 then return end
-				local newTall = math.max(UV.ScaleH(30), GetDynamicTall(text, w * 0.95))
-				if self:GetTall() ~= newTall then self:SetTall(newTall) end
-			end
-			exportPanel.Paint = function(self, w, h)
-				local hovered = self:IsHovered()
-				local default = Color( 
-					GetConVar("uvmenu_col_button_r"):GetInt(),
-					GetConVar("uvmenu_col_button_g"):GetInt(),
-					GetConVar("uvmenu_col_button_b"):GetInt(),
-					GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
-				)
-				local hover = Color( 
-					GetConVar("uvmenu_col_button_hover_r"):GetInt(),
-					GetConVar("uvmenu_col_button_hover_g"):GetInt(),
-					GetConVar("uvmenu_col_button_hover_b"):GetInt(),
-					GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
-				)
-				draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
-				if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
-				DrawWrappedText(self, UVString("uv.hm.presets.export"), w * 0.95, w*0.5, nil, true, nil, nil, 
-				presetName == "" and Color(255,255,255,50) or nil)
-			end
+		-- local exportPanel
+		-- if not st.importonly then
+		-- 	exportPanel = vgui.Create("DButton", panel)
+		-- 	exportPanel:Dock(BOTTOM)
+		-- 	exportPanel:DockMargin(6, 6, 6, 6)
+		-- 	exportPanel:SetWide(UV.ScaleW(450))
+		-- 	exportPanel:SetText(" ")
+		-- 	function exportPanel:PerformLayout()
+		-- 		local text = UVString("uv.hm.presets.export")
+		-- 		local w = self:GetWide()
+		-- 		if w <= 0 then return end
+		-- 		local newTall = math.max(UV.ScaleH(30), GetDynamicTall(text, w * 0.95))
+		-- 		if self:GetTall() ~= newTall then self:SetTall(newTall) end
+		-- 	end
+		-- 	exportPanel.Paint = function(self, w, h)
+		-- 		local hovered = self:IsHovered()
+		-- 		local default = Color( 
+		-- 			GetConVar("uvmenu_col_button_r"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_g"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_b"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_a"):GetInt() * (presetName == "" and 0.1 or 1)
+		-- 		)
+		-- 		local hover = Color( 
+		-- 			GetConVar("uvmenu_col_button_hover_r"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_hover_g"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_hover_b"):GetInt(),
+		-- 			GetConVar("uvmenu_col_button_hover_a"):GetInt() * math.abs(math.sin(RealTime()*4)) * (presetName == "" and 0.1 or 1)
+		-- 		)
+		-- 		draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, default)
+		-- 		if hovered then draw.RoundedBox(12, w*0.0125, 0, w*0.9875, h, hover) end
+		-- 		DrawWrappedText(self, UVString("uv.hm.presets.export"), w * 0.95, w*0.5, nil, true, nil, nil, 
+		-- 		presetName == "" and Color(255,255,255,50) or nil)
+		-- 	end
 
-			exportPanel.OnCursorEntered = function()
-				if descPanel then descPanel.Desc = "uv.hm.presets.export.desc" end
-				if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.export" } end
-			end
+		-- 	exportPanel.OnCursorEntered = function()
+		-- 		if descPanel then descPanel.Desc = "uv.hm.presets.export.desc" end
+		-- 		if promptBar and presetName ~= "" then promptBar.Prompts = { "uv.prompt.export" } end
+		-- 	end
 			
-			exportPanel.OnCursorExited = function()
-				if descPanel then descPanel.Desc = "" end
-				if promptBar then promptBar.Prompts = nil end
-			end
+		-- 	exportPanel.OnCursorExited = function()
+		-- 		if descPanel then descPanel.Desc = "" end
+		-- 		if promptBar then promptBar.Prompts = nil end
+		-- 	end
 			
-			exportPanel.DoClick = function(self)
-				if string.Trim(presetName) ~= "" then
-					UVUnitManagerExportPreset(presetName)
-				else
-					notification.AddLegacy(UVString("uv.hm.presets.presetname.require"), NOTIFY_UNDO, 5)
-				end
-			end
-		end
+		-- 	exportPanel.DoClick = function(self)
+		-- 		if string.Trim(presetName) ~= "" then
+		-- 			UVUnitManagerExportPreset(presetName)
+		-- 		else
+		-- 			notification.AddLegacy(UVString("uv.hm.presets.presetname.require"), NOTIFY_UNDO, 5)
+		-- 		end
+		-- 	end
+		-- end
 
 		--
 
@@ -3094,20 +3098,32 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			saveBtn.DoClick = function(self)
 				presetName = textbox:GetValue()
 				
-				if st.preset == 'units' then
+				if st.preset == 'uvunitmanager' then
 					local data = {}
 
-					for key, value in pairs(UVUnitsConVars) do
-						local newKey = 'unitvehicle_unit_' .. key
-						local convar = GetConVar(newKey)
-						if convar then
-							data[newKey] = convar:GetString()
-						end
-					end
+					-- for key, value in pairs(UVUnitsConVars) do
+					-- 	local newKey = 'unitvehicle_unit_' .. key
+					-- 	local convar = GetConVar(newKey)
+					-- 	if convar then
+					-- 		data[newKey] = convar:GetString()
+					-- 	end
+					-- end
 
 					if string.Trim(presetName) ~= "" then
-						presets.Add(st.preset, presetName, data)
-						presetArray[presetName] = data
+						-- local presetFile
+
+						-- for file, name in pairs(presetArray) do
+						-- 	if name == presetName then
+						-- 		presetFile = file
+						-- 		break
+						-- 	end
+						-- end
+
+						net.Start("UVPresets_Save")
+						net.WriteString('uvunitmanager')
+						net.WriteString(presetName)
+						net.SendToServer()
+						--presets.Add(st.preset, presetName, data)
 						refreshButtons()
 						notification.AddLegacy(string.format(UVString("uv.tool.saved"), presetName), NOTIFY_UNDO, 5)
 					else
@@ -3163,11 +3179,27 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 
 			deleteBtn.DoClick = function(self)
 				if string.Trim(presetName) ~= "" then
-					if presets.Exists(st.preset, presetName) then 
-						presets.Remove(st.preset, presetName)
-						presetArray[presetName] = nil
-						notification.AddLegacy(string.format(UVString("uv.tool.deleted"), presetName), NOTIFY_UNDO, 5)
-					end			
+					local presetFile
+
+					for file, name in pairs(presetArray) do
+						if name == presetName then
+							presetFile = file
+							break
+						end
+					end
+					
+					net.Start("UVPresets_Remove")
+					net.WriteString('uvunitmanager')
+					net.WriteString(presetFile)
+					net.SendToServer()
+
+					presetArray[presetFile] = nil
+					notification.AddLegacy(string.format(UVString("uv.tool.deleted"), presetName), NOTIFY_UNDO, 5)
+					-- if presets.Exists(st.preset, presetName) then 
+					-- 	presets.Remove(st.preset, presetName)
+					-- 	presetArray[presetName] = nil
+					-- 	notification.AddLegacy(string.format(UVString("uv.tool.deleted"), presetName), NOTIFY_UNDO, 5)
+					-- end			
 				end
 			end
 
@@ -3245,10 +3277,10 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 		end
 
 		local vehicleBases = {
-			{ id = 1, name = "HL2",      path = "unitvehicles/prop_vehicle_jeep/units/", type = "txt"  },
-			{ id = 2, name = "Simfphys", path = "unitvehicles/simfphys/units/",           type = "txt"  },
-			{ id = 3, name = "Glide",    path = "unitvehicles/glide/units/",               type = "json" },
-			{ id = 4, name = "LVS",      path = "unitvehicles/lvs/units/",                 type = "json" }
+			{ id = 1, name = "HL2",      path = "prop_vehicle_jeep>>units", type = "txt"  },
+			{ id = 2, name = "Simfphys", path = "simfphys>>units",           type = "txt"  },
+			{ id = 3, name = "Glide",    path = "glide>>units",               type = "json" },
+			{ id = 4, name = "LVS",      path = "lvs>>units",                 type = "json" }
 		}
 		
 		local activeFilterBaseId = 0 -- 0 = show all
@@ -3347,7 +3379,7 @@ function UV.BuildSetting(parent, st, descPanel, promptBar)
 			local entries = {}
 
 			for _, base in ipairs(vehicleBases) do
-				local files = file.Find(base.path .. "*." .. base.type, "DATA") or {}
+				local files = UV_GetFiles( base.path ) or {}
 				for _, filename in ipairs(files) do
 					table.insert(entries, {
 						filename = filename, -- stored value

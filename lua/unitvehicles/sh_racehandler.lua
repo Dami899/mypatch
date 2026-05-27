@@ -27,6 +27,9 @@ UVRaceCatchup = CreateConVar( "unitvehicle_racercatchup", 0, {FCVAR_ARCHIVE, FCV
 UVRaceCatchupGap = CreateConVar( "unitvehicle_racercatchup_gap", 2, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "How far behind AI racers need to be to activate it." )
 UVRaceReverseCatchup = CreateConVar( "unitvehicle_racercatchup_rev", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enables catch-up mode for AI racers." )
 UVRaceReverseCatchupGap = CreateConVar( "unitvehicle_racercatchup_rev_gap", 2, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "How far behind AI racers need to be to activate it." )
+UVRaceCautious = CreateConVar( "unitvehicle_racercautious", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enables cautious mode for AI racers, making them more aware of other racers and less aggressive." )
+UVRaceCautiousRandom = CreateConVar( "unitvehicle_racercautiousrandomness", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Whether to randomize the cautious mode for AI racers, unitvehicle_racercautious must be ENABLED." )
+UVRaceLegacySpawn = CreateConVar( "unitvehicle_racelegacyspawn", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Whether to use the legacy spawn method for spawning racers on grid slots." )
 
 UVMenuFirstCreate = CreateConVar( "unitvehicle_uvmenu_firstsetup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, whenever you open the UV Menu via the Context Menu, you'll be prompted to go through the first-time setup." )
 
@@ -247,15 +250,260 @@ function UVFormLeaderboard(racers, overrideVehicle)
 	return sorted_table, leaderboardLines
 end
 
+UVRaceList = {}
+
 if SERVER then	
 	UVRaceTable = {}
 	UVRaceCurrentParticipants = {}
 	UVRaceStartTime = CurTime()
 	
+	UVRace_LoadedEntities = {}
+	UVRace_LoadedConstraints = {}
+	UVRace_Nodes = UVRace_Nodes or {}
+	UVRace_CompiledPaths = UVRace_CompiledPaths or {}
+	
 	UVRaceInvites = UVRaceInvites or {}
 	UVRaceFirstSplitTriggered = UVRaceFirstSplitTriggered or false
 
+	-- For now I am sending all races to clients
+	-- Perhaps we can send them on demand in the future ?
+
+	hook.Add( "UVContentEvent", "UVRaceHandler_OnContentUpdate", function( operation, path, fileName )
+		if operation ~= "Initialize" and path ~= 'races>>' .. game.GetMap() then return end
+
+		-- JSON files are not races, they are race "extra" data
+		-- Main race files are the TXT files
+		if operation ~= "Initialize" and string.EndsWith( fileName, ".json" ) then return end
+		
+		if operation == "Add" or operation == "Refresh" then
+			UV_AddRace( fileName )
+		elseif operation == "Remove" then
+			UV_RemoveRace( fileName )
+		elseif operation == "Initialize" then
+			UV_PopulateRaceList()
+		end
+	end )
+
 	local dvd = DecentVehicleDestination
+
+	local function extractFullRaceName( headerSplit )
+		local raceName = ''
+		local splitCopy = table.Copy(headerSplit)
+	
+		table.remove(splitCopy, 1)
+	
+		for _, v in ipairs(splitCopy) do
+			if string.sub(v, 1, 1) == "'" then break end
+			raceName = raceName .. v .. " "
+		end
+	
+		return raceName
+	end
+
+	local function ParseRaceFile( path, fileName )
+		local content = UV_LoadFile( path, fileName )
+		if not content then return nil end
+	
+		local lines = string.Split(content, "\n")
+		local header = lines[1] or ""
+		local params = string.Split(header, " ")
+		local raceName = extractFullRaceName( params ) or "Unknown"
+		local author = header:match("'(.-)'") or "Unknown"
+		local propCount = 0
+		local nodeCount = 0
+		local checkpointCount = 0
+		local spawnCount = 0
+	
+		-- for _, line in ipairs(lines) do
+		-- 	if string.match(line, "^%d+%s") then
+		-- 		local t = string.Explode(" ", line)
+		-- 		local id = tonumber(t[1])
+		-- 		if id and #t >= 8 then
+		-- 			if not checkpoints[id] then
+		-- 				checkpoints[id] = {}
+		-- 				table.insert(idList, id)
+		-- 			end
+		-- 			table.insert(checkpoints[id], {
+		-- 				start = Vector(tonumber(t[2]), tonumber(t[3]), tonumber(t[4])),
+		-- 				endp  = Vector(tonumber(t[5]), tonumber(t[6]), tonumber(t[7])),
+		-- 			})
+		-- 		end
+		-- 	elseif string.match(line, "^spawn") then
+		-- 		local t = string.Explode(" ", line)
+		-- 		if #t >= 6 then
+		-- 			table.insert(spawns, Vector(tonumber(t[2]), tonumber(t[3]), tonumber(t[4])))
+		-- 		end
+		-- 	end
+		-- end
+
+		for _, line in ipairs(lines) do
+			if string.match(line, "^%d+%s") then
+				local t = string.Explode(" ", line)
+				local id = tonumber(t[1])
+				if id and #t >= 8 then
+					checkpointCount = checkpointCount + 1
+				end
+			elseif string.match(line, "^spawn") then
+				spawnCount = spawnCount + 1
+			end
+		end
+		
+		local jsonContent = UV_LoadFile( path, string.Replace( fileName, ".txt", ".json" ) )
+		if jsonContent then
+			local jsonData = util.JSONToTable(jsonContent)
+			
+			if jsonData then
+				-- Count props (duplicator saves entities inside an array-style table)
+				if jsonData.Entities and istable(jsonData.Entities) then
+					for _, ent in pairs(jsonData.Entities) do
+						if istable(ent) and ent.Class then
+							-- Optional: only count actual props
+							if string.StartWith(ent.Class, "prop_") then
+								propCount = propCount + 1
+							end
+						end
+					end
+				end
+								
+				-- Count path nodes
+				if jsonData.Nodes and istable(jsonData.Nodes) then
+					nodeCount = table.Count(jsonData.Nodes)
+				end
+			end
+		end
+	
+		return {
+			name = raceName:Replace("_", " "),
+			author = author,
+			checkpoints = checkpointCount,
+			spawns = spawnCount,
+			props = propCount,
+			nodes = nodeCount,
+		}
+	end
+
+	function UV_SendRaceList( ply )
+		local compressedList = util.Compress( util.TableToJSON( UVRaceList ) )
+
+		net.Start( "UVRace_RaceList_Set" )
+		net.WriteUInt( #compressedList, 16 )
+		net.WriteData( compressedList, #compressedList )
+		net.Send( ply )
+	end
+
+	function UV_RemoveRace( raceFile )
+		for i, v in ipairs(UVRaceList) do
+			if v.file == raceFile then
+				table.remove( UVRaceList, i )
+				break
+			end
+		end
+
+		net.Start( "UVRace_RaceList_Remove" )
+		net.WriteString( raceFile )
+		net.Broadcast()
+	end
+
+	function UV_AddRace( raceFile )
+		local raceData = ParseRaceFile( 'races>>' .. game.GetMap(), raceFile )
+
+		local raceEntry = {
+			file = raceFile,
+			data = raceData
+		}
+
+		table.insert( UVRaceList, raceEntry )
+
+		local compressedEntry = util.Compress( util.TableToJSON( raceEntry ) )
+		local msgSize = #compressedEntry
+
+		net.Start( "UVRace_RaceList_Add" )
+		net.WriteUInt( msgSize, 16 )
+		net.WriteData( compressedEntry, msgSize )
+		net.Broadcast()
+	end
+
+	function UV_PopulateRaceList()
+		local races = UV_GetFiles( 'races>>' .. game.GetMap() )
+
+		for _, race in ipairs(races) do
+			if string.EndsWith( race, ".json" ) then continue end
+			local raceData = ParseRaceFile( 'races>>' .. game.GetMap(), race )
+
+			table.insert( UVRaceList, {
+				file = race,
+				data = raceData
+			} )
+		end
+		
+		local compressedList = util.Compress( util.TableToJSON( UVRaceList ) )
+		local msgSize = #compressedList
+
+		net.Start( "UVRace_RaceList_Set" )
+		net.WriteUInt( msgSize, 16 )
+		net.WriteData( compressedList, msgSize )
+		net.Broadcast()
+	end
+
+	function UVRace_BuildCompiledPaths(step)
+		local compiled = {}
+
+		for fromID, node in pairs(UVRace_Nodes) do
+			for toID in pairs(node.Links) do
+				local other = UVRace_Nodes[toID]
+				if other then
+					compiled[#compiled + 1] = {
+						From = fromID,
+						To = toID,
+						Points = UVRace_GenerateInternalPath(node, other, step),
+						StartSpeed = node.SpeedLimit or 0,
+						EndSpeed = other.SpeedLimit or 0
+					}
+				end
+			end
+		end
+
+		return compiled
+	end
+
+	function UVRace_RebuildCompiledPaths()
+		UVRace_CompiledPaths = {}
+
+		for fromID, node in pairs(UVRace_Nodes) do
+			for toID in pairs(node.Links) do
+				local other = UVRace_Nodes[toID]
+				if not other then continue end
+
+				local points = UVRace_GenerateInternalPath(node, other, 200)
+				if not points or #points < 2 then continue end
+
+				UVRace_CompiledPaths[#UVRace_CompiledPaths + 1] = {
+					From = fromID,
+					To = toID,
+					Points = points,
+					StartSpeed = node.SpeedLimit or 0,
+					EndSpeed = other.SpeedLimit or 0
+				}
+			end
+		end
+	end
+
+	function UVRaceClearNodes()
+		for id, _ in pairs(UVRace_Nodes) do
+			-- Inform clients to remove the node
+			net.Start("UVRace_NodeRemove")
+				net.WriteUInt(id, 16)
+			net.Broadcast()
+		end
+
+		UVRace_Nodes = {}
+		UVRace_NextNodeID = 0
+
+		net.Start("UVRace_ClearAllNodes")
+		net.Broadcast()
+		
+		UVRace_RebuildCompiledPaths()
+	end
 
 	function UVRaceCheckFinishLine()
 		local checkpoints = ents.FindByClass( "uvrace_checkpoint" )
@@ -554,6 +802,8 @@ if SERVER then
 				net.WriteInt( starttimer, 11 )
 				net.Send( driver )
 			end
+
+			UVSetVehicleActive( vehicle, true )
 		end
 
 		net.Start( "uvrace_info" )
@@ -756,11 +1006,9 @@ if SERVER then
 		-- Damage check
 		if UVCheckIfWrecked(vehicle) and not vehicle.hasreset then
 			UVRaceRemoveParticipant( vehicle, 'Disqualified' )
-			timer.Simple(60, function()
-				if IsValid(vehicle) then
-					vehicle:Remove()
-				end
-			end)
+			
+			UVPlayerWreck(vehicle)
+
 			return
 		end
 	end
@@ -1114,6 +1362,8 @@ if SERVER then
 		if not ply:IsSuperAdmin() then return end
 		if UVRaceInEffect then return end
 
+		UVRaceInEffect = true
+
 		if UVCounterActive then
 			net.Start("uvrace_decline")
 			net.WriteString("uv.race.start.error.startingpursuit")
@@ -1128,7 +1378,7 @@ if SERVER then
 		-- 	return
 		-- end
 
-		RunConsoleCommand("uv_despawnvehicles")
+		UV_DespawnVehicles()
 
 		
 		for v, _ in pairs( UVUnitVehicles ) do
@@ -1166,7 +1416,14 @@ if SERVER then
 					CFtoggleSpeedbreaker(v, false)
 				end
 
-				local ent = UVMoveToGridSlot(v, not (driver and driver:IsPlayer()))
+				local ent = nil
+
+				if UVRaceLegacySpawn:GetBool() then
+					ent = UVMoveToGridSlotLegacy(v, not (driver and driver:IsPlayer()))
+				else
+					ent = UVMoveToGridSlot(v)
+				end
+
 				if ent then
 					ready_drivers = ready_drivers + 1
 				else
@@ -1258,8 +1515,8 @@ if SERVER then
 	
 	local function Import(ply, cmd, args)
 		if not ply:IsSuperAdmin() then return end
-		local filename = "unitvehicles/races/" .. game.GetMap() .. "/" .. args[1]
-		if not file.Exists(filename, "DATA") then return end
+		local raceBaseData = UV_LoadFile( 'races>>' .. game.GetMap(), args[1] )
+		if not raceBaseData then return end
 
 		if UVRace_LoadedWaypoints then
 			--dvd.Waypoints = {}
@@ -1280,13 +1537,12 @@ if SERVER then
 
 		UVRaceClearNodes()
 
-		local jsonfilename = string.Replace( "unitvehicles/races/" .. game.GetMap() .. "/" .. args[1], ".txt", ".json" )
-		if file.Exists(jsonfilename, "DATA") then 
-			UVLoadRace( file.Read(jsonfilename) )
-		end
+		local jsonfilename = string.Replace( args[1], ".txt", ".json" )
+		local raceExtraData = UV_LoadFile( 'races>>' .. game.GetMap(), jsonfilename )
+		if raceExtraData then UVLoadRace( raceExtraData ) end
 		
 		timer.Simple(0.2, function()
-			local entList = file.Read(filename, "DATA"):Split("\n")
+			local entList = raceBaseData:Split("\n")
 
 			local metaLine = entList[1]
 			local trackName, author = "UNKNOWN", "UNKNOWN"
@@ -1312,8 +1568,10 @@ if SERVER then
 				ent:Remove()
 			end
 
-			undo.Create("UVRaceEnt")
-			undo.SetPlayer(ply)
+			if not UVGame then
+				undo.Create("UVRaceEnt")
+				undo.SetPlayer(ply)
+			end
 
 			for _, data in ipairs(entList) do
 				local params = data:Split(" ")
@@ -1346,8 +1604,10 @@ if SERVER then
 					end
 					check:Spawn()
 
-					undo.AddEntity(check)
-					ply:AddCleanup("uvrace_ents", check)
+					if not UVGame then
+						undo.AddEntity(check)
+						ply:AddCleanup("uvrace_ents", check)
+					end
 				elseif params[1] == "spawn" then
 					local spawn = ents.Create("uvrace_spawn")
 
@@ -1361,27 +1621,30 @@ if SERVER then
 
 					spawn:Spawn()
 
-					undo.AddEntity(spawn)
-					ply:AddCleanup("uvrace_ents", spawn)
+					if not UVGame then
+						undo.AddEntity(spawn)
+						ply:AddCleanup("uvrace_ents", spawn)
+					end
 				end
 			end
 
-			undo.AddFunction(function(undoTable, ent)
-				if UVRace_LoadedWaypoints then
-					--concommand.Run()
-					dvd.LoadWaypoints( 'decentvehicle/' .. game.GetMap() )
-					UVRace_LoadedWaypoints = false
-				end
+			if not UVGame then
+				undo.AddFunction(function(undoTable, ent)
+					if UVRace_LoadedWaypoints then
+						--concommand.Run()
+						dvd.LoadWaypoints( 'decentvehicle/' .. game.GetMap() )
+						UVRace_LoadedWaypoints = false
+					end
 
-				UVRaceEnd()
-				UVCounterActive = false
-				UVRaceCurrentHost = nil
-		
-				net.Start( "uvrace_end" )
-				net.Broadcast()
-			end)
-
-			undo.Finish()
+					UVRaceEnd()
+					UVCounterActive = false
+					UVRaceCurrentHost = nil
+				
+					net.Start( "uvrace_end" )
+					net.Broadcast()
+				end)
+				undo.Finish()
+			end
 
 			local tname = args[1]:Split(".")[2]
 
@@ -2006,6 +2269,14 @@ else -- CLIENT stuff
 		if not UVPlayingRace then return end
 		UVTraxPlayNextTrack( "race", -1 )
 	end)
+	
+	concommand.Add("uvrace_queryimport", function()
+		UVMenu.OpenMenu(UVMenu.RaceManagerTrackSelect, true)
+	end)
+	
+	concommand.Add("uvrace_racemenu", function()
+		UVMenu.OpenMenu(UVMenu.RaceManagerStartRace, true)
+	end)
 
 	net.Receive( "uvrace_notification", function()
 		UVRaceNotify( net.ReadString(), net.ReadFloat() )
@@ -2489,6 +2760,41 @@ else -- CLIENT stuff
 		hook.Run("UIEventHook", "racing", "onRaceStartTimer", { starttime = time })
 	end)
 
+	net.Receive( "UVRace_RaceList_Set", function()
+		local msgSize = net.ReadUInt( 16 )
+		local compressedList = net.ReadData( msgSize )
+
+		local list = util.JSONToTable( util.Decompress( compressedList ) )
+		UVRaceList = list
+	end )
+
+	net.Receive( "UVRace_RaceList_Add", function()
+		local msgSize = net.ReadUInt( 16 )
+		local compressedList = net.ReadData( msgSize )
+
+		local list = util.JSONToTable( util.Decompress( compressedList ) )
+
+		for i, v in ipairs( UVRaceList ) do
+			if v.file == list.file then
+				UVRaceList[i] = list
+				return
+			end
+		end
+
+		table.insert( UVRaceList, list )
+	end )
+
+	net.Receive( "UVRace_RaceList_Remove", function()
+		local fileName = net.ReadString()
+		
+		for i, race in ipairs(UVRaceList) do
+			if race.filename == fileName then
+				table.remove( UVRaceList, i )
+				break
+			end
+		end
+	end )
+
 	local ALLOWED_SPEEDOMETER_CLASSES = {
 		'base_glide_car',
 		'base_glide_bike',
@@ -2515,7 +2821,7 @@ else -- CLIENT stuff
 		local speedotype = GetConVar("unitvehicle_speedometer"):GetString()
 
 		-- Custom speedometer code
-		if UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.speedometer[speedotype] and UV_UI.speedometer[speedotype].main) and table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, Glide.currentVehicle.BaseClass.ClassName ) then
+		if Glide and UVGlideSpeedometer:GetBool() and IsValid(Glide.currentVehicle) and (UV_UI.speedometer[speedotype] and UV_UI.speedometer[speedotype].main) and table.HasValue( ALLOWED_SPEEDOMETER_CLASSES, Glide.currentVehicle.BaseClass.ClassName ) then
 			local speed = Glide.currentVehicle:GetVelocity():Length()
 
 			-- smooth it (adjust 8–12 for responsiveness)
@@ -2914,10 +3220,7 @@ else -- CLIENT stuff
 				local curblip = GMinimap:FindBlipByID("UVBlip" .. vehicle:EntIndex())
 				if not curblip then continue end
 
-				if UVHUDCopMode and ((UVHUDCopMode and UVHUDDisplayCooldown) or 
-					(tonumber(UVUnitsChasing) <= 0 or not vehicle.inunitview) and 
-					not ((not GetConVar("unitvehicle_unit_onecommanderevading"):GetBool()) and UVOneCommanderActive)) 
-				then
+				if UVHUDCopMode and ((UVHUDCopMode and UVHUDDisplayCooldown) or (tonumber(UVUnitsChasing) <= 0 or not vehicle.inunitview)) then
 					curblip.alpha = 0
 				else
 					curblip.alpha = 255

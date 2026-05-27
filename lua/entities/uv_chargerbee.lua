@@ -117,12 +117,12 @@ if CLIENT then
 	-- RED
     
         { offset = Vector(108.35,-10.71,24.35), ifBodygroupId = 1, ifSubModelId = 0, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(110.41,-10.58,23.48), ifBodygroupId = 1, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(113.15,-10.07,23), ifBodygroupId = 1, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(109.39,-10.12,23.19), ifBodygroupId = 1, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(111.19,-9.39,21.94), ifBodygroupId = 1, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( 1, 0, 0 ), },
 
         { offset = Vector(-113.81,14.67,18.83), ifBodygroupId = 2, ifSubModelId = 0, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-114.8,14.18,17.61), ifBodygroupId = 2, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-118.22,12.38,14.19), ifBodygroupId = 2, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-114.9,14.11,17.93), ifBodygroupId = 2, ifSubModelId = 1, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-117.12,12.68,15.63), ifBodygroupId = 2, ifSubModelId = 2, time = 0, duration = 0.5, size = 50, color = Color(255,30,0), dir = Vector( -1, 0, 0 ), },
 
         { offset = Vector(-16.2,22.25,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
         { offset = Vector(-16.2,15.92,62.36), time = 0, duration = 0.5, size = 50, color = Color(255,30,0), },
@@ -140,12 +140,12 @@ if CLIENT then
 	-- BLUE
 
         { offset = Vector(108.35,10.71,24.35), ifBodygroupId = 1, ifSubModelId = 0, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(109.69,10.64,23.91), ifBodygroupId = 1, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
-        { offset = Vector(111.2,10.91,23.77), ifBodygroupId = 1, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(108.99,11.08,23.66), ifBodygroupId = 1, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
+        { offset = Vector(109.95,11.74,22.96), ifBodygroupId = 1, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( 1, 0, 0 ), },
 
         { offset = Vector(-113.81,-14.67,18.83), ifBodygroupId = 2, ifSubModelId = 0, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-114.38,-15.14,18.49), ifBodygroupId = 2, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
-        { offset = Vector(-115.65,-16.66,16.95), ifBodygroupId = 2, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-113.81,-14.67,18.83), ifBodygroupId = 2, ifSubModelId = 1, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
+        { offset = Vector(-115.15,-16.06,17.8), ifBodygroupId = 2, ifSubModelId = 2, time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), dir = Vector( -1, 0, 0 ), },
         
         { offset = Vector(-16.2,9.53,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
         { offset = Vector(-16.2,3.24,62.36), time = 0.5, duration = 0.5, size = 50, color = Color(0,115,255), },
@@ -207,8 +207,6 @@ if SERVER then
             [3] = 1.6,
             [4] = 1.25,
             [5] = 0.95,
-            [6] = 0.75,
-
 			
         }
 		
@@ -237,7 +235,7 @@ if SERVER then
         self:SetBrakePower( 3000 )
         
         self:SetMinRPM( 800 ) 
-        self:SetMaxRPM( 18000 ) 
+        self:SetMaxRPM( 19000 ) 
         self:SetMinRPMTorque( 5200 )
         self:SetMaxRPMTorque( 4900 )
         
@@ -247,15 +245,15 @@ if SERVER then
         self:SetSteerConeMaxAngle( 0.25 )
 		self:SetCounterSteer ( 0.8 )
         
-        self:SetForwardTractionMax( 6000 )
+        self:SetForwardTractionMax( 7000 )
         self:SetForwardTractionBias( 0 )
         self:SetSideTractionMultiplier( 30 )
         self:SetSideTractionMaxAng( 30 )
-        self:SetSideTractionMax( 4500 ) 
-        self:SetSideTractionMin( 1250 )
+        self:SetSideTractionMax( 5000 ) 
+        self:SetSideTractionMin( 2250 )
 
 		self:SetTurboCharged( false )
-		self:SetFastTransmission( false ) 
+		self:SetFastTransmission( true ) 
 
         self:CreateWheel( Vector(72.5,34.8,13.3), {
             model = "models/unitvehiclescars/uv_chargerbee/uv_chargerbee_wheel.mdl",
@@ -310,13 +308,7 @@ if SERVER then
         self:UpdateHealthOutputs()
 
         --reset bodygroups/submaterials
-        self:SetSubMaterial(7, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(8, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(9, "models/unitvehiclescars/shared/defroster")
-        self:SetSubMaterial(18, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(19, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(20, "models/unitvehiclescars/shared/headlightglass")
-        self:SetSubMaterial(21, "models/unitvehiclescars/shared/headlightglass")
+        self:SetSubMaterial()
         self:SetBodygroup( 1, 0 )
         self:SetBodygroup( 2, 0 )
         self:SetBodygroup( 3, 0 )
@@ -395,8 +387,11 @@ if SERVER then
         self.leftdamaged = self.leftdamaged or 0
         self.rightdamaged = self.rightdamaged or 0
 
-        --Tip: You can adjust the speed to make the damage more or less sensitive
-        --If you wanna add more damage levels, just add more elseif statements
+        local enginehealth = self:GetEngineHealth()
+
+        if enginehealth < .5 then --BASE
+            self:SetSubMaterial(12, "models/unitvehiclescars/uv_chargerbee/skin_0dam")
+        end
 
         if fronthit then --FRONT
             if speed < 3000 and self.frontdamaged < 1 then
@@ -423,6 +418,9 @@ if SERVER then
                     self:DetachGibs(gibmodels)
                 end)
                 self.frontdamaged = 3
+            elseif self.frontdamaged < 4 then
+                self:SetSubMaterial(7, "models/unitvehiclescars/shared/windowdamage1")
+                self.frontdamaged = 4
             end
         end
 
@@ -476,7 +474,7 @@ if SERVER then
         end
 
         if lefthit then --LEFT
-            if speed < 500 and self.leftdamaged < 1 then
+            if self.leftdamaged < 1 then
                 self:SetBodygroup( 6, 1 )
                 self:SetBodygroup( 8, 1 )
                 self:SetBodygroup( 10, 0 )
@@ -505,7 +503,7 @@ if SERVER then
         end
 
         if righthit then --RIGHT
-            if speed < 500 and self.rightdamaged < 1 then
+            if self.rightdamaged < 1 then
                 self:SetBodygroup( 7, 1 )
                 self:SetBodygroup( 9, 1 )
                 self:SetBodygroup( 11, 0 )

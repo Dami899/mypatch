@@ -252,15 +252,12 @@ if SERVER then
 		PRELOADED_ROADBLOCKS = {}
 
 		local mapName = game.GetMap()
-		local roadblocks = file.Find( "unitvehicles/roadblocks/"..mapName.."/*.json", "DATA" )
-
-		if not roadblocks then return end
-		if next(roadblocks) == nil then return end
+		local roadblocks = UV_GetFiles( "roadblocks>>"..mapName )
 
 		for _, jsonfile in ipairs(roadblocks) do
-			local json  = file.Read( "unitvehicles/roadblocks/"..mapName.."/"..jsonfile, "DATA" )
+			local json  = UV_LoadFile( "roadblocks>>"..mapName, jsonfile )
 			local rbdata = util.JSONToTable( json or "", true )
-			if rbdata then table.insert( PRELOADED_ROADBLOCKS, rbdata ) print("Preloaded roadblock: "..jsonfile) end
+			if rbdata then table.insert( PRELOADED_ROADBLOCKS, rbdata ) end
 		end
 	end
 

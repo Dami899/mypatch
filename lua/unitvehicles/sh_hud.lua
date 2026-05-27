@@ -566,7 +566,7 @@ if CLIENT then
 		end
 	end )
 
-    local isUVFrozen = false
+    IsUVFrozen = false
     local effectDuration = 0
     local UVFreezeTime = 0
 
@@ -580,7 +580,7 @@ if CLIENT then
         effectDuration = net.ReadFloat()
         copEnt = net.ReadEntity()
 
-        isUVFrozen = true
+        IsUVFrozen = true
         UVFreezeTime = RealTime() + effectDuration
         transitionStart = RealTime()
 
@@ -602,7 +602,7 @@ if CLIENT then
     end)
 
     net.Receive("UVSpottedUnfreeze", function()
-        isUVFrozen = false
+        IsUVFrozen = false
 
         -- LocalPlayer():SetNoDraw(false)
         -- local hands = LocalPlayer():GetHands()
@@ -634,7 +634,7 @@ if CLIENT then
         local isVehicleValid = IsValid(UVLastVehicleDriven)
 
         --Spotted (SINGLEPLAYER)
-        if isUVFrozen and IsValid(copEnt) then
+        if IsUVFrozen and IsValid(copEnt) then
 
             local t = math.Clamp((RealTime() - transitionStart) / cameraTransitionTime, 0, 1)
 
@@ -1625,6 +1625,63 @@ function UVRenderCommander(ent)
     end
 end
 
+local function FormatBountyShort(n)
+    if n >= 1000000 then
+        local m = n / 1000000
+        return (m % 1 == 0) and (math.floor(m) .. "m") or (string.format("%.1fm", m))
+    elseif n >= 1000 then
+        local k = n / 1000
+        return (k % 1 == 0) and (math.floor(k) .. "k") or (string.format("%.1fk", k))
+    else
+        return tostring(n)
+    end
+end
+
+local function UVDrawBustAndDistance(ent, textX, textY, fadeAlpha, box_color, h)
+    if not GetConVar("cl_drawhud"):GetBool() then return end
+	if BustedTimer:GetInt() == 0 then return end
+	
+    local scope = UVGetScope(ent)
+	
+	if not scope then return end
+
+    local bustpro = math.Clamp(math.floor((((ent.UVBustingProgress or 0) / BustedTimer:GetInt()) * 100) + .5), 0, 100)
+
+    local targetAlpha = bustpro >= 4 and 1 or 0
+    local targetOffset = bustpro >= 2 and -20 or -40
+
+    ent._bustAlpha = math.Approach(ent._bustAlpha or 0, fadeAlpha * targetAlpha, FrameTime() * 600)
+    ent._bustOffset = Lerp(FrameTime() * 10, ent._bustOffset or 0, targetOffset)
+	
+	local baseY = textY + ent._bustOffset
+
+	-- spacing control (tweak these freely)
+	local textOffset = -h * 0.02     -- text sits above
+	local barOffset  =  h * 0.005    -- bar sits below
+	
+    local y = baseY + barOffset
+
+    if ent._bustAlpha > 0 and ent.beingbusted then
+        local barW = 120
+        local barH = h * 0.0125
+        local x = textX - (barW / 2)
+
+        local T = math.Clamp(((ent.UVBustingProgress or 0) / BustedTimer:GetInt()) * barW, 0, barW)
+
+        surface.SetDrawColor(100, 100, 100, ent._bustAlpha)
+        surface.DrawRect(x, y, barW, barH)
+
+        surface.SetDrawColor(255, 0, 0, ent._bustAlpha)
+        surface.DrawRect(x, y, T, barH)
+    end
+
+    if ent._bustAlpha > 0 then
+        local text = scope.InPursuit and "uv.chase.busting.other" or "uv.chase.fining"
+
+        draw.SimpleTextOutlined( UVString(text), "UVFont4", textX, baseY + textOffset, Color(box_color.r, box_color.g, box_color.b, ent._bustAlpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_LEFT, 2, Color(0,0,0,ent._bustAlpha) )
+    end
+end
+
 function UVRenderEnemySquare(ent)
     if not IsValid(ent) then return end
     if not RacerTags:GetBool() then return end
@@ -1653,22 +1710,16 @@ function UVRenderEnemySquare(ent)
 	ent._bustOffset = ent._bustOffset or 0
 
 	if IsValid(ent) then
-		if not (UVHUDDisplayPursuit or UVHUDDisplayRacing) then return end
+		local scope = UVGetScope(ent)
+		
+		if not scope then return end
+		
+		if not UVHUDCopMode and not (UVHUDDisplayPursuit or UVHUDDisplayRacing) then return end
 
 		-- Unfucked, clarified logic: hide enemy square as cop during cooldown, or if there are no units chasing or out of unit view,
 		-- except when one-commander-evading is actually active (and one commander is active)
 		if UVHUDCopMode then
-			if UVHUDDisplayCooldown then
-				return
-			end
-
-			local oneCommanderEvading = GetConVar("unitvehicle_unit_onecommanderevading"):GetBool()
-			if not ent.inunitview then
-				-- Only hide if either one-commander-evading is off or commander is NOT active
-				if not oneCommanderEvading or not UVOneCommanderActive then
-					return
-				end
-			end
+			if not ent.inunitview then return end
 		end
 
 		if UVHUDRaceInfo and UVHUDRaceInfo.Participants and UVHUDRaceInfo.Participants[ent] then
@@ -1677,9 +1728,20 @@ function UVRenderEnemySquare(ent)
 				return
 			end
 		end
+
+		if UVHUDCopMode then
+			if not scope.InPursuit then
+				box_color = Color( 255, 207, 63)
+			end
+			if scope.IsBeingPulledOver then
+				local red = math.Remap( math.sin(SysTime() * 8), -1, 1, 0, 255 )
+				local blue = math.Remap( math.sin(SysTime() * 8), -1, 1, 255, 0 )
+
+				box_color = Color( red, 0, blue )
+			end
+		end
 		
 		local enemycallsign = UVGetDriverName(ent)
-		--local enemydriver = UVGetDriver( ent )
 		local enemypos = false
 		
 		if UVHUDRaceInfo then
@@ -1703,12 +1765,6 @@ function UVRenderEnemySquare(ent)
 
 				return nil
 			end
-
-			-- Prefer player name if valid
-			-- if IsValid(enemydriver) then
-			-- 	if localPlayer == enemydriver then return end
-			-- 	enemycallsign = enemydriver:GetName()
-			-- end
 
 			-- Fallback: use name from leaderboard data
 			if not UVHUDCopMode then
@@ -1809,7 +1865,7 @@ function UVRenderEnemySquare(ent)
 			displayDist = distInMeters
 			displayString = UVString("uv.dist.meter")
 		end
-		
+
         cam.Start2D()
 			if not GetConVar("cl_drawhud"):GetBool() then return end
 			local pos = ent:GetPos() + Vector(0, 0, 80)
@@ -1839,22 +1895,7 @@ function UVRenderEnemySquare(ent)
 			ent._bustAlpha = math.Approach(ent._bustAlpha, fadeAlpha * targetAlpha, FrameTime() * 600)
 			ent._bustOffset = Lerp(FrameTime() * 10, ent._bustOffset, targetOffset)
 
-			if ent._bustAlpha > 0 then
-				local T = math.Clamp(((ent.UVBustingProgress or 0) / BustedTimer:GetInt()) * rectywidth, 0, rectywidth)
-				T = math.floor(T)
-				
-				if ent.beingbusted then
-					surface.SetDrawColor(0, 0, 0, ent._bustAlpha)
-					surface.DrawRect(rectxpos, rectypos + ent._bustOffset, rectywidth, h * 0.0125)
-
-					surface.SetDrawColor(255, 0, 0, ent._bustAlpha)
-					surface.DrawRect(rectxpos, rectypos + ent._bustOffset, T, h * 0.0125)
-				end
-
-				draw.SimpleTextOutlined( UVString("uv.chase.busting.other"), "UVFont4", textX, textY + ent._bustOffset - (h * 0.01), Color(box_color.r, box_color.g, box_color.b, ent._bustAlpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_LEFT, 2, Color(0, 0, 0, ent._bustAlpha) )
-			end
-
-			if UVHUDRaceInfo and UVHUDRaceInfo.Participants then
+			if UVHUDRaceInfo and UVHUDRaceInfo.Participants then -- Race
 
 				surface.SetDrawColor( box_color.r, box_color.g, box_color.b, fadeAlpha )
 				surface.DrawOutlinedRect( rectxpos - thickness, rectypos - thickness, rectywidth + (thickness * 2), textHeight + thickness, thickness )
@@ -1869,21 +1910,110 @@ function UVRenderEnemySquare(ent)
 				draw.SimpleTextOutlined(enemycallsign, "UVFont4", rectxpos + textWidthDist + distpadding, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.5, Color(0, 0, 0, fadeAlpha) )
 				draw.SimpleTextOutlined(enemypos or busdist, "UVFont4", rectxpos - (thickness * 0.5), rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.5, Color(0, 0, 0, fadeAlpha) )
 				
-			else
-
-				surface.SetDrawColor( box_color.r, box_color.g, box_color.b, fadeAlpha )
-				surface.DrawOutlinedRect( rectxpos - thickness, rectypos - thickness, rectywidth + (thickness * 2), textHeight + thickness, thickness )
+				UVDrawBustAndDistance( ent, rectxpos + (rectywidth / 2), rectypos - textHeight - thickness - ent._bustOffset, fadeAlpha, box_color, h * 1 )
 				
+			else -- Pursuit
+
+				-- Distance thresholds
+				local HEAT_EXPAND_DIST   = 60
+				local HEAT_FADE_DIST     = 50
+
+				local BOUNTY_EXPAND_DIST = 80
+				local BOUNTY_FADE_DIST   = 70
+
+				-- Expand / fade values
+				local function CalcExpandFade(dist, expandDist, fadeDist, fadeRange)
+					local expand = 0
+					local fade = 0
+
+					if dist < expandDist then
+						expand = math.Clamp((expandDist - dist) / (expandDist - fadeDist), 0, 1)
+					end
+
+					if dist < fadeDist then
+						fade = math.Clamp((fadeDist - dist) / fadeRange, 0, 1)
+					end
+
+					return expand, fade
+				end
+
+				local heatExpand, heatFade     = CalcExpandFade(distInMeters, HEAT_EXPAND_DIST, HEAT_FADE_DIST, 20)
+				local bountyExpand, bountyFade = CalcExpandFade(distInMeters, BOUNTY_EXPAND_DIST, BOUNTY_FADE_DIST, 15)
+
+				-- Text content
+				local bountyText
+				if scope.InPursuit then
+					bountyText = "$" .. FormatBountyShort(scope.Bounty)
+				else
+					bountyText = "$" .. FormatBountyShort(scope.FinesDue)
+				end
+
+				surface.SetFont("UVFont4")
+
+				local nameW   = textWidth
+				local bountyW = surface.GetTextSize(bountyText)
+				local heatW   = surface.GetTextSize(tostring(scope.Heat))
+
+				local maxTextWidth = math.max(nameW, bountyW, heatW)
+				local padding = 20
+
+				local rectywidth = math.max(maxTextWidth + padding, 0)
+				local rectxpos = textX - (rectywidth / 2)
+
+				-- Height (bottom anchored)
+				local baseHeight = textHeight * 2 -- name + bounty baseline
+
+				local totalHeight =
+					textHeight +                                -- name
+					(textHeight * bountyExpand) +               -- bounty space
+					(textHeight * heatExpand)                   -- heat space
+
+				local dynamicOffset = totalHeight - baseHeight
+				local boxY = rectypos - dynamicOffset
+
+				-- Box
+				surface.SetDrawColor(box_color.r, box_color.g, box_color.b, fadeAlpha)
+				surface.DrawOutlinedRect( rectxpos - thickness, boxY - thickness, rectywidth + (thickness * 2), totalHeight + (thickness * 2), thickness )
+
+				surface.SetDrawColor(0, 0, 0, math.min(200, fadeAlpha))
+				surface.DrawRect(rectxpos, boxY, rectywidth, totalHeight)
+
+				-- Content stacking
+				local currentY = boxY
+
+				-- NAME (always)
+				draw.SimpleTextOutlined( enemycallsign, "UVFont4", rectxpos + (rectywidth / 2), currentY - thickness, Color(255,255,255,fadeAlpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_LEFT, 1.25, Color(0,0,0,fadeAlpha) )
+
+				currentY = currentY + textHeight
+
+				-- BOUNTY (baseline)
+				do
+					local alpha = fadeAlpha * math.max(bountyFade) -- slight presence even before fade
+					draw.SimpleTextOutlined( bountyText, "UVFont4", rectxpos + (rectywidth / 2), currentY, Color(255,255,255,alpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_LEFT, 1.25, Color(0,0,0,alpha) )
+				end
+
+				currentY = currentY + (textHeight * bountyExpand)
+
+				-- HEAT (top layer)
+				if heatFade > 0 then
+					local alpha = fadeAlpha * heatFade
+
+					surface.SetDrawColor(255,255,255,alpha)
+					surface.SetMaterial(UVMaterials["HEAT"])
+					surface.DrawTexturedRect( rectxpos + (rectywidth / 2) - (textHeight * 0.75), currentY, textHeight, textHeight )
+
+					draw.SimpleTextOutlined( scope.Heat, "UVFont4", rectxpos + (rectywidth / 2 + (textHeight * 0.25)), currentY, Color(255,255,255,alpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0,0,0,alpha) )
+				end
+
+				-- Distance text
+				draw.SimpleTextOutlined( bustdist, "UVFont4BiggerItalic2", rectxpos + (rectywidth / 2), rectypos - textHeight - totalHeight - thickness - ent._bustOffset, Color(255,255,255,fadeAlpha - ent._bustAlpha), TEXT_ALIGN_CENTER, TEXT_ALIGN_LEFT, 1.25, Color(0,0,0,fadeAlpha - ent._bustAlpha) )
+				
+				UVDrawBustAndDistance( ent, rectxpos + (rectywidth / 2), rectypos + textHeight - totalHeight - thickness - ent._bustOffset, fadeAlpha, box_color, h * 1 )
+
+				-- Arrow
+				surface.SetDrawColor(255,255,255,fadeAlpha)
 				surface.SetMaterial(UVMaterials["ARROW_CARBON"])
-				surface.DrawTexturedRectRotated( textX, textY + 57.5, 15, 15, -90)
-
-				surface.SetDrawColor( 0, 0, 0, math.min(200, fadeAlpha) )
-				surface.DrawRect( rectxpos, rectypos, rectywidth, textHeight - thickness)
-				draw.RoundedBox( 0, rectxpos - thickness, rectypos - thickness, textWidthDist + distpadding, textHeight + thickness, Color( box_color.r, box_color.g, box_color.b, math.Clamp(fadeAlpha, 0, 255) ) )
-
-				draw.SimpleTextOutlined(enemycallsign, "UVFont4", rectxpos + textWidthDist + distpadding, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
-				draw.SimpleTextOutlined(bustdist, "UVFont4", rectxpos, rectypos - thickness, Color(255, 255, 255, fadeAlpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT, 1.25, Color(0, 0, 0, fadeAlpha) )
-
+				surface.DrawTexturedRectRotated( rectxpos + (rectywidth / 2), boxY + totalHeight + padding - 7.5, 15, 15, -90 )
 			end
         cam.End2D()
     end

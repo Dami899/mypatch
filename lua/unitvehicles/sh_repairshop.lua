@@ -22,7 +22,7 @@ if SERVER then
     end
     
     function UVLoadRepairShop(jsonfile)
-        local JSONData = file.Read( "unitvehicles/repairshops/"..game.GetMap().."/"..jsonfile, "DATA" )
+        local JSONData = UV_LoadFile( "repairshops>>"..game.GetMap(), jsonfile )
         if not JSONData then return end
         
         local rsdata = util.JSONToTable(JSONData, true) --Load Repair Shop
@@ -113,7 +113,7 @@ if SERVER then
     end
     
     function UVAutoLoadRepairShop()
-        local repairShops = file.Find( "unitvehicles/repairshops/"..game.GetMap().."/*.json", "DATA" )
+        local repairShops = UV_GetFiles( "repairshops>>"..game.GetMap() )
         
         if not repairShops then return end
         if next(repairShops) == nil then return end

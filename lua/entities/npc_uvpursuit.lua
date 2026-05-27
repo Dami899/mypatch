@@ -10,9 +10,9 @@ ENT.Base = "base_entity"
 ENT.Type = "ai"
 
 ENT.PrintName = "UVPursuit"
-ENT.Author = "Cross"
+ENT.Author = "UVPD Vehicular Autonomous Navigation and General Unit Automated Research Division"
 ENT.Contact = "Uniform"
-ENT.Purpose = "To use proper pursuit tactics against drivers. Yeah, 'proper pursuit tactics'."
+ENT.Purpose = "To use proper pursuit tactics against drivers."
 ENT.Instruction = "Spawn on/under the vehicle until it shows a spawn effect."
 ENT.Spawnable = false
 ENT.Modelname = "models/props_lab/huladoll.mdl"
@@ -35,6 +35,7 @@ if SERVER then
 	local PursuitTech = GetConVar("unitvehicle_unit_pursuittech")
 	local DVWaypointsPriority = GetConVar("unitvehicle_dvwaypointspriority")
 	local OptimizeRespawn = GetConVar("unitvehicle_optimizerespawn")
+	local TrafficStreaming = GetConVar("unitvehicle_trafficstreaming") 
 	local Catchup = GetConVar("unitvehicle_unitcatchup")
 	local DVNavigationOptimized = GetConVar("unitvehicle_dvnavioptimized")
 
@@ -133,10 +134,7 @@ if SERVER then
 			local e = EffectData()
 			e:SetEntity(self.v)
 			util.Effect("entity_remove", e) --Perform an effect.
-			net.Start("UVHUDRemoveUV")
-			net.WriteInt(self.v:EntIndex(), 32)
-			net.WriteInt(self.v:GetCreationID(), 32)
-			net.Broadcast()
+			
 			if (self.uvscripted and not self.wrecked) then
 				SafeRemoveEntity(self.v)
 			end
@@ -230,143 +228,6 @@ if SERVER then
 		elseif isfunction(self.v.VC_GetHealth) then
 			local health = self.v:VC_GetHealth(false)
 			return isnumber(health) and health <= 0
-		end
-	end
-	
-	function ENT:Wreck()
-		if IsValid(self.v) and not self.v.wrecked then
-			self.wrecked = true
-			self.v.wrecked = true
-			local despawntime = 60
-			if not UVTargeting and IsValid(self.e) and #UVWantedTableVehicle > 0 then
-				UVTargeting = true
-			end
-			table.insert(UVWreckedVehicles, self.v)
-			self.v:CallOnRemove("UVWreckedVehicleRemoved", function()
-				if table.HasValue(UVWreckedVehicles, self.v) then
-					table.RemoveByValue(UVWreckedVehicles, self.v)
-				end
-			end)
-			UVDeactivateESF(self.v)
-			UVDeactivateKillSwitch(self.v)
-			UVDeactivateGrappler(self.v)
-			if not timer.Exists("uvcombotime") then
-				timer.Create("uvcombotime", 5, 1, function() 
-					UVComboBounty = 1 
-					timer.Remove("uvcombotime")
-				end)
-			else --Multiple units down
-				timer.Remove("uvcombotime")
-				timer.Create("uvcombotime", 5, 1, function() 
-					if next(ents.FindByClass("npc_uv*")) ~= nil and Chatter:GetBool() and UVComboBounty >= 3 then
-						local units = ents.FindByClass("npc_uv*")
-						local random_entry = math.random(#units)	
-						local unit = units[random_entry]
-						UVChatterMultipleUnitsDown(unit)
-					end
-					UVComboBounty = 1
-					timer.Remove("uvcombotime")
-				end)
-			end
-			local v = UVGetVehicleMakeAndModel(self.v)
-			local bountyplus = (UVUBountyPursuit:GetInt())*(UVComboBounty)
-			local bounty = string.Comma(bountyplus)
-			if IsValid(self.e) and isfunction(self.e.GetDriver) then 
-				local driver = UVGetDriver(self.e)
-				if IsValid(driver) then
-					UVNotifyCenter({driver}, "uv.hud.combo", "UNITS_DISABLED", "uv.unit.pursuit", v, bountyplus, UVComboBounty, driver:IsPlayer())
-				end
-			end
-			UVWrecks = UVWrecks + 1
-			local scope = UVGetScope(self.e)
-			if scope then
-				scope.Wrecks = scope.Wrecks + 1
-				scope.Bounty = scope.Bounty + bountyplus
-			end
-			if self.v.IsGlideVehicle then
-				local wreck = self.v
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-				wreck:SetEngineHealth(0)
-				wreck:UpdateHealthOutputs()
-				wreck.UnflipForce = 0
-				wreck.AngularDrag = vector_origin
-				if wreck.CanSwitchHeadlights then
-					wreck:SetHeadlightState(0)
-				end
-				if wreck:GetVelocity():LengthSqr() > 250000 then
-					UVGlideDetachWheels(wreck)
-				end
-			elseif self.v.LVS then
-				local wreck = self.v
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-				if wreck:GetVelocity():LengthSqr() > 250000 and WheelsDetaching:GetBool() then
-					for _, v in pairs(wreck:GetWheels()) do
-						if math.random(1,2) == 1 then
-							constraint.RemoveAll(v)
-						end
-					end
-				end
-				wreck:SetHP(0)
-				wreck:StopEngine()
-			elseif self.v.IsSimfphyscar then
-				local wreck = self.v
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						SafeRemoveEntity(wreck)
-					end
-				end)
-				if wreck:GetVelocity():LengthSqr() > 250000 and WheelsDetaching:GetBool() then
-					for i = 1, #wreck.Wheels do
-						local wheelmathchance = math.random(1,2)
-						local Wheel = wreck.Wheels[math.random(1, #wreck.Wheels)]
-						if wheelmathchance == 1 then
-							constraint.RemoveAll(Wheel)
-						end
-					end
-				end
-				wreck:SetCurHealth(0)
-				wreck:SetLightsEnabled(false)
-			elseif self.v:GetClass() == "prop_vehicle_jeep" then
-				local wreck = self.v
-				wreck:EmitSound( "vehicles/v8/vehicle_rollover"..math.random(1,2)..".wav" )
-				wreck:AddCallback("PhysicsCollide", function(ent, coldata)
-					local ouroldvel = coldata.OurOldVelocity:Length()
-					local dot = coldata.OurOldVelocity:GetNormalized():Dot(coldata.HitNormal)
-					dot = math.abs(dot) / 2
-					local dmg = ouroldvel * dot
-					if dmg < 10 then return end
-					local e = EffectData()
-					e:SetOrigin(coldata.HitPos)
-					util.Effect("cball_explode", e)
-				end)
-				if wreck:LookupAttachment("vehicle_engine") > 0 then
-					ParticleEffectAttach("smoke_burning_engine_01", PATTACH_POINT_FOLLOW, wreck, wreck:LookupAttachment("vehicle_engine"))
-				end
-				local e = EffectData()
-				e:SetEntity(wreck)
-				util.Effect("entity_remove", e)
-				timer.Simple(despawntime, function()
-					if IsValid(wreck) then
-						wreck:Remove()
-					end
-				end)
-			end
-			if self.v:IsVehicle() then
-				UVBounty = (UVBounty+bountyplus)
-			end
-			if Chatter:GetBool() and IsValid(self.v) then
-				UVChatterWreck(self)
-			end
-			SafeRemoveEntity(self)
-			UVComboBounty = UVComboBounty + 1
 		end
 	end
 	
@@ -482,7 +343,7 @@ if SERVER then
 		end
 
 		local class = self.v:GetClass()
-		local pos = class == "prop_vehicle_jeep" and self.v:WorldSpaceCenter() or self.v:GetPos()
+		local pos = self.v:WorldSpaceCenter()
 		pos.z = pos.z + self.v.rideheight
 
 		local tr = util.TraceLine({start = pos, endpos = (pos+(self.v:GetVelocity()*2)), mask = MASK_NPCWORLDSTATIC})
@@ -1201,21 +1062,9 @@ if SERVER then
 		end
 		
 		--Flipping/crash
-		if self.v and not self.wrecked and not self.spawned and
-		(self.v:Health() < 0 and self.v:GetClass() == "prop_vehicle_jeep" or --No health 
-		vehicleAnglesZ > 90 and vehicleAnglesZ < 270 and (self.v.rammed or vehicleVelSqr < 10000 and self.stuck) and CanWreck:GetBool() or --Flipped
-		self.v:WaterLevel() > 2 or --Underwater
-		self:IsOnFire()) or --On fire
-		self:IsWrecked() then --Other parameters
-			self:Wreck()
+		if UVUnitIsWrecked(self.v) then
+			UVPlayerWreck(self.v)
 		end
-		
-		-- if not IsValid(self.v) or --The tied vehicle goes NULL.
-		-- not self.v:IsVehicle() or --Somehow it become non-vehicle entity.
-		-- IsValid(self.v:GetDriver()) then --It has an driver.
-		-- 	self:Wreck()
-		-- 	return
-		-- end
 		
 		local eScope = IsValid(self.e) and UVGetScope(self.e) or nil
 
@@ -1252,15 +1101,35 @@ if SERVER then
 					UVChatterFoundMultipleEnemies(self) 
 				end
 			end
-			if UVTargeting and closestdistancetosuspect > 100000000 and 
+			if closestdistancetosuspect > 100000000 and 
 			not (eScope and eScope.EnemyBusted) and not (eScope and eScope.EnemyEscaped) and self.uvmarkedfordeletion then
-				if self.v.disengaging or not OptimizeRespawn:GetBool() or (UVGlobalPursuit.ResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
+				if ( self.v.disengaging or self.v.roadblockingmissed ) or not OptimizeRespawn:GetBool() or (UVGlobalPursuit.ResourcePoints <= (#ents.FindByClass("npc_uv*")) and #ents.FindByClass("npc_uv*") ~= 1) then
 					SafeRemoveEntity(self)
-				else
+				elseif not self.v.roadblocking then
 					UVOptimizeRespawn(self.v)
 				end
 				if Chatter:GetBool() and not (eScope and eScope.EnemyEscaping) and not self.invincible and not (eScope and eScope.EnemyBusted) then
 					UVChatterLeftPursuit(self) 
+				end
+			end
+		elseif TrafficStreaming:GetBool() then
+			local suspects = UVPotentialSuspects
+			if next(UVPotentialSuspects) ~= nil then
+				local closestsuspect
+				local closestdistancetosuspect
+				local closestscope
+				local r = math.huge
+				local closestdistancetosuspect, closestsuspect = r^2
+				local unitpos = self.v:WorldSpaceCenter()
+				for i, w in pairs(suspects) do
+					local distance = unitpos:DistToSqr(w:WorldSpaceCenter())
+					if distance < closestdistancetosuspect then
+						closestdistancetosuspect, closestsuspect = distance, w
+						closestscope = scope
+					end
+				end
+				if closestdistancetosuspect > 100000000 and self.uvmarkedfordeletion then
+					SafeRemoveEntity(self)
 				end
 			end
 		end
@@ -1273,9 +1142,9 @@ if SERVER then
 				self:Stop()
 			else --Patrol
 				self:Patrol()
-				if self.v.roadblocking and not self.spawned then
-					self.v.roadblocking = nil
-				end
+				-- if self.v.roadblocking and not self.spawned then
+				-- 	self.v.roadblocking = nil
+				-- end
 			end
 			
 			if UVEnemyBusted then
@@ -1881,9 +1750,6 @@ if SERVER then
 							UVDeployWeapon(self.v, i)
 							self.ks = CurTime()
 						end
-						if self.v.uvkillswitching then
-							UVKillSwitchCheck(self.v)
-						end
 					elseif v.Tech == 'Repair Kit' then
 						if self.v.IsGlideVehicle then
 							if self.v:GetChassisHealth() <= (self.v.MaxChassisHealth / 3) then
@@ -2353,6 +2219,7 @@ if SERVER then
 					v.UnitVehicle = self
 					v:EnableEngine(true)
 					v:StartEngine(true)
+					UVApplyVehiclePrerequisites(v)
 				end
 			elseif v.IsGlideVehicle then --Glide
 				local driver = v:GetDriver()
@@ -2434,6 +2301,7 @@ if SERVER then
 							v.UnitVehicle = self
 							v:EnableEngine(true)
 							v:StartEngine(true)
+							UVApplyVehiclePrerequisites(v)
 						end
 					elseif v.IsGlideVehicle then --Glide
 						local driver = v:GetDriver()
@@ -2478,6 +2346,7 @@ if SERVER then
 		
 		local deletiontime = self.v.roadblocking and 10 or 1
 		local roadblockingtime = math.random(20,60)
+
 		if self.uvscripted then
 			timer.Simple(deletiontime, function()
 				if IsValid(self) then
@@ -2489,13 +2358,12 @@ if SERVER then
 					self.v.roadblocking = nil
 				end
 			end)
-		end
-		
-		if not self.uvscripted then
+		else
 			local e = EffectData()
 			e:SetEntity(self.v)
 			util.Effect("propspawn", e) --Perform a spawn effect.
 		end
+
 		if not UVTargeting then self.v:EmitSound( "doors/metal_stop1.wav" ) end
 		self.mass = math.Round(self.v:GetPhysicsObject():GetMass())
 		if Chatter:GetBool() and not UVTargeting then

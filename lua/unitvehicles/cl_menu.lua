@@ -4,7 +4,7 @@ UVMenu.CustomizeHUD = UVMenu.CustomizeHUD or {}
 UVMenu.CustomizeSpeedo = UVMenu.CustomizeSpeedo or {}
 
 -- Current Version -- Change this whenever a new update is releasing!
-UV.CurVersion = "1.6.1" --MAJOR.MINOR.PATCH
+UV.CurVersion = "1.7.0" --MAJOR.MINOR.PATCH
 
 -- Credits List
 UV.Credits = {
@@ -768,6 +768,9 @@ UVMenu.Settings = function()
 				},
 				{ type = "bool", text = "uv.aidifficulty.racer.rubberband", desc = "uv.aidifficulty.racer.rubberband.desc", convar = "unitvehicle_racercatchup", showprefix = true, sv = true },
 				
+				{ type = "bool", text = "uv.aidifficulty.racer.cautious", desc = "uv.aidifficulty.racer.cautious.desc", convar = "unitvehicle_racercautious", showprefix = true, sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.cautiousrandomness", desc = "uv.aidifficulty.racer.cautiousrandomness.desc", convar = "unitvehicle_racercautiousrandomness", requireparentconvar = "unitvehicle_racercautious", showprefix = true, sv = true },
+				
 				{ type = "combo", text = "uv.aidifficulty.unit", desc = "uv.aidifficulty.unit.desc", convar = "unitvehicle_unitdifficulty", sv = true, content = {
 						{ "uv.difficulty.1", 0 } ,
 						{ "uv.difficulty.2", 0.5 } ,
@@ -778,6 +781,7 @@ UVMenu.Settings = function()
 
 				{ type = "label", text = "uv.ailogic", sv = true },
 				{ type = "bool", text = "uv.ailogic.optimizerespawn", desc = "uv.ailogic.optimizerespawn.desc", convar = "unitvehicle_optimizerespawn", sv = true },
+				{ type = "bool", text = "uv.ailogic.trafficstreaming", desc = "uv.ailogic.trafficstreaming.desc", convar = "unitvehicle_trafficstreaming", sv = true },
 				{ type = "bool", text = "uv.ailogic.wrecking", desc = "uv.ailogic.wrecking.desc", convar = "unitvehicle_canwreck", sv = true },
 				{ type = "slider", text = "uv.ailogic.detectionrange", desc = "uv.ailogic.detectionrange.desc", convar = "unitvehicle_detectionrange", min = 1, max = 100, decimals = 0, sv = true },
 				{ type = "combo", text = "uv.ailogic.headlights", desc = "uv.ailogic.headlights.desc", convar = "unitvehicle_enableheadlights", sv = true, content = {
@@ -805,28 +809,7 @@ UVMenu.Settings = function()
 				{ type = "bool", text = "uv.ui.menu.hideprompts", desc = "uv.ui.menu.hideprompts.desc", convar = "uvmenu_hide_prompts" },
 				{ type = "slider", text = "uv.ui.menu.openspeed", desc = "uv.ui.menu.openspeed.desc", convar = "uvmenu_open_speed", min = 0.1, max = 1, decimals = 2 },
 				{ type = "slider", text = "uv.ui.menu.closespeed", desc = "uv.ui.menu.closespeed.desc", convar = "uvmenu_close_speed", min = 0.1, max = 1, decimals = 2 },
-				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },
-				
-				{ type = "label", text = "uv.ui.dataimport", desc = "uv.ui.dataimport.desc", sv = true, sp = true },
-
-				{ type = "bool", text = "uv.ui.dataimport.enableimport", desc = "uv.ui.dataimport.enableimport.desc", convar = "uvmenu_enabledataimport", sv = true, sp = true },
-				{ type = "bool", text = "uv.ui.dataimport.enablereplace", desc = "uv.ui.dataimport.enablereplace.desc", convar = "uvmenu_enabledatareplace", sv = true, sp = true },
-				{ type = "button", text = "uv.ui.dataimport.scan", desc = "uv.ui.dataimport.scan.desc", sv = true, sp = true, playsfx = "clickopen", prompts = {"uv.prompt.confirm"}, func = function() UV_StartImportFlow() end,
-				cond = function()
-					return (GetConVar("uvmenu_enabledataimport"):GetBool() or GetConVar("uvmenu_enabledatareplace"):GetBool())
-				end
-				},
-				{ type = "button", text = "uv.ui.dataimport.replaceserver", desc = "uv.ui.dataimport.replaceserver.desc", sv = true, playsfx = "clickopen", prompts = {"uv.prompt.confirm"},
-				func = function()
-					net.Start("UV_RequestServerReplace")
-					net.SendToServer()
-				end,
-				cond = function()
-					return not game.SinglePlayer()
-						and GetConVar("uvmenu_enabledatareplace_server"):GetBool()
-						and UV_HasPendingReplace
-				end
-				},
+				{ type = "bool", text = "uv.ft.force", desc = "uv.ft.force.desc", convar = "unitvehicle_uvmenu_firstsetup", sv = true },				
 			},
 
 			{ TabName = "uv.addons", Icon = "unitvehicles/icons/generic_cart.png", sv = true,
@@ -1039,6 +1022,9 @@ UVMenu.RaceManagerSettings = function()
 				{ type = "slider", text = "uv.aidifficulty.racer.rubberband.gap", desc = "uv.aidifficulty.racer.rubberband.gap.desc", convar = "unitvehicle_racercatchup_gap", requireparentconvar = "unitvehicle_racercatchup", min = 0.1, max = 10, decimals = 1, sv = true },
 				{ type = "bool", text = "uv.aidifficulty.racer.rubberbandrev", desc = "uv.aidifficulty.racer.rubberbandrev.desc", convar = "unitvehicle_racercatchup_rev", sv = true },
 				{ type = "slider", text = "uv.aidifficulty.racer.rubberband.gap", desc = "uv.aidifficulty.racer.rubberbandrev.gap.desc", convar = "unitvehicle_racercatchup_rev_gap", requireparentconvar = "unitvehicle_racercatchup_rev", min = 0.1, max = 10, decimals = 1, sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.cautious", desc = "uv.aidifficulty.racer.cautious.desc", convar = "unitvehicle_racercautious", sv = true },
+				{ type = "bool", text = "uv.aidifficulty.racer.cautiousrandomness", desc = "uv.aidifficulty.racer.cautiousrandomness.desc", convar = "unitvehicle_racercautiousrandomness", requireparentconvar = "unitvehicle_racercautious", showprefix = true, sv = true },
+
 				
 				{ type = "label", text = "uv.settings.general" },
 				{ type = "slider", text = "uv.rm.options.laps", desc = "uv.rm.options.laps.desc", convar = "unitvehicle_racelaps", min = 1, max = 99, decimals = 0, sv = true },
@@ -1048,6 +1034,7 @@ UVMenu.RaceManagerSettings = function()
 				{ type = "bool", text = "uv.rm.options.pursuitclear", desc = "uv.rm.options.pursuitclear.desc", convar = "unitvehicle_racepursuitstop", sv = true },
 				{ type = "bool", text = "uv.rm.options.pursuitclear.ai", desc = "uv.rm.options.pursuitclear.ai.desc", convar = "unitvehicle_racepursuitstop_despawn", parentconvar = "unitvehicle_racepursuitstop", sv = true },
 				{ type = "bool", text = "uv.rm.options.clearai", desc = "uv.rm.options.clearai.desc", convar = "unitvehicle_raceclearai", sv = true },
+				{ type = "bool", text = "uv.rm.options.legacyspawn", desc = "uv.rm.options.legacyspawn.desc", convar = "unitvehicle_racelegacyspawn", sv = true },
 				{ type = "button", text = "uv.back", sv = true, playsfx = "clickback", prompts = {"uv.prompt.return"},
 					func = function(self2) UVMenu.OpenMenu(UVMenu.RaceManager) end
 				},
@@ -1070,121 +1057,45 @@ local function extractFullRaceName( headerSplit )
 	return raceName
 end
 
-local function ParseRaceFile(path)
-	local content = file.Read(path, "DATA")
-	if not content then return nil end
-
-	local lines = string.Split(content, "\n")
-	local header = lines[1] or ""
-	local params = string.Split(header, " ")
-	local raceName = extractFullRaceName( params ) or "Unknown"
-	local author = header:match("'(.-)'") or "Unknown"
-
-	local checkpoints = {}
-	local idList = {}
-	local spawns = {}
-
-	for _, line in ipairs(lines) do
-		if string.match(line, "^%d+%s") then
-			local t = string.Explode(" ", line)
-			local id = tonumber(t[1])
-			if id and #t >= 8 then
-				if not checkpoints[id] then
-					checkpoints[id] = {}
-					table.insert(idList, id)
-				end
-				table.insert(checkpoints[id], {
-					start = Vector(tonumber(t[2]), tonumber(t[3]), tonumber(t[4])),
-					endp  = Vector(tonumber(t[5]), tonumber(t[6]), tonumber(t[7])),
-				})
-			end
-		elseif string.match(line, "^spawn") then
-			local t = string.Explode(" ", line)
-			if #t >= 6 then
-				table.insert(spawns, Vector(tonumber(t[2]), tonumber(t[3]), tonumber(t[4])))
-			end
-		end
-	end
-
-	table.SortByMember(idList, nil, true)
-	table.sort(idList, function(a,b) return a < b end)
-
-	return {
-		filename = string.GetFileFromFilename(path),
-		name = raceName:Replace("_", " "),
-		author = author,
-		checkpoints = checkpoints,
-		idList = idList,
-		spawns = spawns,
-	}
-end
+local LOCALIZATION_MAP = {
+	author = "uv.rm.author",
+	checkpoints = "uv.rm.checkpoints",
+	spawns = "uv.rm.startslots",
+	props = "uv.rm.hasprops",
+	nodes = "uv.rm.hasnodes",
+}
 
 -- Race Manager, Track Select
 UVMenu.RaceManagerTrackSelect = function()
-	local files = file.Find("unitvehicles/races/" .. game.GetMap() .. "/*.txt", "DATA")
+	local files = UVRaceList
 	local raceEntries = {}
 
-	for _, fname in ipairs(files) do
-		local pathBase = "unitvehicles/races/" .. game.GetMap() .. "/"
-		local rec = ParseRaceFile(pathBase .. fname)
+	for _, race in ipairs( files ) do
+		local descLines = {}
+		local raceData = race.data
+		local raceFile = race.file
 
-		if rec then
-			local descLines = {
-				string.format(UVString("uv.rm.author"), rec.author),
-				string.format(UVString("uv.rm.checkpoints"), #rec.checkpoints),
-				string.format(UVString("uv.rm.startslots"), #rec.spawns)
-			}
-
-			-- Attempt to read matching JSON file
-			local jsonName = string.Replace(fname, ".txt", ".json")
-			if file.Exists(pathBase .. jsonName, "DATA") then
-				local jsonData = util.JSONToTable(file.Read(pathBase .. jsonName, "DATA") or "")
-
-				if jsonData then
-					-- Count props (duplicator saves entities inside an array-style table)
-					local propCount = 0
-
-					if jsonData.Entities and istable(jsonData.Entities) then
-						for _, ent in pairs(jsonData.Entities) do
-							if istable(ent) and ent.Class then
-								-- Optional: only count actual props
-								if string.StartWith(ent.Class, "prop_") then
-									propCount = propCount + 1
-								end
-							end
-						end
-					end
-
-					if propCount > 0 then
-						table.insert(descLines, string.format(UVString("uv.rm.hasprops"), propCount))
-					end
-
-					-- Count path nodes
-					if jsonData.Nodes and istable(jsonData.Nodes) then
-						local nodeCount = table.Count(jsonData.Nodes)
-						if nodeCount > 0 then
-							table.insert(descLines, string.format(UVString("uv.rm.hasnodes"), nodeCount))
-						end
-					end
-				end
+		for infoName, infoValue in pairs( raceData ) do
+			if type( infoValue ) ~= "number" or infoValue > 0 then
+				table.insert( descLines, string.format( UVString(LOCALIZATION_MAP[infoName]), infoValue ) )
 			end
-
-			table.insert(raceEntries, {
-				type = "button",
-				text = rec.name,
-				desc = table.concat(descLines, "\n"),
-				playsfx = "clickopen",
-				prompts = {"uv.prompt.load"},
-				func = function()
-					RunConsoleCommand("uvrace_import", rec.filename)
-					UVMenu.CloseCurrentMenu(true)
-					timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
-						UVMenu.OpenMenu(UVMenu.RaceManager)
-						UVMenu.PlaySFX("menuopen")
-					end)
-				end
-			})
 		end
+
+		table.insert(raceEntries, {
+			type = "button",
+			text = raceData.name,
+			desc = table.concat(descLines, "\n"),
+			playsfx = "clickopen",
+			prompts = {"uv.prompt.load"},
+			func = function()
+				RunConsoleCommand("uvrace_import", raceFile)
+				UVMenu.CloseCurrentMenu(true)
+				timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
+					UVMenu.OpenMenu(UVMenu.RaceManager)
+					UVMenu.PlaySFX("menuopen")
+				end)
+			end
+		})
 	end
 
 	local entriesWithBack = {}
@@ -1310,7 +1221,7 @@ end
 
 ------- [ Pursuit Related ]-------
 -- Unit Select
-function UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
+function UVMenu.UnitSelect(unittable, unittablename, unittablenpc, isInUnitVehicle)
 	local menuEntries = {}
 
 	-- Back button
@@ -1323,6 +1234,37 @@ function UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
 			UVMenu.OpenMenu(UVMenu.Main)
 		end
 	})
+
+	if isInUnitVehicle then
+		table.insert(menuEntries, {
+			type = "button",
+			text = "uv.chase.select.relocate",
+			playsfx = "clickback",
+			prompts = {"uv.prompt.return"},
+			func = function()
+				net.Start("UVHUDRespawnInUV")
+				net.WriteBool(true)
+				net.SendToServer()
+
+				UVMenu.CloseCurrentMenu(true)
+			end
+		})
+	end
+
+	if RandomPlayerUnits:GetBool() then
+		table.insert(menuEntries, {
+			type = "button",
+			text = "uv.chase.select.random",
+			playsfx = "clickback",
+			prompts = {"uv.prompt.return"},
+			func = function()
+				net.Start( "UVHUDRespawnInUVGetInfo" )
+				net.SendToServer()
+
+				UVMenu.CloseCurrentMenu(true)
+			end
+		})
+	end
 
 	for classIndex, unitsString in ipairs(unittable) do
 		-- split units list
@@ -1350,6 +1292,7 @@ function UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
 						local cleanLabel = UVString(unittablename[classIndex])
 
 						net.Start("UVHUDRespawnInUV")
+						net.WriteBool(false)
 						net.WriteString(unitName)
 						net.WriteString(npcClass)
 						net.WriteBool(isRhino)
@@ -1547,7 +1490,7 @@ UVMenu.HeatManager = function()
     -- Uncomment once it works
     table.insert(tabs, {
         TabName = "uv.hm.presets",
-        { type = "presets", preset = "units" },
+        { type = "presets", preset = "uvunitmanager" },
     })
 
     -- General settings tab
@@ -1565,10 +1508,8 @@ UVMenu.HeatManager = function()
 		{ type = "slider", text = "uv.hm.maxhl", desc = "uv.hm.maxhl.desc", convar = "unitvehicle_unit_maxheat", min = 1, max = MAX_HEAT_LEVEL, decimals = 0, func = function() UVMenu.OpenMenu(UVMenu.HeatManager, true) end, sv = true },
 
 		{ type = "label", text = "uv.hm.commander" },
-		{ type = "bool", text = "uv.hm.commander.solo", desc = "uv.hm.commander.solo.desc", convar = "unitvehicle_unit_onecommander", sv = true },
-		{ type = "bool", text = "uv.hm.commander.evade", desc = "uv.hm.commander.evade.desc", convar = "unitvehicle_unit_onecommanderevading", requireparentconvar = "unitvehicle_unit_onecommander", sv = true },
-		{ type = "bool", text = "uv.hm.commander.norepair", desc = "uv.hm.commander.norepair.desc", convar = "unitvehicle_unit_commanderrepair", requireparentconvar = "unitvehicle_unit_onecommander", sv = true },
-		{ type = "slider", text = "uv.hm.commander.health", desc = "uv.hm.commander.health.desc", convar = "unitvehicle_unit_onecommanderhealth", requireparentconvar = "unitvehicle_unit_onecommander", min = 1000, max = 10000, sv = true },
+		{ type = "bool", text = "uv.hm.commander.norepair", desc = "uv.hm.commander.norepair.desc", convar = "unitvehicle_unit_commanderrepair", sv = true },
+		{ type = "slider", text = "uv.hm.commander.health", desc = "uv.hm.commander.health.desc", convar = "unitvehicle_unit_onecommanderhealth", min = 1000, max = 10000, sv = true },
 		
 		{ type = "label", text = "uv.hm.air" },
 		{ type = "combo", text = "uv.hm.air.model", desc = "uv.hm.air.model.desc", convar = "unitvehicle_unit_helicoptermodel", sv = true, content = {
@@ -1716,7 +1657,7 @@ UVMenu.FirstTimeSetupPreset = function()
 			{ TabName = "uv.ft.preset.title", Icon = "unitvehicles/icons/milestone_911.png", ShowIcon = true,
 				{ type = "infosimple", text = "uv.ft.preset.desc" },
 				{ type = "info", text = "uv.ft.preset.desc2" },
-				{ type = "presets", preset = "units", importonly = true, func = function(self2, name, preset)
+				{ type = "presets", preset = "uvunitmanager", importonly = true, func = function(self2, name, preset)
 					UVUnitManagerLoadPresetV2(name, preset)
 					UVMenu.PlaySFX("confirm")
 					UVMenu.CloseCurrentMenu(true)

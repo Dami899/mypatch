@@ -415,8 +415,8 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	local suspect
 	local suspectvelocity = Vector(0,0,0)
 	-- local suspect = ply
-	-- if next(UVWantedTableVehicle) ~= nil then
-	-- 	local suspects = UVWantedTableVehicle
+	-- if next(UVPotentialSuspects) ~= nil then
+	-- 	local suspects = UVPotentialSuspects
 	-- 	local random_entry = math.random(#suspects)	
 	-- 	suspect = UVGetRaceLeader() or suspects[random_entry]
 	-- 	enemylocation = (suspect:GetPos()+ (vector_up * 50))
@@ -441,8 +441,8 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 
 	local waypointLookup = true
 
-	if next(UVWantedTableVehicle) ~= nil then
-		local suspects = UVWantedTableVehicle
+	if next(UVPotentialSuspects) ~= nil then
+		local suspects = UVPotentialSuspects
 		local random_entry = math.random(#suspects)
 		suspect = UVGetRaceLeader() or suspects[random_entry]
 		
@@ -457,8 +457,8 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	end
 
 	if waypointLookup then
-		enemywaypoint = dvd.GetNearestWaypoint(enemylocation)
-		enemywaypointgroup = enemywaypoint["Group"]
+		local enemywaypoint = dvd.GetNearestWaypoint(enemylocation)
+		local enemywaypointgroup = enemywaypoint["Group"]
 
 		local waypointtable = {}
 		local prioritywaypointtable = {}
@@ -541,7 +541,6 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		heli:SetAngles(Angle(0, math.random(-180, 180), 0))
 		heli:Spawn()
 		heli:Activate()
-		heli:SetTarget(suspect)
 		return
 	end
 	
@@ -685,9 +684,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	if vehiclebase == 4 then --LVS
 		local createdEntities = {}
 
-		local saved_vehicles = file.Find("unitvehicles/lvs/units/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "lvs>>units" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			local match
 			-- if (playercontrolled and playercontrolled.unit) then
 			-- 	match = playercontrolled.unit == v
@@ -717,7 +716,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local JSONData = file.Read( "unitvehicles/lvs/units/"..availableunit, "DATA" )
+		local JSONData = UV_LoadFile( "lvs>>units", availableunit )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 
@@ -900,7 +899,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			end
 		end
 		
-		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
+		if Ent.uvclasstospawnon == "npc_uvcommander" then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
 			Ent.uvlasthealth = UVCommanderLastHealth
@@ -922,9 +921,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if playercontrolled then
 			timer.Simple(0.5, function()
-				Ent.UnitVehicle = ply
-				Ent.callsign = ply:GetName()
-				UVAddToPlayerUnitListVehicle(Ent)
+				UVAddUnit(Ent, ply)
 				table.insert(UVVehicleInitializing, Ent)
 				Ent:StartEngine()
 			end)
@@ -943,9 +940,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 	elseif vehiclebase == 3 then --Glide
 		local createdEntities = {}
 
-		local saved_vehicles = file.Find("unitvehicles/glide/units/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "glide>>units" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			local match
 			-- if (playercontrolled and playercontrolled.unit) then
 			-- 	match = playercontrolled.unit == v
@@ -975,7 +972,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local JSONData = file.Read( "unitvehicles/glide/units/"..availableunit, "DATA" )
+		local JSONData = UV_LoadFile( "glide>>units", availableunit )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 
@@ -1183,7 +1180,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			end
 		end
 		
-		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
+		if Ent.uvclasstospawnon == "npc_uvcommander" then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
 			Ent.uvlasthealth = UVCommanderLastHealth
@@ -1205,9 +1202,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if playercontrolled then
 			timer.Simple(0.5, function()
-				Ent.UnitVehicle = ply
-				Ent.callsign = ply:GetName()
-				UVAddToPlayerUnitListVehicle(Ent)
+				UVAddUnit(Ent, ply)
 				table.insert(UVVehicleInitializing, Ent)
 			end)
 		else
@@ -1224,9 +1219,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 	elseif vehiclebase == 2 then --simfphys
 		
-		local saved_vehicles = file.Find("unitvehicles/simfphys/units/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "simfphys>>units" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			local match
 			-- if (playercontrolled and playercontrolled.unit) then
 			-- 	match = playercontrolled.unit == v
@@ -1256,7 +1251,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local DataString = file.Read( "unitvehicles/simfphys/units/"..availableunit, "DATA" )
+		local DataString = UV_LoadFile( "simfphys>>units", availableunit )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -1543,7 +1538,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			end
 		end
 		
-		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
+		if Ent.uvclasstospawnon == "npc_uvcommander" then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
 			Ent.uvlasthealth = UVCommanderLastHealth
@@ -1551,9 +1546,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if playercontrolled then
 			timer.Simple(0.5, function()
-				Ent.UnitVehicle = ply
-				Ent.callsign = ply:GetName()
-				UVAddToPlayerUnitListVehicle(Ent)
+				UVAddUnit(Ent, ply)
 				table.insert(UVVehicleInitializing, Ent)
 			end)
 		else
@@ -1591,9 +1584,9 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		end	
 		
 	elseif vehiclebase == 1 then --Default Vehicle Base
-		local saved_vehicles = file.Find("unitvehicles/prop_vehicle_jeep/units/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "prop_vehicle_jeep>>units" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			local match
 			-- if (playercontrolled and playercontrolled.unit) then
 			-- 	match = playercontrolled.unit == v
@@ -1623,7 +1616,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local DataString = file.Read( "unitvehicles/prop_vehicle_jeep/units/"..availableunit, "DATA" )
+		local DataString = UV_LoadFile( "prop_vehicle_jeep>>units", availableunit )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -1778,7 +1771,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 			end
 		end
 		
-		if Ent.uvclasstospawnon == "npc_uvcommander" and UVUOneCommander:GetInt() == 1 then
+		if Ent.uvclasstospawnon == "npc_uvcommander" then
 			UVOneCommanderDeployed = true
 			table.insert(UVCommanders, Ent)
 			Ent.uvlasthealth = UVCommanderLastHealth
@@ -1799,9 +1792,7 @@ function UVAutoSpawn(ply, rhinoattack, helicopter, playercontrolled, commanderre
 		
 		if playercontrolled then
 			timer.Simple(0.5, function()
-				Ent.UnitVehicle = ply
-				Ent.callsign = ply:GetName()
-				UVAddToPlayerUnitListVehicle(Ent)
+				UVAddUnit(Ent, ply)
 				table.insert(UVVehicleInitializing, Ent)
 			end)
 		else
@@ -1831,7 +1822,7 @@ function UVAutoSpawnTraffic()
 	local enemylocation
 	local suspect
 	local suspectvelocity = Vector(0,0,0)
-			
+
 	if next(dvd.Waypoints) == nil then
 		if not UVNoDVWaypointsNotify then
 			net.Start("UV_OpenDVWarning")
@@ -1839,40 +1830,97 @@ function UVAutoSpawnTraffic()
 		end
 		return
 	end
-
 	UVNoDVWaypointsNotify = nil
-	
-	if next(UVWantedTableVehicle) ~= nil then
-		local suspects = UVWantedTableVehicle
+
+	if next(dvd.Waypoints) == nil then
+		net.Start("UV_OpenDVWarning")
+		net.Broadcast() -- or target a specific player
+		return
+	end
+
+	local waypointLookup = true
+
+	if next(UVPotentialSuspects) ~= nil then
+		local suspects = UVPotentialSuspects
 		local random_entry = math.random(#suspects)
-		suspect = suspects[random_entry]
+		suspect = UVGetRaceLeader() or suspects[random_entry]
 		
 		enemylocation = (suspect:GetPos() + Vector(0, 0, 50))
 		suspectvelocity = suspect:GetVelocity()
 	elseif not playercontrolled then
-		enemylocation = dvd.Waypoints[math.random(#dvd.Waypoints)]["Target"] + Vector(0, 0, 50)
+		waypointLookup = false
+		uvspawnpointwaypoint = dvd.Waypoints[math.random(#dvd.Waypoints)]
+		uvspawnpoint = uvspawnpointwaypoint["Target"]
 	else
 		enemylocation = ply:GetPos() + Vector(0, 0, 50)
 	end
+
+	if waypointLookup then
+		local enemywaypointgroup = 0
+
+		local waypointtable = {}
+		local prioritywaypointtable = {}
+		local prioritywaypointtable2 = {}
+		local prioritywaypointtable3 = {}
 	
-	local enemywaypoint = dvd.GetNearestWaypoint(enemylocation)
-	local waypointtable = {}
-	for k, v in ipairs(dvd.Waypoints) do
-		local Waypoint = v["Target"]
-		local distance = enemylocation - Waypoint
-		local vect = distance:GetNormalized()
-		local evectdot = vect:Dot(suspectvelocity)
-		if distance:LengthSqr() > 25000000 and v["Group"] == 0 then
-			table.insert(waypointtable, v)
+		local candidates = {}
+		
+		for k, v in ipairs( dvd.Waypoints ) do
+			local Waypoint = v.Target
+			local delta = enemylocation - Waypoint
+			local distSq = delta:LengthSqr()
+			if distSq <= POLICE_SPAWN_DIST_FAR_SQ or distSq >= POLICE_SPAWN_DIST_MAX_SQ then
+				continue
+			end
+			
+			if v.Group ~= enemywaypointgroup then
+				table.insert( waypointtable, v )
+				continue
+			end
+			
+			local vect = delta:GetNormalized()
+			local evectdot = vect:Dot( suspectvelocity )
+			
+			if evectdot < 0 then
+				table.insert( candidates, { wp = v, distSq = distSq, score = -evectdot * distSq } )
+			else
+				table.insert( candidates, { wp = v, distSq = distSq, score = distSq } )
+			end
 		end
-	end
 	
-	if next(waypointtable) ~= nil then
-		uvspawnpointwaypoint = waypointtable[math.random(#waypointtable)]
-		uvspawnpoint = uvspawnpointwaypoint["Target"]
-	else
-		uvspawnpointwaypoint = dvd.Waypoints[math.random(#dvd.Waypoints)]
-		uvspawnpoint = uvspawnpointwaypoint["Target"]
+		table.sort( candidates, function(a, b) return a.score < b.score end )
+		
+		for i = 1, math.min( #candidates, POLICE_SPAWN_MAX_CANDIDATES ) do
+			local v = candidates[i].wp
+			local Waypoint = v.Target
+			if UVStraightToWaypoint( enemylocation, Waypoint ) then
+				local delta = enemylocation - Waypoint
+				local vect = delta:GetNormalized()
+				local evectdot = vect:Dot( suspectvelocity )
+				
+				if evectdot < 0 then
+					table.insert( prioritywaypointtable, v )
+				else
+					table.insert( prioritywaypointtable2, v )
+				end
+			else
+				table.insert( prioritywaypointtable3, v )
+			end
+		end
+	
+		if next(prioritywaypointtable) ~= nil then
+			uvspawnpointwaypoint = prioritywaypointtable[math.random(#prioritywaypointtable)]
+			uvspawnpoint = uvspawnpointwaypoint["Target"]
+		elseif next(prioritywaypointtable3) ~= nil then
+			uvspawnpointwaypoint = prioritywaypointtable3[math.random(#prioritywaypointtable3)]
+			uvspawnpoint = uvspawnpointwaypoint["Target"]
+		elseif next(waypointtable) ~= nil then
+			uvspawnpointwaypoint = waypointtable[math.random(#waypointtable)]
+			uvspawnpoint = uvspawnpointwaypoint["Target"]
+		else
+			uvspawnpointwaypoint = dvd.Waypoints[math.random(#dvd.Waypoints)]
+			uvspawnpoint = uvspawnpointwaypoint["Target"]
+		end	
 	end
 
 	local neighbor = dvd.Waypoints[uvspawnpointwaypoint.Neighbors[math.random(#uvspawnpointwaypoint.Neighbors)]]
@@ -1883,13 +1931,6 @@ function UVAutoSpawnTraffic()
 		uvspawnpointangles = GetConVar("unitvehicle_traffic_assigntraffic"):GetBool() and neighbordistance:Angle() or neighbordistance:Angle()+Angle(0,180,0)
 	else
 		uvspawnpointangles = Angle(0,math.random(0,360),0)
-	end
-	
-	if posspecified then
-		uvspawnpoint = posspecified
-	end
-	if angles then
-		uvspawnpointangles = angles
 	end
 	
 	local vehiclebase = UVTVehicleBase:GetInt()
@@ -1970,9 +2011,9 @@ function UVAutoSpawnTraffic()
 	end
 	
 	if vehiclebase == 4 then --LVS
-		local saved_vehicles = file.Find("unitvehicles/lvs/traffic/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "lvs>>traffic" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
 		end
 		
@@ -1988,7 +2029,7 @@ function UVAutoSpawnTraffic()
 		
 		availabletraffic = saved_vehicles[math.random(1, #saved_vehicles)]
 		
-		local JSONData = file.Read( "unitvehicles/lvs/traffic/"..availabletraffic, "DATA" )
+		local JSONData = UV_LoadFile( "lvs>>traffic", availabletraffic )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 		
@@ -2097,9 +2138,9 @@ function UVAutoSpawnTraffic()
 			duplicator.ApplyBoneModifiers( NULL, v )
 		end
 	elseif vehiclebase == 3 then --Glide
-		local saved_vehicles = file.Find("unitvehicles/glide/traffic/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "glide>>traffic" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
 		end
 		
@@ -2115,7 +2156,7 @@ function UVAutoSpawnTraffic()
 		
 		availabletraffic = saved_vehicles[math.random(1, #saved_vehicles)]
 		
-		local JSONData = file.Read( "unitvehicles/glide/traffic/"..availabletraffic, "DATA" )
+		local JSONData = UV_LoadFile( "glide>>traffic", availabletraffic )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 		
@@ -2225,9 +2266,9 @@ function UVAutoSpawnTraffic()
 		end
 	elseif vehiclebase == 2 then --simfphys
 		
-		local saved_vehicles = file.Find("unitvehicles/simfphys/traffic/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "simfphys>>traffic" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
 		end
 		
@@ -2248,7 +2289,7 @@ function UVAutoSpawnTraffic()
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local DataString = file.Read( "unitvehicles/simfphys/traffic/"..availabletraffic, "DATA" )
+		local DataString = UV_LoadFile( "simfphys>>traffic", availabletraffic )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -2473,9 +2514,9 @@ function UVAutoSpawnTraffic()
 		table.insert(UVVehicleInitializing, Ent)
 		
 	elseif vehiclebase == 1 then --Default Vehicle Base
-		local saved_vehicles = file.Find("unitvehicles/prop_vehicle_jeep/traffic/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "prop_vehicle_jeep>>traffic" )
 		
-		for k, v in pairs(saved_vehicles) do
+		for i, v in ipairs(saved_vehicles) do
 			table.insert(availabletraffic, v)
 		end
 		
@@ -2496,7 +2537,7 @@ function UVAutoSpawnTraffic()
 			uvnextclasstospawn = "npc_uvcommander"
 		end
 		
-		local DataString = file.Read( "unitvehicles/prop_vehicle_jeep/traffic/"..availabletraffic, "DATA" )
+		local DataString = UV_LoadFile( "prop_vehicle_jeep>>traffic", availabletraffic )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -2616,10 +2657,10 @@ function UVAutoSpawnRacer()
 
 	UVNoDVWaypointsNotify = nil
 	
-	if next(UVWantedTableVehicle) ~= nil then
-		local suspects = UVWantedTableVehicle
+	if next(UVPotentialSuspects) ~= nil then
+		local suspects = UVPotentialSuspects
 		local random_entry = math.random(#suspects)
-		suspect = suspects[random_entry]
+		suspect = UVGetRaceLeader() or suspects[random_entry]
 		
 		enemylocation = (suspect:GetPos() + Vector(0, 0, 50))
 		suspectvelocity = suspect:GetVelocity()
@@ -2748,7 +2789,7 @@ function UVAutoSpawnRacer()
 	local AssignedRacersStrings = string.Explode( " ", AssignedRacers )
 	
 	if vehiclebase == 4 then --LVS
-		local saved_vehicles = file.Find("unitvehicles/lvs/racers/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "lvs>>racers" )
 
 		if saved_vehicles == nil or next(saved_vehicles) == nil then
 			if not UVNoRacerNotify then
@@ -2783,7 +2824,7 @@ function UVAutoSpawnRacer()
 			availableracer = saved_vehicles[math.random(1, #saved_vehicles)]
 		end
 		
-		local JSONData = file.Read( "unitvehicles/lvs/racers/"..availableracer, "DATA" )
+		local JSONData = UV_LoadFile( "lvs>>racers", availableracer )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 
@@ -2883,7 +2924,7 @@ function UVAutoSpawnRacer()
 			duplicator.ApplyBoneModifiers( NULL, v )
 		end
 	elseif vehiclebase == 3 then --Glide
-		local saved_vehicles = file.Find("unitvehicles/glide/racers/*.json", "DATA")
+		local saved_vehicles = UV_GetFiles( "glide>>racers" )
 
 		if saved_vehicles == nil or next(saved_vehicles) == nil then
 			if not UVNoRacerNotify then
@@ -2918,7 +2959,7 @@ function UVAutoSpawnRacer()
 			availableracer = saved_vehicles[math.random(1, #saved_vehicles)]
 		end
 		
-		local JSONData = file.Read( "unitvehicles/glide/racers/"..availableracer, "DATA" )
+		local JSONData = UV_LoadFile( "glide>>racers", availableracer )
 		
 		MEMORY = util.JSONToTable(JSONData, true)
 
@@ -3020,7 +3061,7 @@ function UVAutoSpawnRacer()
 
 	elseif vehiclebase == 2 then --simfphys
 		
-		local saved_vehicles = file.Find("unitvehicles/simfphys/racers/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "simfphys>>racers" )
 		
 		if saved_vehicles == nil or next(saved_vehicles) == nil then
 			if not UVNoRacerNotify then
@@ -3055,7 +3096,7 @@ function UVAutoSpawnRacer()
 			availableracer = saved_vehicles[math.random(1, #saved_vehicles)]
 		end
 		
-		local DataString = file.Read( "unitvehicles/simfphys/racers/"..availableracer, "DATA" )
+		local DataString = UV_LoadFile( "simfphys>>racers", availableracer )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -3280,7 +3321,7 @@ function UVAutoSpawnRacer()
 		table.insert(UVVehicleInitializing, Ent)
 		
 	elseif vehiclebase == 1 then --Default Vehicle Base
-		local saved_vehicles = file.Find("unitvehicles/prop_vehicle_jeep/racers/*.txt", "DATA")
+		local saved_vehicles = UV_GetFiles( "prop_vehicle_jeep>>racers" )
 		
 		if saved_vehicles == nil or next(saved_vehicles) == nil then
 			if not UVNoRacerNotify then
@@ -3315,7 +3356,7 @@ function UVAutoSpawnRacer()
 			availableracer = saved_vehicles[math.random(1, #saved_vehicles)]
 		end
 		
-		local DataString = file.Read( "unitvehicles/prop_vehicle_jeep/racers/"..availableracer, "DATA" )
+		local DataString = UV_LoadFile( "prop_vehicle_jeep>>racers", availableracer )
 		
 		local words = string.Explode( "", DataString )
 		local shit = {}
@@ -3727,13 +3768,17 @@ function UVTeleportSimfphysVehicle( vehicle, pos, ang )
 	
 	if not IsValid( Ent ) then return end
 	
-	undo.Create( "Vehicle" )
-	undo.SetPlayer( ply )
-	undo.AddEntity( Ent )
-	undo.SetCustomUndoText( "Undone " .. vehicle.Name )
-	undo.Finish( "Vehicle (" .. tostring( vehicle.Name ) .. ")" )
+	if not UVGame then
+		undo.Create( "Vehicle" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( Ent )
+		undo.SetCustomUndoText( "Undone " .. vehicle.Name )
+		undo.Finish( "Vehicle (" .. tostring( vehicle.Name ) .. ")" )
+	end
 	
-	ply:AddCleanup( "vehicles", Ent )
+	if not UVGame then
+		ply:AddCleanup( "vehicles", Ent )
+	end
 	
 	timer.Simple( 0.5, function()
 		if not IsValid(Ent) then return end
@@ -4022,7 +4067,54 @@ function UVTeleportSimfphysVehicle( vehicle, pos, ang )
 	return Ent
 end
 
-function UVMoveToGridSlot( vehicle, aienabled )
+function UVMoveToGridSlot( vehicle )
+	local vehicle_class = vehicle:GetClass()
+	
+	local checkpoint = nil
+	local next_checkpoint = nil
+	local pos = nil
+	local dir = nil
+	local ang = angle_zero
+	
+	local spawns = ents.FindByClass("uvrace_spawn")
+	local spawn
+
+	if next(spawns) == nil then
+		PrintMessage( HUD_PRINTTALK, "No race spawn points found!")
+		return nil
+	else
+		--Look for a spawn point that has the lowest GridSlot value and claim it
+		local lowestGridSlot = math.huge
+		for k, v in pairs(spawns) do
+			if v:GetGridSlot() < lowestGridSlot and not v.claimed then
+				lowestGridSlot = v:GetGridSlot()
+				spawn = v
+			end
+		end
+	end
+	
+	if not spawn then
+		PrintMessage( HUD_PRINTTALK, "No positions left for "..racer_name)
+		return nil
+	end
+
+	local pos = spawn:GetPos()
+	local ang = spawn:GetAngles()
+	ang.yaw = ang.yaw + 180
+
+	UVSetVehiclePos( vehicle, pos, ang )
+	UVSetVehicleActive( vehicle, false )
+
+	timer.Simple( 1, function()
+		--UVSetVehicleActive( vehicle, true )
+		vehicle:GetPhysicsObject():EnableMotion( false )
+	end )
+
+	spawn.claimed = true
+	return vehicle
+end
+
+function UVMoveToGridSlotLegacy( vehicle, aienabled )
 	local entrantvehicle = vehicle
 	local PT = (vehicle.PursuitTech and table.Copy(vehicle.PursuitTech))
 	
@@ -4060,6 +4152,8 @@ function UVMoveToGridSlot( vehicle, aienabled )
 	local pos = spawn:GetPos()
 	local ang = spawn:GetAngles()
 	
+	local scope = UVGetScope( vehicle ) or {}
+	
 	local Ent
 	
 	if Memory.VehicleBase == "gmod_sent_vehicle_fphysics_base" then
@@ -4081,13 +4175,17 @@ function UVMoveToGridSlot( vehicle, aienabled )
 		
 		if not IsValid( Ent ) then return end
 		
-		undo.Create( "Vehicle" )
-		undo.SetPlayer( ply )
-		undo.AddEntity( Ent )
-		undo.SetCustomUndoText( "Undone " .. vehicle.Name )
-		undo.Finish( "Vehicle (" .. tostring( vehicle.Name ) .. ")" )
+		if not UVGame then
+			undo.Create( "Vehicle" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( Ent )
+			undo.SetCustomUndoText( "Undone " .. vehicle.Name )
+			undo.Finish( "Vehicle (" .. tostring( vehicle.Name ) .. ")" )
+		end
 		
-		ply:AddCleanup( "vehicles", Ent )
+		if not UVGame then
+			ply:AddCleanup( "vehicles", Ent )
+		end
 		
 		timer.Simple( 0.5, function()
 			if not IsValid(Ent) then return end
@@ -4624,15 +4722,19 @@ function UVMoveToGridSlot( vehicle, aienabled )
 		}
 		duplicator.StoreEntityModifier( Ent, "colour", data )
 		
-		undo.Create( "Vehicle" )
-		undo.SetPlayer( ply )
-		undo.AddEntity( Ent )
-		undo.SetCustomUndoText( "Undone " .. class )
-		undo.Finish( "Vehicle (" .. tostring( class ) .. ")" )
+		if not UVGame then
+			undo.Create( "Vehicle" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( Ent )
+			undo.SetCustomUndoText( "Undone " .. class )
+			undo.Finish( "Vehicle (" .. tostring( class ) .. ")" )
+		end
 		
 	end
 	
 	spawn.claimed = true
+
+	hook.Run( 'UV_Event', 'onVehicleReplaced', Ent, entrantvehicle )
 
 	local constrainedEnts = constraint.GetAllConstrainedEntities(entrantvehicle)
 	if constrainedEnts then
@@ -4643,6 +4745,9 @@ function UVMoveToGridSlot( vehicle, aienabled )
 		end
 	end
 	entrantvehicle:Remove()
+
+	-- Re-create the scope from the first vehicle
+	UVCreateScope( Ent, scope )
 	
 	Ent.racer = racer_name
 	

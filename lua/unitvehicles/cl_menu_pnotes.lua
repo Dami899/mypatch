@@ -8,13 +8,94 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
-["1.6.1"] = {
-      Date = { year = 2026, month = 4, day = 24 },
-      Text = [[
-      **Fixes**
-      - Fixed improper bit count when sending the Fined event, resulting in the paid fine having an incorrect value.
-      ]],
+["1.7.0"] = {
+Date = { year = 2026, month = 5, day = 27 },
+Type = "Minor",
+Text = [[
+**New Features**
+- Added a new *Cautious Mode* and *Cautious Mode Randomness* variables for AI Racers
+      |-- Makes AI Racers more cautious when racing
+      |-- Slows down when approaching other racers, and turns away when side-by-side
+      |-- *Randomness* can apply a modifier to some racers and not others
+
+- Added a new *Traffic Streaming* variable
+      |-- Spawns traffic and units closer to players
+      |-- Despawns them when they are too far away from players
+
+- Added option to *relocate your current Unit*
+      |-- Instead of spawning in a completely new Unit, you can relocate your current one.
+      |-- Relocating will also repair your vehicle and replenish your Pursuit Tech.
+      |-- The same cooldown applies as when respawning normally.
+
+**Changes**
+- The UVPD fleet have received a full appearance rework, with fixed UV layouts
+
+- Reworked *data/content loading system*
+      |-- UV workshop content is now treated as "mountable" content
+      |-- Client now reflects content available on the server in both Workshop and Local content data
+      |-- This means that items in your local 'data' folder are separated from Workshop content (local data takes priority over Workshop content)
+      |-- You may have to clean up your local 'data' folder to remove any Workshop files that are no longer needed in the 'data' folder; they are now loaded from the addons themselves
+      |-- This change has also reworked the way presets are loaded and saved:
+            |-- Presets are now saved in & loaded from the <color=255,255,0>data/unitvehicles/preset_import</color> folder
+            |-- When you load up a map for the first time after updating, the local presets you had saved will be imported into the new system, after which the old presets will be deleted
+            |-- This change also eliminated the use of the 'Export Presets' button in the UV menu, as presets are stored in the new system which is also the same system that allows presets to be imported from external sources
+
+- Improved the appearance of *Name Tags* during pursuits
+      |-- The tags will be compact when far away
+      |-- Units: Tags of suspects will grow and display more information when you get closer
+
+- Optimized the spawning process for *AI Racers*
+      |-- Racers are now teleported instead of re-spawned on grid slots, resulting in way faster loading times as well as more 'versatility'
+      |-- If you prefer the legacy spawning method or you are having issues with the new method, you can toggle it in the <color=255,255,100>Race Manager / Race Options</color> tab
+
+- The *Optimize Respawn* setting now supports *all* vehicle bases, not just Glide
+- Removed the *Evade with Active Commander* variable due to being redundant
+- Added new *cop* voice lines
+- Bullhorn is made louder overall
+- Nerfed upgraded Grappler Pursuit Tech
+
+**Fixes**
+- Fixed that the "Busting" prompt on Name Tags would always appear if the Busting Timer was set to 0.
+- Fixed that the *Grappler* Pursuit Tech did not detach when the suspect was wrecked or busted.
+- Fixed that Roadblock Units were recycling when *Optimize Respawn* was enabled.
+- Fixed Helicopter being able to spot players from afar, as well as while hiding
+- Fixed prop_vehicle_jeep vehicles not having their 'virtual' health applied under certain circumstances
+- Fixed inconsistencies with UI 'Cop Mode'
+- Unit AI tweaks
+- Many other smaller undocumented fixes/optimizations!
+
+**What's next?**
+We'd like to take this opportunity to disclose what we are currently planning:
+
+For a long while now, we have been considering of expanding the playability of UV by introducing some sort of gameplay with progression. We think that we've reached the point where we essentially have a complete 'base' for it and having majority of the core features implemented.
+
+With that said, we'd like to announce that we are planning out a <color=255,255,0>gamemode</color> for Unit Vehicles! It will be a full-fledged gamemode, with its own set of features, mechanics and progression.
+
+The plan is to allow players to be both a Unit and a Racer, having two different paths to progress through; similar to the "Need For Speed: Rivals" formula *( with our own features and twists to it ;) )*.
+Each map will have its own objectives, races, challenges, etc.
+We aim to allow players to customize many aspects of their gameplay and easily introduce custom content, making each experience unique and tailored by the player.
+
+The cores are still being established so we don't really have a 'concrete' idea of what it will look like just yet - this is where you guys come in!
+We will continue making adjustments and reworking bits of Unit Vehicles to make it more flexible and "expandable" for such a thing.
+
+Having that said however, we'd also like to ask <color=255,255,0>you, the community</color>, to help us along the way!
+      |-- We are hoping to gather some of *your* suggestions and feedbacks on what you'd like to see in the gamemode, we are open to any and all ideas!
+      |-- You can either submit your suggestions via our Discord server, or by creating a new 'Discussion' post on the addon's Steam page; I assure you that we read both!
+
+We appreciate your support and all the help you've all given us so far! We will continue to do our best to ensure an even better experience. Thank You all! :D
+
+/// RACE /// CHASE /// ESCAPE ///
+]],
 },
+
+["1.6.1"] = {
+Date = { year = 2026, month = 4, day = 24 },
+Text = [[
+**Fixes**
+- Fixed improper bit count when sending the Fined event, resulting in the paid fine having an incorrect value.
+]],
+},
+
 ["1.6.0"] = {
 Date = { year = 2026, month = 4, day = 24 },
 Type = "Minor",

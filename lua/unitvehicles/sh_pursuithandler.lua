@@ -316,7 +316,7 @@ function UV_InitiatePursuit( target )
 	scope.Losing = 0
 	scope.PursuitStart = CurTime()
 
-	hook.Run('PursuitEventHook', 'onSuspectSpotted', target)
+	hook.Run('UV_Event', 'onSuspectSpotted', target)
 end
 
 --Sound spam check--
@@ -1020,6 +1020,195 @@ HEAT_DEFAULTS = {
 	}
 }
 
+local PRESET_MAP = {
+	['uvunitmanager'] = {},
+	['uvpursuittech'] = {}
+}
+
+local PRESET_START_CONVARS = {
+	['uvunitmanager'] = {
+		'unitvehicle_unit_',
+		'uvunitmanager_'
+	}
+}
+
+local conVarList = PRESET_MAP['uvunitmanager']
+UVUnitsConVars = conVarList
+
+conVarList["selected_heat"] = 1
+
+conVarList["vehiclebase"] = 3
+conVarList["commanderrepair"] = 1
+conVarList["onecommanderhealth"] = 5000
+conVarList["helicoptermodel"] = "Default"
+conVarList["helicopterbarrels"] = 1
+conVarList["helicopterspikestrip"] = 1
+conVarList["helicopterbusting"] = 1
+
+conVarList["pursuittech"] = 1
+conVarList["pursuittech_esf"] = 1
+conVarList["pursuittech_emp"] = 1
+conVarList["pursuittech_spikestrip"] = 1
+conVarList["pursuittech_killswitch"] = 1
+conVarList["pursuittech_repairkit"] = 1
+conVarList["pursuittech_shockram"] = 1
+conVarList["pursuittech_gpsdart"] = 1
+conVarList["pursuittech_grappler"] = 1
+
+conVarList["minheat"] = 1
+conVarList["maxheat"] = 6
+
+conVarList["bountypatrol"] = 1000
+conVarList["bountysupport"] = 5000
+conVarList["bountypursuit"] = 10000
+conVarList["bountyinterceptor"] = 20000
+conVarList["bountyair"] = 75000
+conVarList["bountyspecial"] = 25000
+conVarList["bountycommander"] = 100000
+conVarList["bountyrhino"] = 50000
+
+local defaultvoicetable = {
+	"cop1, cop2, cop3, cop4, cop5", --Patrol
+	"cop1, cop2, cop3, cop4, cop5", --Support
+	"cop1, cop2, cop3, cop4, cop5", --Pursuit
+	"cop1, cop2, cop3, cop4, cop5", --Interceptor
+	"cop1, cop2, cop3, cop4, cop5", --Special
+	"commander1", --Commander
+	"rhino1", --Rhino
+	"air", --Air
+}
+
+for index, v in pairs( {'Patrol', 'Support', 'Pursuit', 'Interceptor', 'Special', 'Commander', 'Rhino', 'Air'} ) do
+	local lowercaseUnit = string.lower( v )
+	local conVarKey = string.format( '%s_voice', lowercaseUnit )
+	local conVarKeyVoiceProfile = string.format( '%s_voiceprofile', lowercaseUnit )
+	conVarList[conVarKey] = defaultvoicetable[index]
+	conVarList[conVarKeyVoiceProfile] = "default"
+end
+
+for _, v in pairs( {'Misc', 'Dispatch'} ) do
+	local lowercaseType = string.lower( v )
+	local conVarKey = string.format( '%s_voiceprofile', lowercaseType )
+	conVarList[conVarKey] = "default"
+end
+
+local unitsheat1 = {
+	"default_crownvic.json", --Patrol
+	"", --Support
+	"", --Pursuit
+	"", --Interceptor
+	"", --Special
+	"", --Commander
+	"" --Rhino
+}
+
+local unitsheat2 = {
+	"default_crownvic.json", --Patrol
+	"default_explorer.json", --Support
+	"", --Pursuit
+	"", --Interceptor
+	"", --Special
+	"", --Commander
+	"" --Rhino
+}
+
+local unitsheat3 = {
+	"default_crownvic.json", --Patrol
+	"default_explorer.json", --Support
+	"default_chargerbee.json", --Pursuit
+	"", --Interceptor
+	"", --Special
+	"", --Commander
+	"" --Rhino
+}
+
+local unitsheat4 = {
+	"", --Patrol
+	"default_explorer.json", --Support
+	"default_chargerbee.json", --Pursuit
+	"default_corvettec7.json", --Interceptor
+	"", --Special
+	"", --Commander
+	"" --Rhino
+}
+
+local unitsheat5 = {
+	"", --Patrol
+	"", --Support
+	"default_chargerbee.json", --Pursuit
+	"default_corvettec7.json", --Interceptor
+	"default_coloradozr2.json", --Special
+	"default_viperelite.json", --Commander
+	"default_rhinotruck.json" --Rhino
+}
+
+local unitsheat6 = {
+	"", --Patrol
+	"", --Support
+	"", --Pursuit
+	"default_corvettec7.json", --Interceptor
+	"default_coloradozr2.json", --Special
+	"default_viperelite.json", --Commander
+	"default_rhinotruck.json" --Rhino
+}
+
+for i = 1, MAX_HEAT_LEVEL do
+	local prevIterator = i - 1
+	
+	local timeTillNextHeatId = ((prevIterator == 0 and 'enabled') or prevIterator)
+	
+	for index, v in pairs( {'Patrol', 'Support', 'Pursuit', 'Interceptor', 'Special', 'Commander', 'Rhino'} ) do
+		local lowercaseUnit = string.lower( v )
+		local conVarKey = string.format( 'units%s%s', lowercaseUnit, i )
+		local chanceConVarKey = string.format( 'units%s%s_chance', lowercaseUnit, i )
+		local limitConVarKey = string.format( 'units%s%s_limit', lowercaseUnit, i )
+		
+		-------------------------------------------
+		if i == 1 then
+			conVarList[conVarKey] = unitsheat1[index]
+		elseif i == 2 then
+			conVarList[conVarKey] = unitsheat2[index]
+		elseif i == 3 then
+			conVarList[conVarKey] = unitsheat3[index]
+		elseif i == 4 then
+			conVarList[conVarKey] = unitsheat4[index]
+		elseif i == 5 then
+			conVarList[conVarKey] = unitsheat5[index]
+		elseif i == 6 then
+			conVarList[conVarKey] = unitsheat6[index]
+		else
+			conVarList[conVarKey] = ""
+		end
+		
+		conVarList[chanceConVarKey] = 100
+		conVarList[limitConVarKey] = 0
+	end
+	
+	for _, conVar in pairs( HEAT_SETTINGS ) do
+		local conVarKey = conVar .. ((conVar == 'timetillnextheat' and timeTillNextHeatId) or i)
+		local check = (conVar == "timetillnextheat")
+		
+		conVarList[conVarKey] = HEAT_DEFAULTS[conVar][tostring( ( check and timeTillNextHeatId ) or i )] or 0
+	end
+end
+
+local LEGACY_CONVARS = {
+	["rhinos"] = {
+		Replacement = "unitsrhino",
+		HasNumber = true,
+	},
+}
+
+local PROTECTED_CONVARS = {
+	['selected_heat'] = true,
+}
+
+local DEFAULTS = {
+	['selected_heat'] = 1,
+	['minheat'] = 1,
+	['maxheat'] = 6
+}
+
 NETWORK_STRINGS = {
 	"UV_SendPursuitTech"
 }
@@ -1178,6 +1367,7 @@ RepairRange = CreateConVar("unitvehicle_repairrange", 100, {FCVAR_ARCHIVE, FCVAR
 RacerPursuitTech = CreateConVar("unitvehicle_racerpursuittech", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racers will spawn with pursuit tech (spike strips, ESF, etc.).")
 RacerFriendlyFire = CreateConVar("unitvehicle_racerfriendlyfire", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Racers will be able to attack eachother with Pursuit Tech.")
 OptimizeRespawn = CreateConVar("unitvehicle_optimizerespawn", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units will be teleported ahead of the suspect instead of despawning (does not work with simfphys).")
+TrafficStreaming = CreateConVar("unitvehicle_trafficstreaming", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Traffic and patrolling Units will despawn when they are too far away from the player, thus allowing new ones to spawn.")
 SpottedFreezeCam = CreateConVar("unitvehicle_spottedfreezecam", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, the game will freeze and the camera will point to the closest Unit when starting a pursuit (single-player only).")
 RandomPlayerUnits = CreateConVar("unitvehicle_randomplayerunits", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, player-controlled Units will be chosen randomly from the available units.")
 TractionControl = CreateConVar("unitvehicle_tractioncontrol", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Units and Racer Vehicles will apply reduced throttle when wheel spinning.")
@@ -1186,8 +1376,6 @@ CanExitVehicle = CreateConVar("unitvehicle_canexitvehicle", 0, {FCVAR_ARCHIVE, F
 UnitDifficulty = CreateConVar( "unitvehicle_unitdifficulty", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Increases Unit AI difficulty." )
 UnitCatchup = CreateConVar( "unitvehicle_unitcatchup", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit AI catch-up." )
 
-UVUCommanderEvade = CreateConVar("unitvehicle_unit_onecommanderevading", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "If enabled, will allow racers to escape while commander is on scene.")
-UVUOneCommander = CreateConVar("unitvehicle_unit_onecommander", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUOneCommanderHealth = CreateConVar("unitvehicle_unit_onecommanderhealth", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 UVUCommanderRepair = CreateConVar("unitvehicle_unit_commanderrepair", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED},"Unit Vehicles: If set to 1, Commander Units can utilize the Repair Shop to repair themselves.")
 
@@ -1302,10 +1490,260 @@ UVRBOverride = CreateConVar("unitvehicle_roadblock_override", 0, {FCVAR_ARCHIVE,
 
 UnitVehicles = true
 
+--[[
+
+	For presets:
+	Client: Table<sequential> name
+	Server: Table[name] = data
+
+]]
+UVPresets = {}
+
 if SERVER then
+	local PRESET_TYPES = {
+		["uvunitmanager"] = true,
+		["uvpursuittech"] = true,
+	}
+
+	function UV_AddPreset( type, fileName, data )
+		if not UVPresets[type] then UVPresets[type] = {} end
+		UVPresets[type][fileName] = data
+
+		net.Start("UVPresets_Add")
+		net.WriteString(type)
+		net.WriteString(fileName)
+		net.WriteString(data.Name or fileName)
+		net.Broadcast()
+	end
+	
+	function UV_RemovePreset( type, fileName, deleteFile )
+		if UVPresets[type] then UVPresets[type][fileName] = nil end
+		if deleteFile then
+			local isWorkshop = UV_IsWorkshop( "preset_import>>" .. type, fileName )
+			
+			-- The reason I check for X == false is because UV_IsWorkshop returns nil if the file is not found
+			if isWorkshop == false then
+				UV_RemoveFile( "preset_import>>" .. type, fileName )
+			end
+		end
+
+		net.Start("UVPresets_Remove")
+		net.WriteString(type)
+		net.WriteString(fileName)
+		net.Broadcast()
+	end
+
+	function UV_LoadPreset( type, fileName )
+		local data = util.JSONToTable( UV_LoadFile( "preset_import>>" .. type, fileName ) )
+		if not data then return end
+
+		if type == "uvunitmanager" then
+			UVUnitLoadPreset( data.Data )
+			return
+		end
+
+		for convarName, convarValue in pairs( PRESET_MAP[type] ) do
+			local convar = GetConVar( convarName )
+
+			if convar then
+				convar:SetString( data.Data[convarName] or convarValue )
+			end
+		end
+	end
+
+	function UV_SavePreset( type, name, data )
+		if not data then
+			data = {}
+
+			for key, _ in pairs( PRESET_MAP[type] ) do
+				local newKey = type == "uvunitmanager" and 'unitvehicle_unit_' .. key or key
+				local convar = GetConVar(newKey)
+				if convar then
+					data[newKey] = convar:GetString()
+				end
+			end
+		end
+
+		local jsonArray = {
+			['Name'] = name,
+			['Data'] = data
+		}
+
+		if not file.IsDir( 'unitvehicles/preset_import', 'DATA' ) then
+			file.CreateDir( 'unitvehicles/preset_import' )
+		end
+
+		if not file.IsDir( 'unitvehicles/preset_import/' .. type, 'DATA' ) then
+			file.CreateDir( 'unitvehicles/preset_import/' .. type )
+		end
+
+		file.Write( 'unitvehicles/preset_import/' .. type .. '/' .. string.lower( name ) .. '.json', util.TableToJSON( jsonArray ) )
+		UV_AddFile( 'preset_import>>' .. type, string.lower( name ) .. '.json', 'unitvehicles/preset_import/' .. type .. '/', 'DATA' )
+
+		return jsonArray
+	end
+
+	function UV_SendPresets( ply )
+		local networkData = {}
+
+		for type, _ in pairs( PRESET_TYPES ) do
+			networkData[type] = {}
+			if not UVPresets[type] then continue end
+
+			for file, data in pairs(UVPresets[type]) do
+				networkData[type][file] = data.Name or file
+			end
+		end
+
+		local compressedData = util.Compress(util.TableToJSON(networkData))
+
+		net.Start("UVPresets_Set")
+		net.WriteString("__ALL")
+		net.WriteUInt(#compressedData, 16)
+		net.WriteData(compressedData, #compressedData)
+		net.Send(ply)
+	end
+
+	function UV_PopulatePresets()
+		for type, _ in pairs( PRESET_TYPES ) do
+			UVPresets[type] = {}
+			local networkData = {}
+			
+			local files = UV_GetFiles( "preset_import>>" .. type )
+
+			for _, file in ipairs(files) do
+				local data = util.JSONToTable( UV_LoadFile( "preset_import>>" .. type, file ) )
+				UVPresets[type][file] = data
+				networkData[file] = data.Name or file
+			end
+
+			local compressedData = util.Compress(util.TableToJSON(networkData))
+
+			net.Start("UVPresets_Set")
+			net.WriteString(type)
+			net.WriteUInt(#compressedData, 16)
+			net.WriteData(compressedData, #compressedData)
+			net.Broadcast()
+		end
+	end
+
+	function UV_DefinePresetTemplate( type, template )
+		if not PRESET_TYPES[type] then return end
+		PRESET_MAP[type] = template
+	end
+
+	hook.Add( "UVContentEvent", "UV_PopulatePresets", function( operation, path, fileName )
+		if operation ~= "Initialize" then return end
+
+		UV_PopulatePresets()
+		hook.Remove( "UVContentEvent", "UV_PopulatePresets" )
+	end )
+
+	net.Receive("UVPresets_Remove", function( len, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local type = net.ReadString()
+		local fileName = net.ReadString()
+
+		UV_RemovePreset( type, fileName, true )
+	end)
+
+	net.Receive("UVPresets_Load", function( len, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local type = net.ReadString()
+		local filename = net.ReadString()
+
+		UV_LoadPreset( type, filename )
+	end)
+
+	net.Receive("UVPresets_Save", function( len, ply )
+		if ply and not ply:IsSuperAdmin() then return end
+
+		local type = net.ReadString()
+		local name = net.ReadString()
+
+		local data = UV_SavePreset(type, name)
+		UV_AddPreset(type, string.lower(name) .. '.json', data)
+	end)
+
+	local function _setConVar( cvar, value )
+		UV_UpdateSettings({ ["unitvehicle_unit_" .. cvar] = value })
+		-- net.Start("UVUpdateSettings")
+		-- net.WriteTable({ ["unitvehicle_unit_" .. cvar] = value })
+		-- net.SendToServer()
+	end
+
+	--[[
+		- data is a table of convar names and values
+	]]
+	function UVUnitLoadPreset( data )
+		local warned = false
+		local count = 0
+		local count1 = 0
+
+		for key, value in pairs(conVarList) do
+			local incomingData = data[key] or data["unitvehicle_unit_" .. key] or data["uvunitmanager_" .. key]
+			local cont
+
+			-- MUST BE FIXED TO USE UVUPDATESETTINGS
+			if string.match(key, "_chance") and not incomingData then
+				_setConVar( key, 100 )
+				cont = true 
+			end
+
+			if string.match(key, "_limit") and not incomingData then
+				_setConVar( key, 0 )
+				cont = true 
+			end
+
+			if cont then
+				cont = nil
+				continue
+			end
+
+			if not incomingData and GetConVar("unitvehicle_unit_" .. key) and not PROTECTED_CONVARS[key] then
+				_setConVar( key, DEFAULTS[key] or "" )
+			end
+		end
+
+		for incomingCV, incomingValue in pairs(data) do
+			-- local isOldFormat = string.match( incomingCV, "uvunitmanager_" )
+			-- incomingCV = isOldFormat and string.Split( incomingCV, "uvunitmanager_" )[2] or incomingCV
+			local variable = string.Split( incomingCV, "unitvehicle_unit_" )[2] or string.Split( incomingCV, "uvunitmanager_" )[2]
+
+			count1 = count1 + 1
+			--local cvNoNumber = string.sub( incomingCV, 1, string.len(incomingCV) - 1 )
+
+			local cvNoNumber = nil
+			local number = nil
+
+			local _incomingCV = variable
+
+			while string.match( _incomingCV:sub(-1), "%d" ) and _incomingCV ~= "" do
+				number = _incomingCV:sub( -1 )
+				cvNoNumber = _incomingCV:sub( 1, -2 )
+				_incomingCV = cvNoNumber
+			end
+
+			local numberIterator = 0
+
+			if LEGACY_CONVARS[_incomingCV] then
+				if LEGACY_CONVARS[_incomingCV].HasNumber then
+					_setConVar( LEGACY_CONVARS[_incomingCV].Replacement .. number, incomingValue  )
+				else
+					_setConVar( LEGACY_CONVARS[_incomingCV].Replacement, incomingValue )
+				end
+			elseif not PROTECTED_CONVARS[variable] then
+				_setConVar( variable, incomingValue )
+			end
+		end
+	end
+
 
 	-- Last replicated scope fields per key; UVScopeThink diffs against this (see UVReplicate*).
 	local UV_SCOPE_LAST_REPLICATED = {}
+	local UV_SCOPE_LAST_VALUES = {}
 
 	UVHUDPursuit = nil
 	UVHUDBusting = nil
@@ -1323,7 +1761,7 @@ if SERVER then
 
 	--LVS: Disable vehicle engine
 	hook.Add( "LVS.IsEngineStartAllowed", "UVLVSIsEngineStartAllowed", function( v )
-		if v.uvbusted or v.uvenginedisabledbyuv then return false end
+		if v.uvbusted or v.uvenginedisabled then return false end
 	end)
 
 	--Non-collision damage to prop_vehicle_jeep UVs
@@ -1388,8 +1826,6 @@ if SERVER then
 		UVLoadedRoadblocks = {}
 		UVLoadedRoadblocksLoc = {}
 		UVWreckedVehicles = {}
-		net.Start( "UVHUDStopCopMode" )
-		net.Broadcast()
 	end)
 
 	--[[
@@ -1399,6 +1835,8 @@ if SERVER then
 	]]--
 
 	function UVCreateScope( veh, scopeData )
+		if veh.UnitVehicle then return end
+
 		local key = isstring(veh) and veh or UVScopeKey(veh)
 		if not key then return nil end
 		if UVPursuitScopes[key] then return UVPursuitScopes[key] end
@@ -1421,6 +1859,7 @@ if SERVER then
 		-- scope.CooldownProgressTimeout = CurTime()
 
 		UVPursuitScopes[key] = scope
+		UV_SCOPE_LAST_VALUES[key] = table.Copy(scope)
 
 		UVReplicateFullScope(key, scope)
 
@@ -1432,6 +1871,7 @@ if SERVER then
 		if not key then return end
 
 		UV_SCOPE_LAST_REPLICATED[key] = nil
+		UV_SCOPE_LAST_VALUES[key] = nil
 		UVPursuitScopes[key] = nil
 
 		net.Start( "UV_RemoveScope" )
@@ -1584,6 +2024,8 @@ if SERVER then
 		-- InPursuit is set manually by unit spotting (visibility) or uv_startpursuit only
 
 		-- Per-scope tick (we sync changes based on the UV_SCOPE_LAST_REPLICATED diffs)
+		local lastValues = UV_SCOPE_LAST_VALUES[key] or {}
+
 		for key, scope in pairs( UVPursuitScopes ) do
 			local veh = Entity( scope.EntIndex )
 			if not IsValid( veh ) then continue end
@@ -1614,7 +2056,7 @@ if SERVER then
 			if scope.InPursuit and not scope.EnemyEscaped then
 				if scope.Losing >= 5 then
 					if not scope.EnemyEscaping then
-						hook.Run('PursuitEventHook', 'onSuspectEscaping', veh)
+						hook.Run('UV_Event', 'onSuspectEscaping', veh)
 						scope.EnemyEscaping = true
 						scope.InCooldown = true
 						scope.IsEvading = true
@@ -1635,7 +2077,7 @@ if SERVER then
 					end
 				else
 					if scope.EnemyEscaping and not scope.EnemyEscaped and not scope.EnemyBusted then
-						hook.Run('PursuitEventHook', 'onSuspectEscapingEnd', veh)
+						hook.Run('UV_Event', 'onSuspectEscapingEnd', veh)
 						scope.EnemyEscaping = false
 						scope.InCooldown = false
 						scope.IsEvading = false
@@ -1645,7 +2087,7 @@ if SERVER then
 
 				-- call off pursuit for scope if escaped
 				if scope.CooldownTimerProgress >= 1 then
-					hook.Run('PursuitEventHook', 'onSuspectEscaped', veh)
+					hook.Run('UV_Event', 'onSuspectEscaped', veh)
 					scope.CooldownTimerProgress = 0
 					scope.InPursuit = false
 					scope.EnemyEscaped = true
@@ -1655,7 +2097,7 @@ if SERVER then
 				end
 
 				-- Never evade option
-				if NeverEvade:GetBool() or ( ( (not UVUCommanderEvade:GetBool()) and UVOneCommanderActive ) and not scope.EnemyEscaping ) then
+				if NeverEvade:GetBool() and not scope.EnemyEscaping then
 					scope.Losing = 0
 				end
 			end
@@ -1673,7 +2115,7 @@ if SERVER then
 						local nextHeat = scope.Heat + 1
 						if nextHeat <= MaxHeatLevel:GetInt() then
 							scope.Heat = nextHeat
-							hook.Run( 'PursuitEventHook', 'onHeatLevelIncrease', veh, nextHeat )
+							hook.Run( 'UV_Event', 'onHeatLevelIncrease', veh, nextHeat )
 							TriggerHeatLevelEffects( nextHeat, veh )
 							local timeTillNextHeatConVar = GetConVar( 'unitvehicle_unit_timetillnextheat' .. nextHeat )
 							local nextInterval = timeTillNextHeatConVar and timeTillNextHeatConVar:GetInt() or 120
@@ -1690,7 +2132,7 @@ if SERVER then
 					local newHeatLevel = CalculateHeatLevel( scope.Bounty, scope.Heat )
 					if newHeatLevel ~= scope.Heat then
 						scope.Heat = newHeatLevel
-						hook.Run( 'PursuitEventHook', 'onHeatLevelIncrease', veh, newHeatLevel )
+						hook.Run( 'UV_Event', 'onHeatLevelIncrease', veh, newHeatLevel )
 						TriggerHeatLevelEffects( newHeatLevel, veh )
 					end
 				end
@@ -1767,6 +2209,18 @@ if SERVER then
 			if hasChanges then
 				UVReplicateScopeDelta( key, delta )
 			end
+
+			local lastValues = UV_SCOPE_LAST_VALUES[key] or {}
+			local deltaValues = {}
+
+			for k, v in pairs( scope ) do
+				if lastValues[k] ~= v then
+					deltaValues[k] = v
+					lastValues[k] = v
+				end
+			end
+
+			if next(deltaValues) then hook.Run( 'UV_Event', 'onScopeChanged', veh, deltaValues ) end
 		end
 
 		-- if now > _scopeSyncThrottle then
@@ -1822,9 +2276,9 @@ if SERVER then
 				end	
 			end)
 			if anyBusted then
-				hook.Run( 'PursuitEventHook', 'onPursuitEnd', 'Busted' )
+				hook.Run( 'UV_Event', 'onPursuitEnd', 'Busted' )
 			elseif anyEscaped then
-				hook.Run( 'PursuitEventHook', 'onPursuitEnd', 'Escaped' )
+				hook.Run( 'UV_Event', 'onPursuitEnd', 'Escaped' )
 			end
 		end
 
@@ -1890,6 +2344,22 @@ if SERVER then
 		_SkipHeatLevelReporting = false
 	end
 
+	function UVGetPlayerCops( onlyVehicles )
+		local cops = {}
+		
+		for unit, _ in pairs( UVUnitVehicles ) do
+			if unit.UnitVehicle and unit.UnitVehicle:IsPlayer() then
+				if onlyVehicles then
+					table.insert( cops, unit )
+				else
+					table.insert( cops, unit.UnitVehicle )
+				end
+			end
+		end
+
+		return cops
+	end
+
 	UVHeliCooldown = -math.huge
 	UVBustSpeed = 10
 	UVCooldownTimer = 20
@@ -1921,7 +2391,6 @@ if SERVER then
 	UVMaxUnits = 3
 	UVTacticFormationNo = 1
 	UVVehicleInitializing = {}
-	UVPlayerUnitTableVehicle = {}
 	UVPlayerUnitTablePlayers = {}
 	UVCommanders = {}
 	UVRVWithPursuitTech = {}
@@ -1934,7 +2403,7 @@ if SERVER then
 	UVWreckedVehicles = {}
 	UVUnitVehicles = {}
 
-	hook.Add('PursuitEventHook', 'onPursuitEvent', function( type, result )
+	hook.Add('UV_Event', 'onPursuitEvent', function( type, result )
 		if type == 'onPursuitEnd' then
 			if result == 'Busted' then
 				
@@ -1959,7 +2428,7 @@ if SERVER then
 
 		--One Commander Active
 		if UVOneCommanderActive then
-			if not UVCommanderRespawning and ( UVUOneCommander:GetInt() ~= 1 or next(UVCommanders) == nil ) then
+			if not UVCommanderRespawning and next(UVCommanders) == nil then
 				UVOneCommanderActive = nil
 				UVCommanderLastHealth = nil
 				UVCommanderLastEngineHealth = nil
@@ -1973,7 +2442,7 @@ if SERVER then
 			end
 		end
 
-		if UVUOneCommander:GetInt() == 1 and next(UVCommanders) ~= nil then
+		if next(UVCommanders) ~= nil then
 			UVOneCommanderActive = true
 			net.Start("UVHUDOneCommander")
 			net.WriteEntity(UVCommanders[1])
@@ -2121,22 +2590,7 @@ if SERVER then
 		if next(UVVehicleInitializing) ~= nil then
 			for k, car in pairs(UVVehicleInitializing) do
 				if IsValid(car) and ((isfunction(car.IsInitialized) and car:IsInitialized()) or car.IsGlideVehicle or (car.LVS and car:IsInitialized()) or car:GetClass() == "prop_vehicle_jeep") then
-					if car.uvclasstospawnon == "npc_uvpatrol" then
-						car.playerbounty = UVUBountyPatrol:GetInt()
-					elseif car.uvclasstospawnon == "npc_uvsupport" then
-						car.playerbounty = UVUBountySupport:GetInt()
-					elseif car.uvclasstospawnon == "npc_uvpursuit" then
-						car.playerbounty = UVUBountyPursuit:GetInt()
-					elseif car.uvclasstospawnon == "npc_uvinterceptor" then
-						car.playerbounty = UVUBountyInterceptor:GetInt()
-					elseif car.uvclasstospawnon == "npc_uvspecial" then
-						if car.rhino then
-							car.playerbounty = UVUBountyRhino:GetInt()
-						else
-							car.playerbounty = UVUBountySpecial:GetInt()
-						end
-					elseif car.uvclasstospawnon == "npc_uvcommander" then
-						car.playerbounty = UVUBountyCommander:GetInt()
+					if car.uvclasstospawnon == "npc_uvcommander" then
 						local health = car.uvlasthealth or UVUOneCommanderHealth:GetInt()
 						local enginehealth = car.uvlastenginehealth or 1.0
 						if car.IsSimfphyscar then
@@ -2155,9 +2609,15 @@ if SERVER then
 								car:SetHealth(health)
 							end
 						end
-						table.insert(UVCommanders, car)
 						UVCommanderRespawning = nil
+					else
+						if car:GetClass() == "prop_vehicle_jeep" and not vcmod_main then
+							local mass = car:GetPhysicsObject():GetMass()
+							car:SetMaxHealth(mass)
+							car:SetHealth(mass)
+						end
 					end
+
 					if not car.UnitVehicle then 
 						local uv = ents.Create(car.uvclasstospawnon) 
 						uv:SetPos(car:GetPos())
@@ -2183,11 +2643,13 @@ if SERVER then
 						elseif car.LVS then
 							car.UnitVehicle:EnterVehicle(car:GetDriverSeat())
 						end
+
 						net.Start("UVHUDAddUV")
 						net.WriteInt(car:EntIndex(), 32)
 						net.WriteInt(car:GetCreationID(), 32)
 						net.WriteString("unit")
 						net.Broadcast()
+
 						UVUnitVehicles[car] = car
 					end
 					
@@ -2196,79 +2658,26 @@ if SERVER then
 			end
 		end
 
-		local playerUnitActive = false
-
-		--Player-controlled Unit Vehicles
-		if next(UVPlayerUnitTableVehicle) ~= nil then
-			for k, car in pairs(UVPlayerUnitTableVehicle) do				
-				if IsValid(car) and not car.wrecked and
-					(car:Health() <= 0 and car:GetClass() == "prop_vehicle_jeep" or --No health 
-						car.uvclasstospawnon ~= "npc_uvcommander" and CanWreck:GetBool() and car:GetPhysicsObject():GetAngles().z > 90 and car:GetPhysicsObject():GetAngles().z < 270 and car.rammed --[[or car:GetVelocity():LengthSqr() < 10000)]] or --Flipped
-						car:WaterLevel() > 2 or --Underwater
-						car:IsOnFire() or --On fire
-						UVPlayerIsWrecked(car)) then --Other parameters
-					UVPlayerWreck(car)
-				end
-
-				if UVGetDriver(car) and UVGetDriver(car):IsPlayer() then
-					local driver = UVGetDriver(car)
-					playerUnitActive = true
-
-					if not table.HasValue(UVPlayerUnitTablePlayers, driver) then
-						table.insert(UVPlayerUnitTablePlayers, driver)
-						driver.uvplayerlastvehicle = car
-						hook.Add("CanExitVehicle", "UVPlayerExitUnitVehicle", function(vehicle, driver)
-							if UVTargeting then return end
-							if table.HasValue(UVPlayerUnitTablePlayers, driver) then
-								table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
-								hook.Remove( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex())
-								UVDeactivateESF(car)
-								net.Start( "UVHUDStopCopMode" )
-								net.Send(driver)
-							end
-						end)
-						hook.Add("PostPlayerDeath", "UVPlayerKilled", function(driver)
-							if table.HasValue(UVPlayerUnitTablePlayers, driver) then
-								table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
-								hook.Remove( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex())
-								UVDeactivateESF(car)
-								net.Start( "UVHUDStopCopMode" )
-								net.Send(driver)
-							end
-						end)
-						hook.Add( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex(), function(car, gib) 
-							if table.HasValue(UVPlayerUnitTablePlayers, driver) then
-								table.RemoveByValue(UVPlayerUnitTablePlayers, driver)
-								hook.Remove( "simfphysOnDestroyed", "UVExplosion"..car:EntIndex())
-								UVDeactivateESF(car)
-								net.Start( "UVHUDStopCopMode" )
-								net.Send(driver)
-							end
-							if (not car.UnitVehicle) or car.wrecked then return end
-							if car.UnitVehicle:IsPlayer() then
-								UVPlayerWreck(car)
-							end
-						end)
-						net.Start( "UVHUDCopMode" )
-						net.Send(driver)
-					end
-				end
-
-				if car.uvkillswitching then
-					UVKillSwitchCheck(car)
-				end
-			end
-		end
-
-		UVUnitsHavePlayers = playerUnitActive
-
 		local visible_suspects = {}
 		
 		for unit, _ in pairs(UVUnitVehicles) do
 			if not IsValid(unit) or not unit.UnitVehicle or unit.wrecked then
 				UVUnitVehicles[unit] = nil
+				continue
+			end
+
+			if unit.uvkillswitching then
+				UVKillSwitchCheck(unit)
+			end
+
+			if unit.UnitVehicle:IsPlayer() then
+				if UVUnitIsWrecked(unit) then
+					UVPlayerWreck(unit)
+				end
 			end
 		end
+
+		UVUnitsHavePlayers = next(UVGetPlayerCops()) ~= nil
 		
 		for _, v in pairs(UVWantedTableVehicle) do
 			local last_visible_value = v.inunitview
@@ -2286,16 +2695,20 @@ if SERVER then
 			-- Visibility check for helicopter, should they have busting enabled.
 			for _, j in pairs(ents.FindByClass("uvair")) do
 				if (not (j.Downed and j.disengaging and j.crashing)) and j:GetTarget() == v then
-					v.inunitview = true
-					vScope.UnitsChasing = vScope.UnitsChasing + 1
-					--check = true						
-					local closestunit = v.closestunit
-					local closestdistancetounit = v.closestdistancetounit
+					local isInRange = j:DistIgnoreZ( v:GetPos() ) <= ( vScope.Hiding and 2000 or 10000 )
 					
-					local dist = j:GetPos():DistToSqr(v:GetPos())
-					if UVUHelicopterBusting:GetBool() and ( not closestunit or dist < closestdistancetounit ) then
-						v.closestunit = j
-						v.closestdistancetounit = dist
+					if isInRange and ( v.inunitview or UVVisualOnTarget( j, v ) ) then
+						v.inunitview = true
+						vScope.UnitsChasing = vScope.UnitsChasing + 1
+						--check = true
+						local closestunit = v.closestunit
+						local closestdistancetounit = v.closestdistancetounit
+						
+						local dist = j:GetPos():DistToSqr(v:GetPos())
+						if UVUHelicopterBusting:GetBool() and ( not closestunit or dist < closestdistancetounit ) then
+							v.closestunit = j
+							v.closestdistancetounit = dist
+						end
 					end
 				end
 			end
@@ -2343,9 +2756,10 @@ if SERVER then
 			-- Right now, whether a vehicle is pursuable is determined by:
 			-- 1. The vehicle's bounty is greater than or equal to the minimum bounty required for pursuit.
 			-- 2. The vehicle has fines due of at least $500 ONLY IF there is an active pursuit going on.
+			-- 3. The vehicle is currently involved in an active race.
 			-- This might change in the future, but for now this is the logic for pursuing vehicles during existing pursuits.
 			-- I was considering making only certain infractions immediately start a pursuit, but meh...
-			local isPursuable = vScope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and vScope.FinesDue >= 500 )
+			local isPursuable = vScope.Bounty >= GetConVar("unitvehicle_unit_heatminimumbounty1"):GetInt() or ( UVTargeting and vScope.FinesDue >= 500 ) or v.uvraceparticipant
 			local isClosestCopPlayer = v.closestunit and v.closestunit.UnitVehicle:IsPlayer()
 			
 			-- If a suspect is being pulled over, we don't want the timeout to be reached even if the vehicle is complying.
@@ -2363,7 +2777,7 @@ if SERVER then
 				-- If the traffic stop timeout is reached, 
 				-- we end the traffic stop and mark the vehicle as pursuable.
 				if v.TrafficStopTimeout <= 0 then
-					if v.TargetingUnit and v.TargetingUnit.UnitVehicle:IsNPC() then
+					if v.TargetingUnit and v.TargetingUnit.UnitVehicle and v.TargetingUnit.UnitVehicle:IsNPC() then
 						UVChatterPursuitStartRanAway( v.TargetingUnit.UnitVehicle, v )
 					end
 					UVEndTrafficStop(v)
@@ -2398,7 +2812,7 @@ if SERVER then
 				end
 			else
 				if vScope.InPursuit then
-					if NeverEvade:GetBool() or ( ( (not UVUCommanderEvade:GetBool()) and UVOneCommanderActive ) and not vScope.EnemyEscaping ) then
+					if NeverEvade:GetBool() and not vScope.EnemyEscaping then
 						vScope.Losing = 0
 					else
 						vScope.Losing = math.Clamp( vScope.Losing + FrameTime(), 0, 5 )
@@ -2407,11 +2821,15 @@ if SERVER then
 			end
 			
 			if v.inunitview and not vScope.InPursuit and isPursuable then
-				if v.closestunit and v.closestunit.UnitVehicle:IsNPC() then
-					UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
+				if v.closestunit then
+					if v.closestunit.UnitVehicle:IsNPC() then
+						UVChatterPursuitStartWanted(v.closestunit.UnitVehicle, v)
+					else
+						UVChatterPursuitStartAcknowledge(v.closestunit.UnitVehicle)
+					end
 				end
 				UV_InitiatePursuit(v)
-				hook.Run('PursuitEventHook', 'onSuspectSpotted', v)
+				hook.Run('UV_Event', 'onSuspectSpotted', v)
 			end
 			
 			if not v.UVBustingProgress then
@@ -2622,7 +3040,7 @@ if SERVER then
 	
 						local units = ents.FindByClass("npc_uv*")
 						local airUnits = ents.FindByClass("uvair")
-						local playerUnits = UVPlayerUnitTableVehicle
+						local playerUnits = UVGetPlayerCops(true)
 	
 						table.Add( units, airUnits )
 						table.Add( units, playerUnits )
@@ -2665,11 +3083,9 @@ if SERVER then
 					end
 				end
 
-				if next(UVPlayerUnitTableVehicle) ~= nil then
-					for k, car in pairs(UVPlayerUnitTableVehicle) do
-						UVSetELS(true, car)
-						UVSetELSSound(true, car)
-					end
+				for k, v in pairs(UVGetPlayerCops(true)) do
+					UVSetELS(true, v)
+					UVSetELSSound(true, v)
 				end
 			end
 
@@ -2703,11 +3119,11 @@ if SERVER then
 				if not UVEnemyEscaped then
 					net.Start( "UVHUDCopModeBustedDebrief" )
 					net.WriteTable(debrieftable)
-					net.Send(UVPlayerUnitTablePlayers)
+					net.Send(UVGetPlayerCops())
 				else
 					net.Start( "UVHUDCopModeEscapedDebrief" )
 					net.WriteTable(debrieftable)
-					net.Send(UVPlayerUnitTablePlayers)
+					net.Send(UVGetPlayerCops())
 				end
 
 				UVUpdateGlobalPursuit('PursuitStart', 0)
@@ -2752,7 +3168,7 @@ if SERVER then
 		end
 	end)
 
-	function UVHUDRespawn( ply, unit, unitnpc, isrhino, unitname )
+	function UVHUDRespawn( ply, unit, unitnpc, isrhino, unitname, relocate )
 		local timerName = "UVSpawnQueue_" .. ply:SteamID64()
 
 		if ply.uvspawningunit then
@@ -2796,12 +3212,15 @@ if SERVER then
 		local plymsg = { msg = "uv.chase.select.spawning", unit = unit, cooldown = nil }
 
 		if IsValid(ply.uvplayerlastvehicle) and ply.uvplayerlastvehicle.wrecked then
+			if relocate then return end
+
 			SpawnCooldownTable[ply] = CurTime()
 
 			ply:EmitSound("ui/redeploy/redeploy" .. math.random(1, 4) .. ".wav")
 
 			ply:ExitVehicle()
 			ply:Spawn()
+
 			UVAutoSpawn(ply, isrhino, nil, playercontrolled)
 			plymsg.msg = "uv.chase.select.spawning"
 
@@ -2821,6 +3240,7 @@ if SERVER then
 					plymsg.cooldown = cooldown
 					
 					if RandomPlayerUnits:GetBool() then plymsg.msg = "uv.chase.select.spawning.cooldown.random" end
+					if relocate then plymsg.msg = "uv.chase.select.spawning.cooldown.relocate" end
 					
 					net.Start("UVSpawnQueueUpdate")
 					net.WriteString(unitname)      -- vehicle/unit name
@@ -2837,17 +3257,27 @@ if SERVER then
 				cooldown = cooldown
 			}
 
+			local vehicle = UVGetVehicle( ply )
+			local isInUnitVehicle = IsValid( vehicle ) and vehicle.UnitVehicle == ply
+
+			if relocate and not isInUnitVehicle then return end
+
 			-- timer.Simple(cooldown, function()
 			timer.Create(timerName, cooldown, 1, function()
 				SpawnCooldownTable[ply] = CurTime()
 				ply.uvspawningunit = nil
 				net.Start( "UVHUDRespawnInUVPlyMsg" )
 				
-				if RandomPlayerUnits:GetBool() then
-					net.WriteString("uv.chase.select.spawning.random")
+				if relocate then
+					net.WriteString("uv.chase.select.spawning.relocate")
 				else
-					net.WriteString("uv.chase.select.spawning")
+					if RandomPlayerUnits:GetBool() then
+						net.WriteString("uv.chase.select.spawning.random")
+					else
+						net.WriteString("uv.chase.select.spawning")
+					end
 				end
+
 				net.WriteString(unitname)
 				net.Send(ply)
 				
@@ -2856,10 +3286,16 @@ if SERVER then
 				net.WriteInt(0, 16)
 				net.Send(ply)
 
-				ply:EmitSound("ui/redeploy/redeploy" .. math.random(1, 4) .. ".wav")
+				local newVehicle = UVGetVehicle( ply )
 
-				ply:ExitVehicle()
-				ply:Spawn()
+				if relocate then
+					if not IsValid(newVehicle) or newVehicle ~= vehicle then return end
+
+					ply:EmitSound("ui/redeploy/redeploy" .. math.random(1, 4) .. ".wav")
+
+					UVOptimizeRespawn( vehicle, ply )
+					return 
+				end
 
 				if IsValid(ply.uvplayerlastvehicle) and not ply.uvplayerlastvehicle.wrecked then
 					if table.HasValue(UVUnitsChasing, ply.uvplayerlastvehicle) then
@@ -2869,21 +3305,49 @@ if SERVER then
 					ply.uvplayerlastvehicle:Remove()
 				end
 
+				ply:EmitSound("ui/redeploy/redeploy" .. math.random(1, 4) .. ".wav")
+
+				ply:ExitVehicle()
+				ply:Spawn()
+
 				UVAutoSpawn(ply, isrhino, nil, playercontrolled)
 			end)
 		end
 	end
 
 	net.Receive("UVHUDRespawnInUV", function( length, ply )
+		if UVGame then return end
+
+		local isInUnitVehicle = net.ReadBool()
 		local unit = net.ReadString()
 		local unitnpc = net.ReadString()
 		local isrhino = net.ReadBool()
 		local unitname = net.ReadString()
 
-		UVHUDRespawn(ply, unit, unitnpc, isrhino, unitname)
+		-- if isInUnitVehicle then
+		-- 	local vehicle = UVGetVehicle( ply )
+
+		-- 	if IsValid( vehicle ) and vehicle.UnitVehicle == ply then
+		-- 		UVOptimizeRespawn( vehicle, ply )
+		-- 	end
+
+		-- 	return 
+		-- end
+
+		UVHUDRespawn(ply, unit, unitnpc, isrhino, unitname, isInUnitVehicle)
 	end)
 	
 	net.Receive("UVHUDRespawnInUVGetInfo", function( length, ply )
+		if UVGame then
+			local vehicle = UVGetVehicle( ply )
+			local isInUnitVehicle = IsValid( vehicle ) and vehicle.UnitVehicle == ply
+
+			if isInUnitVehicle then
+				UVHUDRespawn(ply, "", "", false, "Random", true)
+				return
+			end
+		end
+
 		if RandomPlayerUnits:GetBool() then
 			UVHUDRespawn(ply, "", "", false, "Random")
 			return
@@ -2911,7 +3375,11 @@ if SERVER then
 			UnitsCommander = ""
 		end
 
+		local vehicle = UVGetVehicle( ply )
+		local isInUnitVehicle = IsValid( vehicle ) and vehicle.UnitVehicle == ply
+
 		net.Start("UVHUDRespawnInUVSelect")
+		net.WriteBool(isInUnitVehicle)
 		net.WriteString(UnitsPatrol)
 		net.WriteString(UnitsSupport)
 		net.WriteString(UnitsPursuit)
@@ -2934,7 +3402,7 @@ if SERVER then
 	-- end)
 
 	gameevent.Listen( "player_activate" )
-	hook.Add( "player_activate", "player_activate_example", function( data ) 
+	hook.Add( "player_activate", "UV_PlayerDataReplicator", function( data ) 
 		local id = data.userid				-- Same as Player:UserID() for the speaker
 		local ply = Player(id)
 
@@ -2986,12 +3454,9 @@ if SERVER then
 			end
 		end
 
-	end )	
+	end )
 
-	net.Receive("UVUpdateSettings", function(len, ply)
-		if not ply:IsSuperAdmin() then return end
-		local array = net.ReadTable()
-		
+	function UV_UpdateSettings( array )
 		for key, value in pairs(array) do
 			if string.match(key, 'unitvehicle_') or string.match(key, 'uvpursuittech_') then
 				local convarType = type(value)
@@ -3005,7 +3470,7 @@ if SERVER then
 					convar:SetString(value)
 
 					if ReplicatedVars[key] then
-						for _, v in pairs( ents.FindByClass("player") ) do
+						for _, v in ipairs( ents.FindByClass("player") ) do
 							if not v:IsListenServerHost() then
 								net.Start( "UVGetSettings_Local" )
 								net.WriteString(key)
@@ -3017,6 +3482,13 @@ if SERVER then
 				end
 			end
 		end
+	end
+
+	net.Receive("UVUpdateSettings", function(len, ply)
+		if ply and not ply:IsSuperAdmin() then return end
+		local array = net.ReadTable()
+		
+		UV_UpdateSettings(array)
 	end)
 
 	concommand.Add( "uv_setbounty", function( ply, cmd, args )
@@ -3134,271 +3606,6 @@ else -- CLIENT Settings | HUD/Options
 	UVHeatLevel = 1
 	UVHUDWantedSuspects = {}
 
-	local conVarList = {}
-	UVUnitsConVars = conVarList
-	
-	conVarList["selected_heat"] = 1
-	
-	conVarList["vehiclebase"] = 3
-	conVarList["onecommander"] = 1
-	conVarList["commanderrepair"] = 1
-	conVarList["onecommanderevading"] = 0
-	conVarList["onecommanderhealth"] = 5000
-	conVarList["helicoptermodel"] = "Default"
-	conVarList["helicopterbarrels"] = 1
-	conVarList["helicopterspikestrip"] = 1
-	conVarList["helicopterbusting"] = 1
-	
-	conVarList["pursuittech"] = 1
-	conVarList["pursuittech_esf"] = 1
-	conVarList["pursuittech_emp"] = 1
-	conVarList["pursuittech_spikestrip"] = 1
-	conVarList["pursuittech_killswitch"] = 1
-	conVarList["pursuittech_repairkit"] = 1
-	conVarList["pursuittech_shockram"] = 1
-	conVarList["pursuittech_gpsdart"] = 1
-	conVarList["pursuittech_grappler"] = 1
-	
-	conVarList["minheat"] = 1
-	conVarList["maxheat"] = 6
-	
-	conVarList["bountypatrol"] = 1000
-	conVarList["bountysupport"] = 5000
-	conVarList["bountypursuit"] = 10000
-	conVarList["bountyinterceptor"] = 20000
-	conVarList["bountyair"] = 75000
-	conVarList["bountyspecial"] = 25000
-	conVarList["bountycommander"] = 100000
-	conVarList["bountyrhino"] = 50000
-	
-	local defaultvoicetable = {
-		"cop1, cop2, cop3, cop4, cop5", --Patrol
-		"cop1, cop2, cop3, cop4, cop5", --Support
-		"cop1, cop2, cop3, cop4, cop5", --Pursuit
-		"cop1, cop2, cop3, cop4, cop5", --Interceptor
-		"cop1, cop2, cop3, cop4, cop5", --Special
-		"commander1", --Commander
-		"rhino1", --Rhino
-		"air", --Air
-	}
-	
-	for index, v in pairs( {'Patrol', 'Support', 'Pursuit', 'Interceptor', 'Special', 'Commander', 'Rhino', 'Air'} ) do
-		local lowercaseUnit = string.lower( v )
-		local conVarKey = string.format( '%s_voice', lowercaseUnit )
-		local conVarKeyVoiceProfile = string.format( '%s_voiceprofile', lowercaseUnit )
-		conVarList[conVarKey] = defaultvoicetable[index]
-		conVarList[conVarKeyVoiceProfile] = "default"
-	end
-	
-	for _, v in pairs( {'Misc', 'Dispatch'} ) do
-		local lowercaseType = string.lower( v )
-		local conVarKey = string.format( '%s_voiceprofile', lowercaseType )
-		conVarList[conVarKey] = "default"
-	end
-	
-	local unitsheat1 = {
-		"default_crownvic.json", --Patrol
-		"", --Support
-		"", --Pursuit
-		"", --Interceptor
-		"", --Special
-		"", --Commander
-		"" --Rhino
-	}
-	
-	local unitsheat2 = {
-		"default_crownvic.json", --Patrol
-		"default_explorer.json", --Support
-		"", --Pursuit
-		"", --Interceptor
-		"", --Special
-		"", --Commander
-		"" --Rhino
-	}
-	
-	local unitsheat3 = {
-		"default_crownvic.json", --Patrol
-		"default_explorer.json", --Support
-		"", --Pursuit
-		"", --Interceptor
-		"", --Special
-		"", --Commander
-		"" --Rhino
-	}
-	
-	local unitsheat4 = {
-		"", --Patrol
-		"default_explorer.json", --Support
-		"", --Pursuit
-		"default_corvettec7.json", --Interceptor
-		"", --Special
-		"", --Commander
-		"" --Rhino
-	}
-	
-	local unitsheat5 = {
-		"", --Patrol
-		"", --Support
-		"", --Pursuit
-		"default_corvettec7.json", --Interceptor
-		"default_coloradozr2.json", --Special
-		"", --Commander
-		"default_rhinotruck.json" --Rhino
-	}
-	
-	local unitsheat6 = {
-		"", --Patrol
-		"", --Support
-		"", --Pursuit
-		"default_corvettec7.json", --Interceptor
-		"default_coloradozr2.json", --Special
-		"", --Commander
-		"default_rhinotruck.json" --Rhino
-	}
-	
-	for i = 1, MAX_HEAT_LEVEL do
-		local prevIterator = i - 1
-		
-		local timeTillNextHeatId = ((prevIterator == 0 and 'enabled') or prevIterator)
-		
-		for index, v in pairs( {'Patrol', 'Support', 'Pursuit', 'Interceptor', 'Special', 'Commander', 'Rhino'} ) do
-			local lowercaseUnit = string.lower( v )
-			local conVarKey = string.format( 'units%s%s', lowercaseUnit, i )
-			local chanceConVarKey = string.format( 'units%s%s_chance', lowercaseUnit, i )
-			local limitConVarKey = string.format( 'units%s%s_limit', lowercaseUnit, i )
-			
-			-------------------------------------------
-			if i == 1 then
-				conVarList[conVarKey] = unitsheat1[index]
-			elseif i == 2 then
-				conVarList[conVarKey] = unitsheat2[index]
-			elseif i == 3 then
-				conVarList[conVarKey] = unitsheat3[index]
-			elseif i == 4 then
-				conVarList[conVarKey] = unitsheat4[index]
-			elseif i == 5 then
-				conVarList[conVarKey] = unitsheat5[index]
-			elseif i == 6 then
-				conVarList[conVarKey] = unitsheat6[index]
-			else
-				conVarList[conVarKey] = ""
-			end
-			
-			conVarList[chanceConVarKey] = 100
-			conVarList[limitConVarKey] = 0
-		end
-		
-		for _, conVar in pairs( HEAT_SETTINGS ) do
-			local conVarKey = conVar .. ((conVar == 'timetillnextheat' and timeTillNextHeatId) or i)
-			local check = (conVar == "timetillnextheat")
-			
-			conVarList[conVarKey] = HEAT_DEFAULTS[conVar][tostring( ( check and timeTillNextHeatId ) or i )] or 0
-		end
-	end
-	
-	local LEGACY_CONVARS = {
-		["rhinos"] = {
-			Replacement = "unitsrhino",
-			HasNumber = true,
-		},
-	}
-	
-	local PROTECTED_CONVARS = {
-		['selected_heat'] = true,
-	}
-	
-	local DEFAULTS = {
-		['selected_heat'] = 1,
-		['minheat'] = 1,
-		['maxheat'] = 6
-	}
-	
-	local function _setConVar( cvar, value )
-		-- local valueType = type( value )
-		-- local cvarClass = GetConVar( cvar )
-		
-		-- if valueType == 'number' then
-		-- 	cvarClass:SetFloat( value )
-		-- else
-		-- 	cvarClass:SetString( value )
-		-- end
-		net.Start("UVUpdateSettings")
-		net.WriteTable({ ["unitvehicle_unit_" .. cvar] = value })
-		net.SendToServer()
-	end
-
-	--[[
-		- data is a table of convar names and values
-	]]
-	function UVUnitManagerLoadPresetV2(name, data)
-		local warned = false
-		local count = 0
-		local count1 = 0
-
-		for key, value in pairs(conVarList) do
-			local incomingData = data[key] or data["unitvehicle_unit_" .. key] or data["uvunitmanager_" .. key]
-			local cont
-
-			-- MUST BE FIXED TO USE UVUPDATESETTINGS
-			if string.match(key, "_chance") and not incomingData then
-				_setConVar( key, 100 )
-				cont = true 
-			end
-
-			if string.match(key, "_limit") and not incomingData then
-				_setConVar( key, 0 )
-				cont = true 
-			end
-
-			if cont then
-				cont = nil
-				continue
-			end
-
-			if not incomingData and GetConVar("unitvehicle_unit_" .. key) and not PROTECTED_CONVARS[key] then
-				_setConVar( key, DEFAULTS[key] or "" )
-			end
-		end
-
-		for incomingCV, incomingValue in pairs(data) do
-			-- local isOldFormat = string.match( incomingCV, "uvunitmanager_" )
-			-- incomingCV = isOldFormat and string.Split( incomingCV, "uvunitmanager_" )[2] or incomingCV
-			local variable = string.Split( incomingCV, "unitvehicle_unit_" )[2] or string.Split( incomingCV, "uvunitmanager_" )[2]
-
-			count1 = count1 + 1
-			--local cvNoNumber = string.sub( incomingCV, 1, string.len(incomingCV) - 1 )
-
-			local cvNoNumber = nil
-			local number = nil
-
-			local _incomingCV = variable
-
-			while string.match( _incomingCV:sub(-1), "%d" ) and _incomingCV ~= "" do
-				number = _incomingCV:sub( -1 )
-				cvNoNumber = _incomingCV:sub( 1, -2 )
-				_incomingCV = cvNoNumber
-			end
-
-			local numberIterator = 0
-
-			if LEGACY_CONVARS[_incomingCV] then
-				if not warned then
-					warned = true
-					local warning = string.format( UVString "tool.uvunitmanager.presets.legacy.warning", name )
-					notification.AddLegacy( warning, NOTIFY_UNDO, 5 )
-				end
-
-				if LEGACY_CONVARS[_incomingCV].HasNumber then
-					_setConVar( LEGACY_CONVARS[_incomingCV].Replacement .. number, incomingValue  )
-				else
-					_setConVar( LEGACY_CONVARS[_incomingCV].Replacement, incomingValue )
-				end
-			elseif not PROTECTED_CONVARS[variable] then
-				_setConVar( variable, incomingValue )
-			end
-		end
-	end
-
 	function UVUnitManagerExportPreset( name )
 		local jsonArray = {
 			['Name'] = name,
@@ -3435,28 +3642,75 @@ else -- CLIENT Settings | HUD/Options
 		file.CreateDir( 'unitvehicles/preset_import/uvunitmanager' )
 	end
 
-	timer.Simple(0, function()
-		local importFiles, _ = file.Find( 'data/unitvehicles/preset_import/uvunitmanager/*', 'GAME' )
-		
-		for _, impFile in pairs( importFiles ) do
-			local success = ProtectedCall(function()
-				local data = util.JSONToTable( file.Read( 'data/unitvehicles/preset_import/uvunitmanager/' .. impFile, 'GAME' ) )
-				
-				if type(data) == 'table' and (data.Name and data.Data) then
-					-- if presets.Exists("units", data.Name) then return end
-					presets.Add( 'units', data.Name, data.Data )
-				else
-					error('Malformed JSON data!')
-				end
-				
-				-- file.Delete( 'unitvehicles/preset_import/uvunitmanager/' .. impFile, 'DATA' )
-			end)
+	-- Exporting presets from presets lib into preset_import (new system)
+	timer.Simple(5, function()
+		if not LocalPlayer():IsListenServerHost() then return end
 
-			-- if success then
-				-- MsgC( Color(0, 255, 0), "[Unit Vehicles (uvunitmanager)]: Added \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
-			-- else
-				-- MsgC( Color(255, 0, 0), "[Unit Vehicles (uvunitmanager)]: Failed to add \"" .. string.Split( impFile, '.json' )[1] .. "\" to the presets!\n" )
-			-- end
+		local oldPresets = table.Copy( presets.GetTable("units") )
+		local shownWarn = false
+
+		for name, data in pairs(oldPresets) do
+			local found
+
+			if not UVPresets.uvunitmanager then break end
+			if not shownWarn then
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Local presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!\nPresets that share the same name as presets from currently mounted UV addons have been ignored.\nThis is the last time this message will be displayed.")
+				shownWarn = true
+			end
+
+			presets.Remove( "units", name )
+			
+			for _, presetName in pairs( UVPresets.uvunitmanager ) do
+				if name == presetName then
+					found = true
+					break
+				end
+			end
+
+			if found then continue end
+
+			local presetData = {
+				Name = name,
+				Data = data
+			}
+
+			if not file.IsDir( 'unitvehicles/preset_import/uvunitmanager', 'DATA' ) then
+				file.CreateDir( 'unitvehicles/preset_import/uvunitmanager' )
+			end
+
+			file.Write( 'unitvehicles/preset_import/uvunitmanager/' .. string.lower( name ) .. '.json', util.TableToJSON( presetData ) )
+		end
+
+		oldPresets = table.Copy( presets.GetTable("pursuittech") )
+
+		for name, data in pairs(oldPresets) do
+			local found
+			if not UVPresets.uvpursuittech then break end
+			if not shownWarn then
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Local presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!\nPresets share the same name as presets from currently mounted UV addons have been ignored.\nThis is the last time this message will be displayed.")
+				shownWarn = true
+			end
+			presets.Remove( "pursuittech", name )
+
+			for _, presetName in pairs( UVPresets.uvpursuittech ) do
+				if name == presetName then
+					found = true
+					break
+				end
+			end
+
+			if found then continue end
+
+			local presetData = {
+				Name = name,
+				Data = data
+			}
+
+			if not file.IsDir( 'unitvehicles/preset_import/uvpursuittech', 'DATA' ) then
+				file.CreateDir( 'unitvehicles/preset_import/uvpursuittech' )
+			end
+
+			file.Write( 'unitvehicles/preset_import/uvpursuittech/' .. string.lower( name ) .. '.json', util.TableToJSON( presetData ) )
 		end
 	end)
 
@@ -3782,6 +4036,44 @@ else -- CLIENT Settings | HUD/Options
 		end
 	end)
 
+	net.Receive('UVPresets_Remove', function()
+		local type = net.ReadString()
+		local fileName = net.ReadString()
+
+		if UVPresets[type] then
+			UVPresets[type][fileName] = nil
+		end
+
+		hook.Run('UVPresetsEvent', 'Remove', type, fileName)
+	end)
+
+	net.Receive('UVPresets_Add', function()
+		local type = net.ReadString()
+		local fileName = net.ReadString()
+		local name = net.ReadString()
+
+		if not UVPresets[type] then UVPresets[type] = {} end
+		UVPresets[type][fileName] = name
+
+		hook.Run('UVPresetsEvent', 'Add', type, fileName, name)
+	end)
+
+	net.Receive('UVPresets_Set', function()
+		local type = net.ReadString()
+		local messageSize = net.ReadUInt(16)
+		local recvData = net.ReadData(messageSize)
+
+		local setTable = util.JSONToTable( util.Decompress( recvData ) )
+
+		if type == "__ALL" then
+			UVPresets = setTable
+		else
+			UVPresets[type] = setTable
+		end
+
+		hook.Run('UVPresetsEvent', 'Set', type, setTable)
+	end)
+
 	unitvehicles = true
 
 	local UVHUDCopsDamaged = Material("unitvehicles/icons/COPS_DAMAGED_ICON.png")
@@ -3842,6 +4134,11 @@ else -- CLIENT Settings | HUD/Options
 	end)
 
 	concommand.Add("uv_spawn_as_unit", function(ply)
+		if RandomPlayerUnits:GetBool() and not UVGame then
+			UVMenu.UnitSelect( {}, {}, {}, UVHUDCopMode )
+			return
+		end
+
 		net.Start("UVHUDRespawnInUVGetInfo")
 		net.SendToServer()
 	end)
@@ -3867,7 +4164,7 @@ else -- CLIENT Settings | HUD/Options
 
 	net.Receive( "UVFined", function()
 		local finenr = net.ReadUInt(2)
-		local finesdue = net.ReadInt(32)
+		local finesdue = net.ReadUInt(32)
 		hook.Run( 'UIEventHook', 'pursuit', 'onFined', finenr, finesdue )
 	end)
 
@@ -3994,14 +4291,6 @@ else -- CLIENT Settings | HUD/Options
 		if UVHUDDisplayPursuit and not UVPlayingRace then
 			UVSoundBusted( UVHeatLevel )
 		end
-	end)
-
-	net.Receive("UVHUDCopMode", function()
-		UVHUDCopMode = true
-	end)
-
-	net.Receive("UVHUDStopCopMode", function()
-		UVHUDCopMode = nil
 	end)
 
 	net.Receive("UVHUDCopModeBusting", function()
@@ -4248,6 +4537,12 @@ else -- CLIENT Settings | HUD/Options
 				end
 			end
 		else
+			if UVLastHeatChange == -math.huge then
+				UVResetRandomHeatTrack()
+			end
+
+			UVLastHeatChange = UVLastHeatChange + RealFrameTime()
+
 			UVHeatPlayTransition = false
 			UVHeatPlayIntro = true
 		end
@@ -4265,6 +4560,8 @@ else -- CLIENT Settings | HUD/Options
 		local _activeScope = IsValid(_scopeVeh) and UVGetScope(_scopeVeh) or nil
 
 		IsPursuitActive = UV_GetInPursuitCount() > 0
+
+		UVHUDCopMode = table.HasValue( UnitTable, UVGetVehicle( LocalPlayer() ) )
 
 		if UVHUDCopMode and not _activeScope then
 			local domScope = UV_GetDominantScope()
@@ -4316,6 +4613,27 @@ else -- CLIENT Settings | HUD/Options
 				UVHUDDisplayNotification = nil
 				UVHUDDisplayHidingPrompt = nil
 			end
+		else
+			UVHUDDisplayPursuit = nil
+		end
+
+		if IsUVFrozen then
+			local isInRaceMusic = (not RacingMusicPriority:GetBool()) and RacingMusic:GetBool() and UVHUDDisplayRacing
+			local isOutsideRaceMusic = RacingThemeOutsideRace:GetBool() and RacingMusic:GetBool()
+			
+			if UVPlayingRace then
+				if isInRaceMusic or isOutsideRaceMusic then
+					return
+				end
+			end
+
+			UVStopSound()
+			if UVSoundLoop then
+				UVSoundLoop:Stop()
+				UVSoundLoop = nil
+			end
+
+			return
 		end
 
 		if not UVBustedState then
@@ -4612,10 +4930,7 @@ else -- CLIENT Settings | HUD/Options
 							local curblip = GMinimap:FindBlipByID("UVBlip" .. ent:EntIndex())
 							if not curblip then continue end
 
-							if ((UVHUDCopMode and UVHUDDisplayCooldown) or 
-								(not ent.inunitview) and 
-								not ((not GetConVar("unitvehicle_unit_onecommanderevading"):GetBool()) and UVOneCommanderActive)) 
-							then
+							if (UVHUDCopMode and UVHUDDisplayCooldown) or not ent.inunitview then
 								curblip.alpha = 0
 							else
 								curblip.alpha = 255
@@ -4760,7 +5075,7 @@ else -- CLIENT Settings | HUD/Options
 
 	end)
 
-	function UVMarkAllLocationsPB()
+	function UVMarkAllLocationsPB(pbs)
 		if not UVHUDMarkedPursuitBreakers then
 			UVHUDMarkedPursuitBreakers = {}
 		else
@@ -4769,20 +5084,10 @@ else -- CLIENT Settings | HUD/Options
 			end
 		end
 
-		local saved_pbs = file.Find("unitvehicles/pursuitbreakers/"..game.GetMap().."/*.json", "DATA")
-		for k,jsonfile in pairs(saved_pbs) do
-			local JSONData = file.Read( "unitvehicles/pursuitbreakers/"..game.GetMap().."/"..jsonfile, "DATA" )
-			if not JSONData then return end
-
-			local rbdata = util.JSONToTable(JSONData, true) --Load PB
-
-			local name = jsonfile
-			local location = rbdata.Location or rbdata.Maxs
-			if not location then return end
-
+		for k,pb in pairs(pbs) do
 			local tabletoinsert = {}
-			tabletoinsert.location = location
-			tabletoinsert.name = name
+			tabletoinsert.location = pb.location
+			tabletoinsert.name = pb.name
 
 			table.insert(UVHUDMarkedPursuitBreakers, tabletoinsert)
 
@@ -4794,7 +5099,7 @@ else -- CLIENT Settings | HUD/Options
 		end
 	end
 
-	function UVMarkAllLocationsRS()
+	function UVMarkAllLocationsRS(rss)
 		if not UVHUDMarkedRepairShops then
 			UVHUDMarkedRepairShops = {}
 		else
@@ -4803,20 +5108,10 @@ else -- CLIENT Settings | HUD/Options
 			end
 		end
 
-		local saved_rss = file.Find("unitvehicles/pursuitbreakers/"..game.GetMap().."/*.json", "DATA")
-		for k,jsonfile in pairs(saved_rss) do
-			local JSONData = file.Read( "unitvehicles/pursuitbreakers/"..game.GetMap().."/"..jsonfile, "DATA" )
-			if not JSONData then return end
-
-			local rbdata = util.JSONToTable(JSONData, true) --Load RS
-
-			local name = jsonfile
-			local location = rbdata.Location or rbdata.Maxs
-			if not location then return end
-
+		for k,rs in pairs(rss) do
 			local tabletoinsert = {}
-			tabletoinsert.location = location
-			tabletoinsert.name = name
+			tabletoinsert.location = rs.location
+			tabletoinsert.name = rs.name
 
 			table.insert(UVHUDMarkedRepairShops, tabletoinsert)
 
@@ -4828,7 +5123,7 @@ else -- CLIENT Settings | HUD/Options
 		end
 	end
 
-	function UVMarkAllLocations()
+	function UVMarkAllLocations(rbs)
 		if not UVHUDRoadblocks then
 			UVHUDRoadblocks = {}
 		else
@@ -4837,20 +5132,10 @@ else -- CLIENT Settings | HUD/Options
 			end
 		end
 
-		local saved_roadblocks = file.Find("unitvehicles/roadblocks/"..game.GetMap().."/*.json", "DATA")
-		for k,jsonfile in pairs(saved_roadblocks) do
-			local JSONData = file.Read( "unitvehicles/roadblocks/"..game.GetMap().."/"..jsonfile, "DATA" )
-			if not JSONData then return end
-
-			local rbdata = util.JSONToTable(JSONData, true) --Load Roadblock
-
-			local name = jsonfile
-			local location = rbdata.Location or rbdata.Maxs
-			if not location then return end
-
+		for k,rb in pairs(rbs) do
 			local tabletoinsert = {}
-			tabletoinsert.location = location
-			tabletoinsert.name = name
+			tabletoinsert.location = rb.location
+			tabletoinsert.name = rb.name
 
 			table.insert(UVHUDRoadblocks, tabletoinsert)
 
@@ -5053,7 +5338,7 @@ else -- CLIENT Settings | HUD/Options
 		local cooldown = net.ReadInt(16)
 		local msg = net.ReadString()
 
-		if vehicle == "" then
+		if vehicle == "" and msg ~= "uv.chase.select.spawning.cooldown.relocate" then
 			LocalPlayer().uvspawningunit = nil
 		else
 			LocalPlayer().uvspawningunit = {
@@ -5064,11 +5349,24 @@ else -- CLIENT Settings | HUD/Options
 			
 			local rm = "uv.chase.select.spawning.cooldown.random"
 
+			if msg == "uv.chase.select.spawning.cooldown.relocate" then
+				UVHUD_AddTimedBar(
+					"unit_spawn",
+					cooldown,
+					msg,
+					10,
+					string.format( UVString("uv.chase.select.spawning.cooldown2"), UVReplaceKeybinds( "[key:unitvehicle_keybind_resetposition]", "Big" ) ),
+					nil
+				)
+				return
+			end
+
 			UVHUD_AddTimedBar( "unit_spawn", cooldown, msg, 10, string.format( UVString("uv.chase.select.spawning.cooldown2"), UVReplaceKeybinds( "[key:unitvehicle_keybind_resetposition]", "Big" ) ), msg ~= rm and {vehicle} or nil )
 		end
 	end)
 
 	net.Receive("UVHUDRespawnInUVSelect", function()
+		local isInUnitVehicle = net.ReadBool()
 		local UnitsPatrol     = net.ReadString()
 		local UnitsSupport    = net.ReadString()
 		local UnitsPursuit    = net.ReadString()
@@ -5109,7 +5407,7 @@ else -- CLIENT Settings | HUD/Options
 
 		UVMenu.OpenMenu(function()
 			UVMenu.PlaySFX("menuopen")
-			UVMenu.UnitSelect(unittable, unittablename, unittablenpc)
+			UVMenu.UnitSelect(unittable, unittablename, unittablenpc, isInUnitVehicle)
 		end, true)
 	end)
 
@@ -5226,6 +5524,8 @@ else -- CLIENT Settings | HUD/Options
 			end)
 			return
 		end
+
+		UVSoundEscaped(UVHeatLevel)
 		hook.Run( 'UIEventHook', 'pursuit', 'onCopEscapedDebrief', debrieftable )
 	end)
 
