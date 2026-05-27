@@ -12,7 +12,7 @@ UV.PNotes = {
 Date = { year = 2026, month = 5, day = 27 },
 Text = [[
 **Additions**
-- Added a new toggle: *Workshop Priority*
+- Added a new toggle: *Workshop Priority*, found inside <color=255,255,0>Settings / UV Settings / Data Import</color>
       |-- If enabled, Workshop content will be prioritized over Local content
       |-- Disable this if you want to use/work on local content instead of Workshop content
       |-- You will need to reload the map for the change to take effect.
