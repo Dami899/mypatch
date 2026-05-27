@@ -3650,14 +3650,15 @@ else -- CLIENT Settings | HUD/Options
 		local shownWarn = false
 
 		for name, data in pairs(oldPresets) do
-			if not shownWarn then
-				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!\nPresets that share the same name as presets from currently mounted UV addons have been ignored.\nThis is the last time this message will be displayed.")
-				shownWarn = true
-			end
-
 			local found
 
 			if not UVPresets.uvunitmanager then break end
+			if not shownWarn then
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Local presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!\nPresets that share the same name as presets from currently mounted UV addons have been ignored.\nThis is the last time this message will be displayed.")
+				shownWarn = true
+			end
+
+			presets.Remove( "units", name )
 			
 			for _, presetName in pairs( UVPresets.uvunitmanager ) do
 				if name == presetName then
@@ -3678,21 +3679,18 @@ else -- CLIENT Settings | HUD/Options
 			end
 
 			file.Write( 'unitvehicles/preset_import/uvunitmanager/' .. string.lower( name ) .. '.json', util.TableToJSON( presetData ) )
-
-			presets.Remove( "units", name )
 		end
 
-		oldPresets = presets.GetTable("pursuittech")
+		oldPresets = table.Copy( presets.GetTable("pursuittech") )
 
 		for name, data in pairs(oldPresets) do
+			local found
+			if not UVPresets.uvpursuittech then break end
 			if not shownWarn then
-				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!\nPresets share the same name as presets from currently mounted UV addons have been ignored.\nThis is the last time this message will be displayed.")
+				chat.AddText( Color( 9, 255, 0), "[Unit Vehicles]: Local presets from the old system have been imported into the new system. You may need to reload the map for the presets to appear!\nPresets share the same name as presets from currently mounted UV addons have been ignored.\nThis is the last time this message will be displayed.")
 				shownWarn = true
 			end
-
-			local found
-
-			if not UVPresets.uvpursuittech then break end
+			presets.Remove( "pursuittech", name )
 
 			for _, presetName in pairs( UVPresets.uvpursuittech ) do
 				if name == presetName then
@@ -3713,8 +3711,6 @@ else -- CLIENT Settings | HUD/Options
 			end
 
 			file.Write( 'unitvehicles/preset_import/uvpursuittech/' .. string.lower( name ) .. '.json', util.TableToJSON( presetData ) )
-
-			presets.Remove( "pursuittech", name )
 		end
 	end)
 
