@@ -32,9 +32,9 @@ Text = [[
 
 - Reworked *data/content loading system*
       |-- UV workshop content is now treated as "mountable" content
+      |-- Client now reflects content available on the server in both Workshop and Local content data
       |-- This means that items in your local 'data' folder are separated from Workshop content (local data takes priority over Workshop content)
       |-- You may have to clean up your local 'data' folder to remove any Workshop files that are no longer needed in the 'data' folder; they are now loaded from the addons themselves
-      |-- Client now reflects content available on the server in both Workshop and Local content data
       |-- This change has also reworked the way presets are loaded and saved:
             |-- Presets are now saved in & loaded from the <color=255,255,0>data/unitvehicles/preset_import</color> folder
             |-- When you load up a map for the first time after updating, the local presets you had saved will be imported into the new system, after which the old presets will be deleted
