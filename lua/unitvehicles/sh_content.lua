@@ -1,5 +1,6 @@
 UVContent = {}
 UVContentReady = false
+UVWorkshopPriority = CreateConVar("unitvehicle_workshoppriority", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Unit Vehicles: If set to 1, Workshop content will be prioritized over Local content")
 
 local WS_CONTENT_ROOT = "data_static/uv_import/"
 local LOCAL_CONTENT_ROOT = "unitvehicles/"
@@ -31,11 +32,12 @@ local load_queue = {}
 
 local function scanFolder( folder, ptrTable, searchType )
     local files, subfolders = file.Find( folder .. "*", searchType )
+    local prioSearchType = UVWorkshopPriority:GetBool() and "GAME" or "DATA"
 
     if next( subfolders ) == nil then
         for _, file in ipairs( files ) do
-            -- DATA is local file and takes prio over workshop content
-            if searchType == "DATA" then
+            -- Remove same-named lower-priority entries so the stack has one winner per filename
+            if searchType == prioSearchType then
                 for i, v in ipairs( ptrTable ) do
                     if v.file == file then
                         table.remove( ptrTable, i )
@@ -79,16 +81,28 @@ if SERVER then
     local _, wsContentFolders = file.Find( WS_CONTENT_ROOT .. "*", "GAME" )
     local _, localContentFolders = file.Find( LOCAL_CONTENT_ROOT .. "*", "DATA" )
 
-    MsgC(Color(0,255,0), "\n[Unit Vehicles] Mounting workshop content...\n")
+    local function mountWorkshop()
+        MsgC(Color(0,255,0), "\n[Unit Vehicles] Mounting workshop content...\n")
 
-    for _, folder in ipairs( wsContentFolders ) do
-        scanFolder( WS_CONTENT_ROOT .. folder .. "/uvdata/", UVContent, "GAME" )
-        MsgC(Color(0,255,0), "\tMounted workshop content: " .. folder .. "\n")
+        for _, folder in ipairs( wsContentFolders ) do
+            scanFolder( WS_CONTENT_ROOT .. folder .. "/uvdata/", UVContent, "GAME" )
+            MsgC(Color(0,255,0), "\tMounted workshop content: " .. folder .. "\n")
+        end
     end
 
-    MsgC(Color(0,255,0), "\n[Unit Vehicles] Mounting local content...\n")
+    local function mountLocal()
+        MsgC(Color(0,255,0), "\n[Unit Vehicles] Mounting local content...\n")
 
-    scanFolder( LOCAL_CONTENT_ROOT, UVContent, "DATA" )
+        scanFolder( LOCAL_CONTENT_ROOT, UVContent, "DATA" )
+    end
+
+    if UVWorkshopPriority:GetBool() then
+        mountLocal()
+        mountWorkshop()
+    else
+        mountWorkshop()
+        mountLocal()
+    end
 
     UVContentReady = true
 
@@ -242,17 +256,28 @@ function UV_AddFile( path, fileName, directory, searchType )
     end
 
     -- We don't want to network the file if it's already in the stack (since we only send list of files to clients)
-    -- We also don't need to change the stack if the file in stack has equal priority (DATA > GAME)
+    -- We also don't need to change the stack if the file in stack already wins for the current priority mode
     local shouldNetwork = true
+    local prioritySearchType = UVWorkshopPriority:GetBool()
 
     for i, v in ipairs( stack ) do
         if v.file == fileName then
-            if v.searchType == 'DATA' or ( v.searchType == 'GAME' and searchType == 'GAME' ) then
-                hook.Run( "UVContentEvent", "Refresh", path, fileName )
-                return
-            elseif searchType == 'DATA' then
-                table.remove( stack, i )
-                shouldNetwork = false
+            if wsPrio then
+                if v.searchType == 'GAME' or ( v.searchType == 'DATA' and searchType == 'DATA' ) then
+                    hook.Run( "UVContentEvent", "Refresh", path, fileName )
+                    return
+                elseif searchType == 'GAME' then
+                    table.remove( stack, i )
+                    shouldNetwork = false
+                end
+            else
+                if v.searchType == 'DATA' or ( v.searchType == 'GAME' and searchType == 'GAME' ) then
+                    hook.Run( "UVContentEvent", "Refresh", path, fileName )
+                    return
+                elseif searchType == 'DATA' then
+                    table.remove( stack, i )
+                    shouldNetwork = false
+                end
             end
 
             break
