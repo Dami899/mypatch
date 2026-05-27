@@ -13,7 +13,8 @@ Date = { year = 2026, month = 5, day = 27 },
 Text = [[
 **Fixes**
 - Fixed minor inconsistencies with the Creator Tools
-}, 
+]],
+},
 ["1.7.1"] = {
 Date = { year = 2026, month = 5, day = 27 },
 Text = [[
