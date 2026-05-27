@@ -71,6 +71,9 @@ For a long while now, we have been considering of expanding the playability of U
 With that said, we'd like to announce that we are planning out a <color=255,255,0>gamemode</color> for Unit Vehicles! It will be a full-fledged gamemode, with its own set of features, mechanics and progression.
 
 The plan is to allow players to be both a Unit and a Racer, having two different paths to progress through; similar to the "Need For Speed: Rivals" formula *( with our own features and twists to it ;) )*.
+Each map will have its own objectives, races, challenges, etc.
+We aim to allow players to customize many aspects of their gameplay and easily introduce custom content, making each experience unique and tailored by the player.
+
 The cores are still being established so we don't really have a 'concrete' idea of what it will look like just yet - this is where you guys come in!
 We will continue making adjustments and reworking bits of Unit Vehicles to make it more flexible and "expandable" for such a thing.
 
