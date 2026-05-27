@@ -8,6 +8,13 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
+["1.7.1"] = {
+      Date = { year = 2026, month = 5, day = 27 },
+      Text = [[
+      **Fixes**
+      - Added a new toggle 
+      ]],
+},    
 ["1.7.0"] = {
 Date = { year = 2026, month = 5, day = 27 },
 Type = "Minor",
