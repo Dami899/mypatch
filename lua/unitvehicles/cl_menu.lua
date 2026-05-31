@@ -1660,7 +1660,10 @@ UVMenu.FirstTimeSetupPreset = function()
 				{ type = "infosimple", text = "uv.ft.preset.desc" },
 				{ type = "info", text = "uv.ft.preset.desc2" },
 				{ type = "presets", preset = "uvunitmanager", importonly = true, func = function(self2, name, preset)
-					UVUnitManagerLoadPresetV2(name, preset)
+					net.Start("UVPresets_Load")
+					net.WriteString('uvunitmanager')
+					net.WriteString(name)
+					net.SendToServer()
 					UVMenu.PlaySFX("confirm")
 					UVMenu.CloseCurrentMenu(true)
 					timer.Simple(tonumber(GetConVar("uvmenu_close_speed"):GetString()) or 0.2, function()
