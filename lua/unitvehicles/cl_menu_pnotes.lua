@@ -8,6 +8,13 @@ UV = UV or {}
 -- },
 
 UV.PNotes = {
+["1.7.3"] = {
+Date = { year = 2026, month = 5, day = 31 },
+Text = [[
+**Fixes**
+- Fixed first-time setup presets causing errors
+]],
+},
 ["1.7.2"] = {
 Date = { year = 2026, month = 5, day = 27 },
 Text = [[
