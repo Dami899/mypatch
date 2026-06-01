@@ -1200,6 +1200,7 @@ if SERVER then
 	end
 	
 	function UVChatterPursuitStartAcknowledge(self)
+		UVResetChatterQueue()
 		if #UVWantedTableVehicle > 1 then
 			return UVSoundChatter(Entity(1), "nil", "pursuitstartacknowledgemultipleenemies", nil, "DISPATCH")
 		else

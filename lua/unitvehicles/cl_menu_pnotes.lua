@@ -13,9 +13,9 @@ Date = { year = 2026, month = 6, day = 1 },
 Text = [[
 **Fixes**
 - Fixed Chatter erroring if emergency chip was not found
+- Fixed Chatter spamming when multiple suspects are in a pursuit
 ]],
-}, 
-}
+},
 ["1.7.3"] = {
 Date = { year = 2026, month = 5, day = 31 },
 Text = [[
