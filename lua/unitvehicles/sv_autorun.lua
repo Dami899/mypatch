@@ -4312,6 +4312,10 @@ function UVNavigateDVWaypoint(self, vectors, full)
 			end
 		end
 
+		if added > 0 and added < maxNewWaypoints then 
+			table.insert( self.tableroutetoenemy, vectors )
+		end
+
 		return self.tableroutetoenemy
 	end
 end
